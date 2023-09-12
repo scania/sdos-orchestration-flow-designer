@@ -1,0 +1,69 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  &__project {
+    &-heading {
+    }
+
+    &-summary {
+      margin-top: 16px;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    &__user {
+      &-name,
+      &-role {
+        color: var(--tds-grey-600);
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 16px;
+        letter-spacing: 0.96px;
+        text-transform: uppercase;
+      }
+      &-role {
+        float: right;
+      }
+    }
+
+    &-help {
+      float: right;
+      color: var(--tds-blue-900);
+
+      :global(.tds-mode-dark) & {
+        color: var(--tds-blue-300);
+      }
+    }
+  }
+}
+
+.tabs {
+}
+
+.content {
+  margin-top: 16px;
+  &__heading {
+  }
+
+  &__main {
+    padding-top: 32px;
+    padding-left: 32px;
+    &__buttons {
+      display: flex;
+      gap: 24px;
+    }
+    &__cards {
+      margin-top: 32px;
+      display: flex;
+      align-items: flex-start;
+      align-content: flex-start;
+      gap: 48px;
+      align-self: stretch;
+      flex-wrap: wrap;
+    }
+  }
+}

@@ -1,0 +1,1 @@
+:host tds-header-item{display:none}:host tds-header-item ::slotted(*){background-image:var(--tds-background-image-scania-symbol-svg), var(--tds-background-image-scania-symbol-png);background-size:30px auto;background-position:center;background-repeat:no-repeat}@media (min-width: 992px){:host tds-header-item{display:block}}

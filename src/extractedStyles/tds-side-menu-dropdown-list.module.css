@@ -1,0 +1,1 @@
+:host{display:block;width:190px}:host [role=list]{padding:0;margin:0;list-style:none;border-radius:none;background-color:var(--tds-header-app-launcher-menu-bg)}:host .state-collapsed ::slotted(*){border-bottom:1px solid var(--tds-sidebar-side-menu-bottom-menu-border-top)}

@@ -1,0 +1,117 @@
+@import url("../../node_modules/@scania/tegel/dist/tegel/tegel.css");
+@import url("https://cdn.digitaldesign.scania.com/icons/webfont/css/sdds-icons.css");
+@import url("./reset.css");
+@import url("./utility.css");
+
+/* below taken from https://github.com/scania-digital-design-system/tegel-react-demo*/
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.App.tds-mode-dark {
+  color: var(--tds-grey-100);
+  background-color: var(--tds-grey-958);
+}
+
+.App.tds-mode-dark.tds-mode-primary {
+  color: var(--tds-grey-100);
+  background-color: var(--tds-grey-958);
+}
+.App.tds-mode-dark.tds-mode-secondary {
+  color: var(--tds-grey-100);
+  background-color: var(--tds-grey-900);
+}
+
+.announcement-banner {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+}
+
+tds-header {
+  position: sticky;
+  top: 68px;
+}
+
+.side-menu-and-main {
+  display: flex;
+  flex-grow: 1;
+}
+
+.side-menu-and-main {
+  display: flex;
+  flex-grow: 1;
+}
+
+.wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 600px;
+  justify-content: center;
+  padding: 128px 0;
+}
+
+.switcher-container {
+  position: absolute;
+  height: 60px;
+  top: calc(96px + 68px);
+  right: 32px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tooltip-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tooltip-paragraph b,
+i {
+  padding: 0 2px;
+}
+
+.popover-container {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.tooltip-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media screen and (max-width: 650px) {
+  .tabs {
+    width: 300px;
+    margin: auto;
+  }
+}
+
+.mobile-nav-item {
+  display: none;
+}
+
+@media screen and (max-width: 992px) {
+  .mobile-nav-item {
+    display: block;
+  }
+}
+
+@media (min-width: 992px) {
+  tds-side-menu {
+    /* We suggest you attach the persistent side menu to your layout like this: */
+    height: calc(100vh - calc(64px + 68px));
+    position: sticky;
+    top: calc(64px + 68px);
+    left: 0;
+  }
+}

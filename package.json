@@ -1,0 +1,37 @@
+{
+  "name": "orchestration-flow-designer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "postinstall": "node extractStyles.js"
+  },
+  "dependencies": {
+    "@scania/tegel": "^0.0.11",
+    "@types/node": "20.5.0",
+    "@types/react": "18.2.20",
+    "@types/react-dom": "18.2.7",
+    "classnames": "^2.3.2",
+    "next": "13.4.17",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "sass": "^1.66.1",
+    "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^7.3.1",
+    "@storybook/addon-interactions": "^7.3.1",
+    "@storybook/addon-links": "^7.3.1",
+    "@storybook/addon-onboarding": "^1.0.8",
+    "@storybook/blocks": "^7.3.1",
+    "@storybook/nextjs": "^7.3.1",
+    "@storybook/react": "^7.3.1",
+    "@storybook/testing-library": "^0.2.0",
+    "storybook": "^7.3.1"
+  }
+}

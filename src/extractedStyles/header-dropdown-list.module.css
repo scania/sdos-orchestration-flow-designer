@@ -1,0 +1,1 @@
+:host{display:block;width:190px;padding:0;margin:0;list-style:none;border-radius:unset;background-color:var(--tds-header-app-launcher-menu-bg)}@media all and (max-width: 384px){:host{width:100vw}}:host([size=lg]){width:320px}
