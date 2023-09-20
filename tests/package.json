@@ -1,0 +1,24 @@
+{
+  "name": "ofd-cypress-tests",
+  "version": "1.0.0",
+  "description": "Test suite for orchestration flow designer based on Cypress for end-2-end testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kim Askling",
+  "license": "ISC",
+  "dependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "latest",
+    "@bahmutov/cypress-esbuild-preprocessor": "latest",
+    "cypress": "latest",
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "cypress-mochawesome-reporter": "^3.6.0"
+  },
+  "cypress-cucumber-preprocessor": {
+    "filterSpecs": true,
+    "omitFiltered": true
+  }
+}

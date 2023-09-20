@@ -9,7 +9,8 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "postinstall": "node extractStyles.js"
+    "test": "cd tests && npx cypress run",
+    "postinstall": "(node extractStyles.js) && (cd tests && npm install)"
   },
   "dependencies": {
     "@scania/tegel": "^0.0.11",
