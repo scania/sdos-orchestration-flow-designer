@@ -9,8 +9,8 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test": "cd tests && npx cypress run",
-    "postinstall": "(node extractStyles.js) && (cd tests && npm install)"
+    "test": "npx cypress run",
+    "cypress": "npx cypress open"
   },
   "dependencies": {
     "@scania/tegel": "^0.0.11",
@@ -25,6 +25,9 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^16.0.3",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
+    "cypress": "^12.17.4",
     "@storybook/addon-essentials": "^7.3.1",
     "@storybook/addon-interactions": "^7.3.1",
     "@storybook/addon-links": "^7.3.1",
@@ -33,6 +36,11 @@
     "@storybook/nextjs": "^7.3.1",
     "@storybook/react": "^7.3.1",
     "@storybook/testing-library": "^0.2.0",
-    "storybook": "^7.3.1"
+    "storybook": "^7.3.1",
+    "cypress-mochawesome-reporter": "^3.6.0"
+  },
+  "cypress-cucumber-preprocessor": {
+    "filterSpecs": true,
+    "omitFiltered": true
   }
 }
