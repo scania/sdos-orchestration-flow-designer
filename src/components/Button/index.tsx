@@ -2,6 +2,7 @@ import classNames from "classnames";
 import styles from "../../extractedStyles/tds-button.module.css";
 
 type ButtonProps = {
+  id?: string,
   type: "button" | "submit" | "reset";
   size?: "small" | "medium" | "large";
   variant?: "primary" | "secondary" | "danger";
@@ -12,6 +13,7 @@ type ButtonProps = {
 };
 
 const Button: React.FC<ButtonProps> = ({
+  id,
   type,
   size = "medium",
   variant = "primary",
@@ -34,6 +36,7 @@ const Button: React.FC<ButtonProps> = ({
       )}
     >
       <button
+        id={id}
         type="reset"
         // className="secondary lg sc-tds-button "
         className={classNames(

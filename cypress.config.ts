@@ -49,7 +49,7 @@ export default defineConfig({
   // Specific for e2e tests
   e2e: {
     setupNodeEvents,
-    specPattern: "**/features/**/*.feature",
+    specPattern: "cypress/features/**/*.feature",
     baseUrl: "http://localhost:3000"
   }
 });

@@ -1,4 +1,4 @@
-import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
+import { Then } from "@badeball/cypress-cucumber-preprocessor";
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -6,11 +6,7 @@ import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-Given( "OFD home page is in view", () => {
-    cy.visit('/');
-    cy.get('h1')
-    .should("contain.text", "ORCHESTRATION FLOW DESIGNER");
-});
+
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -18,31 +14,6 @@ Given( "OFD home page is in view", () => {
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-When( "the button {string} is clicked", (text: string) => {
-    cy.contains(text).click();
-});
-
-
-When( "{string} is entered in the text field with placeholder {string}", 
-(text:string, field: string) => {
-    cy.get('input[placeholder="' + field + '"]').type(text);
-});
-
-
-When( "{string} is entered in the text area with placeholder {string}", 
-(text:string, field: string) => {
-    cy.get('textarea[placeholder="' + field + '"]').type(text);
-});
-
-
-When( "the text field with placeholder {string} is cleared", (field:string) => {
-    cy.get('input[placeholder="' + field + '"]').clear();
-});
-
-
-When( "the text area with placeholder {string} is cleared", (field:string) => {
-    cy.get('textarea[placeholder="' + field + '"]').clear();
-});
 
 
 // ------------------------------------------------------------------------------------
@@ -51,7 +22,10 @@ When( "the text area with placeholder {string} is cleared", (field:string) => {
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-Then( "the home button should be visible", () => {
-    cy.get("tds-header-brand-symbol")
-    .should("be.visible");
+Then( "the workspace page should be visible", () => {
+    cy.get("h1").contains("Workspace");
+});
+
+Then( "a new graph should open in the workspace", () => {
+    cy.get("workspace");
 });

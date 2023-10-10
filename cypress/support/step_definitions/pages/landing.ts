@@ -1,4 +1,4 @@
-import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
+import { When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -6,11 +6,7 @@ import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-Given( "OFD home page is in view", () => {
-    cy.visit('/');
-    cy.get('h1')
-    .should("contain.text", "ORCHESTRATION FLOW DESIGNER");
-});
+
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -18,30 +14,15 @@ Given( "OFD home page is in view", () => {
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-When( "the button {string} is clicked", (text: string) => {
-    cy.contains(text).click();
+When( "the modal's close button is clicked", () => {
+    // This button can only be found in shadow dom
+    cy.get("button.tds-modal-close", {"includeShadowDom": true}).click();
 });
 
 
-When( "{string} is entered in the text field with placeholder {string}", 
-(text:string, field: string) => {
-    cy.get('input[placeholder="' + field + '"]').type(text);
-});
-
-
-When( "{string} is entered in the text area with placeholder {string}", 
-(text:string, field: string) => {
-    cy.get('textarea[placeholder="' + field + '"]').type(text);
-});
-
-
-When( "the text field with placeholder {string} is cleared", (field:string) => {
-    cy.get('input[placeholder="' + field + '"]').clear();
-});
-
-
-When( "the text area with placeholder {string} is cleared", (field:string) => {
-    cy.get('textarea[placeholder="' + field + '"]').clear();
+When( "the modal's create button is clicked", () => {
+    // This button can only be found in shadow dom
+    cy.get("tds-modal").find("button[type=submit]").click();
 });
 
 
@@ -51,7 +32,16 @@ When( "the text area with placeholder {string} is cleared", (field:string) => {
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-Then( "the home button should be visible", () => {
-    cy.get("tds-header-brand-symbol")
-    .should("be.visible");
+Then( "the create new graph modal is visible", () => {
+    cy.get("tds-modal.show")
+    .should("exist")
+    .and("contain.text", "Create new graph");
+});
+
+Then( "the modal should not be visible", () => {
+    cy.get("tds-modal.show").should("not.exist");
+});
+
+Then( "the modal should display an error message saying {string}", (msg: string) => {
+    cy.get("tds-modal").contains(msg).should("exist");
 });

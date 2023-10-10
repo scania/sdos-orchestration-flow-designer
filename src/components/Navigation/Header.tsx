@@ -49,7 +49,7 @@ const Header = () => {
           ></tds-header-dropdown-list-user>
           <tds-header-dropdown-list-item>
             <div className="tds-u-ml2 tds-u-mt2">
-              <tds-toggle ref={toggleRef as any}>
+            <tds-toggle ref={toggleRef as any} checked={theme == "dark"}>
                 <div slot="label">{theme} mode</div>
               </tds-toggle>
             </div>

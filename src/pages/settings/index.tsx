@@ -24,7 +24,7 @@ function Settings() {
         </div>
         <div className={styles.content}>
           <div className="mode-switcher">
-            <tds-toggle ref={toggleRef as any}>
+            <tds-toggle ref={toggleRef as any} checked={theme == "dark"}>
               <div slot="label">{theme} mode</div>
             </tds-toggle>
           </div>
