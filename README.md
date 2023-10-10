@@ -55,6 +55,19 @@ npm install
 
 (Note: there may be a need to execute this command as administator in Windows. In that case you must also execute the tests as administrator after installing.)
 
+
+## <span style="color:goldenrod">Adding Environment Varibles </span>
+
+The Environment Varibles are needed for using the Azure Authentication in the local. 
+
+```bash
+AZURE_AD_CLIENT_ID=
+AZURE_AD_CLIENT_SECRET=
+AZURE_AD_TENANT_ID=
+```
+
+These three env variables should be added as part of autheticating the user in the local. These variables must be added in .env.local file.
+
 ## <span style="color:goldenrod">Executing the test suite</span>
 
 The tests can be run in one of two ways; using the Cypress CLI, or using the Cypress GUI:

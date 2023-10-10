@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeProvider";
 import useWebComponent from "@/hooks/useWebComponent";
+import { useSession, signOut } from "next-auth/react";
 
 const Header = () => {
-  const { theme, toggleTheme } = useTheme();
-  const toggleRef = useWebComponent("tdsToggle", () => {
-    toggleTheme();
-  });
+  const { data: session } = useSession();
+
+  const handleLogout = (e: any) => {
+    e.preventDefault();
+    signOut();
+  };
 
   return (
     <tds-header>
@@ -44,16 +47,9 @@ const Header = () => {
         </div>
         <tds-header-dropdown-list size="lg">
           <tds-header-dropdown-list-user
-            header="SaiReddy Medapati"
+            header={session?.user?.name || ""}
             subheader="Admin"
           ></tds-header-dropdown-list-user>
-          <tds-header-dropdown-list-item>
-            <div className="tds-u-ml2 tds-u-mt2">
-            <tds-toggle ref={toggleRef as any} checked={theme == "dark"}>
-                <div slot="label">{theme} mode</div>
-              </tds-toggle>
-            </div>
-          </tds-header-dropdown-list-item>
           <tds-header-dropdown-list-item>
             <Link href="settings">
               <tds-icon name="settings"></tds-icon>
@@ -65,6 +61,19 @@ const Header = () => {
             <Link href="help">
               <tds-icon name="info"></tds-icon>
               <div className="tds-u-pl1">Need Help?</div>
+            </Link>
+          </tds-header-dropdown-list-item>
+          <tds-header-dropdown-list-item>
+            <Link href="#" passHref>
+              <div onClick={handleLogout} style={{ display: "inline-block" }}>
+                <tds-icon
+                  name="profile_inactive"
+                  style={{ display: "inline-block" }}
+                ></tds-icon>
+                <div className="tds-u-pl1" style={{ display: "inline-block" }}>
+                  Logout
+                </div>
+              </div>
             </Link>
           </tds-header-dropdown-list-item>
         </tds-header-dropdown-list>

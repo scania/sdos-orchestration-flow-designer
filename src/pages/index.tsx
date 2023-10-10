@@ -6,10 +6,29 @@ import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Tabs from "@/components/Tabs/Tabs";
 import Panel from "@/components/Tabs/Panel";
+import { getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+
+// server side auth check
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
+  if (!session?.user) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+}
 
 function App() {
   const { theme } = useTheme();
   const [cardCount, setCardCount] = useState<number>(4);
+  const { data: session } = useSession();
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
   const [descInput, setDescInput] = useState<string>("");
@@ -29,15 +48,12 @@ function App() {
 
   const createNewGraph = () => {
     if (nameInput == "" || descInput == "") {
-      setErrorState(true);  
-    } 
-    else {
-
+      setErrorState(true);
+    } else {
       /* Navigate to workspace page */
 
       setErrorState(false);
       setCardCount(cardCount + 1);
-
     }
   };
 
@@ -64,7 +80,7 @@ function App() {
           <div className={styles["header__info"]}>
             <div className={styles["header_info"]}>
               <h6 className={styles["header__info__user-name"]}>
-                THOMAS LARSSON
+                {session?.user?.name?.toLocaleUpperCase()}
               </h6>
               <h6 className={styles["header__info__user-role"]}> ADMIN </h6>
             </div>
@@ -96,10 +112,7 @@ function App() {
                 <div className="tds-u-mr1">Create new graph</div>
                 <tds-icon name="plus" size="16px"></tds-icon>
               </Button>
-              <tds-modal
-                selector="#create-new-graph-button"
-                size="xs"
-              >
+              <tds-modal selector="#create-new-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
                   Create new graph
                 </h5>
@@ -108,19 +121,27 @@ function App() {
                     id="modal-name-field"
                     placeholder="Name"
                     size="sm"
-                    mode-variant={(theme == "light") ? "primary" : "secondary"}
-                    helper={(errorState && nameInput == "") ? "To continue, please give the graph a name." : ""}
-                    state={(errorState && nameInput == "") ? "error" : "default"}
+                    mode-variant={theme == "light" ? "primary" : "secondary"}
+                    helper={
+                      errorState && nameInput == ""
+                        ? "To continue, please give the graph a name."
+                        : ""
+                    }
+                    state={errorState && nameInput == "" ? "error" : "default"}
                     onInput={handleName}
                   />
-                  <div style={{ marginTop: '28px' }}/>                  
+                  <div style={{ marginTop: "28px" }} />
                   <tds-textarea
                     id="modal-description-area"
                     placeholder="Description"
                     rows={4}
-                    mode-variant={(theme == "light") ? "primary" : "secondary"}
-                    helper={(errorState && descInput == "") ? "To continue, please add a description." : "Write a description for the use case of the graph"}
-                    state={(errorState && descInput == "") ? "error" : "default"}
+                    mode-variant={theme == "light" ? "primary" : "secondary"}
+                    helper={
+                      errorState && descInput == ""
+                        ? "To continue, please add a description."
+                        : "Write a description for the use case of the graph"
+                    }
+                    state={errorState && descInput == "" ? "error" : "default"}
                     onInput={handleDesc}
                   />
                 </span>
@@ -133,7 +154,6 @@ function App() {
                     onClick={createNewGraph}
                   />
                 </span>
-                
               </tds-modal>
               <Button type="button" variant="secondary">
                 <div className="tds-u-mr1">Find graph to reuse</div>

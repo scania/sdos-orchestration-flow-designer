@@ -1,11 +1,25 @@
 import { useTheme } from "@/context/ThemeProvider";
 import useWebComponent from "@/hooks/useWebComponent";
+import { getSession } from "next-auth/react";
 import styles from "./Settings.module.scss";
+
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
+  if (!session?.user) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+}
 
 function Settings() {
   const { theme, toggleTheme } = useTheme();
-  console.log("theme", theme);
-
   const toggleRef = useWebComponent("tdsToggle", toggleTheme);
 
   return (

@@ -53,9 +53,6 @@ const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     if (initialized) {
       localStorage.setItem("theme", theme);
     }
-    console.log("there changed");
-
-    // document.body.className = theme;
   }, [theme]);
 
   const toggleTheme = () => {
