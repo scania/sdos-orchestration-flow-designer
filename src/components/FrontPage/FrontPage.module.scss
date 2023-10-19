@@ -1,0 +1,70 @@
+.login {
+  display: flex;
+  height: 95vh;
+
+  &__leftPane {
+    flex: 1;
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 16px 16px 16px;
+    :global(.tds-mode-dark) & {
+      background-color: var(--tds-grey-900);
+    }
+
+    &__link {
+      color: var(--grey-958, #0d0f13);
+      font-family: Scania Sans CY;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: -0.14px;
+      text-decoration-line: underline;
+      :global(.tds-mode-dark) & {
+        color: var(--grey-50, #f9fafb);
+      }
+    }
+
+    &__bottom {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    &__requestAccess {
+      color: white;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__spacer {
+    flex-grow: 1;
+  }
+
+  &__rightPane {
+    flex: 2;
+    background-image: url("/login.webp");
+    background-size: cover;
+    background-position: center;
+    padding: 40px;
+    :global(.tds-mode-dark) & {
+      background: linear-gradient(rgba(36, 42, 51, 0.6), rgba(36, 42, 51, 0.6)),
+        url("/login.webp");
+      background-size: cover;
+      background-position: center;
+    }
+
+    &__text {
+      width: 75%;
+      gap: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

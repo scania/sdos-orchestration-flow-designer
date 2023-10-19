@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { useTheme } from "@/context/ThemeProvider";
-import useWebComponent from "@/hooks/useWebComponent";
 import { useSession, signOut } from "next-auth/react";
 
 const Header = () => {
@@ -8,13 +6,12 @@ const Header = () => {
 
   const handleLogout = (e: any) => {
     e.preventDefault();
-    signOut();
+    signOut({ callbackUrl: "/auth/logout" });
   };
 
   return (
     <tds-header>
       <tds-header-title>ORCHESTRATION FLOW DESIGNER</tds-header-title>
-
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
           <tds-icon name="search"></tds-icon>
@@ -23,7 +20,7 @@ const Header = () => {
 
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
-          <Link href="settings">
+          <Link href="/settings">
             <tds-icon name="settings"></tds-icon>
           </Link>
         </div>

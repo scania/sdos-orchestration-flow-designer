@@ -48,4 +48,8 @@ export default (req: NextApiRequest, res: NextApiResponse) =>
     ],
     //this needs to be in .env for production
     secret: "YOUR_SECRET_HERE",
+    pages: {
+      signIn: "auth/login",
+      signOut: "auth/logout",
+    },
   });
