@@ -1,5 +1,4 @@
 .main {
-  padding: 36px 24px 44px 24px;
 }
 
 .header {
@@ -10,7 +9,13 @@
     }
 
     &-summary {
-      margin-top: 16px;
+      padding-top: 16px;
+      padding-left: 40px;
+      font-size: 16px;
+      background-color: var(--tds-white);
+      :global(.tds-mode-dark) & {
+        background-color: var(--tds-grey-900);
+      }
     }
   }
 
@@ -21,7 +26,7 @@
     &__user {
       &-name,
       &-role {
-        color: var(--tds-grey-600);
+        color: var(--tds-grey-900);
         font-size: 12px;
         font-style: normal;
         font-weight: 700;
@@ -49,25 +54,49 @@
 }
 
 .content {
-  margin-top: 16px;
+  background-color: var(--tds-grey-50);
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-black);
+  }
   &__heading {
+    margin-top: 16px;
+    padding-bottom: 16px;
+    font-size: 32px;
+  }
+
+  &__headingcontent {
+    padding-top: 16px;
+    padding-left: 40px;
+    font-size: 24px;
   }
 
   &__main {
-    padding-top: 32px;
-    padding-left: 32px;
     &__buttons {
+      padding-top: 32px;
+      padding-bottom: 40px;
+      padding-left: 40px;
+      font-size: 14px;
       display: flex;
       gap: 24px;
+      background-color: var(--tds-white);
+      :global(.tds-mode-dark) & {
+        background-color: var(--tds-grey-900);
+      }
     }
     &__cards {
-      margin-top: 32px;
+      margin-top: 16px;
+      margin-left: 40px;
+      padding-bottom: 40px;
       display: flex;
       align-items: flex-start;
       align-content: flex-start;
-      gap: 48px;
+      gap: 22px;
       align-self: stretch;
       flex-wrap: wrap;
+    }
+    &__line {
+      padding-right: 24px;
+      margin-left: 24px;
     }
   }
 }

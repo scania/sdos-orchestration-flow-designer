@@ -4,6 +4,7 @@ $transition-time: 0.2s;
 $border-color-light: var(--tds-grey-300);
 $border-color-dark: var(--tds-grey-900);
 $selected-border-color: var(--tds-blue-700);
+$tabs-partition-light: var(--tds-grey-700);
 
 .tab {
   width: 100%;
@@ -11,7 +12,7 @@ $selected-border-color: var(--tds-blue-700);
   border-bottom: 1px solid $border-color-light;
 
   :global(.tds-mode-dark) & {
-    border-bottom: 1px solid $border-color-dark;
+    border-bottom: 1px solid $tabs-partition-light;
   }
 }
 
@@ -24,6 +25,10 @@ ul.inline {
   -webkit-margin-start: 0;
   -webkit-margin-end: 0;
   -webkit-padding-start: 0;
+  background-color: white;
+  :global(.tds-mode-dark) & {
+    background-color: $default-color;
+  }
 
   li {
     display: inline-block;
