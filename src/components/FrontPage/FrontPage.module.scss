@@ -2,8 +2,12 @@
   display: flex;
   height: 95vh;
 
+  &__title {
+    font-size: 20px;
+  }
+
   &__leftPane {
-    flex: 1;
+    width: 337px;
     gap: 16px;
     display: flex;
     flex-direction: column;
@@ -48,7 +52,7 @@
   }
 
   &__rightPane {
-    flex: 2;
+    flex: 1;
     background-image: url("/login.webp");
     background-size: cover;
     background-position: center;
@@ -61,7 +65,7 @@
     }
 
     &__text {
-      width: 75%;
+      width: 60%;
       gap: 16px;
       display: flex;
       flex-direction: column;

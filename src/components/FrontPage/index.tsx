@@ -20,7 +20,9 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
             </h3>
           ) : (
             <>
-              <h3 className="tds-headline-03">Sign in to</h3>
+              <h3 className={`tds-headline-03 ${styles.login__title}`}>
+                Sign in to
+              </h3>
               <h3
                 className={`tds-headline-03 tds-text-grey-600 ${styles.login__title}`}
               >
