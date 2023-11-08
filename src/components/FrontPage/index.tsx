@@ -40,7 +40,9 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
             size="lg"
             text="Sign in"
             fullbleed
-            onClick={() => signIn("azure-ad", { callbackUrl: "/" })}
+            onClick={() =>
+              signIn("azure-ad", { callbackUrl: `${window.location.origin}/` })
+            }
           ></tds-button>
         </div>
         <div>
