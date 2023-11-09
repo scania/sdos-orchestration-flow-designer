@@ -21,10 +21,6 @@ const ForceGraphComponent: React.FC = () => {
     nodes: [
       { id: "1", name: "Node 1" },
       { id: "2", name: "Node 2" },
-      { id: "1", name: "Node 1" },
-      { id: "2", name: "Node 2" },
-      { id: "1", name: "Node 1" },
-      { id: "2", name: "Node 2" },
     ],
     links: [{ source: "1", target: "2" }],
   });
