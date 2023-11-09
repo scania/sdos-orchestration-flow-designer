@@ -2,6 +2,8 @@
 
 import { GraphSchema } from "@/api/services/graphSchema";
 import { NextApiRequest, NextApiResponse } from "next";
+import stardogConnection from "../../../connections/stardog";
+import { query } from "stardog";
 
 const mockGraphs = [
   {
@@ -14,7 +16,26 @@ const mockGraphs = [
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case "GET":
-      res.status(200).json(mockGraphs);
+      const testQuery = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX : <https://kg.scania.com/it/iris_orchestration/> 
+      SELECT * {   ?s  rdf:type owl:Class; rdfs:label ?label .}
+      LIMIT 10`;
+      let queryResult = {};
+
+      await query
+        .execute(stardogConnection, "Purchasing360", testQuery)
+        .then(({ body }) => {
+          console.log(
+            "Connection successful. Query result:",
+            body.results.bindings
+          );
+          queryResult = body.results.bindings;
+        })
+        .catch((error) => {
+          console.error("Connection failed:", error);
+        });
+
+      res.status(200).json(queryResult);
       break;
 
     case "POST":

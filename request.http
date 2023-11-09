@@ -1,12 +1,12 @@
 ### Install REST client extention to test api endpoints
 
 ### Fetch all graphs
-GET http://localhost:3000/api/graphs
+GET http://localhost:3000/api/classes
 
 ###
 
 ### Add a new graph
-POST http://localhost:3000/api/graphs
+POST http://localhost:3000/api/classes
 Content-Type: application/json
 
 {
@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ### Add a new graph, validation fail
-POST http://localhost:3000/api/graphs
+POST http://localhost:3000/api/classes
 Content-Type: application/json
 
 {
