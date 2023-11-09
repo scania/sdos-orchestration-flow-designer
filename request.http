@@ -1,0 +1,29 @@
+### Install REST client extention to test api endpoints
+
+### Fetch all graphs
+GET http://localhost:3000/api/graphs
+
+###
+
+### Add a new graph
+POST http://localhost:3000/api/graphs
+Content-Type: application/json
+
+{
+    "title": "Another Sample Graph",
+    "description": "This is another sample graph description.",
+    "nodes": ["NodeX", "NodeY", "NodeZ"]
+}
+
+### Add a new graph, validation fail
+POST http://localhost:3000/api/graphs
+Content-Type: application/json
+
+{
+    "title": false,
+    "description": 123,
+    "nodes": ["NodeX", "NodeY", "NodeZ"]
+}
+
+
+###
