@@ -18,9 +18,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     case "GET":
       const testQuery = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX : <https://kg.scania.com/it/iris_orchestration/> 
-      SELECT * {   ?s  rdf:type owl:Class; rdfs:label ?label .}
-      LIMIT 10`;
-      let queryResult = {};
+      SELECT * {   ?s  rdf:type owl:Class; rdfs:label ?label .} LIMIT 1000`;
+      let queryResult: string | any[] = [];
 
       await query
         .execute(stardogConnection, "Purchasing360", testQuery)
@@ -30,6 +29,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             body.results.bindings
           );
           queryResult = body.results.bindings;
+          console.log(queryResult.length);
         })
         .catch((error) => {
           console.error("Connection failed:", error);
