@@ -24,6 +24,7 @@
     "react-dom": "18.2.0",
     "react-force-graph": "^1.44.0",
     "sass": "^1.66.1",
+    "stardog": "^5.2.0",
     "typescript": "5.1.6"
   },
   "devDependencies": {
