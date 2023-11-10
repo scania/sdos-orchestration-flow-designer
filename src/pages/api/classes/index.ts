@@ -16,13 +16,16 @@ const mockGraphs = [
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case "GET":
-      const testQuery = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX : <https://kg.scania.com/it/iris_orchestration/> 
-      SELECT * {   ?s  rdf:type owl:Class; rdfs:label ?label .} LIMIT 1000`;
+      const testQuery = `SELECT DISTINCT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
+        ?class  rdf:type owl:Class; 
+            rdfs:label ?labelProps;
+            rdfs:subClassOf ?parentClass .
+     }}`;
+
       let queryResult: string | any[] = [];
 
       await query
-        .execute(stardogConnection, "Purchasing360", testQuery)
+        .execute(stardogConnection, "metaphactory", testQuery)
         .then(({ body }) => {
           console.log(
             "Connection successful. Query result:",
@@ -34,8 +37,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         .catch((error) => {
           console.error("Connection failed:", error);
         });
-
-      res.status(200).json(queryResult);
+      res.status(200).json(
+        queryResult.map((item) => ({
+          uri: item.class.value,
+          className: item.labelProps.value,
+          parentClassUri: item.parentClass.value,
+        }))
+      );
       break;
 
     case "POST":
