@@ -1,9 +1,8 @@
 // pages/api/graphs/index.ts
 
-import { GraphSchema } from "@/api/services/graphSchema";
+import { GraphSchema } from "@/services/graphSchema";
 import { NextApiRequest, NextApiResponse } from "next";
-import stardogConnection from "../../../connections/stardog";
-import { query } from "stardog";
+import { fetchClasses } from "@/services/stardogService";
 
 const mockGraphs = [
   {
@@ -16,37 +15,10 @@ const mockGraphs = [
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case "GET":
-      const testQuery = `SELECT DISTINCT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
-        ?class  rdf:type owl:Class; 
-            rdfs:label ?labelProps;
-            rdfs:subClassOf ?parentClass .
-     }}`;
-
-      let queryResult: string | any[] = [];
-
-      await query
-        .execute(stardogConnection, "metaphactory", testQuery)
-        .then(({ body }) => {
-          console.log(
-            "Connection successful. Query result:",
-            body.results.bindings
-          );
-          queryResult = body.results.bindings;
-          console.log(queryResult.length);
-        })
-        .catch((error) => {
-          console.error("Connection failed:", error);
-        });
-      res.status(200).json(
-        queryResult.map((item) => ({
-          uri: item.class.value,
-          className: item.labelProps.value,
-          parentClassUri: item.parentClass.value,
-        }))
-      );
+      const response = await fetchClasses();
+      res.status(200).json(response);
       break;
-
-    case "POST":
+    case "POST": //MOCK
       try {
         const parsedGraph = GraphSchema.parse(req.body);
         const graphWithDefaults = {
