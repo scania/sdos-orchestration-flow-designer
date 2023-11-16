@@ -102,20 +102,28 @@ const ForceGraphComponent: React.FC = () => {
   }, []);
 
   const renderClasses = () => {
-    return classes.map(
-      (item: { parentClassUri: string; className: string }, index: number) => {
-        return (
-          <tds-chip
-            type="button"
-            size="lg"
-            draggable
-            key={index}
-            onDragStart={(e: any) => handleOnDrag(e, item.className)}
-          >
-            <span slot="label">{item.className}</span>
-          </tds-chip>
-        );
-      }
+    return (
+      <div className={styles.chips}>
+        {classes.map(
+          (
+            item: { parentClassUri: string; className: string },
+            index: number
+          ) => {
+            return (
+              <tds-chip
+                type="button"
+                size="lg"
+                draggable
+                key={index}
+                onDragStart={(e: any) => handleOnDrag(e, item.className)}
+                className={styles.chip}
+              >
+                <span slot="label">{item.className}</span>
+              </tds-chip>
+            );
+          }
+        )}
+      </div>
     );
   };
 

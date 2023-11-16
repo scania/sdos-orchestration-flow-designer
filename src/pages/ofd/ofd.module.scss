@@ -1,0 +1,55 @@
+.page {
+  &__header {
+    padding: 10px;
+
+    &__heading {
+    }
+  }
+
+  &__main {
+    display: flex;
+
+    .sidebar {
+      width: 450px;
+      padding: 20px;
+
+      &__primaryHeading {
+        color: #222;
+        font-size: 20px;
+      }
+
+      &__secondaryHeading {
+        color: #444;
+        font-size: 18px;
+      }
+
+      &__description {
+        color: #666;
+        font-size: 16px;
+        padding-bottom: 30px;
+      }
+
+      &__tabs {
+      }
+
+      &__chips {
+      }
+    }
+
+    .graph__canvas {
+      flex-grow: 1;
+      padding: 20px;
+
+      .reactflow-wrapper {
+        background-color: #fff;
+        border: 1px solid #ccc;
+      }
+    }
+  }
+
+  .chips {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+}
