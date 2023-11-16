@@ -10,6 +10,7 @@ import ReactFlow, {
   addEdge,
   Connection,
   Edge,
+  MarkerType,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -17,9 +18,9 @@ const initialNodes = [
   {
     id: "1",
     type: "input",
-    data: { label: "Action" },
+    data: { label: "Task" },
     position: { x: 250, y: 5 },
-    // sourcePosition: "right",
+    sourcePosition: "right",
   },
 ];
 
@@ -29,7 +30,20 @@ const ForceGraphComponent: React.FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const onConnect = useCallback(
-    (params: Edge<any> | Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Edge<any> | Connection) =>
+      setEdges((eds) => {
+        const edge = addEdge(params, eds);
+        const edgeProperty = {
+          markerEnd: {
+            type: MarkerType.Arrow,
+          },
+          label: "nextAction",
+        };
+        if (edge.length > 0 && typeof edge[edge.length - 1] === "object") {
+          edge[edge.length - 1] = { ...edge[edge.length - 1], ...edgeProperty };
+        }
+        return edge;
+      }),
     []
   );
 
@@ -56,8 +70,8 @@ const ForceGraphComponent: React.FC = () => {
         id: crypto.randomUUID(),
         type: type === "Result Action" ? "output" : "default",
         position,
-        // sourcePosition: "right",
-        // targetPosition: "left",
+        sourcePosition: "right",
+        targetPosition: "left",
         data: { label: type },
       };
 
