@@ -19,7 +19,7 @@ const initialNodes = [
     id: "1",
     type: "input",
     data: { label: "Task" },
-    position: { x: 250, y: 5 },
+    position: { x: 0, y: 0 },
     sourcePosition: "right",
   },
 ];
@@ -135,15 +135,16 @@ const ForceGraphComponent: React.FC = () => {
   return (
     <div className={styles.page}>
       <header className={styles.page__header}>
-        <h1 className={styles.page__heading}>Your Heading Here</h1>
+        <h1 className={styles.page__heading}>Store suppliers SSIP</h1>
       </header>
       <main className={styles.page__main}>
         <aside className={styles.sidebar}>
-          <h2 className={styles.sidebar__primaryHeading}>Primary Heading</h2>
-          <h3 className={styles.sidebar__secondaryHeading}>
-            Secondary Heading
-          </h3>
-          <p className={styles.sidebar__description}>This is a description.</p>
+          <h2 className={styles.sidebar__primaryHeading}>Library</h2>
+          <h3 className={styles.sidebar__secondaryHeading}>Primary Classes</h3>
+          <p className={styles.sidebar__description}>
+            Select and add nodes to start designing your orchestration flow
+            graph
+          </p>
           <div className={styles.sidebar__tabs}>{/* Tabs go here */}</div>
           <div className={styles.sidebar__chips}>{renderClasses()}</div>
         </aside>
@@ -153,14 +154,10 @@ const ForceGraphComponent: React.FC = () => {
               <div
                 className="reactflow-wrapper"
                 ref={reactFlowWrapper}
-                style={
-                  typeof window !== "undefined"
-                    ? {
-                        height: window.innerHeight - 400,
-                        width: window.innerWidth,
-                      }
-                    : {}
-                }
+                style={{
+                  height: "calc(100vh - 200px)",
+                  width: "calc(100vw - 450px)",
+                }}
               >
                 <ReactFlow
                   nodes={nodes}
