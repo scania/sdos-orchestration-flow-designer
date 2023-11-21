@@ -37,7 +37,7 @@ const ForceGraphComponent: React.FC = () => {
           markerEnd: {
             type: MarkerType.Arrow,
           },
-          label: "nextAction",
+          label: "hasAction",
         };
         if (edge.length > 0 && typeof edge[edge.length - 1] === "object") {
           edge[edge.length - 1] = { ...edge[edge.length - 1], ...edgeProperty };

@@ -34,3 +34,46 @@ export const fetchClasses = async (): Promise<ClassEntity[]> => {
     parentClassUri: item.parentClass.value,
   }));
 };
+
+export const fetchRelations = async (className: string) => {
+  const relationsQuery = `
+  # get all relations possible from HTTPAction and their range (to)
+  SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
+      ?s rdf:type owl:ObjectProperty; 
+         rdfs:label ?label;
+         rdfs:range ?range;
+         rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :${className}. 
+  }}
+  `;
+
+  return await executeQuery(relationsQuery);
+};
+
+export const fetchDynamicRelations = async () => {
+  const dynamicRelationsQuery = `
+  # get all relations possible from Action to Action
+  SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
+      ?s rdf:type owl:ObjectProperty; 
+         rdfs:label ?label;
+         rdfs:range :Action;
+         rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :Action. 
+  }}
+  `;
+
+  return await executeQuery(dynamicRelationsQuery);
+};
+
+export const fetchOntologyRelations = async (className: string) => {
+  const ontologyRelationsQuery = `
+  # get all relations possible from HTTPAction
+  SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
+      ?s rdf:type owl:ObjectProperty; 
+         rdfs:label ?label;
+         rdfs:range ?range.
+      {?s rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :Action.}
+      UNION { ?s rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :${className}.}
+  }}
+  `;
+
+  return await executeQuery(ontologyRelationsQuery);
+};
