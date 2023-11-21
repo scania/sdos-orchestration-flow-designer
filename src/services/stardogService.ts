@@ -1,7 +1,8 @@
 import stardogConnection from "../connections/stardog";
 import { query } from "stardog";
 
-const DB_NAME = "metaphactory";
+const DB_NAME_READ = "metaphactory";
+const DB_NAME_WRITE = "ofg";
 
 export interface ClassEntity {
   uri: string;
@@ -16,9 +17,13 @@ const fetchClassesQuery = `SELECT DISTINCT * { graph <file:///orchestration_onto
         rdfs:subClassOf ?parentClass .
  }}`;
 
-const executeQuery = async (testQuery: string) => {
+const executeQuery = async (dbName: string, testQuery: string) => {
   try {
-    const { body } = await query.execute(stardogConnection, DB_NAME, testQuery);
+    const results = await query.execute(stardogConnection, dbName, testQuery);
+    const { body, status } = results;
+    if (!body && status === 200) {
+      return;
+    }
     return body.results.bindings;
   } catch (error) {
     console.error("Query execution failed:", error);
@@ -27,7 +32,7 @@ const executeQuery = async (testQuery: string) => {
 };
 
 export const fetchClasses = async (): Promise<ClassEntity[]> => {
-  const response = await executeQuery(fetchClassesQuery);
+  const response = await executeQuery(DB_NAME_READ, fetchClassesQuery);
   return response.map((item: any) => ({
     uri: item.class.value,
     className: item.labelProps.value,
@@ -46,7 +51,7 @@ export const fetchRelations = async (className: string) => {
   }}
   `;
 
-  return await executeQuery(relationsQuery);
+  return await executeQuery(DB_NAME_READ, relationsQuery);
 };
 
 export const fetchDynamicRelations = async () => {
@@ -60,7 +65,7 @@ export const fetchDynamicRelations = async () => {
   }}
   `;
 
-  return await executeQuery(dynamicRelationsQuery);
+  return await executeQuery(DB_NAME_READ, dynamicRelationsQuery);
 };
 
 export const fetchOntologyRelations = async (className: string) => {
@@ -75,5 +80,17 @@ export const fetchOntologyRelations = async (className: string) => {
   }}
   `;
 
-  return await executeQuery(ontologyRelationsQuery);
+  return await executeQuery(DB_NAME_READ, ontologyRelationsQuery);
+};
+
+export const updateGraph = async (graphData: string) => {
+  const updateGraphQuery = `
+  INSERT DATA {
+    GRAPH <http://example.org/test4> {
+  <http://example.org/Subject> <http://example.org/Predicate> "ObjectId" 
+    }
+  }
+  `;
+
+  return await executeQuery(DB_NAME_WRITE, updateGraphQuery);
 };
