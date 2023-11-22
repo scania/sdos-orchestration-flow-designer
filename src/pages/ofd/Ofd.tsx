@@ -60,9 +60,6 @@ const ForceGraphComponent: React.FC = () => {
     }
   );
 
-  // console.log("nodes", nodes);
-  // console.log("edges", edges);
-
   const onConnect = useCallback(
     (params: Edge<any> | Connection) =>
       setEdges((eds) => {

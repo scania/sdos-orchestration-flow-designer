@@ -43,6 +43,8 @@ export const fetchClasses = async (): Promise<ClassEntity[]> => {
 export const fetchRelations = async (className: string) => {
   const relationsQuery = `
   # get all relations possible from HTTPAction and their range (to)
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <https://kg.scania.com/it/iris_orchestration/>
   SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
       ?s rdf:type owl:ObjectProperty; 
          rdfs:label ?label;
@@ -57,6 +59,8 @@ export const fetchRelations = async (className: string) => {
 export const fetchDynamicRelations = async () => {
   const dynamicRelationsQuery = `
   # get all relations possible from Action to Action
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <https://kg.scania.com/it/iris_orchestration/>
   SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
       ?s rdf:type owl:ObjectProperty; 
          rdfs:label ?label;
@@ -71,6 +75,8 @@ export const fetchDynamicRelations = async () => {
 export const fetchOntologyRelations = async (className: string) => {
   const ontologyRelationsQuery = `
   # get all relations possible from HTTPAction
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <https://kg.scania.com/it/iris_orchestration/>
   SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
       ?s rdf:type owl:ObjectProperty; 
          rdfs:label ?label;
