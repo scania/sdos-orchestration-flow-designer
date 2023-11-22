@@ -83,14 +83,17 @@ export const fetchOntologyRelations = async (className: string) => {
   return await executeQuery(DB_NAME_READ, ontologyRelationsQuery);
 };
 
-export const updateGraph = async (graphData: string) => {
-  const updateGraphQuery = `
+export const updateGraph = async (graphName: string, graphData: string) => {
+  const dropGraph = `DROP SILENT GRAPH <${graphName}>`;
+
+  const saveGraph = `
   INSERT DATA {
-    GRAPH <http://example.org/test4> {
-  <http://example.org/Subject> <http://example.org/Predicate> "ObjectId" 
+    GRAPH <${graphName}> {
+      ${graphData}
     }
   }
-  `;
+`;
 
-  return await executeQuery(DB_NAME_WRITE, updateGraphQuery);
+  executeQuery(DB_NAME_WRITE, dropGraph);
+  return await executeQuery(DB_NAME_WRITE, saveGraph);
 };

@@ -15,7 +15,10 @@ const mockGraphs = [
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case "POST":
-      const response = await updateGraph('graphData');
+      const graphName = "http://example.org/Private";
+      const graphData =
+        "<http://example.org/Subject> <http://example.org/Predicate> <http://example.org/Object>";
+      const response = await updateGraph(graphName, graphData);
       res.status(200).json(response);
       break;
     case "GET": //MOCK
