@@ -1,0 +1,16 @@
+.react-flow__node-default,
+.react-flow__node-input,
+.react-flow__node-output,
+.react-flow__node-group {
+  padding: 40px !important;
+  border-radius: 100% !important;
+  width: 50px !important;
+  height: 50px !important;
+  font-size: 9px !important;
+  color: #222 !important;
+  text-align: center !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #1a192b !important;
+  background-color: white !important;
+}

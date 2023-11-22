@@ -11,8 +11,11 @@ import ReactFlow, {
   Connection,
   Edge,
   MarkerType,
+  Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { useQuery } from "react-query";
+import CircularNode from "./CircularNode";
 
 const initialNodes = [
   {
@@ -24,11 +27,42 @@ const initialNodes = [
   },
 ];
 
+const nodeTypes = {
+  input: CircularNode,
+  output: CircularNode,
+  default: CircularNode,
+};
+
 const ForceGraphComponent: React.FC = () => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [selectedClassName, setSelectedClassName] = useState<string | null>(
+    null
+  );
+  const {
+    data: classDetails,
+    isLoading: isClassDetailsLoading,
+    isError: isClassDetailsError,
+  } = useQuery(
+    ["classDetails", selectedClassName],
+    () =>
+      axios
+        .get(
+          `http://localhost:3001/api/class-details?className=${selectedClassName}`
+        )
+        .then((res) => res.data),
+    {
+      enabled: !!selectedClassName, // only fetch when selectedClassName is not null
+      staleTime: 1000 * 60 * 10, // 10 minutes
+      cacheTime: 1000 * 60 * 30, // 30 minutes
+    }
+  );
+
+  // console.log("nodes", nodes);
+  // console.log("edges", edges);
+
   const onConnect = useCallback(
     (params: Edge<any> | Connection) =>
       setEdges((eds) => {
@@ -80,28 +114,36 @@ const ForceGraphComponent: React.FC = () => {
     [reactFlowInstance]
   );
 
-  const [classes, setClasses] = useState<any>([]);
-
-  const forceGraphRef = useRef<any>();
-
-  useEffect(() => {
-    // After initial render, zoom out slightly
-
-    if (forceGraphRef.current) {
-      forceGraphRef.current.zoom(5); // Adjust the zoom level to your preference
+  const {
+    data: classes,
+    isLoading,
+    error: classesError,
+  } = useQuery(
+    "classes",
+    () =>
+      axios.get("http://localhost:3001/api/classes").then((res) => res.data),
+    {
+      staleTime: 1000 * 60 * 5, //5 minutes
     }
-  }, []);
-
-  useEffect(() => {
-    const fetchClasses = async () => {
-      const response = await axios.get("http://localhost:3000/api/classes");
-      setClasses(response.data);
-    };
-
-    fetchClasses();
-  }, []);
+  );
 
   const renderClasses = () => {
+    if (classesError) {
+      return (
+        <tds-banner
+          variant="error"
+          header="Error"
+          subheader="Error Fetching classes from stardog"
+        >
+          <tds-link slot="actions">
+            <a href="/">Link example</a>
+          </tds-link>
+        </tds-banner>
+      );
+    }
+    if (isLoading) {
+      return <tds-spinner size="lg" variant="standard"></tds-spinner>;
+    }
     return (
       <div className={styles.chips}>
         {classes.map(
@@ -131,6 +173,20 @@ const ForceGraphComponent: React.FC = () => {
     e.dataTransfer.setData("application/reactflow", nodeType);
     e.dataTransfer.effectAllowed = "move";
   }
+
+  const handleNodeClick = (event: React.MouseEvent, node: Node) => {
+    setSelectedClassName(node.data.label.replace(/\s+/g, ""));
+
+    if (isLoading) {
+      console.log("Loading class details...");
+    }
+
+    if (isClassDetailsError) {
+      console.error("Error fetching class details");
+    }
+
+    console.log("Fetched class details:", classDetails);
+  };
 
   return (
     <div className={styles.page}>
@@ -169,6 +225,8 @@ const ForceGraphComponent: React.FC = () => {
                   onDrop={onDrop}
                   onDragOver={onDragOver}
                   fitView
+                  onNodeClick={handleNodeClick}
+                  nodeTypes={nodeTypes}
                 >
                   <Controls />
                   {/* @ts-ignore */}

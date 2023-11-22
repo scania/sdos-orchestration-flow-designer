@@ -2,6 +2,7 @@
 @import url("https://cdn.digitaldesign.scania.com/icons/webfont/css/sdds-icons.css");
 @import url("./reset.css");
 @import url("./utility.css");
+@import url("./reactFlowOverrides.css");
 
 /* below taken from https://github.com/scania-digital-design-system/tegel-react-demo*/
 html,
