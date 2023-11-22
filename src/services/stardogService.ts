@@ -1,5 +1,6 @@
 import stardogConnection from "../connections/stardog";
 import { query } from "stardog";
+import jsonld, { JsonLdDocument } from "jsonld";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = "ofg";
@@ -89,17 +90,32 @@ PREFIX : <https://kg.scania.com/it/iris_orchestration/>
   return await executeQuery(DB_NAME_READ, ontologyRelationsQuery);
 };
 
-export const updateGraph = async (graphName: string, graphData: string) => {
-  const dropGraph = `DROP SILENT GRAPH <${graphName}>`;
+// Convert JSON-LD to N-Quads
+async function convertJsonLdToNQuads(jsonLdData: JsonLdDocument) {
+  try {
+    const nQuads = await jsonld.toRDF(jsonLdData, {
+      format: "application/n-quads",
+    });
+    return nQuads;
+  } catch (error) {
+    console.error("Error converting JSON-LD to N-Quads:", error);
+  }
+}
 
+export const updateGraph = async (
+  graphName: string,
+  graphData: JsonLdDocument
+) => {
+  const dropGraph = `DROP SILENT GRAPH <${graphName}>`;
+  const graphDataNQuad = await convertJsonLdToNQuads(graphData);
   const saveGraph = `
   INSERT DATA {
     GRAPH <${graphName}> {
-      ${graphData}
+      ${graphDataNQuad}
     }
   }
 `;
 
-  executeQuery(DB_NAME_WRITE, dropGraph);
+  await executeQuery(DB_NAME_WRITE, dropGraph);
   return await executeQuery(DB_NAME_WRITE, saveGraph);
 };

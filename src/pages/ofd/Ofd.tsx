@@ -14,8 +14,9 @@ import ReactFlow, {
   Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import CircularNode from "./CircularNode";
+import { GraphBody } from "@/services/graphSchema";
 
 const initialNodes = [
   {
@@ -36,6 +37,8 @@ const nodeTypes = {
 const ForceGraphComponent: React.FC = () => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedClassName, setSelectedClassName] = useState<string | null>(
@@ -60,6 +63,109 @@ const ForceGraphComponent: React.FC = () => {
     }
   );
 
+  const saveData = async (data: GraphBody) => {
+    const response = await axios.post(
+      "http://localhost:3001/api/persist",
+      data
+    );
+    return response.data;
+  };
+
+  const mutation = useMutation(saveData, {
+    onSuccess: () => {
+      setShowSuccessToast(true);
+    },
+    onError: (error) => {
+      setShowErrorToast(true);
+    },
+  });
+
+  useEffect(() => {
+    if (showSuccessToast) {
+      setTimeout(() => {
+        setShowSuccessToast(false);
+      }, 5000); // 5 seconds delay
+    }
+
+    if (showErrorToast) {
+      setTimeout(() => {
+        setShowErrorToast(false);
+      }, 5000); // 5 seconds delay
+    }
+  }, [showSuccessToast, showErrorToast]);
+
+  const handleSaveClick = () => {
+    const dataToSave = {
+      dbName: "http://example.org/Private",
+      graphData: {
+        "@context": {
+          rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+          owl: "http://www.w3.org/2002/07/owl#",
+          rdfs: "http://www.w3.org/2000/01/rdf-schema#",
+          iris: "https://kg.scania.com/it/iris_orchestration/",
+        },
+        "@graph": [
+          {
+            "@id":
+              "iris:OWLNamedIndividual_17ea3a4b_7fe0_4632_8eab_5bf3dd7a9e85",
+            "@type": ["iris:HTTPAction", "owl:NamedIndividual"],
+            "rdfs:label": {
+              "@value": "httpAction_pizza",
+              "@language": "en",
+            },
+            "iris:hasConnector": {
+              "@id":
+                "iris:OWLNamedIndividual_01cbb96d_1c66_44c3_b6b7_666b6374cf1f",
+            },
+            "iris:hasNextAction": {
+              "@id":
+                "iris:OWLNamedIndividual_1e0860b8_618c_4fee_a371_815b05f9da29",
+            },
+            "iris:hasSystem": {
+              "@id":
+                "iris:OWLNamedIndividual_69d999b0_9893_4beb_b44b_feeddc8f1de0",
+            },
+            "iris:inputParameter": {
+              "@id":
+                "iris:OWLNamedIndividual_4f1605c9_3e0c_4dd3_9073_bc36c928b79e",
+            },
+            "iris:outputParameter": {
+              "@id":
+                "iris:OWLNamedIndividual_f9879480_3a86_4ddb_ba74_f0d217f6b96b",
+            },
+            "iris:endpoint": "/pizzas",
+            "iris:httpQueryParameter": '{"size":""}',
+          },
+        ],
+      },
+    };
+    mutation.mutate(dataToSave);
+  };
+
+  const renderToasts = () => {
+    return (
+      <div className={styles.toast__absolute}>
+        {showSuccessToast ? (
+          <tds-toast variant="success" header="Graph Saved Successfully">
+            {/* <div slot="toast-subheader">
+              This Toasts has an absolute position.
+            </div> */}
+          </tds-toast>
+        ) : (
+          <></>
+        )}
+        {showErrorToast ? (
+          <tds-toast variant="error" header="Error Saving Graph">
+            {/* <div slot="toast-subheader">
+              This Toasts has an absolute position.
+            </div> */}
+          </tds-toast>
+        ) : (
+          <></>
+        )}
+      </div>
+    );
+  };
   const onConnect = useCallback(
     (params: Edge<any> | Connection) =>
       setEdges((eds) => {
@@ -189,6 +295,13 @@ const ForceGraphComponent: React.FC = () => {
     <div className={styles.page}>
       <header className={styles.page__header}>
         <h1 className={styles.page__heading}>Store suppliers SSIP</h1>
+        <tds-button
+          type="button"
+          variant="primary"
+          size="lg"
+          text="Save"
+          onClick={handleSaveClick}
+        ></tds-button>
       </header>
       <main className={styles.page__main}>
         <aside className={styles.sidebar}>
@@ -234,6 +347,7 @@ const ForceGraphComponent: React.FC = () => {
           </div>
         </section>
       </main>
+      {renderToasts()}
     </div>
   );
 };

@@ -1,6 +1,9 @@
 .page {
   &__header {
     padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     &__heading {
     }
@@ -53,4 +56,10 @@
     gap: 5px;
     flex-wrap: wrap;
   }
+}
+
+.toast__absolute {
+  position: fixed;
+  right: 10px;
+  bottom: 32px;
 }

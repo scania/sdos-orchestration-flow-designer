@@ -32,3 +32,101 @@ Content-Type: application/json
 
 ### Save Graph
 POST http://localhost:3000/api/persist
+Content-Type: application/json
+
+{
+
+    "dbName" : "http://example.org/Private",
+    "graphData": {
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "iris": "https://kg.scania.com/it/iris_orchestration/"
+  },
+  "@graph": [
+    {
+      "@id": "iris:OWLNamedIndividual_17ea3a4b_7fe0_4632_8eab_5bf3dd7a9e85",
+      "@type": [
+        "iris:HTTPAction",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": {
+        "@value": "httpAction_pizza",
+        "@language": "en"
+      },
+      "iris:hasConnector": {
+        "@id": "iris:OWLNamedIndividual_01cbb96d_1c66_44c3_b6b7_666b6374cf1f"
+      },
+      "iris:hasNextAction": {
+        "@id": "iris:OWLNamedIndividual_1e0860b8_618c_4fee_a371_815b05f9da29"
+      },
+      "iris:hasSystem": {
+        "@id": "iris:OWLNamedIndividual_69d999b0_9893_4beb_b44b_feeddc8f1de0"
+      },
+      "iris:inputParameter": {
+        "@id": "iris:OWLNamedIndividual_4f1605c9_3e0c_4dd3_9073_bc36c928b79e"
+      },
+      "iris:outputParameter": {
+        "@id": "iris:OWLNamedIndividual_f9879480_3a86_4ddb_ba74_f0d217f6b96b"
+      },
+      "iris:endpoint": "/pizzas",
+      "iris:httpQueryParameter": "{\"size\":\"\"}"
+    }
+  ]
+}
+
+
+}
+
+
+
+### Save Graph - validation fail
+POST http://localhost:3000/api/persist
+Content-Type: application/json
+
+{
+
+    "dbName" : "http://example.org/Private12323432423423432432432432423432423423423423423423423423423432",
+    "graphData": {
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "iris": "https://kg.scania.com/it/iris_orchestration/"
+  },
+  "@graph": [
+    {
+      "@id": "iris:OWLNamedIndividual_17ea3a4b_7fe0_4632_8eab_5bf3dd7a9e85",
+      "@type": [
+        "iris:HTTPAction",
+        "owl:NamedIndividual"
+      ],
+      "rdfs:label": {
+        "@value": "httpAction_pizza",
+        "@language": "en"
+      },
+      "iris:hasConnector": {
+        "@id": "iris:OWLNamedIndividual_01cbb96d_1c66_44c3_b6b7_666b6374cf1f"
+      },
+      "iris:hasNextAction": {
+        "@id": "iris:OWLNamedIndividual_1e0860b8_618c_4fee_a371_815b05f9da29"
+      },
+      "iris:hasSystem": {
+        "@id": "iris:OWLNamedIndividual_69d999b0_9893_4beb_b44b_feeddc8f1de0"
+      },
+      "iris:inputParameter": {
+        "@id": "iris:OWLNamedIndividual_4f1605c9_3e0c_4dd3_9073_bc36c928b79e"
+      },
+      "iris:outputParameter": {
+        "@id": "iris:OWLNamedIndividual_f9879480_3a86_4ddb_ba74_f0d217f6b96b"
+      },
+      "iris:endpoint": "/pizzas",
+      "iris:httpQueryParameter": "{\"size\":\"\"}"
+    }
+  ]
+}
+
+
+}
+
