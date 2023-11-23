@@ -55,6 +55,8 @@
     display: flex;
     gap: 5px;
     flex-wrap: wrap;
+    max-height: calc(100vh - 300px);
+    overflow: auto;
   }
 }
 

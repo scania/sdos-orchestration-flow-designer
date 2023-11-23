@@ -33,6 +33,7 @@ export default memo((node) => {
         {data.label}
       </div>
       {type !== "input" ? (
+        //@ts-ignore
         <Handle
           type="target"
           position={Position.Left}

@@ -17,12 +17,23 @@ import "reactflow/dist/style.css";
 import { useMutation, useQuery } from "react-query";
 import CircularNode from "./CircularNode";
 import { GraphBody } from "@/services/graphSchema";
+import { assignClassData, generateJsonLdFromState } from "./utils";
 
 const initialNodes = [
   {
     id: "1",
     type: "input",
-    data: { label: "Task" },
+    data: {
+      label: "Task",
+      classData: {
+        "@id": "iris:aeca5978_21af_4c8d_af8f_f2e68e2a3417",
+        "@type": ["owl:NamedIndividual", "iris:Task"],
+        "iris:hasAction": {
+          "@id": "iris:301acd01_19b5_4f19_ab76_ee13ffb57c00",
+        },
+        "rdfs:label": "GetPizzasAndAllergenes",
+      },
+    },
     position: { x: 0, y: 0 },
     sourcePosition: "right",
   },
@@ -95,71 +106,28 @@ const ForceGraphComponent: React.FC = () => {
   }, [showSuccessToast, showErrorToast]);
 
   const handleSaveClick = () => {
-    const dataToSave = {
+    const jsonLdPayload = generateJsonLdFromState({ nodes, edges });
+    const payload = {
       dbName: "http://example.org/Private",
-      graphData: {
-        "@context": {
-          rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-          owl: "http://www.w3.org/2002/07/owl#",
-          rdfs: "http://www.w3.org/2000/01/rdf-schema#",
-          iris: "https://kg.scania.com/it/iris_orchestration/",
-        },
-        "@graph": [
-          {
-            "@id":
-              "iris:OWLNamedIndividual_17ea3a4b_7fe0_4632_8eab_5bf3dd7a9e85",
-            "@type": ["iris:HTTPAction", "owl:NamedIndividual"],
-            "rdfs:label": {
-              "@value": "httpAction_pizza",
-              "@language": "en",
-            },
-            "iris:hasConnector": {
-              "@id":
-                "iris:OWLNamedIndividual_01cbb96d_1c66_44c3_b6b7_666b6374cf1f",
-            },
-            "iris:hasNextAction": {
-              "@id":
-                "iris:OWLNamedIndividual_1e0860b8_618c_4fee_a371_815b05f9da29",
-            },
-            "iris:hasSystem": {
-              "@id":
-                "iris:OWLNamedIndividual_69d999b0_9893_4beb_b44b_feeddc8f1de0",
-            },
-            "iris:inputParameter": {
-              "@id":
-                "iris:OWLNamedIndividual_4f1605c9_3e0c_4dd3_9073_bc36c928b79e",
-            },
-            "iris:outputParameter": {
-              "@id":
-                "iris:OWLNamedIndividual_f9879480_3a86_4ddb_ba74_f0d217f6b96b",
-            },
-            "iris:endpoint": "/pizzas",
-            "iris:httpQueryParameter": '{"size":""}',
-          },
-        ],
-      },
+      graphData: jsonLdPayload,
     };
-    mutation.mutate(dataToSave);
+    console.log("payload", payload);
+    mutation.mutate(payload);
   };
 
   const renderToasts = () => {
     return (
       <div className={styles.toast__absolute}>
         {showSuccessToast ? (
-          <tds-toast variant="success" header="Graph Saved Successfully">
-            {/* <div slot="toast-subheader">
-              This Toasts has an absolute position.
-            </div> */}
-          </tds-toast>
+          <tds-toast
+            variant="success"
+            header="Graph Saved Successfully"
+          ></tds-toast>
         ) : (
           <></>
         )}
         {showErrorToast ? (
-          <tds-toast variant="error" header="Error Saving Graph">
-            {/* <div slot="toast-subheader">
-              This Toasts has an absolute position.
-            </div> */}
-          </tds-toast>
+          <tds-toast variant="error" header="Error Saving Graph"></tds-toast>
         ) : (
           <></>
         )}
@@ -209,7 +177,7 @@ const ForceGraphComponent: React.FC = () => {
         position,
         sourcePosition: "right",
         targetPosition: "left",
-        data: { label: type },
+        data: { label: type, classData: assignClassData(type) },
       };
 
       setNodes((nds) => nds.concat(newNode));
@@ -293,15 +261,21 @@ const ForceGraphComponent: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      <header className={styles.page__header}>
+      <header className={styles.page__header} style={{ height: "70px" }}>
         <h1 className={styles.page__heading}>Store suppliers SSIP</h1>
-        <tds-button
-          type="button"
-          variant="primary"
-          size="lg"
-          text="Save"
-          onClick={handleSaveClick}
-        ></tds-button>
+        <div>
+          {mutation.isLoading ? (
+            <tds-spinner size="md" variant="standard"></tds-spinner>
+          ) : (
+            <tds-button
+              type="button"
+              variant="primary"
+              size="lg"
+              text="Save"
+              onClick={handleSaveClick}
+            ></tds-button>
+          )}
+        </div>
       </header>
       <main className={styles.page__main}>
         <aside className={styles.sidebar}>
