@@ -1,6 +1,6 @@
 export const assignClassData = (type: string) => {
   switch (type) {
-    case "HTTP Action":
+    case "Task":
       return {
         "@id": "iris:aeca5978_21af_4c8d_af8f_f2e68e2a3417",
         "@type": ["owl:NamedIndividual", "iris:Task"],
@@ -9,11 +9,11 @@ export const assignClassData = (type: string) => {
         },
         "rdfs:label": "GetPizzasAndAllergenes",
       };
-    case "Task":
+    case "HTTP Action":
       return {
         "@id": "iris:301acd01_19b5_4f19_ab76_ee13ffb57c00",
         "@type": ["owl:NamedIndividual", "iris:HTTPAction"],
-        "iris:endpoint": "pizzas/",
+        "iris:endpoint": "http://example.com/pizzas",
         "iris:httpHeader": {
           "@value": '{"Accept": "application/json"}',
         },
@@ -40,9 +40,6 @@ export const generateJsonLdFromState = ({ nodes, edges }) => {
     const targetObjClassData = targetObjData?.classData || {};
     graphData.push(sourceObjClassData);
     graphData.push(targetObjClassData);
-    // console.log(edge);
-    // console.log({ sourceObjData, targetObjData });
-    // console.log({ sourceObjClassData, targetObjClassData });
   });
 
   const jsonLdPayload = {
