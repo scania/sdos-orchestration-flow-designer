@@ -35,6 +35,7 @@ export default memo((node) => {
       <div
         className="ellipsis"
         data-tooltip={data.label}
+        //@ts-ignore
         style={{ ...ellipsisStyle, fontSize: "6px", marginTop: "10px" }}
       >
         {data?.classData?.["rdfs:label"]}

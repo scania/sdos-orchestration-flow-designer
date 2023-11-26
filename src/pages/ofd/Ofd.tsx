@@ -15,9 +15,9 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useMutation, useQuery } from "react-query";
-import CircularNode from "./CircularNode";
+import CircularNode from "../../components/CircularNode.tsx";
 import { GraphBody } from "@/services/graphSchema";
-import { assignClassData, generateJsonLdFromState } from "./utils";
+import { assignClassData, generateJsonLdFromState } from "../../utils";
 import { useRouter } from "next/router";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -49,6 +49,7 @@ const nodeTypes = {
 
 const ForceGraphComponent: React.FC = () => {
   const reactFlowWrapper = useRef(null);
+  //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
@@ -177,7 +178,7 @@ const ForceGraphComponent: React.FC = () => {
         targetPosition: "left",
         data: { label: type, classData: assignClassData(type) },
       };
-
+      //@ts-ignore
       setNodes((nds) => nds.concat(newNode));
     },
     [reactFlowInstance]
