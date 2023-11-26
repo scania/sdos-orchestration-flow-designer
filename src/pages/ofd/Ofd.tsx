@@ -19,6 +19,7 @@ import CircularNode from "./CircularNode";
 import { GraphBody } from "@/services/graphSchema";
 import { assignClassData, generateJsonLdFromState } from "./utils";
 import { useRouter } from "next/router";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const initialNodes = [
   {
@@ -65,9 +66,7 @@ const ForceGraphComponent: React.FC = () => {
     ["classDetails", selectedClassName],
     () =>
       axios
-        .get(
-          `http://localhost:3000/api/class-details?className=${selectedClassName}`
-        )
+        .get(`${baseUrl}/api/class-details?className=${selectedClassName}`)
         .then((res) => res.data),
     {
       enabled: !!selectedClassName, // only fetch when selectedClassName is not null
@@ -77,10 +76,7 @@ const ForceGraphComponent: React.FC = () => {
   );
 
   const saveData = async (data: GraphBody) => {
-    const response = await axios.post(
-      "http://localhost:3000/api/persist",
-      data
-    );
+    const response = await axios.post(`${baseUrl}/api/persist`, data);
     return response.data;
   };
 
@@ -193,8 +189,7 @@ const ForceGraphComponent: React.FC = () => {
     error: classesError,
   } = useQuery(
     "classes",
-    () =>
-      axios.get("http://localhost:3000/api/classes").then((res) => res.data),
+    () => axios.get(`${baseUrl}/api/classes`).then((res) => res.data),
     {
       staleTime: 1000 * 60 * 5, //5 minutes
     }

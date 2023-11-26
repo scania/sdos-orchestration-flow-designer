@@ -1,4 +1,5 @@
-import { JsonLd } from "jsonld/jsonld-spec";
+import { ContextDefinition } from "jsonld/jsonld";
+import { Edge, Node } from "reactflow";
 
 // Constants for RDF, OWL, and RDFS namespaces
 const RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -7,7 +8,7 @@ const RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
 const IRIS_NS = "https://kg.scania.com/it/iris_orchestration/";
 
 // Context for JSON-LD
-const JSON_LD_CONTEXT: jsonld.ContextDefinition = {
+const JSON_LD_CONTEXT: ContextDefinition = {
   rdf: RDF_NS,
   owl: OWL_NS,
   rdfs: RDFS_NS,
@@ -44,25 +45,13 @@ const CLASS_CONFIG: Record<string, IClassConfig> = {
   },
 };
 
-interface INode {
-  id: string;
-  data: {
-    classData?: IClassConfig;
-  };
-}
-
-interface IEdge {
-  source: string;
-  target: string;
-}
-
 interface IState {
-  nodes: INode[];
-  edges: IEdge[];
+  nodes: Node[];
+  edges: Edge[];
 }
 
 interface GraphData {
-  "@context": any;
+  "@context": ContextDefinition;
   "@graph": IClassConfig[];
 }
 
