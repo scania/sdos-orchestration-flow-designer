@@ -21,7 +21,6 @@ const nodeStyle = {
 };
 
 export default memo((node) => {
-  console.log(node);
   //@ts-ignore
   const { data, isConnectable, type } = node;
   const { label, color } = data;
@@ -31,6 +30,14 @@ export default memo((node) => {
       {/* @ts-ignore */}
       <div className="ellipsis" data-tooltip={data.label} style={ellipsisStyle}>
         {data.label}
+      </div>
+      {/* @ts-ignore */}
+      <div
+        className="ellipsis"
+        data-tooltip={data.label}
+        style={{ ...ellipsisStyle, fontSize: "6px", marginTop: "10px" }}
+      >
+        {data?.classData?.["rdfs:label"]}
       </div>
       {type !== "input" ? (
         //@ts-ignore

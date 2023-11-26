@@ -8,6 +8,7 @@ import Tabs from "@/components/Tabs/Tabs";
 import Panel from "@/components/Tabs/Panel";
 import { getSession } from "next-auth/react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -32,6 +33,7 @@ function App() {
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
   const [descInput, setDescInput] = useState<string>("");
+  const router = useRouter();
 
   const renderCards = () =>
     new Array(cardCount)
@@ -53,7 +55,7 @@ function App() {
       /* Navigate to workspace page */
 
       setErrorState(false);
-      setCardCount(cardCount + 1);
+      router.push(`/ofd/${nameInput.replace(/\s+/g, "-")}`);
     }
   };
 

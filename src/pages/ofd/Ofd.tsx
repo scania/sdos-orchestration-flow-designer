@@ -18,6 +18,7 @@ import { useMutation, useQuery } from "react-query";
 import CircularNode from "./CircularNode";
 import { GraphBody } from "@/services/graphSchema";
 import { assignClassData, generateJsonLdFromState } from "./utils";
+import { useRouter } from "next/router";
 
 const initialNodes = [
   {
@@ -55,6 +56,7 @@ const ForceGraphComponent: React.FC = () => {
   const [selectedClassName, setSelectedClassName] = useState<string | null>(
     null
   );
+  const router = useRouter();
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -64,7 +66,7 @@ const ForceGraphComponent: React.FC = () => {
     () =>
       axios
         .get(
-          `http://localhost:3001/api/class-details?className=${selectedClassName}`
+          `http://localhost:3000/api/class-details?className=${selectedClassName}`
         )
         .then((res) => res.data),
     {
@@ -76,7 +78,7 @@ const ForceGraphComponent: React.FC = () => {
 
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(
-      "http://localhost:3001/api/persist",
+      "http://localhost:3000/api/persist",
       data
     );
     return response.data;
@@ -108,7 +110,7 @@ const ForceGraphComponent: React.FC = () => {
   const handleSaveClick = () => {
     const jsonLdPayload = generateJsonLdFromState({ nodes, edges });
     const payload = {
-      dbName: "http://example.org/Private",
+      dbName: `http://example.org/${router.query?.graphName || "Private"}`,
       graphData: jsonLdPayload,
     };
     console.log("payload", payload);
@@ -192,7 +194,7 @@ const ForceGraphComponent: React.FC = () => {
   } = useQuery(
     "classes",
     () =>
-      axios.get("http://localhost:3001/api/classes").then((res) => res.data),
+      axios.get("http://localhost:3000/api/classes").then((res) => res.data),
     {
       staleTime: 1000 * 60 * 5, //5 minutes
     }
@@ -262,7 +264,9 @@ const ForceGraphComponent: React.FC = () => {
   return (
     <div className={styles.page}>
       <header className={styles.page__header} style={{ height: "70px" }}>
-        <h1 className={styles.page__heading}>Store suppliers SSIP</h1>
+        <h1 className={styles.page__heading}>
+          {router.query?.graphName || ""}
+        </h1>
         <div>
           {mutation.isLoading ? (
             <tds-spinner size="md" variant="standard"></tds-spinner>

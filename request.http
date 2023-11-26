@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ### get Action Details
-GET http://localhost:3001/api/class-details?className=HTTPAction
+GET http://localhost:3000/api/class-details?className=HTTPAction
 
 
 ### Add a new graph, validation fail
