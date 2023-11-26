@@ -18,7 +18,7 @@ interface DynamicFormProps {
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
-  classConfig,
+  classConfig = {},
   onSubmit,
   excludeKeys,
   label,
@@ -40,13 +40,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           <label>{`${key} ${subKey}`}</label>
           <tds-text-field
             className="tds-text-field"
+            //@ts-ignore
             defaultValue={subValue}
+            // @ts-ignore
             value={subValue}
             {...register(`${key}.${subKey}`, {
               required: "This field is required",
             })}
           />
           {errors[key] && (
+            // @ts-ignore
             <span className="error-message">{errors[key].message}</span>
           )}
         </div>
@@ -70,6 +73,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             {...register(key, { required: "This field is required" })}
           />
           {errors[key] && (
+            // @ts-ignore
             <span className="error-message">{errors[key].message}</span>
           )}
         </div>

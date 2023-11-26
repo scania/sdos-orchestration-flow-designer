@@ -351,10 +351,10 @@ const ForceGraphComponent: React.FC = () => {
           {selectedNode ? (
             <div className={styles.form}>
               <DynamicForm
-                classConfig={selectedNode?.data?.classData}
+                classConfig={selectedNode.data?.classData}
                 onSubmit={handleFormSubmit}
                 onClose={onFormClose}
-                label={selectedNode?.data.label}
+                label={selectedNode.data.label}
                 excludeKeys={["@id", "@type", "iris:hasAction"]}
               />
             </div>
