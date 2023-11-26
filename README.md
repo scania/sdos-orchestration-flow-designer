@@ -1,16 +1,24 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) 
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
+
 ## Building and Running
+
 ### Prerequisites
+
 Ensure you have Node.js and npm installed, version of node is 16.14 or later. You can check their versions by running
+
 ```bash
 node -v
 npm -v
 ```
+
 ### Installation
+
 First, navigate to the root directory of your Next.js project and install the necessary dependencies using:
+
 ```bash
 npm install
 ```
+
 This will compile and bundle your code, and generate a .next directory containing the built application.
 
 All the neccessary modules required to run the current next project will be install into local node modules.
@@ -18,13 +26,16 @@ All the neccessary modules required to run the current next project will be inst
 By default, npm install will install all modules listed as dependencies in package.json.
 
 ### Building the Application
+
 To create a production build of your Next.js application run:
+
 ```bash
 npm run build
 ```
-npm run build creates a build directory with a production build of your app. 
 
-Inside the build/static directory will be your JavaScript and CSS files. 
+npm run build creates a build directory with a production build of your app.
+
+Inside the build/static directory will be your JavaScript and CSS files.
 
 Each filename inside of build/static will contain a unique hash of the file contents. This hash in the file name enables long term caching techniques.
 
@@ -33,6 +44,7 @@ When running a production build of freshly created Create React App application,
 ### Starting the Application
 
 After building, you can start the application in production mode with:
+
 ```bash
 npm start
 ```
@@ -90,18 +102,41 @@ npm install
 
 (Note: there may be a need to execute this command as administator in Windows. In that case you must also execute the tests as administrator after installing.)
 
+## Setting Up Environment Variables
 
-## <span style="color:goldenrod">Adding Environment Varibles </span>
+To run this project, you will need to add the following environment variables to your `.env.local` file in the root of your project. Create the file if it doesn't already exist.
 
-The Environment Varibles are needed for using the Azure Authentication in the local. 
+### Azure Active Directory Configuration
 
-```bash
-AZURE_AD_CLIENT_ID=
-AZURE_AD_CLIENT_SECRET=
-AZURE_AD_TENANT_ID=
+- `AZURE_AD_CLIENT_ID` - Your Azure AD application (client) ID.
+- `AZURE_AD_CLIENT_SECRET` - Your Azure AD application secret.
+- `AZURE_AD_TENANT_ID` - Your Azure AD tenant ID.
+
+These three env variables should be added as part of authenticating the user in the local. These variables must be added in .env.local file. for more information such adding call back URL visit https://next-auth.js.org/providers/azure-ad
+
+### Stardog Database Configuration
+
+- `STARDOG_USERNAME` - Username for Stardog database access.
+- `STARDOG_PASSWORD` - Password for Stardog database access.
+- `STARDOG_ENDPOINT` - Endpoint URL for the Stardog database.
+
+### Next.js Configuration
+
+- `NEXTAUTH_URL` - The URL of your Next.js application, used for authentication callbacks.
+- `NEXT_PUBLIC_API_BASE_URL` - The base URL of your API, accessible from the client side.
+
+Example `.env.local` file:
+
+```env
+AZURE_AD_CLIENT_ID=your-azure-ad-client-id
+AZURE_AD_CLIENT_SECRET=your-azure-ad-client-secret
+AZURE_AD_TENANT_ID=your-azure-ad-tenant-id
+STARDOG_USERNAME=your-stardog-username
+STARDOG_PASSWORD=your-stardog-password
+STARDOG_ENDPOINT=your-stardog-endpoint
+NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 ```
-
-These three env variables should be added as part of autheticating the user in the local. These variables must be added in .env.local file.  for more information such adding call back URL visit https://next-auth.js.org/providers/azure-ad
 
 ## <span style="color:goldenrod">Executing the test suite</span>
 
