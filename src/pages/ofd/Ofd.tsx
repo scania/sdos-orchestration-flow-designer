@@ -19,6 +19,7 @@ import CircularNode from "../../components/CircularNode.tsx";
 import { GraphBody } from "@/services/graphSchema";
 import { assignClassData, generateJsonLdFromState } from "../../utils";
 import { useRouter } from "next/router";
+import DynamicForm from "./DynamicForm";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const initialNodes = [
@@ -133,6 +134,11 @@ const ForceGraphComponent: React.FC = () => {
       </div>
     );
   };
+
+  const handleFormSubmit = (data: any) => {
+    console.log("Form Data:", data);
+  };
+
   const onConnect = useCallback(
     (params: Edge<any> | Connection) =>
       setEdges((eds) => {
@@ -319,6 +325,11 @@ const ForceGraphComponent: React.FC = () => {
               </div>
             </ReactFlowProvider>
           </div>
+          <DynamicForm
+            classConfig={initialNodes[0].data.classData}
+            onSubmit={handleFormSubmit}
+            excludeKeys={["@id", "@type", "iris:hasAction"]}
+          />
         </section>
       </main>
       {renderToasts()}
