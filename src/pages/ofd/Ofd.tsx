@@ -17,7 +17,11 @@ import "reactflow/dist/style.css";
 import { useMutation, useQuery } from "react-query";
 import CircularNode from "../../components/CircularNode.tsx";
 import { GraphBody } from "@/services/graphSchema";
-import { assignClassData, generateJsonLdFromState } from "../../utils";
+import {
+  assignClassData,
+  generateJsonLdFromState,
+  IClassConfig,
+} from "../../utils";
 import { useRouter } from "next/router";
 import DynamicForm from "./DynamicForm";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -56,6 +60,7 @@ const ForceGraphComponent: React.FC = () => {
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedClassName, setSelectedClassName] = useState<string | null>(
     null
   );
@@ -137,6 +142,23 @@ const ForceGraphComponent: React.FC = () => {
 
   const handleFormSubmit = (data: any) => {
     console.log("Form Data:", data);
+    if (!selectedNode) return;
+    const updatedClassData: IClassConfig = {
+      ...selectedNode.data.classData,
+      ...data,
+    };
+    setNodes(
+      nodes.map((node: Node) =>
+        node.id === selectedNode.id
+          ? { ...node, data: { ...node.data, classData: updatedClassData } }
+          : node
+      )
+    );
+    setSelectedNode(null);
+  };
+
+  const onFormClose = () => {
+    setSelectedNode(null);
   };
 
   const onConnect = useCallback(
@@ -251,6 +273,7 @@ const ForceGraphComponent: React.FC = () => {
 
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
     setSelectedClassName(node.data.label.replace(/\s+/g, ""));
+    setSelectedNode(node);
 
     if (isLoading) {
       console.log("Loading class details...");
@@ -325,11 +348,19 @@ const ForceGraphComponent: React.FC = () => {
               </div>
             </ReactFlowProvider>
           </div>
-          <DynamicForm
-            classConfig={initialNodes[0].data.classData}
-            onSubmit={handleFormSubmit}
-            excludeKeys={["@id", "@type", "iris:hasAction"]}
-          />
+          {selectedNode ? (
+            <div className={styles.form}>
+              <DynamicForm
+                classConfig={selectedNode?.data?.classData}
+                onSubmit={handleFormSubmit}
+                onClose={onFormClose}
+                label={selectedNode?.data.label}
+                excludeKeys={["@id", "@type", "iris:hasAction"]}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
         </section>
       </main>
       {renderToasts()}

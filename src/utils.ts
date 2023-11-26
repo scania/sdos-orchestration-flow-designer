@@ -16,7 +16,7 @@ const JSON_LD_CONTEXT: ContextDefinition = {
 };
 
 // Interface for Class Configurations
-interface IClassConfig {
+export interface IClassConfig {
   "@id": string;
   "@type": string[];
   "iris:hasAction"?: {

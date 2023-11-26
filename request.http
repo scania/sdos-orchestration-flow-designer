@@ -7,12 +7,12 @@ GET {{baseUrl}}/api/classes
 ###
 
 ### Fetch all graphs
-GET {{{{baseUrl}}}}/api/classes
+GET {{baseUrl}}/api/classes
 
 ###
 
 ### Add a new graph
-POST {{{{baseUrl}}}}/api/classes
+POST {{baseUrl}}/api/classes
 Content-Type: application/json
 
 {
@@ -22,11 +22,11 @@ Content-Type: application/json
 }
 
 ### get Action Details
-GET {{{{baseUrl}}}}/api/class-details?className=HTTPAction
+GET {{baseUrl}}/api/class-details?className=HTTPAction
 
 
 ### Add a new graph, validation fail
-POST {{{{baseUrl}}}}/api/classes
+POST {{baseUrl}}/api/classes
 Content-Type: application/json
 
 {
@@ -37,7 +37,7 @@ Content-Type: application/json
 
 
 ### Save Graph
-POST {{{{baseUrl}}}}/api/persist
+POST {{baseUrl}}/api/persist
 Content-Type: application/json
 
 {
@@ -88,7 +88,7 @@ Content-Type: application/json
 
 
 ### Save Graph - validation fail
-POST {{{{baseUrl}}}}/api/persist
+POST {{baseUrl}}/api/persist
 Content-Type: application/json
 
 {
