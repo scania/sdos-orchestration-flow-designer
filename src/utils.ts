@@ -17,7 +17,7 @@ const JSON_LD_CONTEXT: ContextDefinition = {
 
 // Interface for Class Configurations
 export interface IClassConfig {
-  "@id": string;
+  "@id"?: string;
   "@type": string[];
   "iris:hasAction"?: {
     "@id": string;
@@ -29,16 +29,15 @@ export interface IClassConfig {
   };
 }
 
+export const generateClassId = () => `iris:${crypto.randomUUID()}`;
+
 // Class type configuration
 const CLASS_CONFIG: Record<string, IClassConfig> = {
   Task: {
-    "@id": "iris:aeca5978_21af_4c8d_af8f_f2e68e2a3417",
     "@type": ["owl:NamedIndividual", "iris:Task"],
-    "iris:hasAction": { "@id": "iris:301acd01_19b5_4f19_ab76_ee13ffb57c00" },
     "rdfs:label": "GetPizzasAndAllergenes",
   },
   "HTTP Action": {
-    "@id": "iris:301acd01_19b5_4f19_ab76_ee13ffb57c00",
     "@type": ["owl:NamedIndividual", "iris:HTTPAction"],
     "iris:endpoint": "http://example.com/pizzas",
     "iris:httpHeader": { "@value": '{"Accept": "application/json"}' },
@@ -68,17 +67,33 @@ export const assignClassData = (type: string): IClassConfig | {} =>
  * @param state - The state containing nodes and edges.
  * @returns The JSON-LD payload.
  */
+//TODO: Write tests
 export const generateJsonLdFromState = ({
   nodes,
   edges,
 }: IState): GraphData => {
-  const graphData: IClassConfig[] = edges
-    .flatMap(({ source, target }) => {
-      const sourceData =
-        nodes.find((node) => node.id === source)?.data?.classData ?? null;
-      const targetData =
-        nodes.find((node) => node.id === target)?.data?.classData ?? null;
-      return [sourceData, targetData];
+  const findNodeData = (nodeId: string) => {
+    const node = nodes.find((node) => node.id === nodeId);
+    return node ? node.data.classData : null;
+  };
+
+  const constructNodeData = (nodeId: string, additionalData = {}) => {
+    const nodeData = findNodeData(nodeId);
+    if (!nodeData) return null;
+    return { ...nodeData, ...additionalData, "@id": nodeId };
+  };
+
+  // Collect all unique node IDs from edges
+  const uniqueNodeIds = new Set(
+    edges.flatMap((edge) => [edge.source, edge.target])
+  );
+
+  // Map each unique node ID to its corresponding data
+  const graphData: IClassConfig[] = Array.from(uniqueNodeIds)
+    .map((nodeId) => {
+      const additionalData =
+        edges.find((edge) => edge.source === nodeId)?.data || {};
+      return constructNodeData(nodeId, additionalData);
     })
     .filter((item): item is IClassConfig => item !== null);
 

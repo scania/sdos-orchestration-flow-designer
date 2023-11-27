@@ -19,6 +19,7 @@ import CircularNode from "../../components/CircularNode.tsx";
 import { GraphBody } from "@/services/graphSchema";
 import {
   assignClassData,
+  generateClassId,
   generateJsonLdFromState,
   IClassConfig,
 } from "../../utils";
@@ -28,16 +29,13 @@ const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const initialNodes = [
   {
-    id: "1",
+    id: generateClassId(),
     type: "input",
     data: {
       label: "Task",
       classData: {
-        "@id": "iris:aeca5978_21af_4c8d_af8f_f2e68e2a3417",
+        "@id": `iris:${crypto.randomUUID()}`,
         "@type": ["owl:NamedIndividual", "iris:Task"],
-        "iris:hasAction": {
-          "@id": "iris:301acd01_19b5_4f19_ab76_ee13ffb57c00",
-        },
         "rdfs:label": "GetPizzasAndAllergenes",
       },
     },
@@ -161,23 +159,24 @@ const ForceGraphComponent: React.FC = () => {
     setSelectedNode(null);
   };
 
-  const onConnect = useCallback(
-    (params: Edge<any> | Connection) =>
-      setEdges((eds) => {
-        const edge = addEdge(params, eds);
-        const edgeProperty = {
-          markerEnd: {
-            type: MarkerType.Arrow,
+  const onConnect = useCallback((params: Edge<any> | Connection) => {
+    return setEdges((eds) => {
+      const updatedEdge = {
+        ...params,
+        markerEnd: {
+          type: MarkerType.Arrow,
+        },
+        data: {
+          "iris:hasAction": {
+            "@id": params.target,
           },
-          label: "hasAction",
-        };
-        if (edge.length > 0 && typeof edge[edge.length - 1] === "object") {
-          edge[edge.length - 1] = { ...edge[edge.length - 1], ...edgeProperty };
-        }
-        return edge;
-      }),
-    []
-  );
+        },
+        label: "hasAction",
+      };
+      const edge = addEdge(updatedEdge, eds);
+      return edge;
+    });
+  }, []);
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
@@ -198,13 +197,17 @@ const ForceGraphComponent: React.FC = () => {
         x: event.clientX,
         y: event.clientY,
       });
+
       const newNode = {
-        id: crypto.randomUUID(),
+        id: generateClassId(),
         type: type === "Result Action" ? "output" : "default",
         position,
         sourcePosition: "right",
         targetPosition: "left",
-        data: { label: type, classData: assignClassData(type) },
+        data: {
+          label: type,
+          classData: assignClassData(type),
+        },
       };
       //@ts-ignore
       setNodes((nds) => nds.concat(newNode));
