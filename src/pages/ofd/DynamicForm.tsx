@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 interface IClassConfig {
@@ -24,8 +24,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   label,
   onClose,
 }) => {
-  const { register, handleSubmit, formState } = useForm<IFormInput>();
+  const { register, handleSubmit, reset, formState } = useForm<IFormInput>();
   const { errors } = formState;
+
+  // Update form state when classConfig changes
+  useEffect(() => {
+    reset(classConfig);
+  }, [classConfig, reset]);
 
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
     onSubmit(data);
@@ -36,73 +41,71 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     if (isObject) {
       return Object.entries(value).map(([subKey, subValue]) => (
-        <div key={`${key}.${subKey}`} className="form-section">
-          <label>{`${key} ${subKey}`}</label>
+        <section key={`${key}.${subKey}`} className="form-section">
           <tds-text-field
             className="tds-text-field"
-            //@ts-ignore
-            defaultValue={subValue}
+            state={errors[key] ? "error" : "default"}
+            label-position="outside"
+            label={`${key} ${subKey}`}
             // @ts-ignore
-            value={subValue}
+            helper={errors[key] ? errors[key][subKey].message : ""}
             {...register(`${key}.${subKey}`, {
               required: "This field is required",
+              minLength: { value: 2, message: "Minimum length is 2" },
+              maxLength: { value: 50, message: "Maximum length is 50" },
             })}
           />
-          {errors[key] && (
-            // @ts-ignore
-            <span className="error-message">{errors[key].message}</span>
-          )}
-        </div>
+        </section>
       ));
     } else {
       return (
-        <div key={key} className="form-section">
-          <h4>Edit Class</h4>
-          class{" "}
-          <tds-chip type="button" size="sm" draggable key={key}>
-            <span slot="label" style={{ fontWeight: 700, fontSize: "10px" }}>
-              {label}
-            </span>
-          </tds-chip>
+        <section key={key} className="form-section">
           <tds-text-field
             className="tds-text-field"
             label={key}
             label-position="outside"
-            value={value}
-            default-value={value}
-            {...register(key, { required: "This field is required" })}
-          />
-          {errors[key] && (
+            state={errors[key] ? "error" : "default"}
             // @ts-ignore
-            <span className="error-message">{errors[key].message}</span>
-          )}
-        </div>
+            helper={errors[key] ? errors[key].message : ""}
+            {...register(key, {
+              required: "This field is required",
+              minLength: { value: 2, message: "Minimum length is 2" },
+              maxLength: { value: 50, message: "Maximum length is 50" },
+            })}
+          />
+        </section>
       );
     }
   };
 
   return (
-    <article className="form">
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
-        {Object.entries(classConfig)
-          .filter(([key]) => !excludeKeys.includes(key))
-          .map(([key, value]) => renderInputField(key, value))}
-        <section
-          style={{ display: "flex", gap: "5px", justifyContent: "right" }}
-        >
-          <tds-button
-            type="button"
-            size="sm"
-            variant="secondary"
-            text="Close"
-            onClick={() => {
-              onClose();
-            }}
-          ></tds-button>
-          <tds-button type="submit" size="sm" text="Apply"></tds-button>
-        </section>
-      </form>
-    </article>
+    <>
+      <h4 style={{ marginBottom: "5px" }}>Edit Class</h4>
+      <tds-chip type="button" size="sm">
+        <span slot="label" style={{ fontWeight: 700, fontSize: "10px" }}>
+          {label}
+        </span>
+      </tds-chip>
+      <article className="form" style={{ marginTop: "10px" }}>
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          {Object.entries(classConfig)
+            .filter(([key]) => !excludeKeys.includes(key))
+            .map(([key, value]) => renderInputField(key, value))}
+          <section
+            style={{ display: "flex", gap: "5px", justifyContent: "right" }}
+          >
+            <tds-button
+              type="button"
+              size="sm"
+              variant="secondary"
+              text="Close"
+              onClick={onClose}
+            ></tds-button>
+            <tds-button type="submit" size="sm" text="Apply"></tds-button>
+          </section>
+        </form>
+      </article>
+    </>
   );
 };
 

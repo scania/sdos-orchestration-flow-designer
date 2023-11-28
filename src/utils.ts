@@ -1,5 +1,5 @@
 import { ContextDefinition } from "jsonld/jsonld";
-import { Edge, Node } from "reactflow";
+import { Connection, Edge, MarkerType, Node } from "reactflow";
 
 // Constants for RDF, OWL, and RDFS namespaces
 const RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -22,7 +22,7 @@ export interface IClassConfig {
   "iris:hasAction"?: {
     "@id": string;
   };
-  "rdfs:label"?: string;
+  "rdfs:label": string;
   "iris:endpoint"?: string;
   "iris:httpHeader"?: {
     "@value": string;
@@ -39,6 +39,7 @@ const CLASS_CONFIG: Record<string, IClassConfig> = {
   },
   "HTTP Action": {
     "@type": ["owl:NamedIndividual", "iris:HTTPAction"],
+    "rdfs:label": "fetchAllPizzas",
     "iris:endpoint": "http://example.com/pizzas",
     "iris:httpHeader": { "@value": '{"Accept": "application/json"}' },
   },
@@ -100,5 +101,38 @@ export const generateJsonLdFromState = ({
   return {
     "@context": JSON_LD_CONTEXT,
     "@graph": graphData,
+  };
+};
+
+export const setEdgeProperties = (
+  nodes: Node[],
+  defaultParams: Edge<any> | Connection
+) => {
+  //get source label
+  const commonEdgeProps = {
+    ...defaultParams,
+    markerEnd: { type: MarkerType.Arrow },
+  };
+  const sourceNodeLabel = nodes.find((node) => node.id === defaultParams.source)
+    ?.data.label;
+  if (sourceNodeLabel === "Task") {
+    return {
+      ...commonEdgeProps,
+      data: {
+        "iris:hasAction": {
+          "@id": defaultParams.target,
+        },
+      },
+      label: "hasAction",
+    };
+  }
+  return {
+    ...commonEdgeProps,
+    data: {
+      "iris:hasNextAction": {
+        "@id": defaultParams.target,
+      },
+    },
+    label: "hasNextAction",
   };
 };

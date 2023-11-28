@@ -41,7 +41,7 @@ const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         //   "(prefers-color-scheme: dark)"
         // ).matches;
         // setTheme(userPrefersDark ? "dark" : "light");
-        setTheme("dark");
+        setTheme("light");
       }
       setInitialized(true);
     };

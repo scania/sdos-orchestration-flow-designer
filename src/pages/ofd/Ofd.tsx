@@ -22,6 +22,7 @@ import {
   generateClassId,
   generateJsonLdFromState,
   IClassConfig,
+  setEdgeProperties,
 } from "../../utils";
 import { useRouter } from "next/router";
 import DynamicForm from "./DynamicForm";
@@ -59,26 +60,23 @@ const ForceGraphComponent: React.FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [selectedClassName, setSelectedClassName] = useState<string | null>(
-    null
-  );
   const router = useRouter();
-  const {
-    data: classDetails,
-    isLoading: isClassDetailsLoading,
-    isError: isClassDetailsError,
-  } = useQuery(
-    ["classDetails", selectedClassName],
-    () =>
-      axios
-        .get(`${baseUrl}/api/class-details?className=${selectedClassName}`)
-        .then((res) => res.data),
-    {
-      enabled: !!selectedClassName, // only fetch when selectedClassName is not null
-      staleTime: 1000 * 60 * 10, // 10 minutes
-      cacheTime: 1000 * 60 * 30, // 30 minutes
-    }
-  );
+  // const {
+  //   data: classDetails,
+  //   isLoading: isClassDetailsLoading,
+  //   isError: isClassDetailsError,
+  // } = useQuery(
+  //   ["classDetails", selectedClassName],
+  //   () =>
+  //     axios
+  //       .get(`${baseUrl}/api/class-details?className=${selectedClassName}`)
+  //       .then((res) => res.data),
+  //   {
+  //     enabled: !!selectedClassName, // only fetch when selectedClassName is not null
+  //     staleTime: 1000 * 60 * 10, // 10 minutes
+  //     cacheTime: 1000 * 60 * 30, // 30 minutes
+  //   }
+  // );
 
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(`${baseUrl}/api/persist`, data);
@@ -161,19 +159,7 @@ const ForceGraphComponent: React.FC = () => {
 
   const onConnect = useCallback((params: Edge<any> | Connection) => {
     return setEdges((eds) => {
-      const updatedEdge = {
-        ...params,
-        markerEnd: {
-          type: MarkerType.Arrow,
-        },
-        data: {
-          "iris:hasAction": {
-            "@id": params.target,
-          },
-        },
-        label: "hasAction",
-      };
-      const edge = addEdge(updatedEdge, eds);
+      const edge = addEdge(setEdgeProperties(nodes, params), eds);
       return edge;
     });
   }, []);
@@ -275,18 +261,7 @@ const ForceGraphComponent: React.FC = () => {
   }
 
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
-    setSelectedClassName(node.data.label.replace(/\s+/g, ""));
     setSelectedNode(node);
-
-    if (isLoading) {
-      console.log("Loading class details...");
-    }
-
-    if (isClassDetailsError) {
-      console.error("Error fetching class details");
-    }
-
-    console.log("Fetched class details:", classDetails);
   };
 
   return (
@@ -329,6 +304,7 @@ const ForceGraphComponent: React.FC = () => {
                 style={{
                   height: "calc(100vh - 200px)",
                   width: "calc(100vw - 450px)",
+                  position: "relative",
                 }}
               >
                 <ReactFlow
@@ -348,22 +324,22 @@ const ForceGraphComponent: React.FC = () => {
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
+                {selectedNode ? (
+                  <div className={styles.form}>
+                    <DynamicForm
+                      classConfig={selectedNode.data?.classData}
+                      onSubmit={handleFormSubmit}
+                      onClose={onFormClose}
+                      label={selectedNode.data.label}
+                      excludeKeys={["@id", "@type", "iris:hasAction"]}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
               </div>
             </ReactFlowProvider>
           </div>
-          {selectedNode ? (
-            <div className={styles.form}>
-              <DynamicForm
-                classConfig={selectedNode.data?.classData}
-                onSubmit={handleFormSubmit}
-                onClose={onFormClose}
-                label={selectedNode.data.label}
-                excludeKeys={["@id", "@type", "iris:hasAction"]}
-              />
-            </div>
-          ) : (
-            <></>
-          )}
         </section>
       </main>
       {renderToasts()}
