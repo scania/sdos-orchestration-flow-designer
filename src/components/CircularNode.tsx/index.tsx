@@ -1,42 +1,69 @@
-import React, { memo } from "react";
+import { generateClassId } from "@/utils";
+import React, { memo, useEffect } from "react";
 import { Handle, Position } from "reactflow";
-
+import { Trash } from "@phosphor-icons/react";
 const ellipsisStyle = {
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center", // Centers content vertically
+  alignItems: "center", // Centers content horizontally
+  width: "66px",
+  height: "44px",
+  zIndex: 999999,
   position: "absolute",
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -50%)",
-  "z-index": 999999,
+  transform: "translate(-50%, -60%)",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  fontSize: "6px",
 };
 
-const nodeStyle = {
-  //   width: "60px",
-  //   height: "60px",
-  //   border: "2px solid #555",
-  //   borderRadius: "50%", // This makes the node circular
-  //   display: "flex",
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  //   backgroundColor: "red",
+const ellipsisLabel = {
+  width: "60px",
+  height: "10px",
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -60%)",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  fontWeight: 700,
+  fontSize: "7px",
+  marginTop: "22px",
 };
 
 export default memo((node) => {
   //@ts-ignore
-  const { data, isConnectable, type } = node;
-  const { label, color } = data;
+  const { data, isConnectable, type, id } = node;
+  const {
+    methods: { onDeleteNode, handleNodeEdit },
+  } = data;
   return (
     //@ts-ignore
-    <div style={nodeStyle}>
+    <div>
       {/* @ts-ignore */}
-      <div className="ellipsis" data-tooltip={data.label} style={ellipsisStyle}>
+      <div
+        data-tooltip={data.label}
+        //@ts-ignore
+        style={{
+          ...ellipsisStyle,
+          fontSize: data.label?.length > 20 ? "9px" : "11px",
+        }}
+      >
         {data.label}
       </div>
       {/* @ts-ignore */}
       <div
-        className="ellipsis"
+        // className="ellipsis"
         data-tooltip={data.label}
         //@ts-ignore
-        style={{ ...ellipsisStyle, fontSize: "6px", marginTop: "10px" }}
+        style={{
+          ...ellipsisLabel,
+          fontSize: "6px",
+          marginTop: "20px",
+        }}
       >
         {data?.classData?.["rdfs:label"]}
       </div>
@@ -67,6 +94,33 @@ export default memo((node) => {
       ) : (
         <></>
       )}
+      {/* <tds-icon
+        name="trash"
+        size="12px"
+        style={{
+          position: "relative",
+          top: "-39px",
+          left: "-6px",
+          cursor: "pointer",
+          color: "coral",
+        }}
+        onClick={(e) => {
+          onDeleteNode(id);
+        }}
+      ></tds-icon> */}
+      {/* <tds-icon
+        name="edit"
+        size="12px"
+        style={{
+          position: "relative",
+          top: "-39px",
+          left: "-6px",
+          cursor: "pointer",
+        }}
+        onClick={(e) => {
+          handleNodeEdit(id);
+        }}
+      ></tds-icon> */}
     </div>
   );
 });

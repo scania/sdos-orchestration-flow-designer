@@ -36,6 +36,7 @@ const initialNodes = [
     type: "input",
     data: {
       label: "Task",
+      methods: { onDeleteNode: () => {}, handleNodeEdit: () => {} },
       classData: {
         "@id": `iris:${crypto.randomUUID()}`,
         "@type": ["owl:NamedIndividual", "iris:Task"],
@@ -85,6 +86,19 @@ const ForceGraphComponent: React.FC = () => {
     return response.data;
   };
 
+  const onDeleteNode = (nodeId: string) => {
+    setNodes(nodes.filter((node) => node.id !== nodeId));
+  };
+  const handleNodeEdit = (id: string) => {
+    console.log("id", id);
+    console.log("nodes", nodes);
+
+    const nodeToEdit = nodes.find((node) => node.id === id);
+    console.log("nodeToEdit", nodeToEdit);
+
+    setSelectedNode(nodeToEdit || null);
+  };
+
   const mutation = useMutation(saveData, {
     onSuccess: () => {
       setShowSuccessToast(true);
@@ -93,6 +107,16 @@ const ForceGraphComponent: React.FC = () => {
       setShowErrorToast(true);
     },
   });
+
+  useEffect(() => {
+    setNodes(
+      //@ts-ignore
+      nodes.map((node) => ({
+        ...node,
+        data: { ...node.data, methods: { onDeleteNode, handleNodeEdit } },
+      }))
+    );
+  }, []);
 
   useEffect(() => {
     if (showSuccessToast) {
@@ -195,6 +219,7 @@ const ForceGraphComponent: React.FC = () => {
         data: {
           label: type,
           classData: assignClassData(type),
+          methods: { onDeleteNode, handleNodeEdit },
         },
       };
       //@ts-ignore
@@ -321,6 +346,7 @@ const ForceGraphComponent: React.FC = () => {
                   fitView
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
+                  className="react-flow"
                 >
                   <Controls />
                   {/* @ts-ignore */}
