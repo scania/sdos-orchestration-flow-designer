@@ -17,6 +17,8 @@ interface DynamicFormProps {
   label: string;
 }
 
+const textAreaKeys = ["iris:constructSparql"];
+
 const DynamicForm: React.FC<DynamicFormProps> = ({
   classConfig = {},
   onSubmit,
@@ -60,19 +62,34 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     } else {
       return (
         <section key={key} className="form-section">
-          <tds-text-field
-            className="tds-text-field"
-            label={key}
-            label-position="outside"
-            state={errors[key] ? "error" : "default"}
-            // @ts-ignore
-            helper={errors[key] ? errors[key].message : ""}
-            {...register(key, {
-              required: "This field is required",
-              minLength: { value: 2, message: "Minimum length is 2" },
-              maxLength: { value: 50, message: "Maximum length is 50" },
-            })}
-          />
+          {textAreaKeys.includes(key) ? (
+            <tds-textarea
+              className="tds-text-field"
+              label={key}
+              label-position="outside"
+              state={errors[key] ? "error" : "default"}
+              // @ts-ignore
+              helper={errors[key] ? errors[key].message : ""}
+              {...register(key, {
+                required: "This field is required",
+                minLength: { value: 2, message: "Minimum length is 2" },
+              })}
+            />
+          ) : (
+            <tds-text-field
+              className="tds-text-field"
+              label={key}
+              label-position="outside"
+              state={errors[key] ? "error" : "default"}
+              // @ts-ignore
+              helper={errors[key] ? errors[key].message : ""}
+              {...register(key, {
+                required: "This field is required",
+                minLength: { value: 2, message: "Minimum length is 2" },
+                maxLength: { value: 50, message: "Maximum length is 50" },
+              })}
+            />
+          )}
         </section>
       );
     }

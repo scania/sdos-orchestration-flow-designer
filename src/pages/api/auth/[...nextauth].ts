@@ -41,9 +41,9 @@ export default (req: NextApiRequest, res: NextApiResponse) =>
     providers: [
       ...providers,
       AzureADProvider({
-        clientId: process.env.AZURE_AD_CLIENT_ID || "",
-        clientSecret: process.env.AZURE_AD_CLIENT_SECRET || "",
-        tenantId: process.env.AZURE_AD_TENANT_ID || "",
+        clientId: process.env.OFD_AZURE_AD_CLIENT_ID || "",
+        clientSecret: process.env.OFD_AZURE_AD_CLIENT_SECRET || "",
+        tenantId: process.env.OFD_AZURE_AD_TENANT_ID || "",
       }),
     ],
     //this needs to be in .env for production

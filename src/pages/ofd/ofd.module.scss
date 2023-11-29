@@ -69,7 +69,10 @@
 .form {
   position: absolute;
   width: 309px;
-  top: 5px;
-  right: 5px;
+  top: 10px;
+  right: 10px;
   background-color: white;
+  overflow: auto;
+  max-height: calc(100vh - 200px);
+  padding-left: 10px;
 }

@@ -18,11 +18,12 @@ const JSON_LD_CONTEXT: ContextDefinition = {
 // Interface for Class Configurations
 export interface IClassConfig {
   "@id"?: string;
-  "@type": string[];
+  "@type"?: string[];
   "iris:hasAction"?: {
     "@id": string;
   };
   "rdfs:label": string;
+  "iris:constructSparql"?: string;
   "iris:endpoint"?: string;
   "iris:httpHeader"?: {
     "@value": string;
@@ -43,6 +44,13 @@ const CLASS_CONFIG: Record<string, IClassConfig> = {
     "iris:endpoint": "http://example.com/pizzas",
     "iris:httpHeader": { "@value": '{"Accept": "application/json"}' },
   },
+  "Script Action": {
+    "rdfs:label": "",
+    "iris:constructSparql": "",
+  },
+  Default: {
+    "rdfs:label": "",
+  },
 };
 
 interface IState {
@@ -61,7 +69,7 @@ interface GraphData {
  * @returns The class data for the given type.
  */
 export const assignClassData = (type: string): IClassConfig | {} =>
-  CLASS_CONFIG[type] || {};
+  CLASS_CONFIG[type] || CLASS_CONFIG["Default"];
 
 /**
  * Generates JSON-LD payload from graph state.
