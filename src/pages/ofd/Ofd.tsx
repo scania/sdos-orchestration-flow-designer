@@ -26,7 +26,9 @@ import {
 } from "../../utils";
 import { useRouter } from "next/router";
 import DynamicForm from "./DynamicForm";
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const baseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://ofd.sdip.devtest.aws.scania.com";
 
 const initialNodes = [
   {
