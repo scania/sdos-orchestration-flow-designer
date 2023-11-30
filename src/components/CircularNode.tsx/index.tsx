@@ -1,7 +1,6 @@
 import { generateClassId } from "@/utils";
 import React, { memo, useEffect } from "react";
 import { Handle, Position } from "reactflow";
-import { Trash } from "@phosphor-icons/react";
 const ellipsisStyle = {
   display: "flex",
   flexDirection: "column",
