@@ -11,7 +11,7 @@ const Header = () => {
 
   return (
     <tds-header>
-      <tds-header-title>ORCHESTRATION FLOW DESIGNER</tds-header-title>
+      <tds-header-title>ORCHESTRATION FLOW DESIGNER BETA 1.0</tds-header-title>
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
           <tds-icon name="search"></tds-icon>

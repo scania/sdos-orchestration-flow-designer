@@ -337,6 +337,7 @@ const ForceGraphComponent: React.FC = () => {
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
+                  deleteKeyCode={"Delete"}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   onConnect={onConnect}
