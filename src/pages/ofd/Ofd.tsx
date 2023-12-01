@@ -1,3 +1,4 @@
+// import useKeyPress from "@/hooks/useKeyPress";
 import { GraphBody } from "@/services/graphSchema";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -12,6 +13,7 @@ import ReactFlow, {
   Node,
   ReactFlowProvider,
   useEdgesState,
+  useKeyPress,
   useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
@@ -62,22 +64,12 @@ const ForceGraphComponent: React.FC = () => {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const router = useRouter();
-  // const {
-  //   data: classDetails,
-  //   isLoading: isClassDetailsLoading,
-  //   isError: isClassDetailsError,
-  // } = useQuery(
-  //   ["classDetails", selectedClassName],
-  //   () =>
-  //     axios
-  //       .get(`${baseUrl}/api/class-details?className=${selectedClassName}`)
-  //       .then((res) => res.data),
-  //   {
-  //     enabled: !!selectedClassName, // only fetch when selectedClassName is not null
-  //     staleTime: 1000 * 60 * 10, // 10 minutes
-  //     cacheTime: 1000 * 60 * 30, // 30 minutes
-  //   }
-  // );
+  const deletePressed = useKeyPress(["Delete"]);
+
+  useEffect(() => {
+    //closing the form when delete is pressed i.e node deleted
+    setSelectedNode(null);
+  }, [deletePressed]);
 
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(`${baseUrl}/api/persist`, data);

@@ -48,9 +48,6 @@ const CLASS_CONFIG: Record<string, IClassConfig> = {
     "rdfs:label": "",
     "iris:constructSparql": "",
   },
-  Default: {
-    "rdfs:label": "",
-  },
 };
 
 interface IState {
@@ -63,13 +60,24 @@ interface GraphData {
   "@graph": IClassConfig[];
 }
 
+const toCamelCase = (str: string): string => {
+  return str
+    .split(" ")
+    .map((word, index) =>
+      index === 0
+        ? word.toLowerCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join("");
+};
+
 /**
  * Assigns class data based on the given type.
  * @param type - The type of class to assign data for.
  * @returns The class data for the given type.
  */
 export const assignClassData = (type: string): IClassConfig | {} =>
-  CLASS_CONFIG[type] || CLASS_CONFIG["Default"];
+  CLASS_CONFIG[type] || { "rdfs:label": `${toCamelCase(type)}Label` };
 
 /**
  * Generates JSON-LD payload from graph state.
