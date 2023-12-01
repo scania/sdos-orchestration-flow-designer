@@ -1,22 +1,21 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { GraphBody } from "@/services/graphSchema";
 import axios from "axios";
-import styles from "./ofd.module.scss";
+import { useRouter } from "next/router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation, useQuery } from "react-query";
 import ReactFlow, {
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  ReactFlowProvider,
   addEdge,
+  Background,
   Connection,
+  Controls,
   Edge,
-  MarkerType,
   Node,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { useMutation, useQuery } from "react-query";
 import CircularNode from "../../components/CircularNode.tsx";
-import { GraphBody } from "@/services/graphSchema";
 import {
   assignClassData,
   generateClassId,
@@ -24,8 +23,8 @@ import {
   IClassConfig,
   setEdgeProperties,
 } from "../../utils";
-import { useRouter } from "next/router";
 import DynamicForm from "./DynamicForm";
+import styles from "./ofd.module.scss";
 const baseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://ofd.sdip.devtest.aws.scania.com";
@@ -38,7 +37,6 @@ const initialNodes = [
       label: "Task",
       methods: { onDeleteNode: () => {}, handleNodeEdit: () => {} },
       classData: {
-        "@id": `iris:${crypto.randomUUID()}`,
         "@type": ["owl:NamedIndividual", "iris:Task"],
         "rdfs:label": "GetPizzasAndAllergenes",
       },

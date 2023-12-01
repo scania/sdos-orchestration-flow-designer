@@ -5,14 +5,21 @@
 //     "ontologyRelations": [ /* Array of ontology-wide relations */ ]
 // }
 
-import { NextApiRequest, NextApiResponse } from "next";
 import {
-  fetchRelations,
   fetchDynamicRelations,
   fetchOntologyRelations,
+  fetchRelations,
 } from "@/services/stardogService";
+import { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   if (req.method === "GET") {
     try {
       const className = req.query.className as string;

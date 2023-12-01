@@ -3,16 +3,16 @@
 import { GraphBody, graphSave } from "@/services/graphSchema";
 import { updateGraph } from "@/services/stardogService";
 import { NextApiRequest, NextApiResponse } from "next";
-
-const mockGraphs = [
-  {
-    title: "Sample Graph",
-    description: "A sample graph description.",
-    nodes: ["NodeA", "NodeB", "NodeC"],
-  },
-];
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+  //get session not working here, to be investigated
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   switch (req.method) {
     case "POST":
       try {

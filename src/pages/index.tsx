@@ -1,14 +1,12 @@
-import { useTheme } from "@/context/ThemeProvider";
-import { FormEvent, useState } from "react";
-import Link from "next/link";
-import styles from "./landing.module.scss";
 import Button from "@/components/Button";
 import Card from "@/components/Card";
-import Tabs from "@/components/Tabs/Tabs";
 import Panel from "@/components/Tabs/Panel";
-import { getSession } from "next-auth/react";
-import { useSession } from "next-auth/react";
+import Tabs from "@/components/Tabs/Tabs";
+import { useTheme } from "@/context/ThemeProvider";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { FormEvent, useState } from "react";
+import styles from "./landing.module.scss";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -28,7 +26,7 @@ export async function getServerSideProps(context: any) {
 
 function App() {
   const { theme } = useTheme();
-  const [cardCount, setCardCount] = useState<number>(4);
+  const [cardCount, setCardCount] = useState<number>(7);
   const { data: session } = useSession();
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
@@ -44,12 +42,12 @@ function App() {
     setNameInput(event.currentTarget.value);
   };
 
-  const handleDesc = (event: FormEvent<HTMLTdsTextareaElement>) => {
-    setDescInput(event.currentTarget.value);
-  };
+  // const handleDesc = (event: FormEvent<HTMLTdsTextareaElement>) => {
+  //   setDescInput(event.currentTarget.value);
+  // };
 
   const createNewGraph = () => {
-    if (nameInput == "" || descInput == "") {
+    if (nameInput == "") {
       setErrorState(true);
     } else {
       /* Navigate to workspace page */
@@ -105,7 +103,7 @@ function App() {
                     onInput={handleName}
                   />
                   <div style={{ marginTop: "28px" }} />
-                  <tds-textarea
+                  {/* <tds-textarea
                     id="modal-description-area"
                     placeholder="Description"
                     rows={4}
@@ -117,7 +115,7 @@ function App() {
                     }
                     state={errorState && descInput == "" ? "error" : "default"}
                     onInput={handleDesc}
-                  />
+                  /> */}
                 </span>
                 <span slot="actions">
                   <tds-button

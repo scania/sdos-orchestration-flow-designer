@@ -35,21 +35,22 @@ if (process.env.NODE_ENV === "development") {
     })
   );
 }
+export const authOptions = {
+  providers: [
+    ...providers,
+    AzureADProvider({
+      clientId: process.env.OFD_AZURE_AD_CLIENT_ID || "",
+      clientSecret: process.env.OFD_AZURE_AD_CLIENT_SECRET || "",
+      tenantId: process.env.OFD_AZURE_AD_TENANT_ID || "",
+    }),
+  ],
+  //this needs to be in .env for production
+  secret: "YOUR_SECRET_HERE",
+  pages: {
+    signIn: "auth/login",
+    signOut: "auth/logout",
+  },
+};
 
 export default (req: NextApiRequest, res: NextApiResponse) =>
-  NextAuth(req, res, {
-    providers: [
-      ...providers,
-      AzureADProvider({
-        clientId: process.env.OFD_AZURE_AD_CLIENT_ID || "",
-        clientSecret: process.env.OFD_AZURE_AD_CLIENT_SECRET || "",
-        tenantId: process.env.OFD_AZURE_AD_TENANT_ID || "",
-      }),
-    ],
-    //this needs to be in .env for production
-    secret: "YOUR_SECRET_HERE",
-    pages: {
-      signIn: "auth/login",
-      signOut: "auth/logout",
-    },
-  });
+  NextAuth(req, res, authOptions);

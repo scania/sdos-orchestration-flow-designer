@@ -1,17 +1,16 @@
 // pages/api/graphs/index.ts
 
-import { NextApiRequest, NextApiResponse } from "next";
 import { fetchClasses } from "@/services/stardogService";
-
-const mockGraphs = [
-  {
-    title: "Sample Graph",
-    description: "A sample graph description.",
-    nodes: ["NodeA", "NodeB", "NodeC"],
-  },
-];
+import { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   switch (req.method) {
     case "GET":
       const response = await fetchClasses();
