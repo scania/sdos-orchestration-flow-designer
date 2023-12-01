@@ -44,7 +44,7 @@ const CLASS_CONFIG: Record<string, IClassConfig> = {
     "iris:endpoint": "http://example.com/pizzas",
     "iris:httpHeader": { "@value": '{"Accept": "application/json"}' },
   },
-  "Script Action": {
+  "Sparql Convert Action": {
     "rdfs:label": "",
     "iris:constructSparql": "",
   },
