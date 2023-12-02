@@ -36,9 +36,6 @@ const ellipsisLabel = {
 export default memo((node) => {
   //@ts-ignore
   const { data, isConnectable, type, id } = node;
-  const {
-    methods: { onDeleteNode, handleNodeEdit },
-  } = data;
   return (
     //@ts-ignore
     <div>
@@ -93,33 +90,6 @@ export default memo((node) => {
       ) : (
         <></>
       )}
-      {/* <tds-icon
-        name="trash"
-        size="12px"
-        style={{
-          position: "relative",
-          top: "-39px",
-          left: "-6px",
-          cursor: "pointer",
-          color: "coral",
-        }}
-        onClick={(e) => {
-          onDeleteNode(id);
-        }}
-      ></tds-icon> */}
-      {/* <tds-icon
-        name="edit"
-        size="12px"
-        style={{
-          position: "relative",
-          top: "-39px",
-          left: "-6px",
-          cursor: "pointer",
-        }}
-        onClick={(e) => {
-          handleNodeEdit(id);
-        }}
-      ></tds-icon> */}
     </div>
   );
 });

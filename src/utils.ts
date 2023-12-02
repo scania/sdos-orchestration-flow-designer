@@ -33,7 +33,7 @@ export interface IClassConfig {
 export const generateClassId = () => `iris:${crypto.randomUUID()}`;
 
 // Class type configuration
-const CLASS_CONFIG: Record<string, IClassConfig> = {
+export const CLASS_CONFIG: Record<string, IClassConfig> = {
   Task: {
     "@type": ["owl:NamedIndividual", "iris:Task"],
     "rdfs:label": "GetPizzasAndAllergenes",
@@ -45,7 +45,7 @@ const CLASS_CONFIG: Record<string, IClassConfig> = {
     "iris:httpHeader": { "@value": '{"Accept": "application/json"}' },
   },
   "Sparql Convert Action": {
-    "rdfs:label": "",
+    "rdfs:label": "sparqlConvertActionLabel",
     "iris:constructSparql": "",
   },
 };

@@ -17,20 +17,20 @@
       padding: 20px;
 
       &__primaryHeading {
-        color: #222;
+        // color: #222;
         font-size: 22px;
         padding-bottom: 6px;
       }
 
       &__secondaryHeading {
-        color: #444;
+        // color: #444;
         font-size: 17px;
       }
 
       &__description {
-        color: #666;
+        // color: #666;
         font-size: 16px;
-        padding-bottom: 30px;
+        padding-bottom: 10px;
       }
 
       &__tabs {
@@ -71,8 +71,13 @@
   width: 309px;
   top: 10px;
   right: 10px;
-  background-color: white;
+  background-color: var(--tds-white);
   overflow: auto;
   max-height: calc(100vh - 200px);
-  padding-left: 10px;
+  padding: 10px;
+  border-radius: 5px;
+
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-958);
+  }
 }

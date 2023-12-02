@@ -37,7 +37,6 @@ const initialNodes = [
     type: "input",
     data: {
       label: "Task",
-      methods: { onDeleteNode: () => {}, handleNodeEdit: () => {} },
       classData: {
         "@type": ["owl:NamedIndividual", "iris:Task"],
         "rdfs:label": "GetPizzasAndAllergenes",
@@ -76,19 +75,6 @@ const ForceGraphComponent: React.FC = () => {
     return response.data;
   };
 
-  const onDeleteNode = (nodeId: string) => {
-    setNodes(nodes.filter((node) => node.id !== nodeId));
-  };
-  const handleNodeEdit = (id: string) => {
-    console.log("id", id);
-    console.log("nodes", nodes);
-
-    const nodeToEdit = nodes.find((node) => node.id === id);
-    console.log("nodeToEdit", nodeToEdit);
-
-    setSelectedNode(nodeToEdit || null);
-  };
-
   const mutation = useMutation(saveData, {
     onSuccess: () => {
       setShowSuccessToast(true);
@@ -99,27 +85,16 @@ const ForceGraphComponent: React.FC = () => {
   });
 
   useEffect(() => {
-    setNodes(
-      //@ts-ignore
-      nodes.map((node) => ({
-        ...node,
-        data: { ...node.data, methods: { onDeleteNode, handleNodeEdit } },
-      }))
-    );
-  }, []);
+    let toastTimer: NodeJS.Timeout;
 
-  useEffect(() => {
-    if (showSuccessToast) {
-      setTimeout(() => {
+    if (showSuccessToast || showErrorToast) {
+      toastTimer = setTimeout(() => {
         setShowSuccessToast(false);
-      }, 5000); // 5 seconds delay
-    }
-
-    if (showErrorToast) {
-      setTimeout(() => {
         setShowErrorToast(false);
       }, 5000); // 5 seconds delay
     }
+
+    return () => clearTimeout(toastTimer);
   }, [showSuccessToast, showErrorToast]);
 
   const handleSaveClick = () => {
@@ -152,33 +127,41 @@ const ForceGraphComponent: React.FC = () => {
     );
   };
 
-  const handleFormSubmit = (data: any) => {
-    console.log("Form Data:", data);
-    if (!selectedNode) return;
-    const updatedClassData: IClassConfig = {
-      ...selectedNode.data.classData,
-      ...data,
-    };
-    setNodes(
-      nodes.map((node: Node) =>
-        node.id === selectedNode.id
-          ? { ...node, data: { ...node.data, classData: updatedClassData } }
-          : node
-      )
-    );
-    setSelectedNode(null);
-  };
+  const handleFormSubmit = useCallback(
+    (data: any) => {
+      if (!selectedNode) return;
 
-  const onFormClose = () => {
-    setSelectedNode(null);
-  };
+      const updatedClassData: IClassConfig = {
+        ...selectedNode.data.classData,
+        ...data,
+      };
 
-  const onConnect = useCallback((params: Edge<any> | Connection) => {
-    return setEdges((eds) => {
-      const edge = addEdge(setEdgeProperties(nodes, params), eds);
-      return edge;
-    });
-  }, []);
+      setNodes((prevNodes) =>
+        prevNodes.map((node: Node) =>
+          node.id === selectedNode.id
+            ? { ...node, data: { ...node.data, classData: updatedClassData } }
+            : node
+        )
+      );
+
+      setSelectedNode(null);
+    },
+    [selectedNode, setNodes]
+  );
+
+  const onFormClose = useCallback(() => {
+    setSelectedNode(null);
+  }, [setSelectedNode]);
+
+  const onConnect = useCallback(
+    (params: Edge<any> | Connection) => {
+      return setEdges((eds) => {
+        const edge = addEdge(setEdgeProperties(nodes, params), eds);
+        return edge;
+      });
+    },
+    [nodes]
+  );
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
@@ -202,14 +185,18 @@ const ForceGraphComponent: React.FC = () => {
 
       const newNode = {
         id: generateClassId(),
-        type: type === "Result Action" ? "output" : "default",
+        type:
+          type === "Task"
+            ? "input"
+            : type === "Result Action"
+            ? "output"
+            : "default",
         position,
         sourcePosition: "right",
         targetPosition: "left",
         data: {
           label: type,
           classData: assignClassData(type),
-          methods: { onDeleteNode, handleNodeEdit },
         },
       };
       //@ts-ignore
@@ -224,7 +211,13 @@ const ForceGraphComponent: React.FC = () => {
     error: classesError,
   } = useQuery(
     "classes",
-    () => axios.get(`${baseUrl}/api/classes`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${baseUrl}/api/classes`)
+        .then((res) => [
+          { uri: "", className: "Task", parentClassUri: "" },
+          ...res.data,
+        ]),
     {
       staleTime: 1000 * 60 * 5, //5 minutes
     }
@@ -249,25 +242,26 @@ const ForceGraphComponent: React.FC = () => {
     }
     return (
       <div className={styles.chips}>
-        {classes.map(
-          (
-            item: { parentClassUri: string; className: string },
-            index: number
-          ) => {
-            return (
-              <tds-chip
-                type="button"
-                size="lg"
-                draggable
-                key={index}
-                onDragStart={(e: any) => handleOnDrag(e, item.className)}
-                className={styles.chip}
-              >
-                <span slot="label">{item.className}</span>
-              </tds-chip>
-            );
-          }
-        )}
+        {classes &&
+          classes.map(
+            (
+              item: { parentClassUri: string; className: string },
+              index: number
+            ) => {
+              return (
+                <tds-chip
+                  type="button"
+                  size="lg"
+                  draggable
+                  key={index}
+                  onDragStart={(e: any) => handleOnDrag(e, item.className)}
+                  className={styles.chip}
+                >
+                  <span slot="label">{item.className}</span>
+                </tds-chip>
+              );
+            }
+          )}
       </div>
     );
   };
@@ -289,7 +283,9 @@ const ForceGraphComponent: React.FC = () => {
         </h1>
         <div>
           {mutation.isLoading ? (
-            <tds-spinner size="md" variant="standard"></tds-spinner>
+            <div style={{ marginRight: "25px" }}>
+              <tds-spinner size="md" variant="standard"></tds-spinner>
+            </div>
           ) : (
             <tds-button
               type="button"
@@ -297,7 +293,9 @@ const ForceGraphComponent: React.FC = () => {
               size="lg"
               text="Save"
               onClick={handleSaveClick}
-            ></tds-button>
+            >
+              <tds-icon slot="icon" size="20px" name="save"></tds-icon>
+            </tds-button>
           )}
         </div>
       </header>
@@ -309,8 +307,11 @@ const ForceGraphComponent: React.FC = () => {
             Select and add nodes to start designing your orchestration flow
             graph
           </p>
+          <tds-divider orientation="horizontal"></tds-divider>
           <div className={styles.sidebar__tabs}>{/* Tabs go here */}</div>
-          <div className={styles.sidebar__chips}>{renderClasses()}</div>
+          <div className={styles.sidebar__chips} style={{ marginTop: "10px" }}>
+            {renderClasses()}
+          </div>
         </aside>
         <section className={styles.graph__canvas}>
           <div>
