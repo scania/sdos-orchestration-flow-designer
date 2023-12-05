@@ -1,14 +1,66 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 
-const Header = () => {
+const DropDownListItems = () => {
   const { data: session } = useSession();
-
+  const router = useRouter();
   const handleLogout = (e: any) => {
     e.preventDefault();
     signOut({ callbackUrl: "/auth/logout" });
   };
 
+  return (
+    <>
+      {session ? (
+        <>
+          <tds-header-dropdown-list-user
+            header={session?.user?.name || ""}
+            subheader="Admin"
+          ></tds-header-dropdown-list-user>
+          <tds-header-dropdown-list-item
+            onClick={() => {
+              router.push("/settings");
+            }}
+          >
+            <Link href="settings">
+              <tds-icon name="settings"></tds-icon>
+              <div className="tds-u-pl1">Settings</div>
+            </Link>
+          </tds-header-dropdown-list-item>
+          <tds-header-dropdown-list-item>
+            <Link href="help">
+              <tds-icon name="info"></tds-icon>
+              <div className="tds-u-pl1">Need Help?</div>
+            </Link>
+          </tds-header-dropdown-list-item>
+          <tds-header-dropdown-list-item onClick={handleLogout}>
+            <Link href="#" passHref>
+              <div style={{ display: "inline-block" }}>
+                <tds-icon
+                  name="profile_inactive"
+                  style={{ display: "inline-block" }}
+                ></tds-icon>
+                <div className="tds-u-pl1" style={{ display: "inline-block" }}>
+                  Logout
+                </div>
+              </div>
+            </Link>
+          </tds-header-dropdown-list-item>
+        </>
+      ) : (
+        <></>
+      )}
+    </>
+  );
+};
+
+const DropDownListDynamic = dynamic(() => Promise.resolve(DropDownListItems), {
+  ssr: false,
+});
+
+const Header = () => {
   return (
     <tds-header>
       <tds-header-title>ORCHESTRATION FLOW DESIGNER BETA 1.0</tds-header-title>
@@ -43,36 +95,7 @@ const Header = () => {
           {1 > 0 && <tds-badge size="sm"></tds-badge>}
         </div>
         <tds-header-dropdown-list size="lg">
-          <tds-header-dropdown-list-user
-            header={session?.user?.name || ""}
-            subheader="Admin"
-          ></tds-header-dropdown-list-user>
-          <tds-header-dropdown-list-item>
-            <Link href="settings">
-              <tds-icon name="settings"></tds-icon>
-              <div className="tds-u-pl1">Settings</div>
-            </Link>
-          </tds-header-dropdown-list-item>
-
-          <tds-header-dropdown-list-item>
-            <Link href="help">
-              <tds-icon name="info"></tds-icon>
-              <div className="tds-u-pl1">Need Help?</div>
-            </Link>
-          </tds-header-dropdown-list-item>
-          <tds-header-dropdown-list-item>
-            <Link href="#" passHref>
-              <div onClick={handleLogout} style={{ display: "inline-block" }}>
-                <tds-icon
-                  name="profile_inactive"
-                  style={{ display: "inline-block" }}
-                ></tds-icon>
-                <div className="tds-u-pl1" style={{ display: "inline-block" }}>
-                  Logout
-                </div>
-              </div>
-            </Link>
-          </tds-header-dropdown-list-item>
+          <DropDownListDynamic />
         </tds-header-dropdown-list>
       </tds-header-dropdown>
 
