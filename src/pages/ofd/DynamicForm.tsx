@@ -29,7 +29,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const { register, handleSubmit, reset, formState } = useForm<IFormInput>();
   const { errors } = formState;
 
-  // Update form state when classConfig changes
+  //   Update form state when classConfig changes
   useEffect(() => {
     reset(classConfig);
   }, [classConfig, reset]);

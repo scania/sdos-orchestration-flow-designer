@@ -1,4 +1,5 @@
 // import useKeyPress from "@/hooks/useKeyPress";
+import { publicEnv } from "@/lib/publicEnv";
 import { GraphBody } from "@/services/graphSchema";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -27,9 +28,7 @@ import {
 } from "../../utils";
 import DynamicForm from "./DynamicForm";
 import styles from "./ofd.module.scss";
-const baseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://ofd.sdip.devtest.aws.scania.com";
+const baseUrl = publicEnv.NEXT_PUBLIC_API_BASE_URL;
 
 const initialNodes = [
   {
@@ -347,6 +346,7 @@ const ForceGraphComponent: React.FC = () => {
                 {selectedNode ? (
                   <div className={styles.form}>
                     <DynamicForm
+                      key={selectedNode.id}
                       classConfig={selectedNode.data?.classData}
                       onSubmit={handleFormSubmit}
                       onClose={onFormClose}

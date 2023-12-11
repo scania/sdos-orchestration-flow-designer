@@ -4,6 +4,7 @@ import AzureADProvider from "next-auth/providers/azure-ad";
 import CredentialsProvider, {
   CredentialsConfig,
 } from "next-auth/providers/credentials";
+import { env } from "../../../lib/env";
 
 const providers: CredentialsConfig<{
   username: { label: string; type: string; placeholder: string };
@@ -39,9 +40,9 @@ export const authOptions = {
   providers: [
     ...providers,
     AzureADProvider({
-      clientId: process.env.OFD_AZURE_AD_CLIENT_ID || "",
-      clientSecret: process.env.OFD_AZURE_AD_CLIENT_SECRET || "",
-      tenantId: process.env.OFD_AZURE_AD_TENANT_ID || "",
+      clientId: env.OFD_AZURE_AD_CLIENT_ID,
+      clientSecret: env.OFD_AZURE_AD_CLIENT_SECRET,
+      tenantId: env.OFD_AZURE_AD_TENANT_ID,
     }),
   ],
   //this needs to be in .env for production
