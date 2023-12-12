@@ -1,5 +1,3 @@
-// import useKeyPress from "@/hooks/useKeyPress";
-import { publicEnv } from "@/lib/publicEnv";
 import { GraphBody } from "@/services/graphSchema";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -28,7 +26,6 @@ import {
 } from "../../utils";
 import DynamicForm from "./DynamicForm";
 import styles from "./ofd.module.scss";
-const baseUrl = publicEnv.NEXT_PUBLIC_API_BASE_URL;
 
 const initialNodes = [
   {
@@ -52,7 +49,7 @@ const nodeTypes = {
   default: CircularNode,
 };
 
-const ForceGraphComponent: React.FC = () => {
+const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -70,7 +67,7 @@ const ForceGraphComponent: React.FC = () => {
   }, [deletePressed]);
 
   const saveData = async (data: GraphBody) => {
-    const response = await axios.post(`${baseUrl}/api/persist`, data);
+    const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
     return response.data;
   };
 
@@ -212,7 +209,7 @@ const ForceGraphComponent: React.FC = () => {
     "classes",
     () =>
       axios
-        .get(`${baseUrl}/api/classes`)
+        .get(`${apiBaseUrl}/api/classes`)
         .then((res) => [
           { uri: "", className: "Task", parentClassUri: "" },
           ...res.data,

@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { getSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 
@@ -12,7 +13,9 @@ export async function getServerSideProps(context: any) {
     };
   }
   return {
-    props: {},
+    props: {
+      apiBaseUrl: env.NEXTAUTH_URL,
+    },
   };
 }
 

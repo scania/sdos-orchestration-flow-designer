@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node validateEnv.js && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "npx cypress run",
-    "cypress": "npx cypress open"
+    "cypress": "npx cypress open",
+    "prestart": "node validateEnv.js"
   },
   "dependencies": {
     "@scania/tegel": "^0.0.11",
@@ -19,6 +20,7 @@
     "@types/react-dom": "18.2.7",
     "axios": "^1.6.1",
     "classnames": "^2.3.2",
+    "dotenv": "^16.3.1",
     "jsonld": "^8.3.1",
     "next": "13.4.17",
     "next-auth": "^4.23.1",

@@ -1,4 +1,4 @@
-import { z } from "zod";
+const { z } = require("zod");
 
 const envSchema = z.object({
   OFD_AZURE_AD_CLIENT_ID: z.string().uuid().nonempty(),
@@ -8,6 +8,12 @@ const envSchema = z.object({
   STARDOG_PASSWORD: z.string().nonempty(),
   STARDOG_ENDPOINT: z.string().url().nonempty(),
   NEXTAUTH_URL: z.string().url().nonempty(),
+  NEXTAUTH_SECRET: z.string().uuid().nonempty(),
 });
 
-export const env = envSchema.parse(process.env);
+const env = envSchema.parse(process.env);
+
+module.exports = {
+  env,
+  envSchema,
+};

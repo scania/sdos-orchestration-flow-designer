@@ -46,7 +46,7 @@ export const authOptions = {
     }),
   ],
   //this needs to be in .env for production
-  secret: "YOUR_SECRET_HERE",
+  secret: env.NEXTAUTH_SECRET,
   pages: {
     signIn: "auth/login",
     signOut: "auth/logout",
