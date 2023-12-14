@@ -1,6 +1,7 @@
 import stardogConnection from "../connections/stardog";
 import { query } from "stardog";
 import jsonld, { JsonLdDocument } from "jsonld";
+import { GraphData } from "@/utils";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = "ofg";
@@ -104,10 +105,12 @@ async function convertJsonLdToNQuads(jsonLdData: JsonLdDocument) {
 
 export const updateGraph = async (
   graphName: string,
-  graphData: JsonLdDocument
+  graphData: GraphData | JsonLdDocument
 ) => {
   const dropGraph = `DROP SILENT GRAPH <${graphName}>`;
-  const graphDataNQuad = await convertJsonLdToNQuads(graphData);
+  const graphDataNQuad = await convertJsonLdToNQuads(
+    graphData as JsonLdDocument
+  );
   const saveGraph = `
   INSERT DATA {
     GRAPH <${graphName}> {

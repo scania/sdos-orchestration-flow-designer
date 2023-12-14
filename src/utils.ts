@@ -1,4 +1,4 @@
-import { ContextDefinition } from "jsonld/jsonld";
+import { ContextDefinition, JsonLdDocument } from "jsonld/jsonld";
 import { Connection, Edge, MarkerType, Node } from "reactflow";
 
 // Constants for RDF, OWL, and RDFS namespaces
@@ -55,7 +55,7 @@ interface IState {
   edges: Edge[];
 }
 
-interface GraphData {
+export interface GraphData {
   "@context": ContextDefinition;
   "@graph": IClassConfig[];
 }

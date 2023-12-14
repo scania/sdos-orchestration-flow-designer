@@ -20,7 +20,6 @@ import CircularNode from "../../components/CircularNode.tsx";
 import {
   assignClassData,
   generateClassId,
-  generateJsonLdFromState,
   IClassConfig,
   setEdgeProperties,
 } from "../../utils";
@@ -94,10 +93,10 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   }, [showSuccessToast, showErrorToast]);
 
   const handleSaveClick = () => {
-    const jsonLdPayload = generateJsonLdFromState({ nodes, edges });
     const payload = {
-      dbName: `http://example.org/${router.query?.graphName || "Private"}`,
-      graphData: jsonLdPayload,
+      nodes,
+      edges,
+      graphName: `http://example.org/${router.query?.graphName || "Private"}`,
     };
     console.log("payload", payload);
     mutation.mutate(payload);

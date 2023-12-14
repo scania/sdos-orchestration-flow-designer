@@ -12,8 +12,9 @@ const jsonSchema: z.ZodType<any, z.ZodTypeDef, any> = z.lazy(() =>
 );
 
 export const graphSave = z.object({
-  dbName: z.string().max(50),
-  graphData: jsonSchema,
+  nodes: z.array(z.any()),
+  edges: z.array(z.any()),
+  graphName: z.string(),
 });
 
 export type GraphBody = z.infer<typeof graphSave>;
