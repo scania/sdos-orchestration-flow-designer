@@ -2,6 +2,7 @@ import stardogConnection from "../connections/stardog";
 import { query } from "stardog";
 import jsonld, { JsonLdDocument } from "jsonld";
 import { GraphData } from "@/utils";
+import { QueryFactory } from "@/queryFactory";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = "ofg";
@@ -43,52 +44,21 @@ export const fetchClasses = async (): Promise<ClassEntity[]> => {
 };
 
 export const fetchRelations = async (className: string) => {
-  const relationsQuery = `
-  # get all relations possible from HTTPAction and their range (to)
-  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX : <https://kg.scania.com/it/iris_orchestration/>
-  SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
-      ?s rdf:type owl:ObjectProperty; 
-         rdfs:label ?label;
-         rdfs:range ?range;
-         rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :${className}. 
-  }}
-  `;
-
-  return await executeQuery(DB_NAME_READ, relationsQuery);
+  return await executeQuery(
+    DB_NAME_READ,
+    QueryFactory.relationsQuery(className)
+  );
 };
 
 export const fetchDynamicRelations = async () => {
-  const dynamicRelationsQuery = `
-  # get all relations possible from Action to Action
-  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX : <https://kg.scania.com/it/iris_orchestration/>
-  SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
-      ?s rdf:type owl:ObjectProperty; 
-         rdfs:label ?label;
-         rdfs:range :Action;
-         rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :Action. 
-  }}
-  `;
-
-  return await executeQuery(DB_NAME_READ, dynamicRelationsQuery);
+  return await executeQuery(DB_NAME_READ, QueryFactory.dynamicRelationsQuery());
 };
 
 export const fetchOntologyRelations = async (className: string) => {
-  const ontologyRelationsQuery = `
-  # get all relations possible from HTTPAction
-  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX : <https://kg.scania.com/it/iris_orchestration/>
-  SELECT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
-      ?s rdf:type owl:ObjectProperty; 
-         rdfs:label ?label;
-         rdfs:range ?range.
-      {?s rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :Action.}
-      UNION { ?s rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)* :${className}.}
-  }}
-  `;
-
-  return await executeQuery(DB_NAME_READ, ontologyRelationsQuery);
+  return await executeQuery(
+    DB_NAME_READ,
+    QueryFactory.ontologyRelationsQuery(className)
+  );
 };
 
 // Convert JSON-LD to N-Quads
@@ -107,18 +77,14 @@ export const updateGraph = async (
   graphName: string,
   graphData: GraphData | JsonLdDocument
 ) => {
-  const dropGraph = `DROP SILENT GRAPH <${graphName}>`;
   const graphDataNQuad = await convertJsonLdToNQuads(
     graphData as JsonLdDocument
   );
-  const saveGraph = `
-  INSERT DATA {
-    GRAPH <${graphName}> {
-      ${graphDataNQuad}
-    }
-  }
-`;
-
+  const dropGraph = QueryFactory.dropGraph(graphName);
   await executeQuery(DB_NAME_WRITE, dropGraph);
-  return await executeQuery(DB_NAME_WRITE, saveGraph);
+
+  return await executeQuery(
+    DB_NAME_WRITE,
+    QueryFactory.insertData(graphName, graphDataNQuad!)
+  );
 };
