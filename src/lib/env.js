@@ -9,6 +9,7 @@ const envSchema = z.object({
   STARDOG_ENDPOINT: z.string().url().nonempty(),
   NEXTAUTH_URL: z.string().url().nonempty(),
   NEXTAUTH_SECRET: z.string().uuid().nonempty(),
+  LOG_LEVEL: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
