@@ -1,0 +1,664 @@
+@prefix : <https://kg.scania.com/it/iris_orchestration/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <http://kg.scania.com/core/> .
+
+
+##-----------------------------------------------------------
+## SHACL Shapes for Orchestration Flow Graph (OFG)
+##
+##
+## Notes: 
+## * should divide ResultAction into subclasses, e.g. OntologyResultAction and QueryResultAction.
+## * should have different types of input parameters (subproperties)
+## *
+##
+## Status: In progress
+## Date: 2023-04-28 (YYYY-MM-DD)
+## 
+##------------------------------------------------------------------
+
+
+#################################################################
+#    Node Shapes
+#################################################################
+
+# Action
+#---------
+:HTTPActionShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "HTTPAction Shape"@en ;
+    rdfs:comment "Shape for validation of HTTPAction."@en ;
+    sh:property :hasNextActionShape , 
+                :inputParameterShape_optional ,
+                :outputParameterShape_optional ,
+                :hasSystemShape ,
+                :hasConnectorShape ,
+                :httpHeaderShape ,
+                :httpQueryParameterShape ,
+                :endpointShape ;
+    sh:targetClass :HTTPAction .
+
+:ResultActionShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "ResultAction Shape"@en ;
+    rdfs:comment "Shape for validation of ResultAction."@en ;
+    sh:property :hasNextActionResultActionShape , 
+                :inputParameterShape_optional ,
+                :hasSystemShape ,
+                :hasConnectorShape ;
+    sh:property :httpHeaderShape ;
+    sh:targetClass :ResultAction .
+
+:ScriptActionShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "ScriptAction Shape"@en ;
+    rdfs:comment "Shape for validation of ScriptAction."@en ;
+    sh:property :inputParameterShape ,
+                :outputParameterShape ,
+                :hasSystemShape ,
+                :hasNextActionShape ,
+                :hasContextShape ,
+                :hasScriptShape ;
+    sh:targetClass :ScriptAction .
+
+:SOAPActionShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "SOAPAction Shape"@en ;
+    rdfs:comment "Shape for validation of SOAPAction."@en ;
+    sh:property :hasNextActionShape , 
+                :inputParameterShape ,
+                :outputParameterShape ,
+                :hasSystemShape ,
+                :hasConnectorShape ,
+                :soapOperationShape ;
+    sh:targetClass :SOAPAction .
+
+:SparqlConvertActionShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "SparqlConvertAction Shape"@en ;
+    rdfs:comment "Shape for validation of SparqlConvertAction."@en ;
+    sh:property :hasNextActionShape ,
+                :inputParameterShape ,
+                :outputParameterShape ,
+                :hasContextShape ,
+                :hasScriptShape ;
+    sh:targetClass :SparqlConvertAction .
+
+:VirtualGraphActionShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "VirtualGraphAction Shape"@en ;
+    rdfs:comment "Shape for validation of VirtualGraphAction."@en ;
+    sh:property :hasNextActionShape ,
+                :inputParameterShape ,
+                :outputParameterShape ,
+                :hasScriptShape ;
+    sh:targetClass :VirtualGraphAction .
+
+
+# AUTHENTICATION METHOD
+#------------------------
+:HTTPBasicAuthenticationMethodShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "HTTPBasicAuthenticationMethod Shape"@en ;
+    rdfs:comment "Shape for validation of HTTPBasicAuthenticationMethod."@en ;
+    sh:property :inputParameterBasicCredentialsParameterShape ;
+    sh:targetClass :HTTPBasicAuthenticationMethod .
+    
+:HTTPBearerTokenAuthenticationMethodShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "HTTPBearerTokenAuthenticationMethod Shape"@en ;
+    rdfs:comment "Shape for validation of HTTPBearerTokenAuthenticationMethod."@en ;
+    sh:property :inputParameterTokenCredentialsParameterShape ;
+    sh:targetClass :HTTPBearerTokenAuthenticationMethod .
+
+:SOAPBasicAuthenticationMethodShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "SOAPBasicAuthenticationMethod Shape"@en ;
+    rdfs:comment "Shape for validation of SOAPBasicAuthenticationMethod."@en ;
+    sh:property :inputParameterBasicCredentialsParameterShape ;
+    sh:targetClass :SOAPBasicAuthenticationMethodShape .
+
+
+# CONNECTOR
+#------------
+:ConnectorShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Connector Shape"@en ;
+    rdfs:comment "Shape for validation of all Connectors."@en ;
+    sh:property :hasAuthenticationMethodShape ;
+    sh:not [a sh:PropertyShape ;
+            core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Next action for Connector"@en ;
+            rdfs:comment "A Connector should not have a next action"@en ;
+            sh:path :hasNextAction ;
+            sh:minCount 1 ;
+            ] ;
+    sh:targetClass :Connector .
+
+:HTTPConnectorShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "HTTPConnector Shape"@en ;
+    rdfs:comment "Shape for validation of HTTPConnectors."@en ;
+    sh:property :baseUrlShape ,
+                :hasAuthenticationMethodHTTPBearerTokenORBasicAuthenticationMethodShape ;
+    sh:targetClass :HTTPConnector .
+
+:KafkaConnectorShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "KafkaConnector Shape"@en ;
+    rdfs:comment "Shape for validation of KafkaConnectors."@en ;
+    sh:property :baseUrlShape ;
+    sh:targetClass :KafkaConnector .
+
+:SOAPConnectorShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "SOAPConnector Shape"@en ;
+    rdfs:comment "Shape for validation of SOAPConnectors."@en ;
+    sh:property :baseUrlShape ,
+                :bindingNameShape ,
+                :wsdlFileShape ;
+    sh:targetClass :SOAPConnector .
+
+
+# JSONLDCONTEXT
+#---------------
+:JsonLdContextShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "JsonLdContext Shape"@en ;
+    rdfs:comment "Shape for validation of JsonLdContext."@en ;
+    sh:property :contextShape ;
+    sh:targetClass :JsonLdContext .
+
+
+# METADATA
+#-----------
+:MetaDataShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "MetaData Shape"@en ;
+    rdfs:comment "Shape for validation of MetaData."@en ;
+    sh:property :timestampShape ,
+                :descriptionShape ,
+                :graphTypeShape ,
+                :contributorShape ,
+                :ooVersionShape ,
+                :titleShape ,
+                :creatorShape ;
+    sh:targetClass :MetaData .
+
+
+# PARAMETER
+#------------
+:BasicCredentialsParameterShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "BasicCredentialsParameter Shape"@en ;
+    rdfs:comment "Shape for validation of BasicCredentialsParameter."@en ;
+    sh:property :usernameShape ,
+                :passwordShape ;
+    sh:targetClass :BasicCredentialsParameter .
+
+:HTTPParameterShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "HTTPParameter Shape"@en ;
+    rdfs:comment "Shape for validation of HTTPParameter."@en ;
+    sh:property :httpBodyORhttpQueryParameterShape ;
+    sh:targetClass :HTTPParameter .
+
+:SparqlQueryParameterShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "SparqlQueryParameter Shape"@en ;
+    rdfs:comment "Shape for validation of SparqlQueryParameter."@en ;
+    sh:property :queryShape ;
+    sh:targetClass :SparqlQueryParameter .
+
+:StandardParameterShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "StandardParameter Shape"@en ;
+    rdfs:comment "Shape for validation of StandardParameter."@en ;
+    sh:property :paramNameShape ;
+    sh:targetClass :StandardParameter .
+
+:TokenCredentialsParameterShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "TokenCredentials Shape"@en ;
+    rdfs:comment "Shape for validation of TokenCredentials."@en ;
+    sh:property :tokenShape ;
+    sh:targetClass :TokenCredentials .
+
+
+# RESULTMETADATA
+#----------------
+:ResultMetaDataShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "ResultMetaData Shape"@en ;
+    rdfs:comment "Shape for validation of ResultMetaData."@en ;
+    sh:property :stateShape ;
+    sh:targetClass :ResultMetaData .
+
+
+# SCRIPT
+#--------
+:ScriptShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Script Shape"@en ;
+    rdfs:comment "Shape for validation of Scripts."@en ;
+    sh:property :scriptShape ;
+    sh:targetClass :Script .
+
+
+# SYSTEM
+#--------
+
+
+# TASK
+#-------
+:TaskShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Task shape"@en ;
+    rdfs:comment "Shape for validation of Tasks."@en ;
+    sh:property :hasActionShape ,
+                :inputParameterShape_optional ,
+                :hasMetaDataShape ,
+                :hasContextShape ;
+    sh:targetClass :Task .
+
+
+#################################################################
+#    Property Shapes
+#################################################################
+
+# OBJECT PROPERTIES
+#-----------------
+:hasActionShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasAction Shape"@en ;
+    rdfs:comment "A task should have at least one Action"@en ;
+    sh:path :hasAction ;
+    sh:class :Action ;
+    sh:minCount 1  .
+
+:hasAuthenticationMethodShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasAuthenticatorMethod Shape"@en ;
+    rdfs:comment "A connector should have exactly one authentication method defined."@en ;
+    sh:path :hasAuthenticationMethod ;
+    sh:class :AuthenticationMethod ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:hasAuthenticationMethodHTTPBearerTokenAuthenticationMethodShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasAuthenticatorMethod (HTTPBearerTokenAuthenticationMethod) Shape"@en ;
+    rdfs:comment "A connector should have exactly one HTTP Bearer Token authentication method defined."@en ;
+    sh:path :hasAuthenticationMethod ;
+    sh:class :HTTPBearerTokenAuthenticationMethod ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:hasAuthenticationMethodHTTPBasicAuthenticationMethodShape a sh:PropertyShape ;
+    core:timestamp "2023-04-28T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasAuthenticatorMethod (HTTPBasicAuthenticationMethod) Shape"@en ;
+    rdfs:comment "A connector should have exactly one HTTP Basic authentication method defined."@en ;
+    sh:path :hasAuthenticationMethod ;
+    sh:class :HTTPBasicAuthenticationMethod ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:hasAuthenticationMethodHTTPBearerTokenORBasicAuthenticationMethodShape a sh:PropertyShape ;
+    core:timestamp "2023-04-28T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasAuthenticatorMethod (HTTPBasicAuthenticationMethod) Shape"@en ;
+    rdfs:comment "The connector should have either one HTTP Basic authentication method or one HTTP Bearer authentication method defined."@en ;
+    sh:or (
+        :hasAuthenticationMethodHTTPBearerTokenAuthenticationMethodShape
+        :hasAuthenticationMethodHTTPBasicAuthenticationMethodShape
+        ) .
+
+:hasConnectorShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasConnector Shape"@en ;
+    rdfs:comment "HTTPActions, ResultAction and SOAPActions need some connector in order to connect to the system they are using."@en ;
+    sh:path :hasConnector ;
+    sh:class :Connector ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:hasContextShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasContext Shape"@en ;
+    rdfs:comment "ScriptAction, SparqlConvertAction and Task need to have a JsonLdContext."@en ;
+    sh:path :hasContext ;
+    sh:class :JsonLdContext ;
+    # sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:hasMetaDataShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasMetaData Shape"@en ;
+    rdfs:comment "A Task should have som meta data"@en ;
+    sh:path :hasMetaData ;
+    sh:class :MetaData ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:hasNextActionShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasNextAction Shape"@en ;
+    rdfs:comment "Every Action (except resultAction) should be followed by a next action"@en ;
+    sh:path :hasNextAction ;
+    sh:class :Action ;
+    sh:minCount 1 .
+
+:hasNextActionResultActionShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasNextAction (ResultAction) Shape"@en ;
+    rdfs:comment "If there are a next action after a ResultAction it must be another ResultAction."@en ;
+    sh:path :hasNextAction ;
+    sh:class :ResultAction .
+
+:hasScriptShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasScript Shape"@en ;
+    rdfs:comment "ScriptAction needs to be connected to some script"@en ;
+    sh:path :hasScript ;
+    sh:class :Script ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:hasSystemShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "hasSystem Shape"@en ;
+    rdfs:comment "Some actions are dependent on a system."@en ;
+    sh:path :hasSystem ;
+    sh:class :System ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:inputParameterShape_optional a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Optional inputParameter Shape"@en ;
+    rdfs:comment "Input parameters. The property is optional, but if it exists, the value should belong to the :Parameter class."@en ;
+    sh:path :inputParameter ;
+    sh:class :Parameter .
+
+:inputParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "inputParameter Shape"@en ;
+    rdfs:comment "Input parameters. Should be at least one, but can be several."@en ;
+    sh:path :inputParameter ;
+    sh:class :Parameter ;
+    sh:minCount 1 .
+
+:inputParameterStandardParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "inputParameter (Standard Parameter) Shape"@en ;
+    rdfs:comment "Input parameters. Should be at least one, but can be several."@en ;
+    sh:path :inputParameter ;
+    sh:class :StandardParameter ;
+    sh:minCount 1 .
+
+:inputParameterHTTPParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "inputParameter (HTTPParameter) Shape"@en ;
+    rdfs:comment "If ResultAction has a inputparameter it must be a HTTPParameter."@en ;
+    sh:path :inputParameter ;
+    sh:class :HTTPParameter ;
+    sh:minCount 1 .
+
+:inputParameterTokenCredentialsParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "input parameter (TokenCredentialsParameter) Shape"@en ;
+    rdfs:comment "HTTPBearerTokenAuthenticationMethod should have token credential as input parameter"@en ;
+    sh:path :inputParameter ;
+    sh:class :TokenCredentialsParameter ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:inputParameterBasicCredentialsParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "inputParameter (BasicCredentialsParameter) Shape"@en ;
+    rdfs:comment "HTTPBasicAuthenticationMethod should have basic credential as input parameter"@en ;
+    sh:path :inputParameter ;
+    sh:class :BasicCredentialsParameter ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:outputParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "outputParameter Shape"@en ;
+    rdfs:comment "Output parameters. Should be at least one, but can be several."@en ;
+    sh:path :outputParameter ;
+    sh:class :Parameter ;
+    sh:minCount 1 .
+
+:outputParameterShape_optional a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Optional outputParameter Shape"@en ;
+    rdfs:comment "Output parameters. The property is optional, but if it exists, the value should belong to the :Parameter class."@en ;
+    sh:path :outputParameter ;
+    sh:class :Parameter .
+
+:outputParameterStandardParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "outputParameter (StandardParameter) Shape"@en ;
+    rdfs:comment "Output parameters. Should be at least one, but can be several."@en ;
+    sh:path :outputParameter ;
+    sh:class :StandardParameter ;
+    sh:minCount 1 .
+
+:outputParameterHTTPParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "outputParameter (HTTPParameter) Shape"@en ;
+    rdfs:comment "Output parameters. Should be at least one, but can be several."@en ;
+    sh:path :outputParameter ;
+    sh:class :HTTPParameter ;
+    sh:minCount 1 .
+
+
+# DATA PROPERTIES
+#--------------
+
+:baseUrlShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "base Url Shape"@en ;
+    rdfs:comment "A HTTP connector should have exactly one base Url defined."@en ;
+    sh:path :baseUrl ;
+    sh:datatype xsd:string ;
+    sh:pattern "^http" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:bindingNameShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "bindingName Shape"@en ;
+    rdfs:comment "Binding name of a SOAP Action should be a string"@en ;
+    sh:path :bindingName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:contextShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "context Shape"@en ;
+    rdfs:comment "context should be a string, appear exactly once for a JsonLdContext and be in a json-format."@en ;
+    sh:path :context ;
+    sh:datatype xsd:string ;
+    # sh:pattern "^{" ,
+    #            "}$" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:contributorShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "contributor Shape"@en ;
+    rdfs:comment "MetaData should contain contributor"@en ;
+    sh:path :contributor ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 .
+
+:creatorShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "creator Shape"@en ;
+    rdfs:comment "MetaData should contain creator"@en ;
+    sh:path :creator ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 .
+
+:descriptionShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "description Shape"@en ;
+    rdfs:comment "MetaData should contain description"@en ;
+    sh:path :description ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:endpointShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "endpoint Shape"@en ;
+    rdfs:comment "endpoint should be string and start with '/'"@en ;
+    sh:path :endpoint ;
+    sh:datatype xsd:string ;
+    sh:pattern "^/" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:graphTypeShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "graphType Shape"@en ;
+    rdfs:comment "MetaData should contain graphType"@en ;
+    sh:path :graphType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:httpBodyShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "httpBody Shape"@en ;
+    rdfs:comment "httpBody should be a string"@en ;
+    sh:path :httpBody ;
+    sh:datatype xsd:string ;
+    sh:or (
+        [sh:pattern "^@prefix" ]
+        [sh:hasValue ""]) ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:httpBodyORhttpQueryParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "httpBody OR httpQueryParameter Shape"@en ;
+    rdfs:comment "Should have either HTTP body or HTTP Query Parameter"@en ;
+    sh:or (
+        :httpBodyShape
+        :httpQueryParameterShape
+        ) .
+
+:httpHeaderShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "httpHeader Shape"@en ;
+    rdfs:comment "HTTP Header should be a string"@en ;
+    sh:path :httpHeader ;
+    sh:datatype xsd:string ;
+    # sh:pattern "^{" ,
+    #            "}$" ;
+    # sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:httpQueryParameterShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "httpParameter Shape"@en ;
+    rdfs:comment "HTTP Parameter should be a string"@en ;
+    sh:path :httpQueryParameter ;
+    sh:datatype xsd:string ;
+    # sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:ooVersionShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "ooVersion Shape"@en ;
+    rdfs:comment "MetaData should contain ooVersion"@en ;
+    sh:path :ooVersion ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:paramNameShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "paramName Shape"@en ;
+    rdfs:comment "paramName should be string and be defined exactly once for a Standard Parameter."@en ;
+    sh:path :paramName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:queryShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "query Shape"@en ;
+    rdfs:comment "Query for Sparql query Parameter"@en ;
+    sh:path :query ;
+    sh:datatype xsd:string ;
+    sh:pattern "@prefix" ;
+    sh:maxCount 1 .
+
+:scriptShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "script Shape"@en ;
+    rdfs:comment "A instance of the class Script should have at least one script and it sholud have datatype string"@en ;
+    sh:path :script ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:soapOperationShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "soapOperation Shape"@en ;
+    rdfs:comment "A SOAP operation is a string for the KeyName for the SOAP Action"@en ;
+    sh:path :soapOperation ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:stateShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "state Shape"@en ;
+    rdfs:comment "state of the result graph."@en ;
+    sh:path :state ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 .
+
+:timestampShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "timestamp Shape"@en ;
+    rdfs:comment "MetaData should contain timestamp"@en ;
+    sh:path :timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:titleShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "title Shape"@en ;
+    rdfs:comment "MetaData should contain title"@en ;
+    sh:path :title ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:tokenShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "token Shape"@en ;
+    rdfs:comment "token should be a string and empty"@en ;
+    sh:path :token ;
+    sh:datatype xsd:string ;
+    sh:hasValue "" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:wsdlFileShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "wsdlFile Shape"@en ;
+    rdfs:comment "WSDL File for a SOAP connector should be a string"@en ;
+    sh:path :wsdlFile ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .

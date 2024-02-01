@@ -1,5 +1,6 @@
-import { ContextDefinition, JsonLdDocument } from "jsonld/jsonld";
+import { ContextDefinition } from "jsonld/jsonld";
 import { Connection, Edge, MarkerType, Node } from "reactflow";
+import CLASS_CONFIG from "../../classConfig.json";
 
 // Constants for RDF, OWL, and RDFS namespaces
 const RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -32,24 +33,6 @@ export interface IClassConfig {
 
 export const generateClassId = () => `iris:${crypto.randomUUID()}`;
 
-// Class type configuration
-export const CLASS_CONFIG: Record<string, IClassConfig> = {
-  Task: {
-    "@type": ["owl:NamedIndividual", "iris:Task"],
-    "rdfs:label": "GetPizzasAndAllergenes",
-  },
-  "HTTP Action": {
-    "@type": ["owl:NamedIndividual", "iris:HTTPAction"],
-    "rdfs:label": "fetchAllPizzas",
-    "iris:endpoint": "http://example.com/pizzas",
-    "iris:httpHeader": { "@value": '{"Accept": "application/json"}' },
-  },
-  "Sparql Convert Action": {
-    "rdfs:label": "sparqlConvertActionLabel",
-    "iris:constructSparql": "",
-  },
-};
-
 interface IState {
   nodes: Node[];
   edges: Edge[];
@@ -77,7 +60,9 @@ const toCamelCase = (str: string): string => {
  * @returns The class data for the given type.
  */
 export const assignClassData = (type: string): IClassConfig | {} =>
-  CLASS_CONFIG[type] || { "rdfs:label": `${toCamelCase(type)}Label` };
+  CLASS_CONFIG[type as keyof typeof CLASS_CONFIG] || {
+    "rdfs:label": `${toCamelCase(type)}Label`,
+  };
 
 /**
  * Generates JSON-LD payload from graph state.

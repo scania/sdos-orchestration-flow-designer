@@ -22,7 +22,7 @@ import {
   generateClassId,
   IClassConfig,
   setEdgeProperties,
-} from "../../utils";
+} from "@/utils";
 import DynamicForm from "./DynamicForm";
 import styles from "./ofd.module.scss";
 

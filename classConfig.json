@@ -1,0 +1,16 @@
+{
+  "Task": {
+    "@type": ["owl:NamedIndividual", "iris:Task"],
+    "rdfs:label": "GetPizzasAndAllergenes"
+  },
+  "HTTP Action": {
+    "@type": ["owl:NamedIndividual", "iris:HTTPAction"],
+    "rdfs:label": "fetchAllPizzas",
+    "iris:endpoint": "http://example.com/pizzas",
+    "iris:httpHeader": { "@value": "{\"Accept\": \"application/json\"}" }
+  },
+  "Sparql Convert Action": {
+    "rdfs:label": "sparqlConvertActionLabel",
+    "iris:constructSparql": ""
+  }
+}

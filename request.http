@@ -132,7 +132,8 @@ Content-Type: application/json
     }
   ]
 }
-
-
 }
 
+
+### parse shacl
+GET {{baseUrl}}/api/parse-ttl
