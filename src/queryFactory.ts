@@ -60,4 +60,12 @@ export class QueryFactory {
       }}
   `;
   }
+
+  // To get all relations possible from Action to Action
+  public static fetchAllSHACLShapesQuery(graphName: string): string {
+    return `
+      ${PREFIXES.ALL}
+      SELECT * where { graph <${graphName}> {  ?subject ?predicate ?object . }}
+  `;
+  }
 }

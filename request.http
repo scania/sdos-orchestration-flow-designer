@@ -137,3 +137,9 @@ Content-Type: application/json
 
 ### parse shacl
 GET {{baseUrl}}/api/parse-ttl
+
+### read shacl from db
+GET {{baseUrl}}/api/ofd-shacl
+
+### read shacl from db
+##POST {{baseUrl}}/api/save-shacl

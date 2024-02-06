@@ -1,11 +1,14 @@
 import stardogConnection from "../connections/stardog";
-import { query } from "stardog";
+import { query, Connection, ConnectionOptions } from "stardog";
 import jsonld, { JsonLdDocument } from "jsonld";
 import { GraphData } from "@/utils";
 import { QueryFactory } from "@/queryFactory";
+import * as RDFLib from "rdflib";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = "ofg";
+const DB_NAME_VALIDATE = "validation";
+const DB_SHACL_GRAPH = "http://scania.org/validate";
 
 export interface ClassEntity {
   uri: string;
@@ -86,5 +89,12 @@ export const updateGraph = async (
   return await executeQuery(
     DB_NAME_WRITE,
     QueryFactory.insertData(graphName, graphDataNQuad!)
+  );
+};
+
+export const fetchAllSHACLShapes = async () => {
+  return await executeQuery(
+    DB_NAME_VALIDATE,
+    QueryFactory.fetchAllSHACLShapesQuery(DB_SHACL_GRAPH)
   );
 };
