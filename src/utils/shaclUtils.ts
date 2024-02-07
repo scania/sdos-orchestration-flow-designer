@@ -90,33 +90,6 @@ export const getAllPropertiesWithDataTypesForRdf =
     return propertiesWithDataTypes;
   };
 
-// export const getPropertyDetailsForRdf =
-//   (rdf: Array<RdfQuad>) => (property: string) => {
-//     // Get shape from path
-//     const targetQuad = rdf.find(
-//       (quad) =>
-//         quad.predicate === "http://www.w3.org/ns/shacl#path" &&
-//         quad.object.endsWith(property)
-//     );
-
-//     if (!targetQuad) {
-//       return {}; // or handle the case where the shape is not found
-//     }
-
-//     const shapeSubject = targetQuad.subject;
-//     // Create object with shape properties
-//     const propertyDetails = rdf
-//       .filter((quad) => quad.subject === shapeSubject)
-//       .reduce((details: any, quad) => {
-//         // Use predicate as key and object as value
-//         const key = quad.predicate.split("#").pop() || quad.predicate; // Extracting the last part after '#'
-//         details[key] = quad.object;
-//         return details;
-//       }, {});
-
-//     return propertyDetails;
-//   };
-
 export const getPropertyDetailsForShape =
   (rdf: Array<{ subject: string; predicate: string; object: string }>) =>
   (shapeUri: string) => {
@@ -149,21 +122,3 @@ export const generatePropertiesObject = (
 
   return allDataTypePropertiesForClass;
 };
-
-// export const generatePropertiesObject = (
-//   rdf: Array<{ subject: string; predicate: string; object: string }>,
-//   className: string
-// ) => {
-//   const allPropertiesWithDataTypes =
-//     getAllPropertiesWithDataTypesForRdf(rdf)(className);
-
-//   // Define the object with an index signature
-//   const propertyDetailsObject: { [key: string]: any } = {};
-
-//   allPropertiesWithDataTypes.forEach((propertyInfo: any) => {
-//     const details = getPropertyDetailsForRdf(rdf)(propertyInfo.property);
-//     propertyDetailsObject[propertyInfo.property] = details;
-//   });
-
-//   return propertyDetailsObject;
-// };
