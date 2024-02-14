@@ -34,7 +34,7 @@ const initialNodes = [
       label: "Task",
       classData: {
         "@type": ["owl:NamedIndividual", "iris:Task"],
-        "rdfs:label": "GetPizzasAndAllergenes",
+        "rdfs:label": "TaskLabel",
       },
     },
     position: { x: 0, y: 0 },
@@ -57,14 +57,37 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
+    useState(false);
+
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
+  const [dropInfo, setDropInfo] = useState(null);
+  const parseTtlMutation = useMutation((className: string) => {
+    return axios.get(`${apiBaseUrl}/api/parse-ttl/?className=${className}`);
+  });
+  const [droppedClassName, setDroppedClassName] = useState(null);
+  const {
+    data: classDetails,
+    isLoading: isClassDetailsLoading,
+    isError: isClassDetailsError,
+  } = useQuery(
+    ["classDetails", droppedClassName],
+    () =>
+      axios
+        .get(`${apiBaseUrl}/api/parse-ttl/?className=${droppedClassName}`)
+        .then((res) => res.data),
+    {
+      enabled: !!droppedClassName, // only fetch when selectedClassName is not null
+      staleTime: 1000 * 60 * 10, // 10 minutes
+      cacheTime: 1000 * 60 * 30, // 30 minutes
+    }
+  );
 
   useEffect(() => {
     //closing the form when delete is pressed i.e node deleted
     setSelectedNode(null);
   }, [deletePressed]);
-
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
     return response.data;
@@ -98,7 +121,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       edges,
       graphName: `http://example.org/${router.query?.graphName || "Private"}`,
     };
-    console.log("payload", payload);
     mutation.mutate(payload);
   };
 
@@ -162,21 +184,79 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
+  // const onDrop = useCallback(
+  //   (event: any) => {
+  //     event.preventDefault();
 
+  //     const type = event.dataTransfer.getData("application/reactflow");
+
+  //     // check if the dropped element is valid
+  //     if (typeof type === "undefined" || !type) {
+  //       return;
+  //     }
+  //     setDroppedClassName(type.replace(/\s+/g, ""));
+
+  //     const position = reactFlowInstance.screenToFlowPosition({
+  //       x: event.clientX,
+  //       y: event.clientY,
+  //     });
+
+  //     console.log("fetchedClass", classDetails);
+
+  //     const newNode = {
+  //       id: generateClassId(),
+  //       type:
+  //         type === "Task"
+  //           ? "input"
+  //           : type === "Result Action"
+  //           ? "output"
+  //           : "default",
+  //       position,
+  //       sourcePosition: "right",
+  //       targetPosition: "left",
+  //       data: {
+  //         label: type,
+  //         classData: assignClassData(type),
+  //       },
+  //     };
+  //     //@ts-ignore
+  //     setNodes((nds) => nds.concat(newNode));
+  //   },
+  //   [reactFlowInstance]
+  // );
   const onDrop = useCallback(
     (event: any) => {
       event.preventDefault();
 
       const type = event.dataTransfer.getData("application/reactflow");
-
-      // check if the dropped element is valid
       if (typeof type === "undefined" || !type) {
         return;
       }
+      const cleanedType = type.replace(/\s+/g, "");
+      setDroppedClassName(cleanedType);
+
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
+
+      // Store event-related data for later use
+      setDropInfo({
+        type: type,
+        position,
+      });
+
+      setIsPendingClassDetailsAction(true);
+    },
+    [reactFlowInstance]
+  );
+
+  useEffect(() => {
+    if (classDetails && isPendingClassDetailsAction && dropInfo) {
+      setIsPendingClassDetailsAction(false);
+
+      // Access stored event data
+      const { type, position } = dropInfo;
 
       const newNode = {
         id: generateClassId(),
@@ -192,13 +272,18 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
         data: {
           label: type,
           classData: assignClassData(type),
+          formData: classDetails,
         },
       };
+
+      // Assuming setNodes updates your component state
       //@ts-ignore
       setNodes((nds) => nds.concat(newNode));
-    },
-    [reactFlowInstance]
-  );
+
+      // Clear dropInfo if necessary
+      setDropInfo(null);
+    }
+  }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
   const {
     data: classes,
@@ -344,6 +429,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                     <DynamicForm
                       key={selectedNode.id}
                       classConfig={selectedNode.data?.classData}
+                      formData={selectedNode.data?.formData}
                       onSubmit={handleFormSubmit}
                       onClose={onFormClose}
                       label={selectedNode.data.label}

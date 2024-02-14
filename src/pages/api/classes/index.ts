@@ -3,13 +3,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import logger from "../../../lib/logger";
+import { env } from "../../../lib/env";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     logger.info("Class request received.");
     logger.debug("Request details:", { method: req.method, url: req.url });
     const session = await getServerSession(req, res, authOptions);
-    if (!session) {
+    if (!session && env.NODE_ENV === "production") {
       logger.error("Unauthorized request.");
       res.status(401).json({ error: "Unauthorized" });
       return;

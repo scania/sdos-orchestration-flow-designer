@@ -3,7 +3,6 @@ import { query, Connection, ConnectionOptions } from "stardog";
 import jsonld, { JsonLdDocument } from "jsonld";
 import { GraphData } from "@/utils";
 import { QueryFactory } from "@/queryFactory";
-import * as RDFLib from "rdflib";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = "ofg";
