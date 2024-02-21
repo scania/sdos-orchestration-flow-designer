@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import styles from "./ofd.module.scss";
 
@@ -17,6 +17,7 @@ interface FormField {
     message?: string;
     required?: boolean;
   };
+  value?: string;
 }
 
 interface DynamicFormProps {
@@ -50,7 +51,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 }) => {
   const { register, handleSubmit, reset, formState } = useForm<IFormInput>();
   const { errors } = formState;
-  // Update form state when formData changes
+  const [classLabel, setClassLabel] = useState("");
+  const [islabelEditMode, setIsLabelEditMode] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const defaultValues = formData.reduce((acc, field) => {
       acc[field.name] = "";
@@ -59,13 +63,92 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     reset(defaultValues);
   }, [formData, reset]);
 
+  useEffect(() => {
+    if (islabelEditMode) {
+      inputRef.current?.focus();
+    }
+  }, [islabelEditMode]);
+
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
+    console.log(data, "data");
+
     onSubmit(data);
   };
 
+  const toggleEditMode = () => {
+    console.log("button clicked");
+
+    setIsLabelEditMode(!islabelEditMode);
+  };
+
+  const onClassLabelChange = (e: any) => {
+    setClassLabel(e.target.value);
+  };
+
+  const renderLabel = () => {
+    if (!classLabel && !islabelEditMode) {
+      return (
+        <div onClick={toggleEditMode} style={{ cursor: "pointer" }}>
+          <tds-icon
+            name="error"
+            size="16px"
+            style={{ color: "red", marginRight: "4px" }}
+          ></tds-icon>
+          <h5 className="tds-headline-05" style={{ display: "inline" }}>
+            New Name
+          </h5>
+        </div>
+      );
+    }
+
+    if (islabelEditMode) {
+      return (
+        <>
+          <input
+            ref={inputRef}
+            type="text"
+            className={styles["test"]}
+            value={classLabel}
+            onChange={onClassLabelChange}
+            onBlur={toggleEditMode}
+            onKeyDown={(e) => {
+              e.key === "Enter" ? toggleEditMode() : null;
+            }}
+          />
+          {classLabel ? (
+            <tds-icon
+              name="tick"
+              size="20"
+              className={styles["confirm-icon"]}
+              style={{
+                cursor: "pointer",
+              }}
+              onClick={toggleEditMode}
+            ></tds-icon>
+          ) : (
+            <></>
+          )}
+        </>
+      );
+    }
+    return (
+      <>
+        <h5 className="tds-headline-05" style={{ display: "inline" }}>
+          {classLabel}
+        </h5>
+        <span className={styles["edit-icon"]}>
+          <tds-icon
+            name="edit"
+            size="20"
+            style={{ cursor: "pointer" }}
+            onClick={toggleEditMode}
+          ></tds-icon>{" "}
+        </span>
+      </>
+    );
+  };
   const renderInputField = (field: FormField) => {
     const { name, type, label, validation } = field;
-    // const isTextArea = type === "textarea";
     const validationRules = {
       required: validation.required ? "This field is required" : false,
       minLength: validation.min
@@ -108,48 +191,53 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     <>
       <div className={styles["form-header"]}>
         <div className={styles.description}>
-          <h4 className={styles["description__name"]}>{label}</h4>
-          <div className={styles["description__label"]}>
-            <input type="text" className={styles["test"]} />{" "}
-            <span className={styles["edit-icon"]}>
-              <tds-icon
-                name="edit"
-                size="20"
-                style={{ cursor: "pointer" }}
-              ></tds-icon>
-            </span>
-          </div>
+          <p className="tds-detail-06">{label}</p>
+          <div className={styles["description__label"]}>{renderLabel()}</div>
         </div>
         <tds-icon
-          name="link"
+          name="link_broken"
           size="24"
           style={{ cursor: "pointer" }}
+          svg-title="Not saved in library"
         ></tds-icon>
       </div>
-      <article className="form" style={{ marginTop: "10px" }}>
-        {/* <header class="header">
-        <span class="header__label">Label:</span>
-        <span class="header__name">Name</span>
-    </header>
-    <section class="body-section">
-        <header class="body-section__header">Section Header</header>
-        <form class="body-section__form">
-            <input type="text" class="body-section__form-field" placeholder="Field 1">
-            <input type="text" class="body-section__form-field" placeholder="Field 2">
-            <!-- Add more form fields as needed -->
-        </form>
-    </section>
-    <div class="button-container">
-        <button class="button-container__button">Button 1</button>
-        <button class="button-container__button">Button 2</button>
-    </div> */}
+      <article className={styles["form-body-section"]}>
+        <div className={styles["form-body-section__header"]}>
+          <div
+            style={{
+              display: "flex",
+              gap: "4px",
+            }}
+          >
+            <h5 className="tds-headline-05">Attributes</h5>
+            <tds-badge
+              size="sm"
+              style={{ transform: "translateY(30%)" }}
+            ></tds-badge>
+          </div>
+          <tds-button
+            type="button"
+            variant="ghost"
+            size="xs"
+            text="Copy IRI Address"
+          ></tds-button>
+        </div>
+        <div className={styles["form-body-section__form"]}></div>
+        <div className={styles["form-body-section__actions"]}></div>
+
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           {formData
             .filter(({ name }) => !excludeKeys.includes(name))
             .map((field) => renderInputField(field))}
           <section
-            style={{ display: "flex", gap: "5px", justifyContent: "right" }}
+            style={{
+              display: "flex",
+              gap: "16px",
+              justifyContent: "left",
+              marginTop: 34,
+            }}
           >
+            <tds-button type="submit" size="sm" text="Save"></tds-button>
             <tds-button
               type="button"
               size="sm"
@@ -157,7 +245,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               text="Close"
               onClick={onClose}
             ></tds-button>
-            <tds-button type="submit" size="sm" text="Apply"></tds-button>
           </section>
         </form>
       </article>

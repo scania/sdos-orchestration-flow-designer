@@ -67,6 +67,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     return axios.get(`${apiBaseUrl}/api/parse-ttl/?className=${className}`);
   });
   const [droppedClassName, setDroppedClassName] = useState(null);
+  const [setupMode, setSetupMode] = useState(false);
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -166,9 +167,10 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     [selectedNode, setNodes]
   );
 
-  const onFormClose = useCallback(() => {
+  const exitSetupMode = useCallback(() => {
     setSelectedNode(null);
-  }, [setSelectedNode]);
+    setSetupMode(false);
+  }, [setSelectedNode, setSetupMode]);
 
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
@@ -419,19 +421,20 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
                   className="react-flow"
+                  onPaneClick={exitSetupMode}
                 >
                   <Controls />
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
-                {selectedNode ? (
+                {setupMode ? (
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
                       classConfig={selectedNode.data?.classData}
                       formData={selectedNode.data?.formData}
                       onSubmit={handleFormSubmit}
-                      onClose={onFormClose}
+                      onClose={exitSetupMode}
                       label={selectedNode.data.label}
                       excludeKeys={["@id", "@type", "iris:hasAction"]}
                     />
@@ -441,6 +444,22 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                 )}
               </div>
             </ReactFlowProvider>
+            <div className={styles["setup-button"]}>
+              {selectedNode && !setupMode ? (
+                <tds-button
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  text="Enter Setup"
+                  mode-variant="primary"
+                  onClick={() => {
+                    setSetupMode(true);
+                  }}
+                ></tds-button>
+              ) : (
+                <></>
+              )}
+            </div>
           </div>
         </section>
       </main>
