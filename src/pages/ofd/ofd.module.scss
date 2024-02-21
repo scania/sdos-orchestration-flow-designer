@@ -59,23 +59,103 @@
     overflow: auto;
   }
 }
+// for text box editable
+.test {
+  background-color: transparent;
+  font-family: "Scania Sans CY";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 150% */
+  letter-spacing: -0.32px;
+  border: none;
+  &:focus {
+    // background-color: red;
+    // border: 0px;
+    outline: none;
+    border-bottom: 1px solid var(--tds-grey-600);
+  }
+}
 
 .toast__absolute {
   position: fixed;
   right: 10px;
   bottom: 32px;
 }
-
+.textarea {
+  background-color: red;
+  font-size: 25px;
+  padding: 10px;
+}
 .form {
   position: absolute;
-  width: 309px;
+  width: 360px;
   top: 10px;
   right: 10px;
   background-color: var(--tds-white);
+  // background-color: red;
   overflow: auto;
   max-height: calc(100vh - 200px);
-  padding: 10px;
-  border-radius: 5px;
+  border-radius: 4px;
+  &-header {
+    background-color: var(--tds-grey-200);
+    display: flex;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 16px;
+
+    padding-left: 16px;
+    &:hover {
+      .description__label .edit-icon {
+        display: inline;
+      }
+    }
+    .description {
+      &__name {
+        font-family: "Scania Sans CY Semi Condensed";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 16px; /* 133.333% */
+        text-transform: uppercase;
+      }
+      &__label {
+        .edit-icon {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &-body-section {
+    margin: 20px 0;
+
+    &__header {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    &__form {
+      margin-bottom: 20px;
+
+      &-field {
+        display: block;
+        margin-bottom: 10px;
+      }
+    }
+  }
+
+  &-button-container {
+    text-align: center;
+
+    &__button {
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+    }
+  }
 
   :global(.tds-mode-dark) & {
     background-color: var(--tds-grey-958);

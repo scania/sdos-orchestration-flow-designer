@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import styles from "./ofd.module.scss";
 
 interface IFormInput {
   [key: string]: any;
@@ -105,13 +106,43 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
   return (
     <>
-      <h4 style={{ marginBottom: "5px" }}>Edit Class</h4>
-      <tds-chip type="button" size="sm">
-        <span slot="label" style={{ fontWeight: 700, fontSize: "10px" }}>
-          {label}
-        </span>
-      </tds-chip>
+      <div className={styles["form-header"]}>
+        <div className={styles.description}>
+          <h4 className={styles["description__name"]}>{label}</h4>
+          <div className={styles["description__label"]}>
+            <input type="text" className={styles["test"]} />{" "}
+            <span className={styles["edit-icon"]}>
+              <tds-icon
+                name="edit"
+                size="20"
+                style={{ cursor: "pointer" }}
+              ></tds-icon>
+            </span>
+          </div>
+        </div>
+        <tds-icon
+          name="link"
+          size="24"
+          style={{ cursor: "pointer" }}
+        ></tds-icon>
+      </div>
       <article className="form" style={{ marginTop: "10px" }}>
+        {/* <header class="header">
+        <span class="header__label">Label:</span>
+        <span class="header__name">Name</span>
+    </header>
+    <section class="body-section">
+        <header class="body-section__header">Section Header</header>
+        <form class="body-section__form">
+            <input type="text" class="body-section__form-field" placeholder="Field 1">
+            <input type="text" class="body-section__form-field" placeholder="Field 2">
+            <!-- Add more form fields as needed -->
+        </form>
+    </section>
+    <div class="button-container">
+        <button class="button-container__button">Button 1</button>
+        <button class="button-container__button">Button 2</button>
+    </div> */}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           {formData
             .filter(({ name }) => !excludeKeys.includes(name))
