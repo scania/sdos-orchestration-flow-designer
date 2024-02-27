@@ -3,20 +3,20 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix core: <http://kg.scania.com/core/> .
-
+@prefix core_shapes: <https://kg.scania.com/core/shapes/> .
 
 ##-----------------------------------------------------------
 ## SHACL Shapes for Orchestration Flow Graph (OFG)
 ##
 ##
-## Notes: 
+## Notes:
 ## * should divide ResultAction into subclasses, e.g. OntologyResultAction and QueryResultAction.
 ## * should have different types of input parameters (subproperties)
 ## *
 ##
 ## Status: In progress
 ## Date: 2023-04-28 (YYYY-MM-DD)
-## 
+##
 ##------------------------------------------------------------------
 
 
@@ -30,7 +30,7 @@
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "HTTPAction Shape"@en ;
     rdfs:comment "Shape for validation of HTTPAction."@en ;
-    sh:property :hasNextActionShape , 
+    sh:property :hasNextActionShape ,
                 :inputParameterShape_optional ,
                 :outputParameterShape_optional ,
                 :hasSystemShape ,
@@ -44,7 +44,7 @@
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "ResultAction Shape"@en ;
     rdfs:comment "Shape for validation of ResultAction."@en ;
-    sh:property :hasNextActionResultActionShape , 
+    sh:property :hasNextActionResultActionShape ,
                 :inputParameterShape_optional ,
                 :hasSystemShape ,
                 :hasConnectorShape ;
@@ -67,7 +67,7 @@
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "SOAPAction Shape"@en ;
     rdfs:comment "Shape for validation of SOAPAction."@en ;
-    sh:property :hasNextActionShape , 
+    sh:property :hasNextActionShape ,
                 :inputParameterShape ,
                 :outputParameterShape ,
                 :hasSystemShape ,
@@ -105,7 +105,7 @@
     rdfs:comment "Shape for validation of HTTPBasicAuthenticationMethod."@en ;
     sh:property :inputParameterBasicCredentialsParameterShape ;
     sh:targetClass :HTTPBasicAuthenticationMethod .
-    
+
 :HTTPBearerTokenAuthenticationMethodShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "HTTPBearerTokenAuthenticationMethod Shape"@en ;
@@ -118,7 +118,7 @@
     rdfs:label "SOAPBasicAuthenticationMethod Shape"@en ;
     rdfs:comment "Shape for validation of SOAPBasicAuthenticationMethod."@en ;
     sh:property :inputParameterBasicCredentialsParameterShape ;
-    sh:targetClass :SOAPBasicAuthenticationMethodShape .
+    sh:targetClass :SOAPBasicAuthenticationMethod .
 
 
 # CONNECTOR
@@ -171,23 +171,6 @@
     sh:property :contextShape ;
     sh:targetClass :JsonLdContext .
 
-
-# METADATA
-#-----------
-:MetaDataShape a sh:NodeShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "MetaData Shape"@en ;
-    rdfs:comment "Shape for validation of MetaData."@en ;
-    sh:property :timestampShape ,
-                :descriptionShape ,
-                :graphTypeShape ,
-                :contributorShape ,
-                :ooVersionShape ,
-                :titleShape ,
-                :creatorShape ;
-    sh:targetClass :MetaData .
-
-
 # PARAMETER
 #------------
 :BasicCredentialsParameterShape a sh:NodeShape ;
@@ -233,7 +216,8 @@
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "ResultMetaData Shape"@en ;
     rdfs:comment "Shape for validation of ResultMetaData."@en ;
-    sh:property :stateShape ;
+    sh:property :stateShape,
+                core_shapes:MetadataNodeShape ; # should contain all core:Metadata as well
     sh:targetClass :ResultMetaData .
 
 
@@ -259,7 +243,7 @@
     rdfs:comment "Shape for validation of Tasks."@en ;
     sh:property :hasActionShape ,
                 :inputParameterShape_optional ,
-                :hasMetaDataShape ,
+                :hasMetadataShape ,
                 :hasContextShape ;
     sh:targetClass :Task .
 
@@ -332,14 +316,16 @@
     # sh:minCount 1 ;
     sh:maxCount 1 .
 
-:hasMetaDataShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "hasMetaData Shape"@en ;
-    rdfs:comment "A Task should have som meta data"@en ;
-    sh:path :hasMetaData ;
-    sh:class :MetaData ;
-    sh:minCount 1 ;
-    sh:maxCount 1 .
+# TODO: core_shapes:graphMetadataShape is defined differently
+#-
+# :hasMetadataShape a sh:PropertyShape ;
+#     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+#     rdfs:label "hasMetadata Shape"@en ;
+#     rdfs:comment "A Task should have one instance of meta data"@en ;
+#     sh:path core:hasMetadata ;
+#     sh:class core:Metadata ;
+#     sh:minCount 1 ;
+#     sh:maxCount 1 .
 
 :hasNextActionShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
@@ -352,9 +338,11 @@
 :hasNextActionResultActionShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "hasNextAction (ResultAction) Shape"@en ;
-    rdfs:comment "If there are a next action after a ResultAction it must be another ResultAction."@en ;
+    rdfs:comment "If there is a next action after a ResultAction it must be another Action."@en ;
     sh:path :hasNextAction ;
-    sh:class :ResultAction .
+    sh:class :Action ;
+    sh:minCount 0 ;
+    sh:maxCount 1 .
 
 :hasScriptShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
@@ -483,33 +471,9 @@
     rdfs:comment "context should be a string, appear exactly once for a JsonLdContext and be in a json-format."@en ;
     sh:path :context ;
     sh:datatype xsd:string ;
+    sh:minLength 30 ; # is minimum "{\"@context\":{\"x\":\"y\"}}", even though that context doesn't make much sense...
     # sh:pattern "^{" ,
     #            "}$" ;
-    sh:minCount 1 ;
-    sh:maxCount 1 .
-
-:contributorShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "contributor Shape"@en ;
-    rdfs:comment "MetaData should contain contributor"@en ;
-    sh:path :contributor ;
-    sh:datatype xsd:string ;
-    sh:minCount 1 .
-
-:creatorShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "creator Shape"@en ;
-    rdfs:comment "MetaData should contain creator"@en ;
-    sh:path :creator ;
-    sh:datatype xsd:string ;
-    sh:minCount 1 .
-
-:descriptionShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "description Shape"@en ;
-    rdfs:comment "MetaData should contain description"@en ;
-    sh:path :description ;
-    sh:datatype xsd:string ;
     sh:minCount 1 ;
     sh:maxCount 1 .
 
@@ -520,15 +484,6 @@
     sh:path :endpoint ;
     sh:datatype xsd:string ;
     sh:pattern "^/" ;
-    sh:minCount 1 ;
-    sh:maxCount 1 .
-
-:graphTypeShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "graphType Shape"@en ;
-    rdfs:comment "MetaData should contain graphType"@en ;
-    sh:path :graphType ;
-    sh:datatype xsd:string ;
     sh:minCount 1 ;
     sh:maxCount 1 .
 
@@ -573,14 +528,16 @@
     # sh:minCount 1 ;
     sh:maxCount 1 .
 
-:ooVersionShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "ooVersion Shape"@en ;
-    rdfs:comment "MetaData should contain ooVersion"@en ;
-    sh:path :ooVersion ;
-    sh:datatype xsd:string ;
-    sh:minCount 1 ;
-    sh:maxCount 1 .
+# TODO: ooVersion should move. TBD
+# -
+# :ooVersionShape a sh:PropertyShape ;
+#     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+#     rdfs:label "ooVersion Shape"@en ;
+#     rdfs:comment "Metadata should contain ooVersion"@en ;
+#     sh:path :ooVersion ;
+#     sh:datatype xsd:string ;
+#     sh:minCount 1 ;
+#     sh:maxCount 1 .
 
 :paramNameShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
@@ -598,6 +555,7 @@
     sh:path :query ;
     sh:datatype xsd:string ;
     sh:pattern "@prefix" ;
+    sh:minLength 31 ; # shortest imaginable (but non-sensible) SPARQL query would be "\"PREFIX : <a.a> DESCRIBE :b\"
     sh:maxCount 1 .
 
 :scriptShape a sh:PropertyShape ;
@@ -606,6 +564,7 @@
     rdfs:comment "A instance of the class Script should have at least one script and it sholud have datatype string"@en ;
     sh:path :script ;
     sh:datatype xsd:string ;
+    sh:minLength 200;  # Any (groovy) script would at least be 200chars due to imports and parsing of input/outputParameter and context
     sh:minCount 1 ;
     sh:maxCount 1 .
 
@@ -624,24 +583,6 @@
     rdfs:comment "state of the result graph."@en ;
     sh:path :state ;
     sh:datatype xsd:string ;
-    sh:maxCount 1 .
-
-:timestampShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "timestamp Shape"@en ;
-    rdfs:comment "MetaData should contain timestamp"@en ;
-    sh:path :timestamp ;
-    sh:datatype xsd:dateTime ;
-    sh:minCount 1 ;
-    sh:maxCount 1 .
-
-:titleShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "title Shape"@en ;
-    rdfs:comment "MetaData should contain title"@en ;
-    sh:path :title ;
-    sh:datatype xsd:string ;
-    sh:minCount 1 ;
     sh:maxCount 1 .
 
 :tokenShape a sh:PropertyShape ;
