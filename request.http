@@ -143,3 +143,6 @@ GET {{baseUrl}}/api/ofd-shacl
 
 ### read shacl from db
 ##POST {{baseUrl}}/api/save-shacl
+
+### validate graph
+GET {{baseUrl}}/api/validate
