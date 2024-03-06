@@ -36,12 +36,14 @@ const ellipsisLabel = {
 export default memo((node) => {
   //@ts-ignore
   const { data, isConnectable, type, id } = node;
+  const label = data?.formData[0]?.value;
+
   return (
     //@ts-ignore
     <div>
       {/* @ts-ignore */}
       <div
-        data-tooltip={data.label}
+        data-tooltip={label}
         //@ts-ignore
         style={{
           ...ellipsisStyle,
@@ -61,7 +63,7 @@ export default memo((node) => {
           marginTop: "20px",
         }}
       >
-        {data?.classData?.["rdfs:label"]}
+        {label}
       </div>
       {type !== "input" ? (
         //@ts-ignore

@@ -7,6 +7,7 @@ const coreFields = [
     name: "label",
     type: "text",
     label: "Label",
+    value: "",
     validation: {
       required: true,
       minLength: 1,
@@ -25,13 +26,14 @@ async function generateDynamicFormArray(className: string) {
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
-  const propertyDetailsForClass =
-    SHACLProcessor.generatePropertyDetailsForClass(className);
-  const convertToDynamicFormArray = SHACLProcessor.convertToDynamicFormArray(
+  const { generatePropertyDetailsForClass, convertToDynamicFormArray } =
+    SHACLProcessor;
+  const propertyDetailsForClass = generatePropertyDetailsForClass(className);
+  const dynamicFormArray = convertToDynamicFormArray(
     propertyDetailsForClass as any
   );
 
-  return convertToDynamicFormArray;
+  return dynamicFormArray;
 }
 
 export default async function handler(

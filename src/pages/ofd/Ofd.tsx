@@ -36,6 +36,20 @@ const initialNodes = [
         "@type": ["owl:NamedIndividual", "iris:Task"],
         "rdfs:label": "TaskLabel",
       },
+      formData: [
+        {
+          name: "label",
+          type: "text",
+          label: "Label",
+          validation: {
+            required: true,
+            minLength: 1,
+            maxLength: 50,
+            message: "Label must be a string with 1 to 50 characters",
+          },
+          value: "",
+        },
+      ],
     },
     position: { x: 0, y: 0 },
     sourcePosition: "right",
@@ -86,8 +100,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   );
 
   useEffect(() => {
-    //closing the form when delete is pressed i.e node deleted
-    setSelectedNode(null);
+    exitSetupMode();
   }, [deletePressed]);
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
@@ -149,20 +162,13 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     (data: any) => {
       if (!selectedNode) return;
 
-      const updatedClassData: IClassConfig = {
-        ...selectedNode.data.classData,
-        ...data,
-      };
-
       setNodes((prevNodes) =>
         prevNodes.map((node: Node) =>
           node.id === selectedNode.id
-            ? { ...node, data: { ...node.data, classData: updatedClassData } }
+            ? { ...node, data: { ...node.data, formData: data } }
             : node
         )
       );
-
-      setSelectedNode(null);
     },
     [selectedNode, setNodes]
   );
@@ -436,7 +442,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                       onSubmit={handleFormSubmit}
                       onClose={exitSetupMode}
                       label={selectedNode.data.label}
-                      excludeKeys={["@id", "@type", "iris:hasAction"]}
                     />
                   </div>
                 ) : (

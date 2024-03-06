@@ -1,0 +1,278 @@
+{
+	"@context" : {
+		"@base"	 : 		"https://kg.scania.com/it/iris_orchestration/",
+		"@vocab"	 : 		"https://kg.scania.com/it/iris_orchestration/",
+		"owl"	 : 		"http://www.w3.org/2002/07/owl#",
+		"xsd"	 : 		"http://www.w3.org/2001/XMLSchema#",
+		"rdfs"	 : 		"http://www.w3.org/2000/01/rdf-schema#",
+		"it"	 : 		"https://kg.scania.com/it/",
+		"core"	 : 		"http://kg.scania.com/core/",
+		"dct"	 : 		"http://purl.org/dc/terms/",
+		"rdf"	 : 		"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+		"xml"	 : 		"http://www.w3.org/XML/1998/namespace",
+		"sp"	 : 		"http://spinrdf.org/sp#",
+		"dc"	 : 		"http://purl.org/dc/terms/",
+		"rdfs:label"	 : {
+			 "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"rdfs:comment"	 : {
+			 "@id" : "http://www.w3.org/2000/01/rdf-schema#comment",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"rdf:type" : {
+		 "@type" : "@id"
+		 },
+		"dc:title"	 : {
+			 "@id" : "http://purl.org/dc/terms/title",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"dc:source"	 : {
+			 "@id" : "http://purl.org/dc/terms/source",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"dc:description"	 : {
+			 "@id" : "http://purl.org/dc/terms/description",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"ResultMetaData"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/ResultMetaData"
+		 },
+		"PythonScript"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/PythonScript"
+		 },
+		"SOAPConnector"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/SOAPConnector"
+		 },
+		"Action"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/Action"
+		 },
+		"HTTPAuthenticationMethod"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/HTTPAuthenticationMethod"
+		 },
+		"KafkaConnector"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/KafkaConnector"
+		 },
+		"ResultAction"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/ResultAction"
+		 },
+		"ScriptAction"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/ScriptAction"
+		 },
+		"JsonLdContext"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/JsonLdContext"
+		 },
+		"Script"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/Script"
+		 },
+		"System"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/System"
+		 },
+		"Parameter"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/Parameter"
+		 },
+		"TokenCredentialsParameter"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/TokenCredentialsParameter"
+		 },
+		"StandardParameter"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/StandardParameter"
+		 },
+		"HTTPBearerTokenAuthenticationMethod"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/HTTPBearerTokenAuthenticationMethod"
+		 },
+		"HTTPConnector"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/HTTPConnector"
+		 },
+		"MetaData"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/MetaData"
+		 },
+		"HTTPBasicAuthenticationMethod"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/HTTPBasicAuthenticationMethod"
+		 },
+		"HTTPAction"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/HTTPAction"
+		 },
+		"Connector"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/Connector"
+		 },
+		"SOAPAuthenticationMethod"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/SOAPAuthenticationMethod"
+		 },
+		"VirtualGraphAction"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction"
+		 },
+		"SOAPBasicAuthenticationMethod"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/SOAPBasicAuthenticationMethod"
+		 },
+		"BasicCredentialsParameter"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/BasicCredentialsParameter"
+		 },
+		"Task"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/Task"
+		 },
+		"SparqlConvertAction"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction"
+		 },
+		"AuthenticationMethod"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/AuthenticationMethod"
+		 },
+		"SOAPAction"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/SOAPAction"
+		 },
+		"HTTPParameter"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/HTTPParameter"
+		 },
+		"GroovyScript"	 : {
+		 "@id" : "https://kg.scania.com/it/iris_orchestration/GroovyScript"
+		 },
+		"hasConnector" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasConnector",
+		 "@type" : "@id"
+		 },
+		"hasAuthenticationMethod" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasAuthenticationMethod",
+		 "@type" : "@id"
+		 },
+		"outputParameter" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/outputParameter",
+		 "@type" : "@id"
+		 },
+		"hasScript" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasScript",
+		 "@type" : "@id"
+		 },
+		"hasNextAction" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasNextAction",
+		 "@type" : "@id"
+		 },
+		"hasParallelAction" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasParallelAction",
+		 "@type" : "@id"
+		 },
+		"hasAction" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasAction",
+		 "@type" : "@id"
+		 },
+		"inputParameter" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/inputParameter",
+		 "@type" : "@id"
+		 },
+		"hasSystem" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasSystem",
+		 "@type" : "@id"
+		 },
+		"hasContext" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasContext",
+		 "@type" : "@id"
+		 },
+		"hasMetaData" : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/hasMetaData",
+		 "@type" : "@id"
+		 },
+		"contributor"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/contributor",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"wsdlFile"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/wsdlFile",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"graph"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/graph",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"httpHeader"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/httpHeader",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"soapOperation"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/soapOperation",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"paramName"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/paramName",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"state"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/state",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"httpBody"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/httpBody",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"sparql"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/sparql",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"bindingName"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/bindingName",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"script"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/script",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"endpoint"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/endpoint",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"username"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/username",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"context"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/context",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"paramValue"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/paramValue",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"timestamp"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/timestamp",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#dateTime"
+		 },
+		"inputHelper"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/inputHelper",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"baseUrl"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/baseUrl",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"constructSparql"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/constructSparql",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"password"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/password",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"graphType"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/graphType",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"httpQueryParameter"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/httpQueryParameter",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"creator"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/creator",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"title"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/title",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"description"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/description",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 },
+		"ooVersion"	 : {
+			 "@id" : "https://kg.scania.com/it/iris_orchestration/ooVersion",
+		 "@type" : "http://www.w3.org/2001/XMLSchema#string"
+		 }
+
+	}
+}

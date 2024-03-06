@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@scania/tegel": "^0.0.11",
+    "@scania/tegel-react": "^1.6.1",
     "@types/node": "20.5.0",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",

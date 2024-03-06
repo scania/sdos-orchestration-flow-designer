@@ -49,6 +49,7 @@ interface DynamicFormField {
   type: FormFieldType;
   label: string;
   validation?: FormFieldValidation;
+  value?: any;
 }
 
 export const createSHACLProcessor = (rdf: Array<Quad>) => {
@@ -162,6 +163,7 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
         name: path || "",
         type: type,
         label: comment,
+        value: "",
       };
 
       field.validation = {};
