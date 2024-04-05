@@ -42,18 +42,22 @@ function App() {
     setNameInput(event.currentTarget.value);
   };
 
-  // const handleDesc = (event: FormEvent<HTMLTdsTextareaElement>) => {
-  //   setDescInput(event.currentTarget.value);
-  // };
+  const handleDesc = (event: FormEvent<HTMLTdsTextareaElement>) => {
+     setDescInput(event.currentTarget.value);
+   };
 
   const createNewGraph = () => {
+    localStorage.removeItem("graphDescription");
     if (nameInput == "") {
       setErrorState(true);
     } else {
       /* Navigate to workspace page */
 
       setErrorState(false);
-      router.push(`/ofd/${nameInput.replace(/\s+/g, "-")}`);
+      router.push({
+        pathname: `/ofd/${nameInput.replace(/\s+/g, "-")}`,
+        query: { description: descInput }
+      }, `/ofd/${nameInput.replace(/\s+/g, "-")}`)
     }
   };
 
@@ -103,19 +107,14 @@ function App() {
                     onInput={handleName}
                   />
                   <div style={{ marginTop: "28px" }} />
-                  {/* <tds-textarea
+                  <tds-textarea
                     id="modal-description-area"
                     placeholder="Description"
                     rows={4}
                     mode-variant={theme == "light" ? "primary" : "secondary"}
-                    helper={
-                      errorState && descInput == ""
-                        ? "To continue, please add a description."
-                        : "Write a description for the use case of the graph"
-                    }
                     state={errorState && descInput == "" ? "error" : "default"}
                     onInput={handleDesc}
-                  /> */}
+                  />
                 </span>
                 <span slot="actions">
                   <tds-button

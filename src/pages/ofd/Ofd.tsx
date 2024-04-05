@@ -1,6 +1,7 @@
 import { GraphBody } from "@/services/graphSchema";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import ReactFlow, {
@@ -15,6 +16,8 @@ import ReactFlow, {
   useKeyPress,
   useNodesState,
 } from "reactflow";
+import Panel from "@/components/Tabs/Panel";
+import Tabs from "@/components/Tabs/Tabs";
 import "reactflow/dist/style.css";
 import CircularNode from "../../components/CircularNode.tsx";
 import {
@@ -67,20 +70,26 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Action");
+  const [searchString, setSearchString] = useState("");
+  const [showLibraryPanel, setShowLibraryPanel] = useState(true);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [graphDescription, setGraphDescription] = useState("");
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
 
+  const [highlightedClassLabel, setHighlightedClassLabel] =
+    useState<string>("");
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
   const parseTtlMutation = useMutation((className: string) => {
     return axios.get(`${apiBaseUrl}/api/parse-ttl/?className=${className}`);
   });
-  const [droppedClassName, setDroppedClassName] = useState(null);
+  const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
   const [setupMode, setSetupMode] = useState(false);
   const {
     data: classDetails,
@@ -101,7 +110,9 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
 
   useEffect(() => {
     exitSetupMode();
+    setSelectedNode(null);
   }, [deletePressed]);
+
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
     return response.data;
@@ -128,6 +139,35 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
 
     return () => clearTimeout(toastTimer);
   }, [showSuccessToast, showErrorToast]);
+
+  // Using this to prevent graphDescription to be null on page refresh
+  useEffect(() => {
+    if (localStorage.getItem("graphDescription")) {
+      setGraphDescription(localStorage.getItem("graphDescription") as string);
+    } else if (router.query.description) {
+      setGraphDescription(router.query.description as string);
+      localStorage.setItem(
+        "graphDescription",
+        router.query.description as string
+      );
+    }
+  }, [router.query.description, router]);
+
+  function filteredClasses(classes: any) {
+    const filteredClasses = classes.filter(
+      (item: any) => item.category && item.category.includes(selectedCategory)
+    );
+
+    if (searchString.length) {
+      return filteredClasses.filter(
+        (item: any) =>
+          item.className &&
+          item.className.toLowerCase().includes(searchString.toLowerCase())
+      );
+    }
+
+    return filteredClasses;
+  }
 
   const handleSaveClick = () => {
     const payload = {
@@ -188,50 +228,24 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     [nodes]
   );
 
+  const addToGraph = () => {
+    const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
+    setDroppedClassName(cleanedType);
+
+    // Store event-related data for later use
+    setDropInfo({
+      type: highlightedClassLabel,
+      position: { x: 10, y: 10 },
+    });
+
+    setIsPendingClassDetailsAction(true);
+    setHighlightedClassLabel("");
+  };
+
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
-  // const onDrop = useCallback(
-  //   (event: any) => {
-  //     event.preventDefault();
-
-  //     const type = event.dataTransfer.getData("application/reactflow");
-
-  //     // check if the dropped element is valid
-  //     if (typeof type === "undefined" || !type) {
-  //       return;
-  //     }
-  //     setDroppedClassName(type.replace(/\s+/g, ""));
-
-  //     const position = reactFlowInstance.screenToFlowPosition({
-  //       x: event.clientX,
-  //       y: event.clientY,
-  //     });
-
-  //     console.log("fetchedClass", classDetails);
-
-  //     const newNode = {
-  //       id: generateClassId(),
-  //       type:
-  //         type === "Task"
-  //           ? "input"
-  //           : type === "Result Action"
-  //           ? "output"
-  //           : "default",
-  //       position,
-  //       sourcePosition: "right",
-  //       targetPosition: "left",
-  //       data: {
-  //         label: type,
-  //         classData: assignClassData(type),
-  //       },
-  //     };
-  //     //@ts-ignore
-  //     setNodes((nds) => nds.concat(newNode));
-  //   },
-  //   [reactFlowInstance]
-  // );
   const onDrop = useCallback(
     (event: any) => {
       event.preventDefault();
@@ -329,27 +343,59 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       return <tds-spinner size="lg" variant="standard"></tds-spinner>;
     }
     return (
-      <div className={styles.chips}>
+      <div className={styles.classes}>
         {classes &&
-          classes.map(
+          filteredClasses(classes).map(
             (
-              item: { parentClassUri: string; className: string },
+              item: {
+                parentClassUri: string;
+                className: string;
+                category: string;
+              },
               index: number
             ) => {
               return (
-                <tds-chip
-                  type="button"
-                  size="lg"
+                <div
                   draggable
                   key={index}
+                  onClick={() => setHighlightedClassLabel(item.className)}
                   onDragStart={(e: any) => handleOnDrag(e, item.className)}
-                  className={styles.chip}
+                  className={`${styles.classes__class} ${
+                    highlightedClassLabel === item.className
+                      ? styles.active__chip
+                      : styles.inactive__chip
+                  }`}
                 >
-                  <span slot="label">{item.className}</span>
-                </tds-chip>
+                  <div className={styles.classes__class__content}>
+                    <div
+                      className={`${styles.classes__class__content__icon} ${
+                        highlightedClassLabel === item.className
+                          ? styles.active__container
+                          : ""
+                      }`}
+                    >
+                      <tds-icon name="double_kebab" size="16px"></tds-icon>
+                    </div>
+                    <span className={styles.classes__class__content__label}>
+                      {item.className}
+                    </span>
+                  </div>
+                </div>
               );
             }
           )}
+        <div className={styles.classes__footer}>
+          <tds-button
+            type="button"
+            variant="primary"
+            size="sm"
+            text="Add to graph"
+            disabled={!highlightedClassLabel}
+            onClick={() => addToGraph()}
+          >
+            <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
+          </tds-button>
+        </div>
       </div>
     );
   };
@@ -365,41 +411,61 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
 
   return (
     <div className={styles.page}>
-      <header className={styles.page__header} style={{ height: "70px" }}>
-        <h1 className={styles.page__heading}>
-          {router.query?.graphName || ""}
-        </h1>
+      <header className={styles.page__header + " tds-detail-02"}>
         <div>
-          {mutation.isLoading ? (
-            <div style={{ marginRight: "25px" }}>
-              <tds-spinner size="md" variant="standard"></tds-spinner>
-            </div>
-          ) : (
-            <tds-button
-              type="button"
-              variant="primary"
-              size="lg"
-              text="Save"
-              onClick={handleSaveClick}
-            >
-              <tds-icon slot="icon" size="20px" name="save"></tds-icon>
-            </tds-button>
-          )}
+          <Link href="/">
+            <span className={styles.page__header__back}>My work</span>
+            <tds-icon slot="icon" size="14px" name="back"></tds-icon>
+          </Link>
+        </div>
+        <div>
+          <span className={styles.page__header__options}>Options</span>
+          <span className={styles.page__header__save} onClick={handleSaveClick}>
+            Save
+          </span>
         </div>
       </header>
       <main className={styles.page__main}>
         <aside className={styles.sidebar}>
-          <h2 className={styles.sidebar__primaryHeading}>Library</h2>
-          <h3 className={styles.sidebar__secondaryHeading}>Primary Classes</h3>
-          <p className={styles.sidebar__description}>
-            Select and add nodes to start designing your orchestration flow
-            graph
-          </p>
-          <tds-divider orientation="horizontal"></tds-divider>
-          <div className={styles.sidebar__tabs}>{/* Tabs go here */}</div>
-          <div className={styles.sidebar__chips} style={{ marginTop: "10px" }}>
-            {renderClasses()}
+          <div className={styles.sidebar__header}>
+            <div className={styles.sidebar__type_and_toggle}>
+              <h6 className="tds-detail-06">Private</h6>
+              <tds-icon
+                onClick={() => setShowLibraryPanel(!showLibraryPanel)}
+                slot="icon"
+                size="20px"
+                name={showLibraryPanel ? "chevron_up" : "chevron_down"}
+              ></tds-icon>
+            </div>
+            <h3 className={styles.sidebar__primaryHeading}>
+              {router.query?.graphName || ""}
+            </h3>
+            <p className={styles.sidebar__description}>{graphDescription}</p>
           </div>
+          {showLibraryPanel ? (
+            <>
+              <tds-divider orientation="horizontal"></tds-divider>
+              <div className={styles.sidebar__search}>
+                <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
+                <tds-text-field
+                  className="tds-text-field"
+                  placeholder="Search..."
+                  onInput={(e) => setSearchString(e.currentTarget.value)}
+                />
+              </div>
+              <div className={styles.sidebar__tabs}>
+                <Tabs
+                  selected={0}
+                  onParentClick={(value) => setSelectedCategory(value)}
+                >
+                  <Panel title="Actions" value="Action"></Panel>
+                  <Panel title="Parameters" value="Parameter"></Panel>
+                  <Panel title="Scripts" value="Script"></Panel>
+                </Tabs>
+              </div>
+              <div className={styles.sidebar__chips}>{renderClasses()}</div>
+            </>
+          ) : null}
         </aside>
         <section className={styles.graph__canvas}>
           <div>
@@ -409,7 +475,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                 ref={reactFlowWrapper}
                 style={{
                   height: "calc(100vh - 200px)",
-                  width: "calc(100vw - 450px)",
                   position: "relative",
                 }}
               >
@@ -429,7 +494,9 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   className="react-flow"
                   onPaneClick={exitSetupMode}
                 >
-                  <Controls />
+                  <Controls
+                    style={{ left: showLibraryPanel ? "365px" : "0px" }}
+                  />
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>

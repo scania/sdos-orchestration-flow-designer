@@ -3,7 +3,7 @@ $light-color: #aaa;
 $transition-time: 0.2s;
 $border-color-light: var(--tds-grey-300);
 $border-color-dark: var(--tds-grey-900);
-$selected-border-color: var(--tds-blue-700);
+$selected-border-color: var(--tds-blue-400);
 $tabs-partition-light: var(--tds-grey-700);
 
 .tab {
@@ -32,8 +32,8 @@ ul.inline {
 
   li {
     display: inline-block;
-    margin-left: 0;
-    padding: 22px;
+    margin-left: 8px;
+    padding: 16px;
     // transition: all $transition-time;
     font-size: 14px;
     font-style: normal;

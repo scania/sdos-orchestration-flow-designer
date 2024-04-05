@@ -60,8 +60,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     defaultValues: formInitialValues,
   });
   const formValue = watch();
-  console.log(formValue, "FORM VASLUE");
-
   const { errors } = formState;
   const [isLabelEditMode, setIsLabelEditMode] = useState(false);
   const labelValue = watch("label");

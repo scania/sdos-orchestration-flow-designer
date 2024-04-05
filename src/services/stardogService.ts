@@ -13,15 +13,26 @@ export interface ClassEntity {
   uri: string;
   className: string;
   parentClassUri: string;
-  parentClassLabel?: string;
+  category: string;
 }
 
-const fetchClassesQuery = `SELECT DISTINCT * { graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
-    ?class  rdf:type owl:Class; 
-        rdfs:label ?labelProps;
-        rdfs:subClassOf ?parentClass .
- }}`;
-
+const fetchClassesQuery = `SELECT DISTINCT  ?parentClass ?parentLabel ?class ?labelProps ?category where { 
+  graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
+      VALUES ?parentClass { 
+          <https://kg.scania.com/it/iris_orchestration/Action> 
+          <https://kg.scania.com/it/iris_orchestration/Script> 
+          <https://kg.scania.com/it/iris_orchestration/Parameter> 
+      }
+      ?class  rdf:type owl:Class; 
+          rdfs:label ?labelProps;
+          rdfs:subClassOf ?parentClass .
+      ?parentClass rdfs:label ?parentLabel .
+      FILTER NOT EXISTS {
+          ?subclass rdfs:subClassOf ?class .
+      }    
+      BIND(localname(?parentClass) as ?category)
+  }
+} ORDER BY ?parentClass`;
 const executeQuery = async (dbName: string, testQuery: string) => {
   try {
     const results = await query.execute(stardogConnection, dbName, testQuery);
@@ -42,6 +53,7 @@ export const fetchClasses = async (): Promise<ClassEntity[]> => {
     uri: item.class.value,
     className: item.labelProps.value,
     parentClassUri: item.parentClass.value,
+    category: item.category.value,
   }));
 };
 
