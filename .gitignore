@@ -41,3 +41,4 @@ next-env.d.ts
 cypress/screenshots/
 cypress/videos/
 cypress/reports/
+cypress.env.json

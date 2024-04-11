@@ -50,6 +50,8 @@ export default defineConfig({
   e2e: {
     setupNodeEvents,
     specPattern: "cypress/features/**/*.feature",
-    baseUrl: "http://localhost:3000"
+    baseUrl: "https://ofd.sdip.devtest.aws.scania.com",
+    experimentalModifyObstructiveThirdPartyCode: true,
+    chromeWebSecurity: false
   }
 });

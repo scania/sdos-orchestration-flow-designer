@@ -8,8 +8,8 @@ import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 
 Given( "OFD home page is in view", () => {
     cy.visit('/');
-    cy.get('h1')
-    .should("contain.text", "ORCHESTRATION FLOW DESIGNER");
+    cy.get('tds-header-title')
+    .should("contain.text", "ORCHESTRATION FLOW DESIGNER BETA 1.0");
 });
 
 // ------------------------------------------------------------------------------------
