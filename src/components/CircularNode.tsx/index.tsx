@@ -1,36 +1,17 @@
-import { generateClassId } from "@/utils";
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
-const ellipsisStyle = {
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center", // Centers content vertically
-  alignItems: "center", // Centers content horizontally
-  width: "66px",
-  height: "44px",
-  zIndex: 999999,
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -60%)",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  fontSize: "6px",
-};
+import styles from "./CircularNode.module.scss";
 
-const ellipsisLabel = {
-  width: "60px",
-  height: "10px",
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -60%)",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-  fontWeight: 700,
-  fontSize: "7px",
-  marginTop: "22px",
+// TODO - handle this dynamically in the future
+const parameterLabels = [
+  "Token Credentials Parameter",
+  "Standard Parameter",
+  "Basic Credentials Parameter",
+  "HTTP Parameter",
+];
+
+const isParameter = (label) => {
+  return parameterLabels.includes(label);
 };
 
 export default memo((node) => {
@@ -39,41 +20,40 @@ export default memo((node) => {
   const label = data?.formData[0]?.value;
 
   return (
-    //@ts-ignore
-    <div>
-      {/* @ts-ignore */}
-      <div
-        data-tooltip={label}
-        //@ts-ignore
-        style={{
-          ...ellipsisStyle,
-          fontSize: data.label?.length > 20 ? "9px" : "11px",
-        }}
-      >
-        {data.label}
+    <div
+      className={`${node.selected ? styles.selected: ''} ${styles.container} ${
+        data.label === "Task"
+          ? styles.container__task
+          : isParameter(data.label)
+          ? styles.container__secondary
+          : styles.container__primary
+      }`}
+    >
+      <div className={styles.headingContainer}>
+        <div
+          data-tooltip={label}
+          className={`${styles.chip} ${
+            data.label === "Task"
+              ? styles.chip__task
+              : isParameter(data.label)
+              ? styles.chip__secondary
+              : styles.chip__primary
+          }`}
+        >
+          {data.label}
+        </div>
+        <div>
+          <tds-icon name="meatballs" size="20px"></tds-icon>
+        </div>
       </div>
-      {/* @ts-ignore */}
-      <div
-        // className="ellipsis"
-        data-tooltip={data.label}
-        //@ts-ignore
-        style={{
-          ...ellipsisLabel,
-          fontSize: "6px",
-          marginTop: "20px",
-        }}
-      >
-        {label}
+      <div data-tooltip={data.label} className={styles.labelContainer}>
+        {label ? label : <span className={"opaque-35"}>Label</span>}
       </div>
       {type !== "input" ? (
-        //@ts-ignore
         <Handle
           type="target"
           position={Position.Left}
           id="a"
-          style={{
-            background: "#555",
-          }}
           isConnectable={isConnectable}
         />
       ) : (
@@ -84,9 +64,6 @@ export default memo((node) => {
           type="source"
           position={Position.Right}
           id="a"
-          style={{
-            background: "#555",
-          }}
           isConnectable={isConnectable}
         />
       ) : (

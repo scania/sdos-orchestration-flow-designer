@@ -489,6 +489,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   onDrop={onDrop}
                   onDragOver={onDragOver}
                   fitView
+                  fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
                   className="react-flow"

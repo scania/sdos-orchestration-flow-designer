@@ -97,6 +97,10 @@ i {
   }
 }
 
+.opaque-35 {
+  opacity: 0.35;
+}
+
 .mobile-nav-item {
   display: none;
 }

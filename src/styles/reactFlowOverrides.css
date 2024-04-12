@@ -1,10 +1,34 @@
-.react-flow .react-flow__node {
-  padding: 40px;
-  border-radius: 100%;
-  width: 50px;
-  height: 50px;
+.react-flow__node {
+  text-align: left !important;
+}
+
+.react-flow__node {
+  padding: 0px !important;
+  width: unset !important;
+  border: none !important;
 }
 
 .react-flow__background {
   background-color: #f9fafb;
+}
+
+/* Handle for the nodes where you can start/stop dragging */
+.react-flow__handle{
+  width: 12px !important;
+  height: 12px !important;
+  background: #555 !important;
+}
+
+.react-flow__handle-right{
+  right: -6px !important;
+}
+
+.react-flow__handle-left{
+  left: -6px !important;
+}
+
+/* React flow offers custom edges(https://reactflow.dev/examples/edges/custom-edges)
+and if bigger changes to the edge is required, we should take a look at that */
+.react-flow__edge-text{
+  font-size: 16px !important;
 }
