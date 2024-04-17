@@ -2,50 +2,27 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import styles from "./ofd.module.scss";
 import { defineCustomElements, TdsTextarea } from "@scania/tegel-react";
+import { DynamicFormProps, FormField, IFormInput } from "@/utils";
 defineCustomElements();
 
-interface IFormInput {
-  [key: string]: any;
-}
-
-interface FormField {
-  name: string;
-  type: string;
-  label: string;
-  validation: {
-    min?: number;
-    max?: number;
-    pattern?: string;
-    message?: string;
-    required?: boolean;
-  };
-  value?: string;
-}
-
-interface DynamicFormProps {
-  formData: FormField[];
-  onSubmit: (data: IFormInput) => void;
-  onClose: () => void;
-  excludeKeys: string[];
-  label: string;
-}
 // Helper functions for encoding and decoding
 const replaceSpecialChars = (str: string) => str.replace(/[/.]/g, "_");
 const restoreSpecialChars = (str: string) => str.replace(/_/g, "/");
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
-  formData = [],
+  formData = { formFields: [] },
   onSubmit,
   excludeKeys = ["label"],
   label,
   onClose,
 }) => {
+  const { formFields } = formData;
   const formInitialValues = useMemo(() => {
-    return formData.reduce((acc, field) => {
+    return formFields.reduce((acc, field) => {
       acc[replaceSpecialChars(field.name)] = field.value || ""; // Use field.value or "" if undefined
       return acc;
     }, {});
-  }, [formData]); // Dependency array ensures this only recalculates when formData changes
+  }, [formFields]); // Dependency array ensures this only recalculates when formFields changes
 
   const {
     register,
@@ -65,11 +42,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const labelValue = watch("label");
 
   const hasAttributes =
-    formData.filter(({ name }) => !excludeKeys.includes(name)).length > 0;
+    formFields.filter(({ name }) => !excludeKeys.includes(name)).length > 0;
 
   useEffect(() => {
     reset(formInitialValues);
-  }, [formData, reset]);
+  }, [formFields, reset]);
 
   useEffect(() => {
     if (isLabelEditMode) {
@@ -78,7 +55,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   }, [isLabelEditMode]);
 
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
-    const filledData = formData.map((field: FormField) => {
+    const filledData = formFields.map((field: FormField) => {
       const { name } = field;
       if (data[replaceSpecialChars(name)]) {
         return { ...field, value: data[replaceSpecialChars(name)] };
@@ -86,7 +63,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       return { ...field, value: "" };
     });
 
-    onSubmit(filledData);
+    onSubmit({ ...formData, formFields: filledData });
     reset(formValue);
   };
 
@@ -247,7 +224,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className={styles["form-body-section__form"]}>
-            {formData
+            {formFields
               .filter(({ name }) => !excludeKeys.includes(name))
               .map((field) => renderInputField(field))}
           </div>

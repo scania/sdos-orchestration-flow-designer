@@ -1,6 +1,5 @@
 import { ContextDefinition } from "jsonld/jsonld";
 import { Connection, Edge, MarkerType, Node } from "reactflow";
-import CLASS_CONFIG from "../../classConfig.json";
 
 // Constants for RDF, OWL, and RDFS namespaces
 const RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -31,6 +30,37 @@ export interface IClassConfig {
   };
 }
 
+export interface IFormInput {
+  [key: string]: any;
+}
+
+export interface FormField {
+  name: string;
+  type: string;
+  label: string;
+  validation: {
+    min?: number;
+    max?: number;
+    pattern?: string;
+    message?: string;
+    required?: boolean;
+  };
+  value?: string;
+}
+
+export interface FormData {
+  className: string;
+  formFields: FormField[];
+}
+
+export interface DynamicFormProps {
+  formData: FormData;
+  onSubmit: (data: IFormInput) => void;
+  onClose: () => void;
+  excludeKeys: string[];
+  label: string;
+}
+
 export const generateClassId = () => `iris:${crypto.randomUUID()}`;
 
 interface IState {
@@ -43,27 +73,6 @@ export interface GraphData {
   "@graph": IClassConfig[];
 }
 
-const toCamelCase = (str: string): string => {
-  return str
-    .split(" ")
-    .map((word, index) =>
-      index === 0
-        ? word.toLowerCase()
-        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    )
-    .join("");
-};
-
-/**
- * Assigns class data based on the given type.
- * @param type - The type of class to assign data for.
- * @returns The class data for the given type.
- */
-export const assignClassData = (type: string): IClassConfig | {} =>
-  CLASS_CONFIG[type as keyof typeof CLASS_CONFIG] || {
-    "rdfs:label": `${toCamelCase(type)}Label`,
-  };
-
 /**
  * Generates JSON-LD payload from graph state.
  * @param state - The state containing nodes and edges.
@@ -74,13 +83,25 @@ export const generateJsonLdFromState = ({
   nodes,
   edges,
 }: IState): GraphData => {
-  const findNodeData = (nodeId: string) => {
+  const findNodeFormFields = (nodeId: string): FormData => {
     const node = nodes.find((node) => node.id === nodeId);
-    return node ? node.data.classData : null;
+    return node ? node.data.formData : null;
+  };
+
+  const convertFromFieldsToNodeData = (formData: FormData) => {
+    const obj: any = {};
+    const { className, formFields } = formData;
+    obj["@type"] = ["owl:NamedIndividual", `iris:${className}`];
+    formFields.forEach((formField: FormField) => {
+      obj[formField.name] = { "@value": formField.value };
+    });
+    return obj;
   };
 
   const constructNodeData = (nodeId: string, additionalData = {}) => {
-    const nodeData = findNodeData(nodeId);
+    const formData = findNodeFormFields(nodeId);
+    const nodeData = convertFromFieldsToNodeData(formData);
+
     if (!nodeData) return null;
     return { ...nodeData, ...additionalData, "@id": nodeId };
   };
@@ -98,7 +119,6 @@ export const generateJsonLdFromState = ({
       return constructNodeData(nodeId, additionalData);
     })
     .filter((item): item is IClassConfig => item !== null);
-
   return {
     "@context": JSON_LD_CONTEXT,
     "@graph": graphData,

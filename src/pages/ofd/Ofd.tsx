@@ -20,13 +20,8 @@ import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
 import "reactflow/dist/style.css";
 import CircularNode from "../../components/CircularNode.tsx";
-import Accordion from "../../components/Accordion/accordion";
-import {
-  assignClassData,
-  generateClassId,
-  IClassConfig,
-  setEdgeProperties,
-} from "@/utils";
+import Accordion from "../../components/Accordion/Accordion";
+import { generateClassId, IClassConfig, setEdgeProperties } from "@/utils";
 import DynamicForm from "./DynamicForm";
 import styles from "./ofd.module.scss";
 
@@ -36,24 +31,23 @@ const initialNodes = [
     type: "input",
     data: {
       label: "Task",
-      classData: {
-        "@type": ["owl:NamedIndividual", "iris:Task"],
-        "rdfs:label": "TaskLabel",
-      },
-      formData: [
-        {
-          name: "label",
-          type: "text",
-          label: "Label",
-          validation: {
-            required: true,
-            minLength: 1,
-            maxLength: 50,
-            message: "Label must be a string with 1 to 50 characters",
+      formData: {
+        className: "Task",
+        formFields: [
+          {
+            name: "iris:label",
+            type: "text",
+            label: "Label",
+            validation: {
+              required: true,
+              minLength: 1,
+              maxLength: 50,
+              message: "Label must be a string with 1 to 50 characters",
+            },
+            value: "",
           },
-          value: "",
-        },
-      ],
+        ],
+      },
     },
     position: { x: 0, y: 0 },
     sourcePosition: "right",
@@ -256,7 +250,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const handleFormSubmit = useCallback(
     (data: any) => {
       if (!selectedNode) return;
-
       setNodes((prevNodes) =>
         prevNodes.map((node: Node) =>
           node.id === selectedNode.id
@@ -348,7 +341,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
         targetPosition: "left",
         data: {
           label: type,
-          classData: assignClassData(type),
           formData: classDetails,
         },
       };

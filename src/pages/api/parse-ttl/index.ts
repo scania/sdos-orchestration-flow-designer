@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 const coreFields = [
   {
-    name: "label",
+    name: "iris:label",
     type: "text",
     label: "Label",
     value: "",
@@ -17,7 +17,7 @@ const coreFields = [
   },
 ];
 
-async function generateDynamicFormArray(className: string) {
+async function generateDynamicFormData(className: string) {
   const filePath = "ofg_shapes.ttl";
   const quads = await parseTTLFile(filePath);
   const jsonData = convertQuadsToJson(quads);
@@ -33,7 +33,7 @@ async function generateDynamicFormArray(className: string) {
     propertyDetailsForClass as any
   );
 
-  return dynamicFormArray;
+  return { className: className, formFields: dynamicFormArray };
 }
 
 export default async function handler(
@@ -43,9 +43,10 @@ export default async function handler(
   try {
     const className = (req.query.className as string) || "HTTPAction";
 
-    const dynamicFormArray = await generateDynamicFormArray(className);
+    const formData = await generateDynamicFormData(className);
+    const allFields = [...coreFields, ...formData.formFields];
 
-    res.status(200).json([...coreFields, ...dynamicFormArray]);
+    res.status(200).json({ ...formData, formFields: allFields });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error processing request" });

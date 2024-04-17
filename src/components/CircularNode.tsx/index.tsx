@@ -17,7 +17,7 @@ const isParameter = (label) => {
 export default memo((node) => {
   //@ts-ignore
   const { data, isConnectable, type, id } = node;
-  const label = data?.formData[0]?.value;
+  const label = data?.formData.formFields[0]?.value;
 
   return (
     <div
