@@ -83,6 +83,7 @@
                 :inputParameterShape ,
                 :outputParameterShape ,
                 :hasContextShape ,
+                :scriptShape,
                 :hasScriptShape ;
     sh:targetClass :SparqlConvertAction .
 

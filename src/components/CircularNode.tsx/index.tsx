@@ -21,7 +21,7 @@ export default memo((node) => {
 
   return (
     <div
-      className={`${node.selected ? styles.selected: ''} ${styles.container} ${
+      className={`${node.selected ? styles.selected : ""} ${styles.container} ${
         data.label === "Task"
           ? styles.container__task
           : isParameter(data.label)

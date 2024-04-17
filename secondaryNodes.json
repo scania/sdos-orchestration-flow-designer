@@ -1,0 +1,62 @@
+const secondaryModeNodes = [
+    {
+        "uri": "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+        "className": "Sparql Convert Action",
+        "parentClassUri": "https://kg.scania.com/it/iris_orchestration/Action",
+        "category": "Action"
+    },
+    {
+        "uri": "https://kg.scania.com/it/iris_orchestration/ScriptAction",
+        "className": "Script Action",
+        "parentClassUri": "https://kg.scania.com/it/iris_orchestration/Action",
+        "category": "Action"
+    },
+    {
+        "uri": "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
+        "className": "Virtual Graph Action",
+        "parentClassUri": "https://kg.scania.com/it/iris_orchestration/Action",
+        "category": "Action"
+    }
+]
+
+const secondaryModeClassMap = {
+    scriptAction: [
+        "System",
+        "JsonLdContext",
+        "Script"
+    ],
+    sparqlConvertAction: [
+        "JsonLdContext",
+        "Script"
+    ],
+    virtualGraphAction: [
+        ""
+    ],
+    resultAction: [
+
+    ],
+    httpAction: [
+
+    ],
+    soapAction: [
+
+    ],
+    tokenCredentialsParameter: [
+
+    ],
+    standardParameter : [
+
+    ],
+    basicCredentialsParameter: [
+
+    ],
+    httpParameter: [
+
+    ],
+    groovyScript: [
+
+    ],
+    pythonScript: [
+
+    ]
+}

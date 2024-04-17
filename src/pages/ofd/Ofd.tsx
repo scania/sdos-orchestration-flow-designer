@@ -20,6 +20,7 @@ import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
 import "reactflow/dist/style.css";
 import CircularNode from "../../components/CircularNode.tsx";
+import Accordion from "../../components/Accordion/accordion";
 import {
   assignClassData,
   generateClassId,
@@ -58,7 +59,6 @@ const initialNodes = [
     sourcePosition: "right",
   },
 ];
-
 const nodeTypes = {
   input: CircularNode,
   output: CircularNode,
@@ -70,9 +70,63 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Action");
+  // TODO - mocked data to be replaced with api-call to recieve required and optional nodes
+  // for a selected node and in setup-mode
+  const [exampleClasses, setExampleClasses] = useState({
+    required: [
+      {
+        category: "Action",
+        className: "Action",
+        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
+        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+      },
+      {
+        category: "Action",
+        className: "Yes no",
+        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
+        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+      },
+      {
+        category: "Action",
+        className: "A cool name",
+        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
+        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+      },
+      {
+        category: "Action",
+        className: "Searchable",
+        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
+        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+      },
+    ],
+    optional: [
+      {
+        category: "Action",
+        className: "Placeholder name",
+        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
+        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+      },
+      {
+        category: "Action",
+        className: "Testing things",
+        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
+        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+      },
+      {
+        category: "Action",
+        className: "Searchable",
+        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
+        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+      },
+    ],
+  });
+
+  const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
+    useState("Action");
+  const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
+    useState("required");
   const [searchString, setSearchString] = useState("");
-  const [showLibraryPanel, setShowLibraryPanel] = useState(true);
+  const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [graphDescription, setGraphDescription] = useState("");
@@ -153,20 +207,21 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     }
   }, [router.query.description, router]);
 
-  function filteredClasses(classes: any) {
-    const filteredClasses = classes.filter(
-      (item: any) => item.category && item.category.includes(selectedCategory)
+  function filteredPrimaryClasses(classes: any) {
+    const filteredPrimaryClasses = classes.filter(
+      (item: any) =>
+        item.category && item.category.includes(selectedPrimaryCategory)
     );
 
     if (searchString.length) {
-      return filteredClasses.filter(
+      return filteredPrimaryClasses.filter(
         (item: any) =>
           item.className &&
           item.className.toLowerCase().includes(searchString.toLowerCase())
       );
     }
 
-    return filteredClasses;
+    return filteredPrimaryClasses;
   }
 
   const handleSaveClick = () => {
@@ -345,7 +400,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     return (
       <div className={styles.classes}>
         {classes &&
-          filteredClasses(classes).map(
+          filteredPrimaryClasses(classes).map(
             (
               item: {
                 parentClassUri: string;
@@ -429,12 +484,13 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
         <aside className={styles.sidebar}>
           <div className={styles.sidebar__header}>
             <div className={styles.sidebar__type_and_toggle}>
+              {/* TODO - replace hardcoded "Private" value */}
               <h6 className="tds-detail-06">Private</h6>
               <tds-icon
-                onClick={() => setShowLibraryPanel(!showLibraryPanel)}
+                onClick={() => setShowExtendedPanel(!showExtendedPanel)}
                 slot="icon"
                 size="20px"
-                name={showLibraryPanel ? "chevron_up" : "chevron_down"}
+                name={showExtendedPanel ? "chevron_up" : "chevron_down"}
               ></tds-icon>
             </div>
             <h3 className={styles.sidebar__primaryHeading}>
@@ -442,7 +498,8 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
             </h3>
             <p className={styles.sidebar__description}>{graphDescription}</p>
           </div>
-          {showLibraryPanel ? (
+          {showExtendedPanel && !setupMode ? (
+            // Primary panel
             <>
               <tds-divider orientation="horizontal"></tds-divider>
               <div className={styles.sidebar__search}>
@@ -456,7 +513,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
               <div className={styles.sidebar__tabs}>
                 <Tabs
                   selected={0}
-                  onParentClick={(value) => setSelectedCategory(value)}
+                  onParentClick={(value) => setSelectedPrimaryCategory(value)}
                 >
                   <Panel title="Actions" value="Action"></Panel>
                   <Panel title="Parameters" value="Parameter"></Panel>
@@ -465,7 +522,111 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
               </div>
               <div className={styles.sidebar__chips}>{renderClasses()}</div>
             </>
-          ) : null}
+          ) : showExtendedPanel && setupMode ? (
+            // Secondary panel
+            <>
+              <tds-divider orientation="horizontal"></tds-divider>
+              <div className={styles.sidebar__search}>
+                <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
+                <tds-text-field
+                  className="tds-text-field"
+                  placeholder="Search..."
+                  onInput={(e) => setSearchString(e.currentTarget.value)}
+                />
+              </div>
+              <div className={styles.sidebar__tabs}>
+                <Tabs
+                  selected={0}
+                  onParentClick={(value) => setSelectedSecondaryCategory(value)}
+                >
+                  <Panel title="Required" value="required"></Panel>
+                  <Panel title="Optional" value="optional"></Panel>
+                </Tabs>
+              </div>
+              <div className={styles.sidebar__chips}>
+                <Accordion
+                  label="Node name"
+                  onButtonClick={() => alert("hey")}
+                  button={true}
+                  buttonText={"New"}
+                  numberOfElements={
+                    exampleClasses[selectedSecondaryCategory].length
+                  }
+                >
+                  <div className={styles.classes}>
+                    {exampleClasses &&
+                      exampleClasses[selectedSecondaryCategory].map(
+                        (
+                          item: {
+                            parentClassUri: string;
+                            className: string;
+                            category: string;
+                          },
+                          index: number
+                        ) => {
+                          return (
+                            <div
+                              draggable
+                              key={index}
+                              onClick={() =>
+                                setHighlightedClassLabel(item.className)
+                              }
+                              onDragStart={(e: any) =>
+                                handleOnDrag(e, item.className)
+                              }
+                              className={`${styles.classes__class} ${
+                                highlightedClassLabel === item.className
+                                  ? styles.active__chip
+                                  : styles.inactive__chip
+                              }`}
+                            >
+                              <div className={styles.classes__class__content}>
+                                <div
+                                  className={`${
+                                    styles.classes__class__content__icon
+                                  } ${
+                                    highlightedClassLabel === item.className
+                                      ? styles.active__container
+                                      : ""
+                                  }`}
+                                >
+                                  <tds-icon
+                                    name="double_kebab"
+                                    size="16px"
+                                  ></tds-icon>
+                                </div>
+                                <span
+                                  className={
+                                    styles.classes__class__content__label
+                                  }
+                                >
+                                  {item.className}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                      )}
+                  </div>
+                </Accordion>
+
+                <div className={styles.classes__footer}>
+                  <tds-button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    text="Add to graph"
+                    disabled={!highlightedClassLabel}
+                    onClick={() => addToGraph()}
+                  >
+                    <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
+                  </tds-button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <></>
+          )}
         </aside>
         <section className={styles.graph__canvas}>
           <div>
@@ -492,11 +653,10 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
-                  className="react-flow"
-                  onPaneClick={exitSetupMode}
+                  // onPaneClick={exitSetupMode}
                 >
                   <Controls
-                    style={{ left: showLibraryPanel ? "365px" : "0px" }}
+                    style={{ left: showExtendedPanel ? "365px" : "0px" }}
                   />
                   {/* @ts-ignore */}
                   <Background />
@@ -527,6 +687,21 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   mode-variant="primary"
                   onClick={() => {
                     setSetupMode(true);
+                  }}
+                ></tds-button>
+              ) : (
+                <></>
+              )}
+
+              {setupMode ? (
+                <tds-button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  text="Leave setup"
+                  mode-variant="secondary"
+                  onClick={() => {
+                    exitSetupMode();
                   }}
                 ></tds-button>
               ) : (

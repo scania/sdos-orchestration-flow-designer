@@ -1,0 +1,24 @@
+.header {
+  &:hover {
+    cursor: pointer;
+  }
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &__label {
+    margin-left: 12px;
+  }
+
+  &__icon{
+
+    &__opened{
+      color: black;
+    }
+
+    &__closed{
+      color: grey;
+    }
+  }
+}

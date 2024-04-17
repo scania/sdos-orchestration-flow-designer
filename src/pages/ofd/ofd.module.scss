@@ -23,6 +23,7 @@
     position: relative;
 
     .sidebar {
+      overflow: auto;
       width: 360px;
       margin: 20px;
       border-radius: 4px;
@@ -88,12 +89,12 @@
     .active__chip {
       background: var(--tds-blue-50);
     }
-    
-    .inactive__chip{
-      background: var(--tds-grey-50)
+
+    .inactive__chip {
+      background: var(--tds-grey-50);
     }
-    
-    .active__container{
+
+    .active__container {
       background: var(--tds-blue-400);
       color: white;
     }
@@ -264,5 +265,3 @@
     background-color: var(--tds-grey-958);
   }
 }
-
-
