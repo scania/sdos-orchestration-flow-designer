@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 const coreFields = [
   {
-    name: "iris:label",
+    name: "label",
     type: "text",
     label: "Label",
     value: "",

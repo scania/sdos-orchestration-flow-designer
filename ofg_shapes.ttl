@@ -647,7 +647,7 @@
     sh:minCount 1 ;
     sh:maxCount 1 .
 
-        # Adding properties 
+    # Adding properties 
     :passwordShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "Enter a password with at least 8 characters, including uppercase, lowercase, numbers, and special characters (!@#$%^&*)"@en ;

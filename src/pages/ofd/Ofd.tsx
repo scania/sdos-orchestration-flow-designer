@@ -35,7 +35,7 @@ const initialNodes = [
         className: "Task",
         formFields: [
           {
-            name: "iris:label",
+            name: "label",
             type: "text",
             label: "Label",
             validation: {
@@ -647,12 +647,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   nodeTypes={nodeTypes}
                   // onPaneClick={exitSetupMode}
                 >
-                  <Controls
-                    style={
-                      { display: 'flex'}
-                    }
-                    position="top-center"
-                  />
+                  <Controls style={{ display: "flex" }} position="top-center" />
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
