@@ -60,6 +60,7 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
+                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :ScriptAction .
 
@@ -83,7 +84,7 @@
                 :inputParameterShape ,
                 :outputParameterShape ,
                 :hasContextShape ,
-                :scriptShape,
+                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :SparqlConvertAction .
 
@@ -94,8 +95,38 @@
     sh:property :hasNextActionShape ,
                 :inputParameterShape ,
                 :outputParameterShape ,
+                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :VirtualGraphAction .
+
+# Scripts Shapes
+
+:PythonScriptShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Python Script Shape"@en ;
+    rdfs:comment "Shape for validation of Python."@en ;
+    sh:property :inputParameterShape ,
+                :outputParameterShape ,
+                :hasSystemShape ,
+                :hasNextActionShape ,
+                :hasContextShape ,
+                :scriptShape, # Secondary Panel
+                :hasScriptShape ;
+    sh:targetClass :PythonScript .
+
+
+ :GroovyScriptShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "GroovyAction Shape"@en ;
+    rdfs:comment "Shape for validation of GroovyAction."@en ;
+    sh:property :inputParameterShape ,
+                :outputParameterShape ,
+                :hasSystemShape ,
+                :hasNextActionShape ,
+                :hasContextShape ,
+                :scriptShape, # Secondary Panel
+                :hasScriptShape ;
+    sh:targetClass :GroovyScript .   
 
 
 # AUTHENTICATION METHOD
@@ -186,7 +217,7 @@
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "HTTPParameter Shape"@en ;
     rdfs:comment "Shape for validation of HTTPParameter."@en ;
-    sh:property :httpBodyORhttpQueryParameterShape ;
+    sh:property :httpQueryParameterShape,:httpBodyShape ;
     sh:targetClass :HTTPParameter .
 
 :SparqlQueryParameterShape a sh:NodeShape ;
@@ -208,7 +239,7 @@
     rdfs:label "TokenCredentials Shape"@en ;
     rdfs:comment "Shape for validation of TokenCredentials."@en ;
     sh:property :tokenShape ;
-    sh:targetClass :TokenCredentials .
+    sh:targetClass :TokenCredentialsParameter .
 
 
 # RESULTMETADATA
@@ -497,17 +528,17 @@
     sh:or (
         [sh:pattern "^@prefix" ]
         [sh:hasValue ""]) ;
-    sh:minCount 1 ;
+    # sh:minCount 0 ; # Not mandatory
     sh:maxCount 1 .
 
-:httpBodyORhttpQueryParameterShape a sh:PropertyShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-    rdfs:label "httpBody OR httpQueryParameter Shape"@en ;
-    rdfs:comment "Should have either HTTP body or HTTP Query Parameter"@en ;
-    sh:or (
-        :httpBodyShape
-        :httpQueryParameterShape
-        ) .
+#:httpBodyORhttpQueryParameterShape a sh:PropertyShape ;
+#    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+#    rdfs:label "httpBody OR httpQueryParameter Shape"@en ;
+#    rdfs:comment "Should have either HTTP body or HTTP Query Parameter"@en ;
+#    sh:or (
+#        :httpBodyShape
+#        :httpQueryParameterShape
+#        ) .
 
 :httpHeaderShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
@@ -602,5 +633,28 @@
     rdfs:comment "WSDL File for a SOAP connector should be a string"@en ;
     sh:path :wsdlFile ;
     sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+    # Adding properties 
+    :usernameShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "username Shape"@en ;
+    rdfs:comment "Enter Username "@en ;
+    sh:path :username ;
+    sh:datatype xsd:string ;
+    sh:minLength 50;  
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+        # Adding properties 
+    :passwordShape a sh:PropertyShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Enter a password with at least 8 characters, including uppercase, lowercase, numbers, and special characters (!@#$%^&*)"@en ;
+    rdfs:comment "Enter Password "@en ;
+    sh:path :password ;
+    sh:datatype xsd:string ;
+    sh:pattern "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,}$";
+    sh:minLength 50;  
     sh:minCount 1 ;
     sh:maxCount 1 .

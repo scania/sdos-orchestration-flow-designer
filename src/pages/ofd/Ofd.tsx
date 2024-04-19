@@ -648,7 +648,10 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   // onPaneClick={exitSetupMode}
                 >
                   <Controls
-                    style={{ left: showExtendedPanel ? "365px" : "0px" }}
+                    style={
+                      { display: 'flex'}
+                    }
+                    position="top-center"
                   />
                   {/* @ts-ignore */}
                   <Background />
