@@ -1,0 +1,27 @@
+.container {
+  background: var(--tds-white);
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15), 0 -1px 1px rgba(0, 0, 0, 0.1);
+
+  &__list {
+    list-style: none;
+    padding: 0px;
+
+    &__item {
+      padding: 10px 16px;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--tds-popover-menu-background-hover);
+      }
+    }
+  }
+
+  &__disabled {
+    color: #cdd1db;
+    cursor: not-allowed;
+    &:hover{
+      background: none;
+    }
+  }
+  
+}

@@ -1,6 +1,9 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
+import { useReactFlow } from "reactflow";
+import { Popover } from 'react-tiny-popover'
 import { Handle, Position } from "reactflow";
 import styles from "./CircularNode.module.scss";
+import ActionsMenu from "../ActionsMenu/ActionsMenu";
 
 // TODO - handle this dynamically in the future
 const parameterLabels = [
@@ -10,6 +13,7 @@ const parameterLabels = [
   "HTTP Parameter",
 ];
 
+
 const isParameter = (label) => {
   return parameterLabels.includes(label);
 };
@@ -18,6 +22,13 @@ export default memo((node) => {
   //@ts-ignore
   const { data, isConnectable, type, id } = node;
   const label = data?.formData.formFields[0]?.value;
+  const { deleteElements } = useReactFlow();
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  const deleteNode = () => {
+    deleteElements({ nodes: [{ id }] });
+  }
+
 
   return (
     <div
@@ -42,9 +53,17 @@ export default memo((node) => {
         >
           {data.label}
         </div>
-        <div>
-          <tds-icon name="meatballs" size="20px"></tds-icon>
-        </div>
+        <Popover
+          isOpen={isPopoverOpen}
+          onClickOutside={() => setIsPopoverOpen(false)}
+          positions={['top', 'bottom', 'left', 'right']} // preferred positions by priority
+          content={<ActionsMenu onDeleteClick={() => deleteNode()}/>}
+        >
+          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+            <tds-icon name="meatballs" size="20px"></tds-icon>
+          </div>
+        </Popover>
+        
       </div>
       <div data-tooltip={data.label} className={styles.labelContainer}>
         {label ? label : <span className={"opaque-35"}>Label</span>}
