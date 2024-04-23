@@ -52,6 +52,11 @@ interface DynamicFormField {
   value?: any;
 }
 
+interface ObjectDetails {
+  shape: string;
+  path: string;
+  className: string;
+}
 export const createSHACLProcessor = (rdf: Array<Quad>) => {
   const findShapeUriForClass = (className: string): string | undefined => {
     return rdf.find(
@@ -69,6 +74,48 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
           quad.predicate === "http://www.w3.org/ns/shacl#property"
       )
       .map((quad) => quad.object);
+  };
+
+  const getObjectProperties = (shapeUri: string): string[] => {
+    const allProperties = getAllProperties(shapeUri);
+    const objectProperties = allProperties.filter((propertyUri) => {
+      const dataType = rdf.find(
+        (q) =>
+          q.subject === propertyUri &&
+          q.predicate === "http://www.w3.org/ns/shacl#datatype"
+      );
+      if (dataType) return false;
+      return true;
+    });
+    return objectProperties;
+  };
+
+  const getObjectPropertyDetail = (shapeUri: string): ObjectDetails => {
+    const obj: any = { shape: shapeUri };
+    rdf
+      .filter(
+        (q) =>
+          q.subject === shapeUri &&
+          [
+            "http://www.w3.org/ns/shacl#path",
+            "http://www.w3.org/ns/shacl#class",
+          ].includes(q.predicate)
+      )
+      .forEach((q) => {
+        if (q.predicate === "http://www.w3.org/ns/shacl#path") {
+          obj.path = q.object;
+        }
+        if (q.predicate === "http://www.w3.org/ns/shacl#class") {
+          obj.className = q.object;
+        }
+      });
+    return obj;
+  };
+
+  //We check the presence of sh:class for each object property
+  const getObjectPropertyDetails = (shapeUri: string): ObjectDetails[] => {
+    const objectProperties = getObjectProperties(shapeUri);
+    return objectProperties.map((objUri) => getObjectPropertyDetail(objUri));
   };
 
   const getPropertiesWithDataTypes = (
@@ -196,6 +243,7 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
   return {
     findShapeUriForClass,
     getAllProperties,
+    getObjectPropertyDetails,
     getPropertiesWithDataTypes,
     getPropertyDetails,
     generatePropertyDetailsForClass,

@@ -26,6 +26,7 @@ async function generateDynamicFormData(className: string) {
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
+  // console.log(SHACLProcessor.getObjectPropertyDetails(shapeUri));
   const { generatePropertyDetailsForClass, convertToDynamicFormArray } =
     SHACLProcessor;
   const propertyDetailsForClass = generatePropertyDetailsForClass(className);
@@ -48,7 +49,6 @@ export default async function handler(
 
     res.status(200).json({ ...formData, formFields: allFields });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error processing request" });
+    res.status(500).json({ error: error.message });
   }
 }
