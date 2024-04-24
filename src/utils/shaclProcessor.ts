@@ -56,6 +56,8 @@ interface ObjectDetails {
   shape: string;
   path: string;
   className: string;
+  minCount: number;
+  maxCount?: number;
 }
 export const createSHACLProcessor = (rdf: Array<Quad>) => {
   const findShapeUriForClass = (className: string): string | undefined => {
@@ -93,20 +95,20 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
   const getObjectPropertyDetail = (shapeUri: string): ObjectDetails => {
     const obj: any = { shape: shapeUri };
     rdf
-      .filter(
-        (q) =>
-          q.subject === shapeUri &&
-          [
-            "http://www.w3.org/ns/shacl#path",
-            "http://www.w3.org/ns/shacl#class",
-          ].includes(q.predicate)
-      )
+      .filter((q) => q.subject === shapeUri)
       .forEach((q) => {
         if (q.predicate === "http://www.w3.org/ns/shacl#path") {
           obj.path = q.object;
         }
         if (q.predicate === "http://www.w3.org/ns/shacl#class") {
           obj.className = q.object;
+        }
+        obj.minCount = 0;
+        if (q.predicate === "http://www.w3.org/ns/shacl#minCount") {
+          obj.minCount = parseInt(q.object);
+        }
+        if (q.predicate === "http://www.w3.org/ns/shacl#maxCount") {
+          obj.maxCount = parseInt(q.object);
         }
       });
     return obj;

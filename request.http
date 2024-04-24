@@ -136,7 +136,7 @@ Content-Type: application/json
 
 
 ### parse shacl
-GET {{baseUrl}}/api/parse-ttl/?className=HTTPAction
+GET {{baseUrl}}/api/parse-ttl/?className=ScriptAction
 
 ### read shacl from db
 GET {{baseUrl}}/api/ofd-shacl
