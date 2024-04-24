@@ -2,8 +2,14 @@ import { GraphBody } from "@/services/graphSchema";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "react-query";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import ReactFlow, {
   addEdge,
   Background,
@@ -64,57 +70,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  // TODO - mocked data to be replaced with api-call to recieve required and optional nodes
-  // for a selected node and in setup-mode
-  const [exampleClasses, setExampleClasses] = useState({
-    required: [
-      {
-        category: "Action",
-        className: "Action",
-        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
-        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-      },
-      {
-        category: "Action",
-        className: "Yes no",
-        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
-        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-      },
-      {
-        category: "Action",
-        className: "A cool name",
-        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
-        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-      },
-      {
-        category: "Action",
-        className: "Searchable",
-        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
-        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-      },
-    ],
-    optional: [
-      {
-        category: "Action",
-        className: "Placeholder name",
-        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
-        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-      },
-      {
-        category: "Action",
-        className: "Testing things",
-        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
-        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-      },
-      {
-        category: "Action",
-        className: "Searchable",
-        parentClassUri: "https://kg.scania.com/it/iris_orchestration/Action",
-        uri: "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-      },
-    ],
-  });
-
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
   const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
@@ -133,11 +89,9 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
-  const parseTtlMutation = useMutation((className: string) => {
-    return axios.get(`${apiBaseUrl}/api/parse-ttl/?className=${className}`);
-  });
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
   const [setupMode, setSetupMode] = useState(false);
+  const queryClient = useQueryClient();
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -168,6 +122,62 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     };
     setListOfToasts([...listOfToasts, toastProperties]);
   };
+  const label = selectedNode?.data.label.replace(/\s+/g, "");
+
+  const {
+    data: objectProperties,
+    isLoading: isObjectPropertiesLoading,
+    isError: isObjectPropertiesError,
+  } = useQuery(
+    ["objectProperties", label],
+    () =>
+      axios
+        .get(`${apiBaseUrl}/api/object-properties/?className=${label}`)
+        .then((res) => res.data),
+    {
+      enabled: !!selectedNode?.data.label, // only fetch when selectedClassName is not null and setupMode
+      staleTime: 1000 * 60 * 10, // 10 minutes
+      cacheTime: 1000 * 60 * 30, // 30 minutes
+    }
+  );
+
+  const exampleClasses = useMemo(() => {
+    let obj: any = { required: [], optional: [] };
+    const cachedData = queryClient.getQueryData([
+      "objectProperties",
+      label,
+    ]) as any;
+    if (cachedData) {
+      console.log(cachedData, "getting from cache");
+      // Process cachedData as needed
+      cachedData.forEach(
+        (item: {
+          shape: string;
+          path: string;
+          className: string;
+          minCount: number;
+          maxCount?: number;
+        }) => {
+          const classParts = item.className.split("/");
+          const className = classParts[classParts.length - 1];
+          const shapeParts = item.shape.split("/");
+          const shapeName = shapeParts[shapeParts.length - 1];
+          const property = {
+            category: "",
+            className: `${shapeName} : ${className}`,
+            parentClassUri: "",
+            uri: item.className,
+          };
+          if (item.minCount) {
+            obj = { ...obj, optional: [...obj.optional, property] };
+            return;
+          }
+          obj = { ...obj, required: [...obj.optional, property] };
+        }
+      );
+    }
+    return obj;
+  }, [selectedNode, setupMode]);
 
   useEffect(() => {
     exitSetupMode();
