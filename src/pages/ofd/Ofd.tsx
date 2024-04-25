@@ -18,6 +18,7 @@ import ReactFlow, {
 } from "reactflow";
 import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
+import Toast from "@/components/Toast/Toast";
 import "reactflow/dist/style.css";
 import CircularNode from "../../components/CircularNode.tsx";
 import Accordion from "../../components/Accordion/Accordion";
@@ -63,7 +64,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   // TODO - mocked data to be replaced with api-call to recieve required and optional nodes
   // for a selected node and in setup-mode
   const [exampleClasses, setExampleClasses] = useState({
@@ -121,7 +121,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     useState("required");
   const [searchString, setSearchString] = useState("");
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
-  const [showErrorToast, setShowErrorToast] = useState(false);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [graphDescription, setGraphDescription] = useState("");
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -148,13 +147,27 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     () =>
       axios
         .get(`${apiBaseUrl}/api/parse-ttl/?className=${droppedClassName}`)
-        .then((res) => res.data),
+        .then((res) => res.data)
+        .catch((res) => {
+          showToast("error", "Error", res.response.data.error);
+        }),
     {
       enabled: !!droppedClassName, // only fetch when selectedClassName is not null
       staleTime: 1000 * 60 * 10, // 10 minutes
       cacheTime: 1000 * 60 * 30, // 30 minutes
     }
   );
+
+  const [listOfToasts, setListOfToasts] = useState([]);
+
+  const showToast = (variant, header, description) => {
+    const toastProperties = {
+      variant,
+      header,
+      description,
+    };
+    setListOfToasts([...listOfToasts, toastProperties]);
+  };
 
   useEffect(() => {
     exitSetupMode();
@@ -168,25 +181,12 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
 
   const mutation = useMutation(saveData, {
     onSuccess: () => {
-      setShowSuccessToast(true);
+      showToast("success", "Success", "Graph has been successfully saved");
     },
     onError: (error) => {
-      setShowErrorToast(true);
+      showToast("error", "Error", "The graph could not be saved");
     },
   });
-
-  useEffect(() => {
-    let toastTimer: NodeJS.Timeout;
-
-    if (showSuccessToast || showErrorToast) {
-      toastTimer = setTimeout(() => {
-        setShowSuccessToast(false);
-        setShowErrorToast(false);
-      }, 5000); // 5 seconds delay
-    }
-
-    return () => clearTimeout(toastTimer);
-  }, [showSuccessToast, showErrorToast]);
 
   // Using this to prevent graphDescription to be null on page refresh
   useEffect(() => {
@@ -225,26 +225,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       graphName: `http://example.org/${router.query?.graphName || "Private"}`,
     };
     mutation.mutate(payload);
-  };
-
-  const renderToasts = () => {
-    return (
-      <div className={styles.toast__absolute}>
-        {showSuccessToast ? (
-          <tds-toast
-            variant="success"
-            header="Graph Saved Successfully"
-          ></tds-toast>
-        ) : (
-          <></>
-        )}
-        {showErrorToast ? (
-          <tds-toast variant="error" header="Error Saving Graph"></tds-toast>
-        ) : (
-          <></>
-        )}
-      </div>
-    );
   };
 
   const handleFormSubmit = useCallback(
@@ -354,11 +334,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     }
   }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
-  const {
-    data: classes,
-    isLoading,
-    error: classesError,
-  } = useQuery(
+  const { data: classes, isLoading } = useQuery(
     "classes",
     () =>
       axios
@@ -366,26 +342,16 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
         .then((res) => [
           { uri: "", className: "Task", parentClassUri: "" },
           ...res.data,
-        ]),
+        ])
+        .catch(() => {
+          showToast("error", "Error", "Could not fetch classes from Stardog");
+        }),
     {
       staleTime: 1000 * 60 * 5, //5 minutes
     }
   );
 
   const renderClasses = () => {
-    if (classesError) {
-      return (
-        <tds-banner
-          variant="error"
-          header="Error"
-          subheader="Error Fetching classes from stardog"
-        >
-          <tds-link slot="actions">
-            <a href="/">Link example</a>
-          </tds-link>
-        </tds-banner>
-      );
-    }
     if (isLoading) {
       return <tds-spinner size="lg" variant="standard"></tds-spinner>;
     }
@@ -701,7 +667,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
           </div>
         </section>
       </main>
-      {renderToasts()}
+      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };
