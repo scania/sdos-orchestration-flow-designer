@@ -143,8 +143,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     }
   );
 
-  const exampleClasses = useMemo(() => {
-    let obj: any = { required: [], optional: [] };
+  const secondaryProperties = useMemo(() => {
     const cachedData = queryClient.getQueryData([
       "objectProperties",
       label,
@@ -152,33 +151,32 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     if (cachedData) {
       console.log(cachedData, "getting from cache");
       // Process cachedData as needed, excluding connectors for main flow
-      cachedData
-        .filter(
-          (item: ObjectProperties) =>
-            ![
-              "https://kg.scania.com/it/iris_orchestration/hasAction",
-              "https://kg.scania.com/it/iris_orchestration/hasNextAction",
-            ].includes(item.path)
-        )
-        .forEach((item) => {
-          console.log(item, "item");
+      return cachedData.filter(
+        (item: ObjectProperties) =>
+          ![
+            "https://kg.scania.com/it/iris_orchestration/hasAction",
+            "https://kg.scania.com/it/iris_orchestration/hasNextAction",
+          ].includes(item.path)
+      );
+      // .forEach((item) => {
+      //   console.log(item, "item");
 
-          const className = item.className?.split("/").pop() || "";
-          const part = item.path?.split("/").pop() || "";
-          const property = {
-            category: "",
-            className: `${part} : ${className}`,
-            parentClassUri: "",
-            uri: item.className,
-          };
-          if (item.minCount) {
-            obj = { ...obj, optional: [...obj.optional, property] };
-            return;
-          }
-          obj = { ...obj, required: [...obj.optional, property] };
-        });
+      //   const className = item.className?.split("/").pop() || "";
+      //   const part = item.path?.split("/").pop() || "";
+      //   const property = {
+      //     category: "",
+      //     className: `${part} : ${className}`,
+      //     parentClassUri: "",
+      //     uri: item.className,
+      //   };
+      //   if (item.minCount) {
+      //     obj = { ...obj, optional: [...obj.optional, property] };
+      //     return;
+      //   }
+      //   obj = { ...obj, required: [...obj.optional, property] };
+      // });
     }
-    return obj;
+    return [];
   }, [selectedNode, setupMode, objectProperties]);
 
   useEffect(() => {
@@ -463,7 +461,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
           setSelectedPrimaryCategory={setSelectedPrimaryCategory}
           setSelectedSecondaryCategory={setSelectedSecondaryCategory}
           renderClasses={renderClasses}
-          exampleClasses={exampleClasses}
+          secondaryProperties={secondaryProperties}
           highlightedClassLabel={highlightedClassLabel}
           setHighlightedClassLabel={setHighlightedClassLabel}
           handleOnDrag={handleOnDrag}
