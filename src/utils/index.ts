@@ -1,5 +1,6 @@
 import { ContextDefinition } from "jsonld/jsonld";
 import { Connection, Edge, MarkerType, Node } from "reactflow";
+import { FormField, IClassConfig } from "./types";
 
 // Constants for RDF, OWL, and RDFS namespaces
 const RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -16,51 +17,6 @@ const JSON_LD_CONTEXT: ContextDefinition = {
 };
 
 // Interface for Class Configurations
-export interface IClassConfig {
-  "@id"?: string;
-  "@type"?: string[];
-  "iris:hasAction"?: {
-    "@id": string;
-  };
-  "rdfs:label": string;
-  "iris:constructSparql"?: string;
-  "iris:endpoint"?: string;
-  "iris:httpHeader"?: {
-    "@value": string;
-  };
-}
-
-export interface IFormInput {
-  [key: string]: any;
-}
-
-export interface FormField {
-  name: string;
-  type: string;
-  label: string;
-  validation: {
-    min?: number;
-    max?: number;
-    pattern?: string;
-    message?: string;
-    required?: boolean;
-  };
-  value?: string;
-}
-
-export interface FormData {
-  className: string;
-  formFields: FormField[];
-}
-
-export interface DynamicFormProps {
-  formData: FormData;
-  onSubmit: (data: IFormInput) => void;
-  onClose: () => void;
-  excludeKeys: string[];
-  label: string;
-}
-
 export const generateClassId = () => `iris:${crypto.randomUUID()}`;
 
 interface IState {

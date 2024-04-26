@@ -1,7 +1,10 @@
+import Toast from "@/components/Toast/Toast";
 import { GraphBody } from "@/services/graphSchema";
+import { generateClassId, setEdgeProperties } from "@/utils";
+import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
-import { useRouter } from "next/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React, {
   useCallback,
   useEffect,
@@ -11,25 +14,21 @@ import React, {
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import ReactFlow, {
-  addEdge,
   Background,
   Connection,
   Controls,
   Edge,
   Node,
   ReactFlowProvider,
+  addEdge,
   useEdgesState,
   useKeyPress,
   useNodesState,
 } from "reactflow";
-import Panel from "@/components/Tabs/Panel";
-import Tabs from "@/components/Tabs/Tabs";
-import Toast from "@/components/Toast/Toast";
 import "reactflow/dist/style.css";
 import CircularNode from "../../components/CircularNode.tsx";
-import Accordion from "../../components/Accordion/Accordion";
-import { generateClassId, IClassConfig, setEdgeProperties } from "@/utils";
 import DynamicForm from "./DynamicForm";
+import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
 
 const initialNodes = [
@@ -155,13 +154,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       // Process cachedData as needed, excluding connectors for main flow
       cachedData
         .filter(
-          (item: {
-            shape: string;
-            path: string;
-            className: string;
-            minCount: number;
-            maxCount?: number;
-          }) =>
+          (item: ObjectProperties) =>
             ![
               "https://kg.scania.com/it/iris_orchestration/hasAction",
               "https://kg.scania.com/it/iris_orchestration/hasNextAction",
@@ -170,10 +163,8 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
         .forEach((item) => {
           console.log(item, "item");
 
-          const classParts = item.className?.split("/") || [];
-          const className = classParts[classParts.length - 1];
-          const pathParts = item.path?.split("/") || [];
-          const part = pathParts[pathParts.length - 1];
+          const className = item.className?.split("/").pop() || "";
+          const part = item.path?.split("/").pop() || "";
           const property = {
             category: "",
             className: `${part} : ${className}`,
@@ -460,153 +451,25 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
         </div>
       </header>
       <main className={styles.page__main}>
-        <aside className={styles.sidebar}>
-          <div className={styles.sidebar__header}>
-            <div className={styles.sidebar__type_and_toggle}>
-              {/* TODO - replace hardcoded "Private" value */}
-              <h6 className="tds-detail-06">Private</h6>
-              <tds-icon
-                onClick={() => setShowExtendedPanel(!showExtendedPanel)}
-                slot="icon"
-                size="20px"
-                name={showExtendedPanel ? "chevron_up" : "chevron_down"}
-              ></tds-icon>
-            </div>
-            <h3 className={styles.sidebar__primaryHeading}>
-              {router.query?.graphName || ""}
-            </h3>
-            <p className={styles.sidebar__description}>{graphDescription}</p>
-          </div>
-          {showExtendedPanel && !setupMode ? (
-            // Primary panel
-            <>
-              <tds-divider orientation="horizontal"></tds-divider>
-              <div className={styles.sidebar__search}>
-                <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
-                <tds-text-field
-                  className="tds-text-field"
-                  placeholder="Search..."
-                  onInput={(e) => setSearchString(e.currentTarget.value)}
-                />
-              </div>
-              <div className={styles.sidebar__tabs}>
-                <Tabs
-                  selected={0}
-                  onParentClick={(value) => setSelectedPrimaryCategory(value)}
-                >
-                  <Panel title="Actions" value="Action"></Panel>
-                  <Panel title="Parameters" value="Parameter"></Panel>
-                  <Panel title="Scripts" value="Script"></Panel>
-                </Tabs>
-              </div>
-              <div className={styles.sidebar__chips}>{renderClasses()}</div>
-            </>
-          ) : showExtendedPanel && setupMode ? (
-            // Secondary panel
-            <>
-              <tds-divider orientation="horizontal"></tds-divider>
-              <div className={styles.sidebar__search}>
-                <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
-                <tds-text-field
-                  className="tds-text-field"
-                  placeholder="Search..."
-                  onInput={(e) => setSearchString(e.currentTarget.value)}
-                />
-              </div>
-              <div className={styles.sidebar__tabs}>
-                <Tabs
-                  selected={0}
-                  onParentClick={(value) => setSelectedSecondaryCategory(value)}
-                >
-                  <Panel title="Required" value="required"></Panel>
-                  <Panel title="Optional" value="optional"></Panel>
-                </Tabs>
-              </div>
-              <div className={styles.sidebar__chips}>
-                <Accordion
-                  label="Node name"
-                  onButtonClick={() => alert("hey")}
-                  button={true}
-                  buttonText={"New"}
-                  numberOfElements={
-                    exampleClasses[selectedSecondaryCategory].length
-                  }
-                >
-                  <div className={styles.classes}>
-                    {exampleClasses &&
-                      exampleClasses[selectedSecondaryCategory].map(
-                        (
-                          item: {
-                            parentClassUri: string;
-                            className: string;
-                            category: string;
-                          },
-                          index: number
-                        ) => {
-                          return (
-                            <div
-                              draggable
-                              key={index}
-                              onClick={() =>
-                                setHighlightedClassLabel(item.className)
-                              }
-                              onDragStart={(e: any) =>
-                                handleOnDrag(e, item.className)
-                              }
-                              className={`${styles.classes__class} ${
-                                highlightedClassLabel === item.className
-                                  ? styles.active__chip
-                                  : styles.inactive__chip
-                              }`}
-                            >
-                              <div className={styles.classes__class__content}>
-                                <div
-                                  className={`${
-                                    styles.classes__class__content__icon
-                                  } ${
-                                    highlightedClassLabel === item.className
-                                      ? styles.active__container
-                                      : ""
-                                  }`}
-                                >
-                                  <tds-icon
-                                    name="double_kebab"
-                                    size="16px"
-                                  ></tds-icon>
-                                </div>
-                                <span
-                                  className={
-                                    styles.classes__class__content__label
-                                  }
-                                >
-                                  {item.className}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        }
-                      )}
-                  </div>
-                </Accordion>
+        <Sidebar
+          showExtendedPanel={showExtendedPanel}
+          setShowExtendedPanel={setShowExtendedPanel}
+          setupMode={setupMode}
+          graphName={router.query.graphName || ""}
+          graphDescription={graphDescription}
+          setSearchString={setSearchString}
+          selectedPrimaryCategory={selectedPrimaryCategory}
+          selectedSecondaryCategory={selectedSecondaryCategory}
+          setSelectedPrimaryCategory={setSelectedPrimaryCategory}
+          setSelectedSecondaryCategory={setSelectedSecondaryCategory}
+          renderClasses={renderClasses}
+          exampleClasses={exampleClasses}
+          highlightedClassLabel={highlightedClassLabel}
+          setHighlightedClassLabel={setHighlightedClassLabel}
+          handleOnDrag={handleOnDrag}
+          addToGraph={addToGraph}
+        />
 
-                <div className={styles.classes__footer}>
-                  <tds-button
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    text="Add to graph"
-                    disabled={!highlightedClassLabel}
-                    onClick={() => addToGraph()}
-                  >
-                    <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
-                  </tds-button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <></>
-          )}
-        </aside>
         <section className={styles.graph__canvas}>
           <div>
             <ReactFlowProvider>

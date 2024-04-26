@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import styles from "./ofd.module.scss";
 import { defineCustomElements, TdsTextarea } from "@scania/tegel-react";
-import { DynamicFormProps, FormField, IFormInput } from "@/utils";
+import { DynamicFormProps, FormField, IFormInput } from "@/utils/types";
 defineCustomElements();
 
 // Helper functions for encoding and decoding

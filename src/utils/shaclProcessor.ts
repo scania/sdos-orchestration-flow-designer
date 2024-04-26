@@ -1,64 +1,11 @@
-interface Quad {
-  subject: string;
-  predicate: string;
-  object: string;
-}
+import {
+  DynamicFormField,
+  FormFieldType,
+  ObjectProperties,
+  PropertyWithDataType,
+  SHACLPropertyShape,
+} from "./types";
 
-interface PropertyWithDataType {
-  property: string;
-  dataType: string;
-}
-
-interface SHACLPropertyShape {
-  "http://www.w3.org/2000/01/rdf-schema#label": string;
-  "http://www.w3.org/ns/shacl#datatype"?: string;
-  "http://www.w3.org/ns/shacl#pattern"?: string;
-  "http://www.w3.org/ns/shacl#minCount"?: string;
-  "http://www.w3.org/ns/shacl#maxCount"?: string;
-  "http://www.w3.org/ns/shacl#path"?: string;
-  "http://www.w3.org/2000/01/rdf-schema#comment"?: string;
-}
-
-enum FormFieldType {
-  Text = "text",
-  Number = "number",
-  Email = "email",
-  Date = "date",
-  Radio = "radio",
-  Select = "select",
-  Textarea = "textarea",
-  Checkbox = "checkbox",
-  DateTimeLocal = "datetime-local",
-  Time = "time",
-  URL = "url",
-  Unknown = "unknown",
-}
-
-interface FormFieldValidation {
-  required?: boolean;
-  pattern?: string;
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-  message?: string;
-}
-
-interface DynamicFormField {
-  name: string;
-  type: FormFieldType;
-  label: string;
-  validation?: FormFieldValidation;
-  value?: any;
-}
-
-interface ObjectDetails {
-  shape: string;
-  path: string;
-  className: string;
-  minCount: number;
-  maxCount?: number;
-}
 export const createSHACLProcessor = (rdf: Array<Quad>) => {
   const findShapeUriForClass = (className: string): string | undefined => {
     return rdf.find(
@@ -92,7 +39,7 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
     return objectProperties;
   };
 
-  const getObjectPropertyDetail = (shapeUri: string): ObjectDetails => {
+  const getObjectPropertyDetail = (shapeUri: string): ObjectProperties => {
     const obj: any = { shape: shapeUri };
     rdf
       .filter((q) => q.subject === shapeUri)
@@ -115,7 +62,7 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
   };
 
   //We check the presence of sh:class for each object property
-  const getObjectPropertyDetails = (shapeUri: string): ObjectDetails[] => {
+  const getObjectPropertyDetails = (shapeUri: string): ObjectProperties[] => {
     const objectProperties = getObjectProperties(shapeUri);
     return objectProperties.map((objUri) => getObjectPropertyDetail(objUri));
   };
