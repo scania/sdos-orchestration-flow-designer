@@ -42,7 +42,7 @@ const initialNodes = [
         className: "Task",
         formFields: [
           {
-            name: "label",
+            name: "https://kg.scania.com/it/iris_orchestration/label",
             type: "text",
             label: "Label",
             validation: {
@@ -133,9 +133,12 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     () =>
       axios
         .get(`${apiBaseUrl}/api/object-properties/?className=${label}`)
-        .then((res) => res.data),
+        .then((res) => res.data)
+        .catch(() => {
+          showToast("error", "Error", "Failed");
+        }),
     {
-      enabled: !!selectedNode?.data.label, // only fetch when selectedClassName is not null and setupMode
+      enabled: !!selectedNode?.data.label && setupMode, // only fetch when selectedClassName is not null and setupMode
       staleTime: 1000 * 60 * 10, // 10 minutes
       cacheTime: 1000 * 60 * 30, // 30 minutes
     }
@@ -149,22 +152,31 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     ]) as any;
     if (cachedData) {
       console.log(cachedData, "getting from cache");
-      // Process cachedData as needed
-      cachedData.forEach(
-        (item: {
-          shape: string;
-          path: string;
-          className: string;
-          minCount: number;
-          maxCount?: number;
-        }) => {
-          const classParts = item.className.split("/");
+      // Process cachedData as needed, excluding connectors for main flow
+      cachedData
+        .filter(
+          (item: {
+            shape: string;
+            path: string;
+            className: string;
+            minCount: number;
+            maxCount?: number;
+          }) =>
+            ![
+              "https://kg.scania.com/it/iris_orchestration/hasAction",
+              "https://kg.scania.com/it/iris_orchestration/hasNextAction",
+            ].includes(item.path)
+        )
+        .forEach((item) => {
+          console.log(item, "item");
+
+          const classParts = item.className?.split("/") || [];
           const className = classParts[classParts.length - 1];
-          const shapeParts = item.shape.split("/");
-          const shapeName = shapeParts[shapeParts.length - 1];
+          const pathParts = item.path?.split("/") || [];
+          const part = pathParts[pathParts.length - 1];
           const property = {
             category: "",
-            className: `${shapeName} : ${className}`,
+            className: `${part} : ${className}`,
             parentClassUri: "",
             uri: item.className,
           };
@@ -173,11 +185,10 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
             return;
           }
           obj = { ...obj, required: [...obj.optional, property] };
-        }
-      );
+        });
     }
     return obj;
-  }, [selectedNode, setupMode]);
+  }, [selectedNode, setupMode, objectProperties]);
 
   useEffect(() => {
     exitSetupMode();

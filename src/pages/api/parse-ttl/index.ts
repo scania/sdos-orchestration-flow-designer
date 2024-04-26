@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 const coreFields = [
   {
-    name: "label",
+    name: "https://kg.scania.com/it/iris_orchestration/label",
     type: "text",
     label: "Label",
     value: "",
@@ -26,7 +26,6 @@ async function generateDynamicFormData(className: string) {
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
-  // console.log(SHACLProcessor.getObjectPropertyDetails(shapeUri));
   const { generatePropertyDetailsForClass, convertToDynamicFormArray } =
     SHACLProcessor;
   const propertyDetailsForClass = generatePropertyDetailsForClass(className);

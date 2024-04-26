@@ -12,7 +12,7 @@ const restoreSpecialChars = (str: string) => str.replace(/_/g, "/");
 const DynamicForm: React.FC<DynamicFormProps> = ({
   formData = { formFields: [] },
   onSubmit,
-  excludeKeys = ["label"],
+  excludeKeys = ["https://kg.scania.com/it/iris_orchestration/label"],
   label,
   onClose,
 }) => {
@@ -39,7 +39,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const formValue = watch();
   const { errors } = formState;
   const [isLabelEditMode, setIsLabelEditMode] = useState(false);
-  const labelValue = watch("label");
+  const labelValue = watch(
+    replaceSpecialChars("https://kg.scania.com/it/iris_orchestration/label")
+  );
 
   const hasAttributes =
     formFields.filter(({ name }) => !excludeKeys.includes(name)).length > 0;
@@ -50,7 +52,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
   useEffect(() => {
     if (isLabelEditMode) {
-      setFocus("label");
+      setFocus(
+        replaceSpecialChars("https://kg.scania.com/it/iris_orchestration/label")
+      );
     }
   }, [isLabelEditMode]);
 
@@ -93,7 +97,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           <input
             type="text"
             className={styles["test"]}
-            {...register("label", { required: "This field is required" })}
+            {...register(
+              replaceSpecialChars(
+                "https://kg.scania.com/it/iris_orchestration/label"
+              ),
+              {
+                required: "This field is required",
+              }
+            )}
             onBlur={toggleEditMode}
             onKeyDown={(e) => {
               e.key === "Enter" ? toggleEditMode() : null;
