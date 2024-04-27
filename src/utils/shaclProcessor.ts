@@ -52,6 +52,17 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
     return objectProperties;
   };
 
+  const getSubClassesOf = (classUri: string): string[] => {
+    const subClasses = rdf.filter(
+      (q) =>
+        q.predicate === "http://www.w3.org/2000/01/rdf-schema#subClassOf" &&
+        q.object === classUri
+    );
+    console.log(subClasses, "subClasses");
+    const subClassNames = subClasses.map((subClass) => subClass.subject);
+    return subClassNames;
+  };
+
   const getObjectPropertyDetail = (shapeUri: string): ObjectProperties => {
     const obj: any = { shape: shapeUri };
     rdf
@@ -62,6 +73,8 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
         }
         if (q.predicate === "http://www.w3.org/ns/shacl#class") {
           obj.className = q.object;
+          const subClasses = getSubClassesOf(q.object);
+          obj.subClasses = subClasses;
         }
         obj.minCount = 0;
         if (q.predicate === "http://www.w3.org/ns/shacl#minCount") {
@@ -186,7 +199,6 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
 
       if (pattern) {
         field.validation.pattern = pattern;
-        field.validation.message = `${label} is invalid.`;
       }
 
       if (minCount > 0) {

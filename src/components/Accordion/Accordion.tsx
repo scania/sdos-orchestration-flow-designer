@@ -28,7 +28,7 @@ const Accordion: React.FC<AccordionProps> = ({
     onButtonClick();
   };
 
-  const [opened, setOpened] = useState(true);
+  const [opened, setOpened] = useState(false);
 
   return (
     <div className="container">

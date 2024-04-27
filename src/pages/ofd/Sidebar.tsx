@@ -64,17 +64,25 @@ const Sidebar: React.FC<SidebarProps> = ({
           const classesForConnectorType = classes.filter(
             (item) => item.path === connectorType
           );
+          if (!classesForConnectorType.length) return;
+          const classNamesForConnectorType = classesForConnectorType[0]
+            .subClasses.length
+            ? classesForConnectorType[0].subClasses
+            : [classesForConnectorType[0].className];
+
+          console.log(classesForConnectorType, "classesForConnectorType");
+
           return (
             <Accordion
               label={connectorType.split("/").pop() || ""}
               onButtonClick={() => alert("hey")}
-              button={true}
-              buttonText={"New"}
-              numberOfElements={classesForConnectorType.length}
+              // button={true}
+              // buttonText={"New"}
+              numberOfElements={classNamesForConnectorType.length}
             >
               <div className={styles.classes}>
-                {classesForConnectorType.map((item, index) => {
-                  const className = item.className.split("/").pop() || "";
+                {classNamesForConnectorType.map((item, index) => {
+                  const className = item.split("/").pop() || "";
                   return (
                     <div
                       draggable

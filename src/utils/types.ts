@@ -56,6 +56,7 @@ export interface ObjectProperties {
   shape: string;
   path: string;
   className: string;
+  subClasses: string[];
   minCount: number;
   maxCount?: number;
 }
