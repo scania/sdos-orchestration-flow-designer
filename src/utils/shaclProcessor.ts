@@ -15,6 +15,19 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
     )?.subject;
   };
 
+  const getSubclassOf = (className: string): string => {
+    const subClassOf = rdf.filter(
+      (q) =>
+        q.subject.endsWith(className) &&
+        q.predicate === "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+    );
+    if (!subClassOf.length) {
+      return "undefined";
+    }
+
+    return subClassOf[0].object;
+  };
+
   const getAllProperties = (shapeUri: string): Array<string> => {
     return rdf
       .filter(
@@ -196,6 +209,7 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
     getPropertiesWithDataTypes,
     getPropertyDetails,
     generatePropertyDetailsForClass,
+    getSubclassOf,
     convertToDynamicFormArray,
   };
 };

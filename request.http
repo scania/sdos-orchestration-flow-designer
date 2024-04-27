@@ -136,7 +136,7 @@ Content-Type: application/json
 
 
 ### parse shacl
-GET {{baseUrl}}/api/parse-ttl/?className=ScriptAction
+GET {{baseUrl}}/api/parse-ttl/?className=HTTPAction
 
 
 ### get object properties for a class

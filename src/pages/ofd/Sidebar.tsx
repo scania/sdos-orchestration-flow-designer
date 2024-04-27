@@ -42,11 +42,18 @@ const Sidebar: React.FC<SidebarProps> = ({
   handleOnDrag,
   addToGraph,
 }) => {
+  const requiredClasses = secondaryProperties.filter(
+    (item) => item.minCount > 0
+  );
+  const optionalClasses = secondaryProperties.filter(
+    (item) => item.minCount === 0
+  );
+
   const renderSecondaryClasses = () => {
     const classes =
       selectedSecondaryCategory === "required"
-        ? secondaryProperties.filter((item) => item.minCount > 0)
-        : secondaryProperties.filter((item) => item.minCount === 0);
+        ? requiredClasses
+        : optionalClasses;
 
     const connectorTypes = Array.from(
       new Set(classes.map((item) => item.path))
@@ -167,8 +174,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                 setSelectedSecondaryCategory(value)
               }
             >
-              <Panel title="Required" value="required"></Panel>
-              <Panel title="Optional" value="optional"></Panel>
+              <Panel
+                title={`Required ${requiredClasses.length}`}
+                value="required"
+              ></Panel>
+              <Panel
+                title={`Optional ${optionalClasses.length}`}
+                value="optional"
+              ></Panel>
             </Tabs>
           </div>
           <div className={styles.sidebar__chips}>

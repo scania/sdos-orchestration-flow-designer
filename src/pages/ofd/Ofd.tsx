@@ -259,6 +259,13 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
       return setEdges((eds) => {
+        // Accessing the Query Cache and retrieving all queries
+        const allQueries = queryClient.getQueryCache().findAll();
+        // Extracting all query keys
+        const objectPropertiesKeys = allQueries
+          .filter((query) => query.queryKey[0] === "objectProperties")
+          .map((query) => query.queryKey);
+        // console.log(objectPropertiesKeys, "objectPropertiesKeys");
         const edge = addEdge(setEdgeProperties(nodes, params), eds);
         return edge;
       });

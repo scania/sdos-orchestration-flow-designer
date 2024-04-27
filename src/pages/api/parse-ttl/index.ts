@@ -18,9 +18,12 @@ const coreFields = [
 ];
 
 async function generateDynamicFormData(className: string) {
-  const filePath = "ofg_shapes.ttl";
-  const quads = await parseTTLFile(filePath);
-  const jsonData = convertQuadsToJson(quads);
+  const filePath1 = "ofg_shapes.ttl";
+  const filePath2 = "orchestration_ontology.ttl";
+  const quads1 = await parseTTLFile(filePath1);
+  const quads2 = await parseTTLFile(filePath2);
+  const combinedQuads = quads1.concat(quads2);
+  const jsonData = convertQuadsToJson(combinedQuads);
   const SHACLProcessor = createSHACLProcessor(jsonData);
   const shapeUri = SHACLProcessor.findShapeUriForClass(className);
   if (!shapeUri) {
@@ -32,8 +35,8 @@ async function generateDynamicFormData(className: string) {
   const dynamicFormArray = convertToDynamicFormArray(
     propertyDetailsForClass as any
   );
-
-  return { className: className, formFields: dynamicFormArray };
+  const subClassOf = SHACLProcessor.getSubclassOf(className);
+  return { className: className, subClassOf, formFields: dynamicFormArray };
 }
 
 export default async function handler(

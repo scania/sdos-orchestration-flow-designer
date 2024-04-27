@@ -1,0 +1,678 @@
+@prefix : <https://kg.scania.com/it/iris_orchestration/> .
+@prefix it: <https://kg.scania.com/it/> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <http://kg.scania.com/core/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <https://kg.scania.com/it/iris_orchestration> .
+@prefix core: <http://kg.scania.com/core/> .
+
+<https://kg.scania.com/it/iris_orchestration> rdf:type owl:Ontology ;
+                                               dct:title "IRIS Orchestration"@en ;
+                                               <http://www.linkedmodel.org/1.2/schema/vaem#namespace> : ;
+                                               rdfs:label "IRIS Orchestration Ontology"@en .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://kg.scania.com/core/timestamp
+core:timestamp rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/title
+dct:title rdf:type owl:AnnotationProperty .
+
+
+###  http://www.linkedmodel.org/1.2/schema/vaem#namespace
+<http://www.linkedmodel.org/1.2/schema/vaem#namespace> rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  https://kg.scania.com/it/iris_orchestration/hasAction
+:hasAction rdf:type owl:ObjectProperty ;
+           rdfs:domain :Task ;
+           rdfs:range :Action ;
+           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+           rdfs:comment "Relation from the Task to the first action in the OFG."@en ;
+           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+           rdfs:label "has Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasAuthenticationMethod
+:hasAuthenticationMethod rdf:type owl:ObjectProperty ;
+                         rdfs:domain :Connector ;
+                         rdfs:range :AuthenticationMethod ;
+                         core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                         rdfs:comment "Relation from a connector and a authentication method."@en ;
+                         rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                         rdfs:label "has Authentication Method"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasConnector
+:hasConnector rdf:type owl:ObjectProperty ;
+              rdfs:domain [ rdf:type owl:Class ;
+                            owl:unionOf ( :HTTPAction
+                                          :ResultAction
+                                          :SOAPAction
+                                        )
+                          ] ;
+              rdfs:range :Connector ;
+              core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+              rdfs:comment "Relation from actions that need to connect to some external system, to the respective connector instance."@en ;
+              rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+              rdfs:label "has Connector"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasContext
+:hasContext rdf:type owl:ObjectProperty ;
+            rdfs:domain [ rdf:type owl:Class ;
+                          owl:unionOf ( :ScriptAction
+                                        :SparqlConvertAction
+                                        :Task
+                                      )
+                        ] ;
+            rdfs:range :JsonLdContext ;
+            core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+            rdfs:comment "Relation from a Action that requires a Json-LD Context to the respective Context."@en ;
+            rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+            rdfs:label "has Context"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasResultMetaData
+:hasResultMetaData rdf:type owl:ObjectProperty ;
+             rdfs:domain :Task ;
+             rdfs:range :ResultMetaData ;
+             core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+             rdfs:comment "Relation from a Task to the its Meta Data instance."@en ;
+             rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+             rdfs:label "has ResultMeta Data"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasNextAction
+:hasNextAction rdf:type owl:ObjectProperty ;
+               rdfs:domain :Action ;
+               rdfs:range :Action ;
+               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+               rdfs:comment "Relation from one action to another. The OFG will end when an Action doesn't have this relation as predicate."@en ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+               rdfs:label "has Next Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasParallelAction
+:hasParallelAction rdf:type owl:ObjectProperty ;
+                   rdfs:domain :Action ;
+                   rdfs:range :Action ;
+                   core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                   rdfs:comment "Relation between one Action and another Action which can be run in paralell."@en ;
+                   rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                   rdfs:label "has Parallel Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasScript
+:hasScript rdf:type owl:ObjectProperty ;
+           rdfs:domain :ScriptAction ;
+           rdfs:range :Script ;
+           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+           rdfs:comment "Relation from a ScriptAction to its script."@en ;
+           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+           rdfs:label "has Script"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/hasSystem
+:hasSystem rdf:type owl:ObjectProperty ;
+           rdfs:domain :Action ;
+           rdfs:range :System ;
+           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+           rdfs:comment "Relation from a Action to a system the Action is dependent on."@en ;
+           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+           rdfs:label "has System"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/inputParameter
+:inputParameter rdf:type owl:ObjectProperty ;
+                rdfs:domain [ rdf:type owl:Class ;
+                              owl:unionOf ( :Action
+                                            :AuthenticationMethod
+                                            :Task
+                                          )
+                            ] ;
+                rdfs:range :Parameter ;
+                core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                rdfs:comment "This parameter can be attached to a SOAPAction, Task or an ScriptAction as an inputParameter."@en ;
+                rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                rdfs:label "input Parameter"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/outputParameter
+:outputParameter rdf:type owl:ObjectProperty ;
+                 rdfs:domain [ rdf:type owl:Class ;
+                               owl:unionOf ( :HTTPAction
+                                             :SOAPAction
+                                             :ScriptAction
+                                           )
+                             ] ;
+                 rdfs:range :Parameter ;
+                 core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                 rdfs:comment "This parameter can be attached to a ScriptAction"@en ;
+                 rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                 rdfs:label "output Parameter"@en .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  https://kg.scania.com/it/iris_orchestration/baseUrl
+:baseUrl rdf:type owl:DatatypeProperty ;
+         rdfs:domain :HTTPConnector ;
+         rdfs:range xsd:string ;
+         core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+         rdfs:comment "Base URL for the external system a Action connects to."@en ;
+         rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+         rdfs:label "base Url"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/bindingName
+:bindingName rdf:type owl:DatatypeProperty ;
+             rdfs:domain :SOAPConnector ;
+             rdfs:range xsd:string ;
+             core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+             rdfs:comment "Name for binding of a SOAP Action."@en ;
+             rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+             rdfs:label "binding Name"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/constructSparql
+:constructSparql rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :SparqlConvertAction ;
+                 rdfs:range xsd:string ;
+                 core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                 rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                 rdfs:label "CONSTRUCT Sparql"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/context
+:context rdf:type owl:DatatypeProperty ;
+         rdfs:domain :JsonLdContext ;
+         rdfs:range xsd:string ;
+         core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+         rdfs:comment "The context attribute is always included in Scripts that is executed from ScriptActions."@en ;
+         rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+         rdfs:label "context"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/description
+:description rdf:type owl:DatatypeProperty ;
+             rdfs:domain :MetaData ;
+             rdfs:range xsd:string ;
+             core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+             rdfs:comment "Description of the use case for the particular OFG."@en ;
+             rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+             rdfs:label "description"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/endpoint
+:endpoint rdf:type owl:DatatypeProperty ;
+          rdfs:domain [ rdf:type owl:Class ;
+                        owl:unionOf ( :HTTPAction
+                                      :HTTPParameter
+                                    )
+                      ] ;
+          rdfs:range xsd:string ;
+          core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+          rdfs:comment "Endpoint for the HTTP request."@en ;
+          rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+          rdfs:label "endpoint"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/graph
+:graph rdf:type owl:DatatypeProperty ;
+       rdfs:range xsd:string ;
+       core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+       rdfs:comment "What named graph Stardog will ask for metadata object."@en ;
+       rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+       rdfs:label "graph"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/httpBody
+:httpBody rdf:type owl:DatatypeProperty ;
+          rdfs:domain :HTTPParameter ;
+          rdfs:range xsd:string ;
+          core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+          rdfs:comment "HTTP body for request to Stardog."@en ;
+          rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+          rdfs:label "HTTP body"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/httpHeader
+:httpHeader rdf:type owl:DatatypeProperty ;
+            rdfs:domain [ rdf:type owl:Class ;
+                          owl:unionOf ( :HTTPAction
+                                        :HTTPParameter
+                                        :ResultAction
+                                      )
+                        ] ;
+            rdfs:range xsd:string ;
+            core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+            rdfs:comment "HTTP header for request to Stardog."@en ;
+            rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+            rdfs:label "HTTP header"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/httpQueryParameter
+:httpQueryParameter rdf:type owl:DatatypeProperty ;
+                    rdfs:domain [ rdf:type owl:Class ;
+                                  owl:unionOf ( :HTTPAction
+                                                :HTTPParameter
+                                              )
+                                ] ;
+                    rdfs:range xsd:string ;
+                    core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                    rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                    rdfs:label "HTTP query parameter"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/inputHelper
+:inputHelper rdf:type owl:DatatypeProperty ;
+             core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+             rdfs:comment "Input helper."@en ;
+             rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+             rdfs:label "input helper"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/ooVersion
+:ooVersion rdf:type owl:DatatypeProperty ;
+           rdfs:domain :MetaData ;
+           rdfs:range xsd:string ;
+           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+           rdfs:comment "Orchestration Ontology version."@en ;
+           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+           rdfs:label "OO version"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/paramName
+:paramName rdf:type owl:DatatypeProperty ;
+           rdfs:domain :StandardParameter ;
+           rdfs:range xsd:string ;
+           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+           rdfs:comment "paramName value will be the “key” to retrieve the contents"@en ;
+           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+           rdfs:label "parameter name"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/paramValue
+:paramValue rdf:type owl:DatatypeProperty ;
+            core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+            rdfs:comment "Parameter Value."@en ;
+            rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+            rdfs:label "parameter value"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/password
+:password rdf:type owl:DatatypeProperty ;
+          rdfs:domain :BasicCredentialsParameter ;
+          rdfs:range xsd:string ;
+          core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+          rdfs:comment "Password credentials for  all interfaces using basicAuth."@en ;
+          rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+          rdfs:label "password"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/script
+:script rdf:type owl:DatatypeProperty ;
+        rdfs:domain :Script ;
+        core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+        rdfs:comment "Script for a Script instance."@en ;
+        rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+        rdfs:label "script"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/soapOperation
+:soapOperation rdf:type owl:DatatypeProperty ;
+               rdfs:domain :SOAPAction ;
+               rdfs:range xsd:string ;
+               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+               rdfs:comment "The key 'keyName' for a SOAP Action."@en ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+               rdfs:label "SOAP operation"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/sparql
+:sparql rdf:type owl:DatatypeProperty ;
+        rdfs:domain :VirtualGraphAction ;
+        rdfs:range xsd:string ;
+        core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+        rdfs:comment "SPARQL."@en ;
+        rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+        rdfs:label "sparql"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/state
+:state rdf:type owl:DatatypeProperty ;
+       rdfs:domain :ResultMetaData ;
+       rdfs:range xsd:string ;
+       core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+       rdfs:comment "State."@en ;
+       rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+       rdfs:label "state"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/title
+:title rdf:type owl:DatatypeProperty ;
+       rdfs:domain :MetaData ;
+       rdfs:range xsd:string ;
+       core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+       rdfs:comment "Title meta data."@en ;
+       rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+       rdfs:label "title"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/username
+:username rdf:type owl:DatatypeProperty ;
+          rdfs:domain :BasicCredentialsParameter ;
+          rdfs:range xsd:string ;
+          core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+          rdfs:comment "Username credentials for all interfaces using basicAuth."@en ;
+          rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+          rdfs:label "username"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/wsdlFile
+:wsdlFile rdf:type owl:DatatypeProperty ;
+          rdfs:domain :SOAPConnector ;
+          rdfs:range xsd:string ;
+          core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+          rdfs:comment "WSDL File for SOAP connector."@en ;
+          rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+          rdfs:label "WSDL File"@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  https://kg.scania.com/it/iris_orchestration/Action
+:Action rdf:type owl:Class ;
+        core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+        rdfs:comment "The flow of a OFG is connected by a sequence of Actions."@en ;
+        rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+        rdfs:label "Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/AuthenticationMethod
+:AuthenticationMethod rdf:type owl:Class ;
+                      core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                      rdfs:comment "This is the classes that you attach to a configured connector when a system require either basic authentication or SSO."@en ;
+                      rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                      rdfs:label "Authentication Method"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/BasicCredentialsParameter
+:BasicCredentialsParameter rdf:type owl:Class ;
+                           rdfs:subClassOf :Parameter ;
+                           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                           rdfs:comment "The purpose of this class is to store username and password with a unique IRI used in BasicAuthenticationMethod’s of different protocols, HTTP and SOAP is supported as of now."@en ;
+                           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                           rdfs:label "Basic Credentials Parameter"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/Connector
+:Connector rdf:type owl:Class ;
+           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+           rdfs:comment "These are the classes that sets the base configuration to be able to reach external system with either SOAP or REST protocol."@en ;
+           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+           rdfs:label "Connector"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/GroovyScript
+:GroovyScript rdf:type owl:Class ;
+              rdfs:subClassOf :Script ;
+              core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+              rdfs:comment "Script of type Groovy"@en ;
+              rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+              rdfs:label "Groovy Script"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/HTTPAction
+:HTTPAction rdf:type owl:Class ;
+            rdfs:subClassOf :Action ;
+            core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+            rdfs:comment "HttpAction can be used as a POST or a GET depending on if you specify a httpBody in either the action itself or receive it from the inputParameter."@en ;
+            rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+            rdfs:label "HTTP Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/HTTPAuthenticationMethod
+:HTTPAuthenticationMethod rdf:type owl:Class ;
+                          rdfs:subClassOf :AuthenticationMethod ;
+                          core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                          rdfs:comment "This class is attached to a configured HTTP connector when required."@en ;
+                          rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                          rdfs:label "HTTP Authentication Method"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/HTTPBasicAuthenticationMethod
+:HTTPBasicAuthenticationMethod rdf:type owl:Class ;
+                               rdfs:subClassOf :HTTPAuthenticationMethod ,
+                                               [ owl:intersectionOf ( :HTTPAuthenticationMethod
+                                                                      [ rdf:type owl:Restriction ;
+                                                                        owl:onProperty :inputParameter ;
+                                                                        owl:someValuesFrom :BasicCredentialsParameter
+                                                                      ]
+                                                                    ) ;
+                                                 rdf:type owl:Class
+                                               ] ;
+                               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                               rdfs:comment "Will use the username and password."@en ;
+                               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                               rdfs:label "HTTP Basic Authentication Method"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/HTTPBearerTokenAuthenticationMethod
+:HTTPBearerTokenAuthenticationMethod rdf:type owl:Class ;
+                                     rdfs:subClassOf :HTTPAuthenticationMethod ,
+                                                     [ owl:intersectionOf ( :HTTPAuthenticationMethod
+                                                                            [ rdf:type owl:Restriction ;
+                                                                              owl:onProperty :inputParameter ;
+                                                                              owl:someValuesFrom :TokenCredentialsParameter
+                                                                            ]
+                                                                          ) ;
+                                                       rdf:type owl:Class
+                                                     ] ;
+                                     core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                                     rdfs:comment "HTTP Bearer Token authentication method."@en ;
+                                     rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                                     rdfs:label "HTTP Bearer Token Authentication Method"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/HTTPConnector
+:HTTPConnector rdf:type owl:Class ;
+               rdfs:subClassOf :Connector ;
+               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+               rdfs:comment "This class sets the base Url of a REST system. If this system has an authentication method like basic authentication or SSO you can attach such relation to the connector."@en ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+               rdfs:label "HTTP Connector"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/HTTPParameter
+:HTTPParameter rdf:type owl:Class ;
+               rdfs:subClassOf :Parameter ;
+               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+               rdfs:comment "The purpose of this class is to store data / information with a unique IRI but with a set of keys that is known for the HttpAction and ResultAction."@en ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+               rdfs:label "HTTP Parameter"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/JsonLdContext
+:JsonLdContext rdf:type owl:Class ;
+               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+               rdfs:comment "Class that has the attribute 'context' which will store the jsonld context of the ontology you want to convert data to."@en ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+               rdfs:label "Json-LD Context"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/KafkaConnector
+:KafkaConnector rdf:type owl:Class ;
+                rdfs:subClassOf :Connector ;
+                core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                rdfs:comment "The purpose of this class is to store information in order to connect to Kafka"@en ;
+                rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                rdfs:label "Kafka Connector"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/Parameter
+:Parameter rdf:type owl:Class ;
+           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+           rdfs:comment "Objects of subclass “parameter” is to store data between actions."@en ;
+           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+           rdfs:label "Parameter"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/PythonScript
+:PythonScript rdf:type owl:Class ;
+              rdfs:subClassOf :Script ;
+              core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+              rdfs:comment "Script of type Python"@en ;
+              rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+              rdfs:label "Python Script"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/ResultAction
+:ResultAction rdf:type owl:Class ;
+              rdfs:subClassOf :Action ;
+              core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+              rdfs:comment "This action is used when you want to upload to your resultGraph. The attributes in the inputParameter have priority over the attributes on the action. If httpBody exist in both inputParameter and action, the attribute value on the inputParameter will be used. HttpHeader will be merged but if the same key exists in both of the inputParameter will be used. "@en ;
+              rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+              rdfs:label "Result Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/ResultMetaData
+:ResultMetaData rdf:type owl:Class ;
+                rdfs:subClassOf core:Metadata ;
+                core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                rdfs:comment "Metadata for the result graph"@en ;
+                rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                rdfs:label "Result MetaData"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/SOAPAction
+:SOAPAction rdf:type owl:Class ;
+            rdfs:subClassOf :Action ;
+            core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+            rdfs:comment "This action is used when you want to do a SOAP call towards an external system."@en ;
+            rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+            rdfs:label "SOAP Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/SOAPAuthenticationMethod
+:SOAPAuthenticationMethod rdf:type owl:Class ;
+                          rdfs:subClassOf :AuthenticationMethod ;
+                          core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                          rdfs:comment "This class is attached to a configured SOAP connector when required."@en ;
+                          rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                          rdfs:label "SOAP Authentication Method"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/SOAPBasicAuthenticationMethod
+:SOAPBasicAuthenticationMethod rdf:type owl:Class ;
+                               rdfs:subClassOf :SOAPAuthenticationMethod ,
+                                               [ owl:intersectionOf ( :SOAPAuthenticationMethod
+                                                                      [ rdf:type owl:Restriction ;
+                                                                        owl:onProperty :inputParameter ;
+                                                                        owl:someValuesFrom :BasicCredentialsParameter
+                                                                      ]
+                                                                    ) ;
+                                                 rdf:type owl:Class
+                                               ] ;
+                               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                               rdfs:comment "Will use the username and password."@en ;
+                               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                               rdfs:label "SOAP Basic Authentication Method"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/SOAPConnector
+:SOAPConnector rdf:type owl:Class ;
+               rdfs:subClassOf :Connector ;
+               core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+               rdfs:comment "This class sets the basic needs to connect to a SOAP system. If this system has a authentication method like basic authentication or SSO you are able to attach such relation to the connector."@en ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+               rdfs:label "SOAP Connector"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/Script
+:Script rdf:type owl:Class ;
+        core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+        rdfs:comment "The scriptClasses are objects that holds a script file of a certain type."@en ;
+        rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+        rdfs:label "Script"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/ScriptAction
+:ScriptAction rdf:type owl:Class ;
+              rdfs:subClassOf :Action ;
+              core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+              rdfs:comment "Action that runs a script, often used for data transformation."@en ;
+              rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+              rdfs:label "Script Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/SparqlConvertAction
+:SparqlConvertAction rdf:type owl:Class ;
+                     rdfs:subClassOf :Action ;
+                     core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                     rdfs:comment "Actions for converting Sparql."@en ;
+                     rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                     rdfs:label "Sparql Convert Action"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/StandardParameter
+:StandardParameter rdf:type owl:Class ;
+                   rdfs:subClassOf :Parameter ;
+                   core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                   rdfs:comment "The purpose of this class is to store data in a defined key to be used as an inputParameter and outputParameter to different Actions."@en ;
+                   rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                   rdfs:label "Standard Parameter"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/System
+:System rdf:type owl:Class ;
+        core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+        rdfs:comment "This class is a representation of an external system. is used to be able to group Actions that is connected the same external system, which is mainly used as information/knowledge in order to be able to find actions towards a specific system."@en ;
+        rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+        rdfs:label "System"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/Task
+:Task rdf:type owl:Class ;
+      core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+      rdfs:comment "The OFG flow always starts with a Task. The instances belonging to this class contains useful data for the specific OFG."@en ;
+      rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+      rdfs:label "Task"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/TokenCredentialsParameter
+:TokenCredentialsParameter rdf:type owl:Class ;
+                           rdfs:subClassOf :Parameter ;
+                           core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                           rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                           rdfs:label "Token Credentials Parameter"@en .
+
+
+###  https://kg.scania.com/it/iris_orchestration/VirtualGraphAction
+:VirtualGraphAction rdf:type owl:Class ;
+                    rdfs:subClassOf :Action ;
+                    core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                    rdfs:comment "Actions of type virtual graph."@en ;
+                    rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                    rdfs:label "Virtual Graph Action"@en .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
