@@ -1,6 +1,6 @@
 import { ContextDefinition } from "jsonld/jsonld";
 import { Connection, Edge, MarkerType, Node } from "reactflow";
-import { FormField, IClassConfig } from "./types";
+import { FormField, IClassConfig, ObjectProperties } from "./types";
 
 // Constants for RDF, OWL, and RDFS namespaces
 const RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -81,6 +81,33 @@ export const generateJsonLdFromState = ({
   };
 };
 
+const getPathName = ({
+  sourceNode,
+  targetNode,
+}: {
+  sourceNode: Node | undefined;
+  targetNode: Node | undefined;
+}) => {
+  const sourceFormData = sourceNode?.data.formData;
+  const targetFormData = targetNode?.data.formData;
+  const sourceObjectProperties: ObjectProperties[] =
+    sourceFormData.objectProperties;
+  const targetClass = `https://kg.scania.com/it/iris_orchestration/${targetFormData.className}`;
+  //find targetClassName in source to get path
+  const pathName = sourceObjectProperties.find((obj) =>
+    obj.subClasses.includes(targetClass)
+  )?.path;
+  return pathName;
+};
+
+export const isValidConnection = (nodes: Node[]) => (conn: Connection) => {
+  const sourceNode = nodes.find((node) => node.id === conn.source);
+  const targetNode = nodes.find((node) => node.id === conn.target);
+  const pathName = getPathName({ sourceNode, targetNode });
+  if (pathName) return true;
+  return false;
+};
+
 export const setEdgeProperties = (
   nodes: Node[],
   defaultParams: Edge<any> | Connection
@@ -90,26 +117,22 @@ export const setEdgeProperties = (
     ...defaultParams,
     markerEnd: { type: MarkerType.Arrow },
   };
-  const sourceNodeLabel = nodes.find((node) => node.id === defaultParams.source)
-    ?.data.label;
-  if (sourceNodeLabel === "Task") {
+  const sourceNode = nodes.find((node) => node.id === defaultParams.source);
+  const targetNode = nodes.find((node) => node.id === defaultParams.target);
+  const pathName = getPathName({ sourceNode, targetNode });
+  const pathNameLabel = pathName?.split("/").pop() || "";
+  if (pathName) {
     return {
       ...commonEdgeProps,
       data: {
-        "iris:hasAction": {
+        [pathName]: {
           "@id": defaultParams.target,
         },
       },
-      label: "hasAction",
+      label: pathNameLabel,
     };
   }
   return {
     ...commonEdgeProps,
-    data: {
-      "iris:hasNextAction": {
-        "@id": defaultParams.target,
-      },
-    },
-    label: "hasNextAction",
   };
 };

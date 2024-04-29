@@ -1,6 +1,6 @@
 import Toast from "@/components/Toast/Toast";
 import { GraphBody } from "@/services/graphSchema";
-import { generateClassId, setEdgeProperties } from "@/utils";
+import { generateClassId, isValidConnection, setEdgeProperties } from "@/utils";
 import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
 import Link from "next/link";
@@ -39,18 +39,64 @@ const initialNodes = [
       label: "Task",
       formData: {
         className: "Task",
+        objectProperties: [
+          {
+            shape: "https://kg.scania.com/it/iris_orchestration/hasActionShape",
+            minCount: 1,
+            path: "https://kg.scania.com/it/iris_orchestration/hasAction",
+            className: "https://kg.scania.com/it/iris_orchestration/Action",
+            subClasses: [
+              "https://kg.scania.com/it/iris_orchestration/HTTPAction",
+              "https://kg.scania.com/it/iris_orchestration/ResultAction",
+              "https://kg.scania.com/it/iris_orchestration/SOAPAction",
+              "https://kg.scania.com/it/iris_orchestration/ScriptAction",
+              "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+              "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
+            ],
+          },
+          {
+            shape:
+              "https://kg.scania.com/it/iris_orchestration/inputParameterShape_optional",
+            minCount: 0,
+            path: "https://kg.scania.com/it/iris_orchestration/inputParameter",
+            className: "https://kg.scania.com/it/iris_orchestration/Parameter",
+            subClasses: [
+              "https://kg.scania.com/it/iris_orchestration/BasicCredentialsParameter",
+              "https://kg.scania.com/it/iris_orchestration/HTTPParameter",
+              "https://kg.scania.com/it/iris_orchestration/StandardParameter",
+              "https://kg.scania.com/it/iris_orchestration/TokenCredentialsParameter",
+            ],
+          },
+          {
+            shape:
+              "https://kg.scania.com/it/iris_orchestration/hasMetadataShape",
+            path: "",
+            className: "",
+            subClasses: [],
+          },
+          {
+            shape:
+              "https://kg.scania.com/it/iris_orchestration/hasContextShape",
+            minCount: 0,
+            path: "https://kg.scania.com/it/iris_orchestration/hasContext",
+            className:
+              "https://kg.scania.com/it/iris_orchestration/JsonLdContext",
+            subClasses: [],
+            maxCount: 1,
+          },
+        ],
         formFields: [
           {
             name: "https://kg.scania.com/it/iris_orchestration/label",
             type: "text",
             label: "Label",
+            value: "",
             validation: {
               required: true,
               minLength: 1,
               maxLength: 50,
               message: "Label must be a string with 1 to 50 characters",
             },
-            value: "",
           },
         ],
       },
@@ -72,8 +118,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
-  const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
-    useState("required");
   const [searchString, setSearchString] = useState("");
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -121,35 +165,10 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     };
     setListOfToasts([...listOfToasts, toastProperties]);
   };
-  const label = selectedNode?.data.label.replace(/\s+/g, "");
-
-  const {
-    data: objectProperties,
-    isLoading: isObjectPropertiesLoading,
-    isError: isObjectPropertiesError,
-  } = useQuery(
-    ["objectProperties", label],
-    () =>
-      axios
-        .get(`${apiBaseUrl}/api/object-properties/?className=${label}`)
-        .then((res) => res.data)
-        .catch(() => {
-          showToast("error", "Error", "Failed");
-        }),
-    {
-      enabled: !!selectedNode?.data.label && setupMode, // only fetch when selectedClassName is not null and setupMode
-      staleTime: 1000 * 60 * 10, // 10 minutes
-      cacheTime: 1000 * 60 * 30, // 30 minutes
-    }
-  );
 
   const secondaryProperties = useMemo(() => {
-    const cachedData = queryClient.getQueryData([
-      "objectProperties",
-      label,
-    ]) as any;
+    const cachedData = selectedNode?.data.formData?.objectProperties;
     if (cachedData) {
-      console.log(cachedData, "getting from cache");
       // Process cachedData as needed, excluding connectors for main flow
       return cachedData.filter(
         (item: ObjectProperties) =>
@@ -158,26 +177,9 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
             "https://kg.scania.com/it/iris_orchestration/hasNextAction",
           ].includes(item.path)
       );
-      // .forEach((item) => {
-      //   console.log(item, "item");
-
-      //   const className = item.className?.split("/").pop() || "";
-      //   const part = item.path?.split("/").pop() || "";
-      //   const property = {
-      //     category: "",
-      //     className: `${part} : ${className}`,
-      //     parentClassUri: "",
-      //     uri: item.className,
-      //   };
-      //   if (item.minCount) {
-      //     obj = { ...obj, optional: [...obj.optional, property] };
-      //     return;
-      //   }
-      //   obj = { ...obj, required: [...obj.optional, property] };
-      // });
     }
     return [];
-  }, [selectedNode, setupMode, objectProperties]);
+  }, [selectedNode, setupMode]);
 
   useEffect(() => {
     exitSetupMode();
@@ -464,9 +466,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
           graphDescription={graphDescription}
           setSearchString={setSearchString}
           selectedPrimaryCategory={selectedPrimaryCategory}
-          selectedSecondaryCategory={selectedSecondaryCategory}
           setSelectedPrimaryCategory={setSelectedPrimaryCategory}
-          setSelectedSecondaryCategory={setSelectedSecondaryCategory}
           renderClasses={renderClasses}
           secondaryProperties={secondaryProperties}
           highlightedClassLabel={highlightedClassLabel}
@@ -492,6 +492,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   deleteKeyCode={"Delete"}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
+                  isValidConnection={isValidConnection(nodes)}
                   onConnect={onConnect}
                   onInit={setReactFlowInstance}
                   onDrop={onDrop}

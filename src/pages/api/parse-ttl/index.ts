@@ -32,11 +32,15 @@ async function generateDynamicFormData(className: string) {
   const { generatePropertyDetailsForClass, convertToDynamicFormArray } =
     SHACLProcessor;
   const propertyDetailsForClass = generatePropertyDetailsForClass(className);
-  const dynamicFormArray = convertToDynamicFormArray(
-    propertyDetailsForClass as any
-  );
+  const formFields = convertToDynamicFormArray(propertyDetailsForClass as any);
   const subClassOf = SHACLProcessor.getSubclassOf(className);
-  return { className: className, subClassOf, formFields: dynamicFormArray };
+  const objectProperties = SHACLProcessor.getObjectPropertyDetails(shapeUri);
+  return {
+    className,
+    subClassOf,
+    objectProperties,
+    formFields,
+  };
 }
 
 export default async function handler(

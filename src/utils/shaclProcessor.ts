@@ -64,7 +64,13 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
   };
 
   const getObjectPropertyDetail = (shapeUri: string): ObjectProperties => {
-    const obj: any = { shape: shapeUri };
+    const obj: any = {
+      shape: shapeUri,
+      path: "",
+      className: "",
+      subClasses: [],
+      minCount: 0,
+    };
     rdf
       .filter((q) => q.subject === shapeUri)
       .forEach((q) => {
@@ -76,7 +82,6 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
           const subClasses = getSubClassesOf(q.object);
           obj.subClasses = subClasses;
         }
-        obj.minCount = 0;
         if (q.predicate === "http://www.w3.org/ns/shacl#minCount") {
           obj.minCount = parseInt(q.object);
         }

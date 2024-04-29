@@ -13,22 +13,30 @@
 }
 
 /* Handle for the nodes where you can start/stop dragging */
-.react-flow__handle{
+.react-flow__handle {
   width: 12px !important;
   height: 12px !important;
   background: #555 !important;
 }
 
-.react-flow__handle-right{
+.react-flow__handle-connecting {
+  background: red !important;
+}
+
+.react-flow__handle-valid {
+  background: green !important;
+}
+
+.react-flow__handle-right {
   right: -6px !important;
 }
 
-.react-flow__handle-left{
+.react-flow__handle-left {
   left: -6px !important;
 }
 
 /* React flow offers custom edges(https://reactflow.dev/examples/edges/custom-edges)
 and if bigger changes to the edge is required, we should take a look at that */
-.react-flow__edge-text{
+.react-flow__edge-text {
   font-size: 16px !important;
 }

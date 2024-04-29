@@ -1,9 +1,9 @@
 import Accordion from "@/components/Accordion/Accordion";
 import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
-import React from "react";
-import styles from "./ofd.module.scss";
 import { ObjectProperties } from "@/utils/types";
+import React, { useState } from "react";
+import styles from "./ofd.module.scss";
 
 type SidebarProps = {
   showExtendedPanel: boolean;
@@ -14,8 +14,6 @@ type SidebarProps = {
   setSearchString: (value: string) => void;
   selectedPrimaryCategory: string;
   setSelectedPrimaryCategory: (value: string) => void;
-  selectedSecondaryCategory: string;
-  setSelectedSecondaryCategory: (value: string) => void;
   renderClasses: () => JSX.Element;
   secondaryProperties: ObjectProperties[];
   highlightedClassLabel: string;
@@ -32,9 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   graphDescription,
   setSearchString,
   selectedPrimaryCategory,
-  selectedSecondaryCategory,
   setSelectedPrimaryCategory,
-  setSelectedSecondaryCategory,
   renderClasses,
   secondaryProperties,
   highlightedClassLabel,
@@ -42,6 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   handleOnDrag,
   addToGraph,
 }) => {
+  const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
+    useState("required");
   const requiredClasses = secondaryProperties.filter(
     (item) => item.minCount > 0
   );
