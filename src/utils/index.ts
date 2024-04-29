@@ -81,7 +81,7 @@ export const generateJsonLdFromState = ({
   };
 };
 
-const getPathName = ({
+export const getPaths = ({
   sourceNode,
   targetNode,
 }: {
@@ -94,32 +94,30 @@ const getPathName = ({
     sourceFormData.objectProperties;
   const targetClass = `https://kg.scania.com/it/iris_orchestration/${targetFormData.className}`;
   //find targetClassName in source to get path
-  const pathName = sourceObjectProperties.find((obj) =>
-    obj.subClasses.includes(targetClass)
-  )?.path;
-  return pathName;
+  const paths = sourceObjectProperties
+    .filter((obj) => obj.subClasses.includes(targetClass))
+    .map((item) => item.path);
+  return paths;
 };
 
 export const isValidConnection = (nodes: Node[]) => (conn: Connection) => {
   const sourceNode = nodes.find((node) => node.id === conn.source);
   const targetNode = nodes.find((node) => node.id === conn.target);
-  const pathName = getPathName({ sourceNode, targetNode });
-  if (pathName) return true;
-  return false;
+  const paths = getPaths({ sourceNode, targetNode });
+  if (!paths.length) return false;
+  return true;
 };
 
 export const setEdgeProperties = (
-  nodes: Node[],
-  defaultParams: Edge<any> | Connection
+  defaultParams: Edge<any> | Connection,
+  path: string
 ) => {
   //get source label
   const commonEdgeProps = {
     ...defaultParams,
     markerEnd: { type: MarkerType.Arrow },
   };
-  const sourceNode = nodes.find((node) => node.id === defaultParams.source);
-  const targetNode = nodes.find((node) => node.id === defaultParams.target);
-  const pathName = getPathName({ sourceNode, targetNode });
+  const pathName = path;
   const pathNameLabel = pathName?.split("/").pop() || "";
   if (pathName) {
     return {

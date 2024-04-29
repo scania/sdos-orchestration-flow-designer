@@ -1,6 +1,11 @@
 import Toast from "@/components/Toast/Toast";
 import { GraphBody } from "@/services/graphSchema";
-import { generateClassId, isValidConnection, setEdgeProperties } from "@/utils";
+import {
+  generateClassId,
+  getPaths,
+  isValidConnection,
+  setEdgeProperties,
+} from "@/utils";
 import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
 import Link from "next/link";
@@ -12,7 +17,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
+import { Popover } from "react-tiny-popover";
 import ReactFlow, {
   Background,
   Connection,
@@ -26,6 +32,7 @@ import ReactFlow, {
   useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
@@ -134,7 +141,14 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [dropInfo, setDropInfo] = useState(null);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
   const [setupMode, setSetupMode] = useState(false);
-  const queryClient = useQueryClient();
+  const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
+  const [connectionParams, setConnectionParams] = useState<
+    Edge<any> | Connection | null
+  >(null);
+  const [targetNodePosition, setTargetNodePosition] = useState<any>({
+    x: 0,
+    y: 0,
+  });
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -164,6 +178,18 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       description,
     };
     setListOfToasts([...listOfToasts, toastProperties]);
+  };
+
+  const onEdgeSelect = (path: string) => {
+    console.log(path, "selected Edge");
+    setEdges((eds) => {
+      if (!connectionParams) return;
+      const edge = addEdge(setEdgeProperties(connectionParams, path), eds);
+      return edge;
+    });
+    setConnectionParams(null);
+    setEdgeSelections([]);
+    setTargetNodePosition({ x: 0, y: 0 });
   };
 
   const secondaryProperties = useMemo(() => {
@@ -258,19 +284,31 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     setSetupMode(false);
   }, [setSelectedNode, setSetupMode]);
 
+  const captureCursorPosition = () => {
+    const handleMouseMove = (event: { clientX: any; clientY: any }) => {
+      setTargetNodePosition({ x: event.clientX, y: event.clientY });
+      // Remove listener immediately after capturing position
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+  };
+
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
-      return setEdges((eds) => {
-        // Accessing the Query Cache and retrieving all queries
-        const allQueries = queryClient.getQueryCache().findAll();
-        // Extracting all query keys
-        const objectPropertiesKeys = allQueries
-          .filter((query) => query.queryKey[0] === "objectProperties")
-          .map((query) => query.queryKey);
-        // console.log(objectPropertiesKeys, "objectPropertiesKeys");
-        const edge = addEdge(setEdgeProperties(nodes, params), eds);
-        return edge;
-      });
+      const sourceNode = nodes.find((node) => node.id === params.source);
+      const targetNode = nodes.find((node) => node.id === params.target);
+      const paths = getPaths({ sourceNode, targetNode });
+      if (!paths.length) return;
+      if (paths.length === 1) {
+        return setEdges((eds) => {
+          const edge = addEdge(setEdgeProperties(params, paths[0]), eds);
+          return edge;
+        });
+      }
+      setConnectionParams(params);
+      setEdgeSelections([...paths.map((item) => item.split("/").pop() || "")]);
+      captureCursorPosition();
+      return;
     },
     [nodes]
   );
@@ -477,6 +515,23 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
 
         <section className={styles.graph__canvas}>
           <div>
+            <Popover
+              isOpen={!!edgeSelections.length}
+              content={
+                <SelectionMenu
+                  edges={edgeSelections}
+                  onEdgeSelect={onEdgeSelect}
+                ></SelectionMenu>
+              }
+              containerStyle={{
+                position: "fixed",
+                left: `${targetNodePosition.x}px`,
+                top: `${targetNodePosition.y}px`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <div />
+            </Popover>
             <ReactFlowProvider>
               <div
                 className="reactflow-wrapper"
@@ -501,7 +556,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
-                  // onPaneClick={exitSetupMode}
                 >
                   <Controls style={{ display: "flex" }} position="top-center" />
                   {/* @ts-ignore */}
