@@ -556,6 +556,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
                   onDrop={onDrop}
                   onDragOver={onDragOver}
                   fitView
+                  onPaneClick={resetEdgeSelection}
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
