@@ -68,8 +68,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             ? classesForConnectorType[0].subClasses
             : [classesForConnectorType[0].className];
 
-          console.log(classesForConnectorType, "classesForConnectorType");
-
           return (
             <Accordion
               label={connectorType.split("/").pop() || ""}

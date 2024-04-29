@@ -180,16 +180,19 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     setListOfToasts([...listOfToasts, toastProperties]);
   };
 
+  const resetEdgeSelection = () => {
+    setConnectionParams(null);
+    setEdgeSelections([]);
+    setTargetNodePosition({ x: 0, y: 0 });
+  };
+
   const onEdgeSelect = (path: string) => {
-    console.log(path, "selected Edge");
     setEdges((eds) => {
       if (!connectionParams) return;
       const edge = addEdge(setEdgeProperties(connectionParams, path), eds);
       return edge;
     });
-    setConnectionParams(null);
-    setEdgeSelections([]);
-    setTargetNodePosition({ x: 0, y: 0 });
+    resetEdgeSelection();
   };
 
   const secondaryProperties = useMemo(() => {

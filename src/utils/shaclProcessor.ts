@@ -58,7 +58,6 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
         q.predicate === "http://www.w3.org/2000/01/rdf-schema#subClassOf" &&
         q.object === classUri
     );
-    console.log(subClasses, "subClasses");
     const subClassNames = subClasses.map((subClass) => subClass.subject);
     return subClassNames;
   };

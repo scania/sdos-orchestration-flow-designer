@@ -95,7 +95,10 @@ export const getPaths = ({
   const targetClass = `https://kg.scania.com/it/iris_orchestration/${targetFormData.className}`;
   //find targetClassName in source to get path
   const paths = sourceObjectProperties
-    .filter((obj) => obj.subClasses.includes(targetClass))
+    .filter(
+      (obj) =>
+        obj.subClasses.includes(targetClass) || obj.className === targetClass
+    )
     .map((item) => item.path);
   return paths;
 };
