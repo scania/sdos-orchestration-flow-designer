@@ -33,11 +33,6 @@ const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   useEffect(() => {
     // Try to read theme from local storage or set based on system preference
     const initTheme = () => {
-      // const savedTheme = localStorage.getItem("theme");
-      // if (savedTheme) {
-      //   setTheme(savedTheme);
-      // } else {
-      // }
       setTheme("light");
       setInitialized(true);
     };

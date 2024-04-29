@@ -38,7 +38,6 @@ const Button: React.FC<ButtonProps> = ({
       <button
         id={id}
         type="reset"
-        // className="secondary lg sc-tds-button "
         className={classNames(
           styles[variant],
           styles.lg,

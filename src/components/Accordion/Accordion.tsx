@@ -1,5 +1,7 @@
-// This accordion component is currently based on the secondary panel accordion.
-// It could either be focused on that, or refactored to be a bit more generic for the future.
+/* 
+  TODO - This accordion component is currently based on the secondary panel accordion.
+  It could either be focused on that, or refactored to be a bit more generic for the future.
+*/
 import styles from "./accordion.module.scss";
 import React, { useState } from "react";
 
@@ -21,6 +23,7 @@ const Accordion: React.FC<AccordionProps> = ({
   numberOfElements,
 }) => {
   const handleClick = (e) => {
+    // Stop propogation to avoid toggling the accordion on button click
     e.stopPropagation();
     onButtonClick();
   };

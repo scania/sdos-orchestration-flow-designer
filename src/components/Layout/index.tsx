@@ -12,7 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { theme } = useTheme();
   return (
     <div className={`tds-mode-${theme}`}>
-      <div className="announcement-banner ">
+      <div className="announcement-banner">
         <Header />
       </div>
       <main className={styles.main}>{children}</main>

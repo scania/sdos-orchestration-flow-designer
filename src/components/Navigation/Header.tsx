@@ -88,11 +88,9 @@ const Header = () => {
         <div slot="icon">
           <img
             src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
-            style={{ width: 50, height: 50 }}
-            className="center-image"
+            style={{ maxWidth: 'unset' }}
             alt="User menu."
           />
-          {1 > 0 && <tds-badge size="sm"></tds-badge>}
         </div>
         <tds-header-dropdown-list size="lg">
           <DropDownListDynamic />

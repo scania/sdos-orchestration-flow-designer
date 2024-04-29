@@ -7,7 +7,7 @@ export default function Footer() {
             <a href="/">Home</a>
           </tds-footer-item>
           <tds-footer-item>
-            <a href="/form">Form</a>
+            <a href="/">Form</a>
           </tds-footer-item>
         </tds-footer-group>
         <tds-footer-group title-text="Legals">
@@ -38,41 +38,6 @@ export default function Footer() {
           </tds-footer-item>
           <tds-footer-item>
             <a href="/">FAQ</a>
-          </tds-footer-item>
-        </tds-footer-group>
-      </div>
-      <div slot="main-left">
-        <tds-footer-group>
-          <tds-footer-item>
-            <a href="/">Link text</a>
-          </tds-footer-item>
-          <tds-footer-item>
-            <a href="/">Link text</a>
-          </tds-footer-item>
-          <tds-footer-item>
-            <a href="/">Link text</a>
-          </tds-footer-item>
-          <tds-footer-item>
-            <a href="/">Link text</a>
-          </tds-footer-item>
-        </tds-footer-group>
-      </div>
-      <div slot="main-right">
-        <tds-footer-group>
-          <tds-footer-item>
-            <a href="/">
-              <tds-icon name="truck"></tds-icon>
-            </a>
-          </tds-footer-item>
-          <tds-footer-item>
-            <a href="/">
-              <tds-icon name="truck"></tds-icon>
-            </a>
-          </tds-footer-item>
-          <tds-footer-item>
-            <a href="/">
-              <tds-icon name="truck"></tds-icon>
-            </a>
           </tds-footer-item>
         </tds-footer-group>
       </div>
