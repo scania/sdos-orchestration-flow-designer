@@ -14,18 +14,8 @@
 ## * should have different types of input parameters (subproperties)
 ## *
 ##
-## Status: In progress
-## Date: 2023-04-28 (YYYY-MM-DD)
-##
 ##------------------------------------------------------------------
 
-
-#################################################################
-#    Node Shapes
-#################################################################
-
-# Action
-#---------
 :HTTPActionShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "HTTPAction Shape"@en ;
@@ -60,7 +50,6 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :ScriptAction .
 
@@ -84,7 +73,6 @@
                 :inputParameterShape ,
                 :outputParameterShape ,
                 :hasContextShape ,
-                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :SparqlConvertAction .
 
@@ -95,7 +83,6 @@
     sh:property :hasNextActionShape ,
                 :inputParameterShape ,
                 :outputParameterShape ,
-                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :VirtualGraphAction .
 
@@ -110,7 +97,6 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :PythonScript .
 
@@ -124,7 +110,6 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :scriptShape, # Secondary Panel
                 :hasScriptShape ;
     sh:targetClass :GroovyScript .   
 
@@ -345,19 +330,7 @@
     rdfs:comment "ScriptAction, SparqlConvertAction and Task need to have a JsonLdContext."@en ;
     sh:path :hasContext ;
     sh:class :JsonLdContext ;
-    # sh:minCount 1 ;
     sh:maxCount 1 .
-
-# TODO: core_shapes:graphMetadataShape is defined differently
-#-
-# :hasMetadataShape a sh:PropertyShape ;
-#     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-#     rdfs:label "hasMetadata Shape"@en ;
-#     rdfs:comment "A Task should have one instance of meta data"@en ;
-#     sh:path core:hasMetadata ;
-#     sh:class core:Metadata ;
-#     sh:minCount 1 ;
-#     sh:maxCount 1 .
 
 :hasNextActionShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
@@ -528,17 +501,7 @@
     sh:or (
         [sh:pattern "^@prefix" ]
         [sh:hasValue ""]) ;
-    # sh:minCount 0 ; # Not mandatory
     sh:maxCount 1 .
-
-#:httpBodyORhttpQueryParameterShape a sh:PropertyShape ;
-#    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-#    rdfs:label "httpBody OR httpQueryParameter Shape"@en ;
-#    rdfs:comment "Should have either HTTP body or HTTP Query Parameter"@en ;
-#    sh:or (
-#        :httpBodyShape
-#        :httpQueryParameterShape
-#        ) .
 
 :httpHeaderShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
@@ -546,9 +509,6 @@
     rdfs:comment "HTTP Header should be a string"@en ;
     sh:path :httpHeader ;
     sh:datatype xsd:string ;
-    # sh:pattern "^{" ,
-    #            "}$" ;
-    # sh:minCount 1 ;
     sh:maxCount 1 .
 
 :httpQueryParameterShape a sh:PropertyShape ;
@@ -557,19 +517,7 @@
     rdfs:comment "HTTP Parameter should be a string"@en ;
     sh:path :httpQueryParameter ;
     sh:datatype xsd:string ;
-    # sh:minCount 1 ;
     sh:maxCount 1 .
-
-# TODO: ooVersion should move. TBD
-# -
-# :ooVersionShape a sh:PropertyShape ;
-#     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
-#     rdfs:label "ooVersion Shape"@en ;
-#     rdfs:comment "Metadata should contain ooVersion"@en ;
-#     sh:path :ooVersion ;
-#     sh:datatype xsd:string ;
-#     sh:minCount 1 ;
-#     sh:maxCount 1 .
 
 :paramNameShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;

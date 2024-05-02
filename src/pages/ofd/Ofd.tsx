@@ -122,12 +122,12 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
   const [searchString, setSearchString] = useState("");
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [listOfToasts, setListOfToasts] = useState([]);
   const [graphDescription, setGraphDescription] = useState("");
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -168,8 +168,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       cacheTime: 1000 * 60 * 30, // 30 minutes
     }
   );
-
-  const [listOfToasts, setListOfToasts] = useState([]);
 
   const showToast = (variant, header, description) => {
     const toastProperties = {
