@@ -1,0 +1,20 @@
+name: Secret Scan
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: TruffleHog OSS
+      uses: trufflesecurity/trufflehog@v3.75.0
+      with:
+        scanArguments: "--regex --entropy=False"
