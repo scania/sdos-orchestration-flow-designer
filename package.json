@@ -1,6 +1,7 @@
 {
   "name": "orchestration-flow-designer",
   "version": "0.1.0",
+  "license": "AGPL-3.0",
   "private": true,
   "scripts": {
     "dev": "node validateEnv.js && next dev",
