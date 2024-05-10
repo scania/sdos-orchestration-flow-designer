@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
+## Orchestration Flow Designer (OFD)
+
+The Orchestration Flow Designer (OFD) is a graphical user interface application that enables knowledge graphs as a self-service tool. It assists users in creating project/domain-specific flow graphs, facilitating intuitive and efficient data orchestration.
+
+For more information and showcase video, see the [resources folder](https://github.com/scania/sdos/tree/main/doc/resources).
 
 ## Building and Running
 

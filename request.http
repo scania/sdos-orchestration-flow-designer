@@ -4,26 +4,8 @@
 ### Fetch all graphs
 GET {{baseUrl}}/api/classes
 
-###
-
 ### Fetch all graphs
 GET {{baseUrl}}/api/classes
-
-###
-
-### Add a new graph
-POST {{baseUrl}}/api/classes
-Content-Type: application/json
-
-{
-    "title": "Another Sample Graph",
-    "description": "This is another sample graph description.",
-    "nodes": ["NodeX", "NodeY", "NodeZ"]
-}
-
-### get Action Details
-GET {{baseUrl}}/api/class-details?className=HTTPAction
-
 
 ### Add a new graph, validation fail
 POST {{baseUrl}}/api/classes
@@ -137,12 +119,3 @@ Content-Type: application/json
 
 ### parse shacl
 GET {{baseUrl}}/api/parse-ttl/?className=HTTPAction
-
-### read shacl from db
-GET {{baseUrl}}/api/ofd-shacl
-
-### read shacl from db
-##POST {{baseUrl}}/api/save-shacl
-
-### validate graph
-GET {{baseUrl}}/api/validate
