@@ -8,6 +8,11 @@ For more information and showcase video, see the [resources folder](https://gith
 
 ### Prerequisites
 
+- Node >= 18.17 (for building and running the application)
+- Stardog >= 9.x (RDF db for saving the knowledge graph)
+- Github (to download the source code)
+- Azure AD (to support SSO)
+
 Ensure you have Node.js and npm installed, version of node is 16.14 or later. You can check their versions by running
 
 ```bash
@@ -29,84 +34,7 @@ All the neccessary modules required to run the current next project will be inst
 
 By default, npm install will install all modules listed as dependencies in package.json.
 
-### Building the Application
-
-To create a production build of your Next.js application run:
-
-```bash
-npm run build
-```
-
-npm run build creates a build directory with a production build of your app.
-
-Inside the build/static directory will be your JavaScript and CSS files.
-
-Each filename inside of build/static will contain a unique hash of the file contents. This hash in the file name enables long term caching techniques.
-
-When running a production build of freshly created Create React App application, there are a number of .js files (called chunks) that are generated and placed in the build/static/js directory:
-
-### Starting the Application
-
-After building, you can start the application in production mode with:
-
-```bash
-npm start
-```
-
-Your application should now be running on http://localhost:3000/ or the port specified in your configuration.
-
-## Getting started to run the development server
-
-To run the development server execute:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-# <span style="color:gold">Orchestration Flow Designer - Test Suite</span>
-
-This is the end-to-end test suite for the Orchestration Flow Designer (OFD) which tests the funtionality of the application from a user perspective.
-The test suite is developed using Cypress and include plugins for Cucumber (BDD) and reporting of results, among else.
-
-## <span style="color:goldenrod">Prerequisites</span>
-
-There are some tools and software needed in order to be able to develop and/or execute the tests.
-These are listed as follows:
-
-- [Git](https://git-scm.com) - used for version control as well as to fetch/download the test suite from Gitlab.
-- [Visual Studio Code](https://code.visualstudio.com) - for editing the tests. Note: other text editor can be used.
-- [Node](https://nodejs.org/en/download) - used for executing tests and installing dependencies.
-
-## <span style="color:goldenrod">Installing dependencies </span>
-
-The dependencies needed to run and develop the test suite is listed in the `package.json`. After the prerequisites has been set up we can install these dependencies simply by running this command in the top folder of the project:
-
-```bash
-npm install
-```
-
-(Note: there may be a need to execute this command as administator in Windows. In that case you must also execute the tests as administrator after installing.)
-
-## Setting Up Environment Variables
+### Setting Up Environment Variables
 
 To run this project, you will need to add the following environment variables to your `.env.local` file in the root of your project. Create the file if it doesn't already exist.
 
@@ -146,6 +74,57 @@ STARDOG_ENDPOINT=your-stardog-endpoint
 NEXTAUTH_URL=http://localhost:3000
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 ```
+
+### Getting started to run the development server
+
+To run the development server execute:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Building the Application
+
+To create a production build of your Next.js application run:
+
+```bash
+npm run build
+```
+
+npm run build creates a build directory with a production build of your app.
+
+Inside the build/static directory will be your JavaScript and CSS files.
+
+Each filename inside of build/static will contain a unique hash of the file contents. This hash in the file name enables long term caching techniques.
+
+When running a production build of freshly created Create React App application, there are a number of .js files (called chunks) that are generated and placed in the build/static/js directory:
+
+### Starting the Application
+
+After building, you can start the application in production mode with:
+
+```bash
+npm start
+```
+
+Your application should now be running on http://localhost:3000/ or the port specified in your configuration.
+
+# <span style="color:gold">Orchestration Flow Designer - Test Suite</span>
+
+This is the end-to-end test suite for the Orchestration Flow Designer (OFD) which tests the funtionality of the application from a user perspective.
+The test suite is developed using Cypress and include plugins for Cucumber (BDD) and reporting of results, among else.
+
+## <span style="color:goldenrod">Installing dependencies </span>
+
+The dependencies needed to run and develop the test suite is listed in the `package.json`. After the prerequisites has been set up we can install these dependencies simply by running this command in the top folder of the project:
+
+```bash
+npm install
+```
+
+(Note: there may be a need to execute this command as administator in Windows. In that case you must also execute the tests as administrator after installing.)
 
 ## <span style="color:goldenrod">Executing the test suite</span>
 
