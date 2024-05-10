@@ -160,3 +160,11 @@ npx cypress run -e TAGS="@smoke and not @wip"
 
 Along with these filtering options there are two configurations in the `package.json` to know about; **filterSpecs** and **omitFiltered**.
 filterSpecs=true means that a pre-filtering is made prior to execution in order to only load the tes files containing tests that matches the filter, the default behaviour is to load every test file and perform the filtering during run-time. omitFiltered=true means that all tests that do not match the filter is left out of the report instead of being marked as "pending", as is the default behaviour .
+
+## Support
+
+If you face any issues, find any bugs or have any questions regarding the application the OFD-SDOS
+development team is available through mail [sdos@scania.com](mailto:sdos@scania.com)
+
+[Community Page](https://github.com/scania/sdos/discussions) is also available for the discussion.
+
