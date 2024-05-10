@@ -1,7 +1,7 @@
+## Orchestration Flow Designer (OFD)
+
 ![Project Status: Under Development](https://img.shields.io/badge/Status-Under%20Development-orange)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-
-## Orchestration Flow Designer (OFD)
 
 The Orchestration Flow Designer (OFD) is a graphical user interface application that enables knowledge graphs as a self-service tool. It assists users in creating project/domain-specific flow graphs, facilitating intuitive and efficient data orchestration.
 
