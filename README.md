@@ -163,8 +163,4 @@ filterSpecs=true means that a pre-filtering is made prior to execution in order 
 
 ## Support
 
-If you face any issues, find any bugs or have any questions regarding the application the OFD-SDOS
-development team is available through mail [sdos@scania.com](mailto:sdos@scania.com)
-
-[Community Page](https://github.com/scania/sdos/discussions) is also available for the discussion.
-
+If you encounter any issues, find any bugs, or have questions regarding the application, please visit our [Community Page](https://github.com/scania/sdos/discussions) for discussions and support from the OFD-SDOS development team.
