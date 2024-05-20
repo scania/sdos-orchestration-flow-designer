@@ -65,6 +65,11 @@ These three env variables should be added as part of authenticating the user in 
 - `LOG_LEVEL` - Optional. Sets the level of logging detail (e.g., `debug`, `info`, `warn`, `error`).
 - `NODE_ENV` - Optional. Explicitly Specifies the environment in which the application is running. Acceptable values are `development`, `test`, `production`.
 
+### Testing
+
+- `TEST_USERNAME` - Optional. Username of test user used for e2e testing using cypress
+- `TEST_PASSWORD` - Optional. Password of test user used for e2e testing using cypress
+
 Example `.env.local` file:
 
 ```env
@@ -76,6 +81,8 @@ STARDOG_PASSWORD=your-stardog-password
 STARDOG_ENDPOINT=your-stardog-endpoint
 NEXTAUTH_URL=http://localhost:3000
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+TEST_USERNAME=your-test-username
+TEST_PASSWORD=your-test-password
 ```
 
 ### Getting started to run the development server

@@ -11,6 +11,8 @@ const envSchema = z.object({
   NEXTAUTH_SECRET: z.string().uuid().nonempty(),
   LOG_LEVEL: z.string().optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
+  TEST_USERNAME: z.string().optional(),
+  TEST_PASSWORD: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
