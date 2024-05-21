@@ -5,6 +5,8 @@ import createEsbuildPlugin from "@badeball/cypress-cucumber-preprocessor/esbuild
 require("dotenv").config({ path: "./.env.local" });
 import { env } from "./src/lib/env";
 
+const BASE_URL = env.BASE_URL || env.TEST_BASE_URL;
+
 async function setupNodeEvents(
   on: Cypress.PluginEvents,
   config: Cypress.PluginConfigOptions
@@ -14,6 +16,9 @@ async function setupNodeEvents(
     TEST_PASSWORD: env.TEST_PASSWORD,
   };
 
+  if (!BASE_URL) {
+    throw new Error("base url missing");
+  }
   // This is required for the preprocessor to be able to generate JSON reports after each run, and more,
   await addCucumberPreprocessorPlugin(on, config);
   // Include plugins
@@ -53,8 +58,11 @@ export default defineConfig({
   // Specific for e2e tests
   e2e: {
     setupNodeEvents,
-    specPattern:["cypress/features/**/*.feature","cypress/integration/**/*.test.ts"],
-    baseUrl: env.TEST_BASE_URL,
+    specPattern: [
+      "cypress/features/**/*.feature",
+      "cypress/integration/**/*.test.ts",
+    ],
+    baseUrl: BASE_URL,
     experimentalModifyObstructiveThirdPartyCode: true,
     chromeWebSecurity: false,
   },

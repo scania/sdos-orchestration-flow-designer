@@ -9,6 +9,9 @@
 import "cypress-mochawesome-reporter/register";
 
 beforeEach(() => {
+  const currentTestFile = Cypress.spec.relative;
+  //avoid login for integration tests
+  if (currentTestFile.endsWith(".test.ts")) return;
   const username = Cypress.env("TEST_USERNAME");
   const password = Cypress.env("TEST_PASSWORD");
 

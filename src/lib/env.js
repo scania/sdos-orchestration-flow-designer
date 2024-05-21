@@ -7,7 +7,7 @@ const envSchema = z.object({
   STARDOG_USERNAME: z.string().nonempty(),
   STARDOG_PASSWORD: z.string().nonempty(),
   STARDOG_ENDPOINT: z.string().url().nonempty(),
-  NEXTAUTH_URL: z.string().url().nonempty(),
+  BASE_URL: z.string().url().nonempty(),
   NEXTAUTH_SECRET: z.string().uuid().nonempty(),
   LOG_LEVEL: z.string().optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
