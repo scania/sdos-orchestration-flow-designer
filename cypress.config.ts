@@ -53,7 +53,7 @@ export default defineConfig({
   // Specific for e2e tests
   e2e: {
     setupNodeEvents,
-    specPattern: "cypress/features/**/*.feature",
+    specPattern:["cypress/features/**/*.feature","cypress/integration/**/*.test.ts"],
     baseUrl: env.TEST_BASE_URL,
     experimentalModifyObstructiveThirdPartyCode: true,
     chromeWebSecurity: false,
