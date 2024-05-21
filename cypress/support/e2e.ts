@@ -7,14 +7,15 @@
 */
 
 import "cypress-mochawesome-reporter/register";
-import { env } from "../../src/lib/env";
 
 beforeEach(() => {
-  const username = env.TEST_USERNAME;
-  const password = env.TEST_PASSWORD;
+  const username = Cypress.env("TEST_USERNAME");
+  const password = Cypress.env("TEST_PASSWORD");
+
   if (!username || !password) {
-    throw new Error("test credentials missing");
+    throw new Error("Test credentials missing");
   }
+
   loginViaAAD(username, password);
   cy.visit("/");
 });

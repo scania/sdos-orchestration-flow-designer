@@ -69,6 +69,7 @@ These three env variables should be added as part of authenticating the user in 
 
 - `TEST_USERNAME` - Optional. Username of test user used for e2e testing using cypress
 - `TEST_PASSWORD` - Optional. Password of test user used for e2e testing using cypress
+- `TEST_BASE_URL` - Optional. Base URL of test environment used for e2e testing using cypress
 
 Example `.env.local` file:
 
@@ -83,6 +84,7 @@ NEXTAUTH_URL=http://localhost:3000
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 TEST_USERNAME=your-test-username
 TEST_PASSWORD=your-test-password
+TEST_BASE_URL=http://localhost:3000
 ```
 
 ### Getting started to run the development server
