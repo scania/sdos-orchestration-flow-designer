@@ -1,17 +1,12 @@
-/*  
-    This file is executed before each spec-file.
-    Here we:
-    * define reusable code to be used in several tests
-    * import plugins
-    * define before- and beforeEach-hooks
-*/
+// cypress/support/e2e.js
 
 import "cypress-mochawesome-reporter/register";
 
 beforeEach(() => {
   const currentTestFile = Cypress.spec.relative;
-  //avoid login for integration tests
+  // Avoid login for integration tests
   if (currentTestFile.endsWith(".test.ts")) return;
+
   const username = Cypress.env("TEST_USERNAME");
   const password = Cypress.env("TEST_PASSWORD");
 
@@ -19,39 +14,45 @@ beforeEach(() => {
     throw new Error("Test credentials missing");
   }
 
-  loginViaAAD(username, password);
-  cy.visit("/");
+  cy.session([username, password], () => {
+    loginViaAAD(username, password);
+  });
+
+  checkAndCloseErrorPopup();
 });
 
-function loginViaAAD(username: string, password: string) {
-  cy.session(
-    "auto_OFD Test",
-    () => {
-      cy.visit("/");
-      cy.get("button").contains("Sign in").click();
-      cy.origin(
-        "login.microsoftonline.com",
-        {
-          args: {
-            username,
-            password,
-          },
-        },
-        ({ username, password }) => {
-          cy.get('input[type="email"]').type(username + "{enter}", {
-            log: false,
-          });
-          cy.get('input[type="password"]').type(password, { log: false });
-          cy.get('input[type="submit"]').click();
-        }
-      );
-    },
+const checkAndCloseErrorPopup = () => {
+  cy.get("body").then(($body) => {
+    if ($body.text().includes("Unhandled Runtime Error")) {
+      // Close the error popup if found
+      cy.get(
+        'button[data-nextjs-errors-dialog-left-right-close-button="true"]'
+      ).click();
+    }
+  });
+};
+
+function loginViaAAD(username, password) {
+  cy.visit("/");
+  cy.get("button").contains("Sign in").click();
+  cy.origin(
+    "login.microsoftonline.com",
     {
-      validate() {
-        cy.visit("/");
-        cy.get("button").contains("Sign in").click();
-        cy.get("h2").contains("My Work").should("be.visible");
+      args: {
+        username,
+        password,
       },
+    },
+    ({ username, password }) => {
+      cy.get('input[type="email"]').type(username + "{enter}", {
+        log: false,
+      });
+      cy.get('input[type="password"]').type(password, { log: false });
+      cy.get('input[type="submit"]').click();
     }
   );
+  // Validate that the login was successful
+  cy.visit("/");
+  cy.get("button").contains("Sign in").click();
+  cy.get("h2").contains("My Work").should("be.visible");
 }
