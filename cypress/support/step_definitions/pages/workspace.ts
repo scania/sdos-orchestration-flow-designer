@@ -13,7 +13,9 @@ import { Then } from "@badeball/cypress-cucumber-preprocessor";
 // -------------------------------- WHEN ----------------------------------------------
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
-
+When( "the settings button is clicked", () => {
+    cy.get("tds-icon[name='settings']").click({force: true, multiple: true});
+});
 
 
 // ------------------------------------------------------------------------------------
@@ -23,9 +25,9 @@ import { Then } from "@badeball/cypress-cucumber-preprocessor";
 // ------------------------------------------------------------------------------------
 
 Then( "the workspace page should be visible", () => {
-    cy.get("h1").contains("Workspace");
+    cy.get('.ofd_page__header__back___Ml0u').contains("My work");
 });
 
 Then( "a new graph should open in the workspace", () => {
-    cy.get("workspace");
+    cy.get('.ofd_page__header__back___Ml0u').contains("My work");
 });
