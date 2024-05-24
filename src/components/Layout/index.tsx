@@ -11,7 +11,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { theme } = useTheme();
   return (
-    <div className={`tds-mode-${theme}`}>
+    <div className={`tds-mode-${theme} ${styles.container}`}>
       <div className="announcement-banner">
         <Header />
       </div>
