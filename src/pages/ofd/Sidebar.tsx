@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   selectedPrimaryCategory,
   setSelectedPrimaryCategory,
   renderClasses,
-  secondaryProperties,
+  secondaryProperties = [],
   highlightedClassLabel,
   setHighlightedClassLabel,
   handleOnDrag,

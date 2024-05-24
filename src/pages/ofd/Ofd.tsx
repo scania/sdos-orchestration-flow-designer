@@ -194,7 +194,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   };
 
   const secondaryProperties = useMemo(() => {
-    const cachedData = selectedNode?.data.formData?.objectProperties;
+    const cachedData = selectedNode?.data.formData?.objectProperties || [];
     if (cachedData) {
       // Process cachedData as needed, excluding connectors for main flow
       return cachedData.filter(
