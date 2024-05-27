@@ -34,6 +34,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
+import GraphOptions from "../../components/GraphOptions/GraphOptions";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
@@ -498,7 +499,10 @@ const ForceGraphComponent: React.FC = ({
           </Link>
         </div>
         <div>
-          <span className={styles.page__header__options}>Options</span>
+          <span id="graph-options" className={styles.page__header__options}>
+            Options
+          </span>
+          <GraphOptions selector="#graph-options"/>
           <span className={styles.page__header__save} onClick={handleSaveClick}>
             Save
           </span>

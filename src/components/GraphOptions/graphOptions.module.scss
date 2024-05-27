@@ -1,0 +1,25 @@
+.body {
+  &__divider {
+    margin: 24px 0px;
+  }
+
+  &__securityUrlContainer {
+    margin: 10px 0px 16px 0px;
+    color: var(--Blue-400, #2b70d3);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: -0.14px;
+    text-decoration-line: underline;
+  }
+
+  &__contributorsContainer {
+    margin-top: 10px;
+    text-align: right;
+  }
+}
+
+.action {
+  display: flex;
+  gap: 16px;
+}
