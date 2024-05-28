@@ -8,15 +8,15 @@ const Card = ({ data }) => {
           <span>Private</span>
           <tds-button size="xs" text="Open" variant="secondary"></tds-button>
         </div>
-        <h3>{data.graphName}</h3>
-        <p className={styles.card__header__description}>{data.graphDescription}</p>
+        <h3>{data.name}</h3>
+        <p className={styles.card__header__description}>{data.description}</p>
       </div>
       <div className={styles.card__bottom}>
         <dl className={styles.card__data}>
           <dt className={styles.card__data__key}>State</dt>
           <dd>{data.graphStatus}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>
-          <dd>{data.savedAt}</dd>
+          <dd>{data.updatedAt.slice(0, 10)}</dd>
           <dt className={styles.card__data__key}>Creator:</dt>
           <dd>{data.createdBy}</dd>
         </dl>

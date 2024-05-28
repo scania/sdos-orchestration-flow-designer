@@ -43,29 +43,7 @@ interface Flow {
 }
 function App({ flows }: { flows: Flow[] }) {
   const { theme } = useTheme();
-  const [cards] = useState([
-    {
-      graphName: 'test',
-      graphDescription: 'the description goes here :)',
-      graphStatus: 'Saved',
-      savedAt: '2023-01-01',
-      createdBy: 'test@test.se'
-    },
-    {
-      graphName: 'Card example',
-      graphDescription: 'the description goes here :)',
-      graphStatus: 'Saved',
-      savedAt: '2023-01-01',
-      createdBy: 'test@test.se'
-    },
-    {
-      graphName: 'Name test',
-      graphDescription: 'the description goes here :)',
-      graphStatus: 'Saved',
-      savedAt: '2023-01-01',
-      createdBy: 'test@test.se'
-    }
-  ]);
+  const [cards] = useState(flows);
   const { data: session } = useSession();
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
@@ -169,7 +147,7 @@ function App({ flows }: { flows: Flow[] }) {
               </Button>
             </div>
 
-            <h2 className={styles["content__headingcontent"]}>In Focus</h2>
+            <h2 className={styles["content__headingcontent"]}>Graphs</h2>
 
             <div className={styles["content__main__cards"]}>
             {cards.map(card => 
