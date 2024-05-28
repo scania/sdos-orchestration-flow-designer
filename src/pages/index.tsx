@@ -43,8 +43,6 @@ interface Flow {
 }
 function App({ flows }: { flows: Flow[] }) {
   const { theme } = useTheme();
-  const [cards] = useState(flows);
-  const { data: session } = useSession();
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
   const [descInput, setDescInput] = useState<string>("");
@@ -150,9 +148,9 @@ function App({ flows }: { flows: Flow[] }) {
             <h2 className={styles["content__headingcontent"]}>Graphs</h2>
 
             <div className={styles["content__main__cards"]}>
-            {cards.map(card => 
-                <Card key={card.graphName} data={card} />
-              )}
+              {flows.map((flow) => (
+                <Card key={flow.id} data={flow} />
+              ))}
             </div>
 
             <div className={styles["content__main__line"]}>

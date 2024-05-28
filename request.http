@@ -123,3 +123,7 @@ GET {{baseUrl}}/api/parse-ttl/?className=HTTPAction
 ### Save Graph
 GET  {{baseUrl}}/api/flows
 Content-Type: application/json
+
+### Save Graph
+GET  {{baseUrl}}/api/flow/acadf73f-6008-46e6-a2c4-ae928bde315d
+Content-Type: application/json

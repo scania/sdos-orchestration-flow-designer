@@ -359,6 +359,25 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     },
     [reactFlowInstance]
   );
+  useEffect(() => {
+    const fetchFlowData = async () => {
+      const flowId = router.query?.flowId;
+      if (!flowId) {
+        return;
+      }
+      try {
+        const { data } = await axios.get(`${apiBaseUrl}/api/flow/${flowId}`);
+        const { state, id, name, description } = data;
+        const { nodes, edges } = JSON.parse(state);
+        setNodes(nodes);
+        setEdges(edges);
+      } catch (error) {
+        router.push("/");
+      }
+    };
+
+    fetchFlowData();
+  }, [router.query?.flowId]);
 
   useEffect(() => {
     if (classDetails && isPendingClassDetailsAction && dropInfo) {
