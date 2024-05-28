@@ -1,5 +1,5 @@
 import Button from "@/components/Button";
-import Card from "@/components/Card";
+import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
 import { useTheme } from "@/context/ThemeProvider";
@@ -43,17 +43,12 @@ interface Flow {
 }
 function App({ flows }: { flows: Flow[] }) {
   const { theme } = useTheme();
-  const [cardCount, setCardCount] = useState<number>(7);
+  const [cards] = useState(flows);
   const { data: session } = useSession();
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
   const [descInput, setDescInput] = useState<string>("");
   const router = useRouter();
-
-  const renderCards = () =>
-    new Array(cardCount)
-      .fill(null)
-      .map((item, index) => <Card key={index}></Card>);
 
   const handleName = (event: FormEvent<HTMLTdsTextFieldElement>) => {
     setNameInput(event.currentTarget.value);
@@ -152,20 +147,16 @@ function App({ flows }: { flows: Flow[] }) {
               </Button>
             </div>
 
-            <h2 className={styles["content__headingcontent"]}>In Focus</h2>
+            <h2 className={styles["content__headingcontent"]}>Graphs</h2>
 
             <div className={styles["content__main__cards"]}>
-              {renderCards()}
+            {cards.map(card => 
+                <Card key={card.graphName} data={card} />
+              )}
             </div>
 
             <div className={styles["content__main__line"]}>
               <tds-divider orientation="horizontal"></tds-divider>
-            </div>
-
-            <h2 className={styles["content__headingcontent"]}>Other</h2>
-
-            <div className={styles["content__main__cards"]}>
-              {renderCards()}
             </div>
           </div>
         </div>
