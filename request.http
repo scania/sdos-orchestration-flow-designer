@@ -119,3 +119,7 @@ Content-Type: application/json
 
 ### parse shacl
 GET {{baseUrl}}/api/parse-ttl/?className=HTTPAction
+
+### Save Graph
+GET  {{baseUrl}}/api/flows
+Content-Type: application/json
