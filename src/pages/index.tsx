@@ -66,8 +66,11 @@ function App({ flows }: { flows: Flow[] }) {
       setErrorState(false);
       router.push(
         {
-          pathname: `/ofd/${nameInput.replace(/\s+/g, "-")}`,
-          query: { description: descInput },
+          pathname: `/ofd/new`,
+          query: {
+            graphName: nameInput.replace(/\s+/g, "-"),
+            description: descInput,
+          },
         },
         `/ofd/${nameInput.replace(/\s+/g, "-")}`
       );
