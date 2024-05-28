@@ -128,7 +128,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState([]);
-  const [graphDescription, setGraphDescription] = useState("");
+  const [description, setDescription] = useState("");
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
@@ -230,9 +230,9 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   // Using this to prevent graphDescription to be null on page refresh
   useEffect(() => {
     if (localStorage.getItem("graphDescription")) {
-      setGraphDescription(localStorage.getItem("graphDescription") as string);
+      setDescription(localStorage.getItem("graphDescription") as string);
     } else if (router.query.description) {
-      setGraphDescription(router.query.description as string);
+      setDescription(router.query.description as string);
       localStorage.setItem(
         "graphDescription",
         router.query.description as string
@@ -262,6 +262,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       nodes,
       edges,
       graphName: `http://example.org/${router.query?.graphName || "Private"}`,
+      description,
     };
     mutation.mutate(payload);
   };
@@ -502,7 +503,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
           setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
           graphName={router.query.graphName || ""}
-          graphDescription={graphDescription}
+          graphDescription={description}
           setSearchString={setSearchString}
           selectedPrimaryCategory={selectedPrimaryCategory}
           setSelectedPrimaryCategory={setSelectedPrimaryCategory}

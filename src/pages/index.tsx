@@ -7,6 +7,8 @@ import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 import styles from "./landing.module.scss";
+import axios from "axios";
+import { env } from "@/lib/env";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -19,12 +21,27 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
+  const response = await axios.get(`${env.NEXTAUTH_URL}/api/flows`, {
+    headers: {
+      cookie: context.req.headers.cookie, // Forward the session cookie
+    },
+  });
+
+  const flows = response.data;
+
   return {
-    props: {},
+    props: { flows },
   };
 }
 
-function App() {
+interface Flow {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+function App({ flows }: { flows: Flow[] }) {
   const { theme } = useTheme();
   const [cardCount, setCardCount] = useState<number>(7);
   const { data: session } = useSession();
@@ -43,8 +60,8 @@ function App() {
   };
 
   const handleDesc = (event: FormEvent<HTMLTdsTextareaElement>) => {
-     setDescInput(event.currentTarget.value);
-   };
+    setDescInput(event.currentTarget.value);
+  };
 
   const createNewGraph = () => {
     localStorage.removeItem("graphDescription");
@@ -54,10 +71,13 @@ function App() {
       /* Navigate to workspace page */
 
       setErrorState(false);
-      router.push({
-        pathname: `/ofd/${nameInput.replace(/\s+/g, "-")}`,
-        query: { description: descInput }
-      }, `/ofd/${nameInput.replace(/\s+/g, "-")}`)
+      router.push(
+        {
+          pathname: `/ofd/${nameInput.replace(/\s+/g, "-")}`,
+          query: { description: descInput },
+        },
+        `/ofd/${nameInput.replace(/\s+/g, "-")}`
+      );
     }
   };
 
