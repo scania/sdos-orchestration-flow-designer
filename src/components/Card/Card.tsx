@@ -23,7 +23,7 @@ const Card = ({ data }) => {
       <div className={styles.card__bottom}>
         <dl className={styles.card__data}>
           <dt className={styles.card__data__key}>State</dt>
-          <dd>{"saved"}</dd>
+          <dd>{"Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>
           <dd>{data.updatedAt.slice(0, 10)}</dd>
           {/* <dt className={styles.card__data__key}>Creator:</dt>
