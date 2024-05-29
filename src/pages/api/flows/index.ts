@@ -46,6 +46,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             createdAt: true,
             updatedAt: true,
           },
+          orderBy: [
+            {
+              updatedAt: "desc",
+            },
+          ],
         });
 
         logger.info("Fetched flows successfully.");
