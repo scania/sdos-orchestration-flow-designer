@@ -118,7 +118,13 @@ const nodeTypes = {
   default: CircularNode,
 };
 
-const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
+const ForceGraphComponent: React.FC = ({
+  apiBaseUrl,
+  graphName,
+  description,
+  initNodes,
+  initEdges,
+}: any) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -128,7 +134,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState([]);
-  const [description, setDescription] = useState("");
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
@@ -145,6 +150,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
   >(null);
+  const graphDescription = description || router.query.description || "";
   const [targetNodePosition, setTargetNodePosition] = useState<any>({
     x: 0,
     y: 0,
@@ -227,19 +233,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     },
   });
 
-  // Using this to prevent graphDescription to be null on page refresh
-  useEffect(() => {
-    if (localStorage.getItem("graphDescription")) {
-      setDescription(localStorage.getItem("graphDescription") as string);
-    } else if (router.query.description) {
-      setDescription(router.query.description as string);
-      localStorage.setItem(
-        "graphDescription",
-        router.query.description as string
-      );
-    }
-  }, [router.query.description, router]);
-
   function filteredPrimaryClasses(classes: any) {
     const filteredPrimaryClasses = classes.filter(
       (item: any) =>
@@ -261,8 +254,10 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     const payload = {
       nodes,
       edges,
-      graphName: `http://example.org/${router.query?.graphName || "Private"}`,
-      description,
+      graphName: `http://example.org/${
+        router.query?.graphName || graphName || "Private"
+      }`,
+      description: graphDescription,
     };
     mutation.mutate(payload);
   };
@@ -359,6 +354,18 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     },
     [reactFlowInstance]
   );
+  useEffect(() => {
+    // Initialize state from props if they are provided and not empty
+    if (
+      initNodes &&
+      initEdges &&
+      initNodes.length > 0 &&
+      initEdges.length > 0
+    ) {
+      setNodes(initNodes);
+      setEdges(initEdges);
+    }
+  }, [initNodes, initEdges]);
 
   useEffect(() => {
     if (classDetails && isPendingClassDetailsAction && dropInfo) {
@@ -502,8 +509,8 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
           showExtendedPanel={showExtendedPanel}
           setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
-          graphName={router.query.graphName || ""}
-          graphDescription={description}
+          graphName={router.query.graphName || graphName || ""}
+          graphDescription={graphDescription}
           setSearchString={setSearchString}
           selectedPrimaryCategory={selectedPrimaryCategory}
           setSelectedPrimaryCategory={setSelectedPrimaryCategory}
