@@ -1,14 +1,14 @@
+import { env } from "@/lib/env";
+import { FormEvent, useState } from "react";
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useTheme } from "@/context/ThemeProvider";
+import axios from "axios";
 import Button from "@/components/Button";
 import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
-import Tabs from "@/components/Tabs/Tabs";
-import { useTheme } from "@/context/ThemeProvider";
-import { getSession, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { FormEvent, useState } from "react";
 import styles from "./landing.module.scss";
-import axios from "axios";
-import { env } from "@/lib/env";
+import Tabs from "@/components/Tabs/Tabs";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -21,16 +21,19 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
-  const response = await axios.get(`${env.NEXTAUTH_URL}/api/flows`, {
+  const baseUrl = env.NEXTAUTH_URL;
+  const response = await axios.get(`${baseUrl}/api/flows`, {
     headers: {
       cookie: context.req.headers.cookie, // Forward the session cookie
     },
   });
-
-  const flows = response.data;
+  const initialFlows = response.data;
 
   return {
-    props: { flows },
+    props: {
+      baseUrl,
+      initialFlows,
+    },
   };
 }
 
@@ -41,11 +44,19 @@ interface Flow {
   createdAt: Date;
   updatedAt: Date;
 }
-function App({ flows }: { flows: Flow[] }) {
+
+function App({
+  initialFlows,
+  baseUrl,
+}: {
+  initialFlows: Flow[];
+  baseUrl: string;
+}) {
   const { theme } = useTheme();
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
   const [descInput, setDescInput] = useState<string>("");
+  const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const router = useRouter();
 
   const handleName = (event: FormEvent<HTMLTdsTextFieldElement>) => {
@@ -56,13 +67,20 @@ function App({ flows }: { flows: Flow[] }) {
     setDescInput(event.currentTarget.value);
   };
 
+  const fetchFlows = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/flows`);
+      setFlows(response.data);
+    } catch (error) {
+      console.error("Failed to fetch flows:", error);
+    }
+  };
+
   const createNewGraph = () => {
     localStorage.removeItem("graphDescription");
-    if (nameInput == "") {
+    if (nameInput === "") {
       setErrorState(true);
     } else {
-      /* Navigate to workspace page */
-
       setErrorState(false);
       router.push(
         {
@@ -74,6 +92,15 @@ function App({ flows }: { flows: Flow[] }) {
         },
         `/ofd/${nameInput.replace(/\s+/g, "-")}`
       );
+    }
+  };
+
+  const deleteGraph = async (id: string) => {
+    try {
+      await axios.delete(`${baseUrl}/api/flow/${id}`);
+      await fetchFlows(); // Fetch the updated flows after deletion
+    } catch (error) {
+      console.error("Failed to delete graph:", error);
     }
   };
 
@@ -113,13 +140,13 @@ function App({ flows }: { flows: Flow[] }) {
                     id="modal-name-field"
                     placeholder="Name"
                     size="sm"
-                    mode-variant={theme == "light" ? "primary" : "secondary"}
+                    mode-variant={theme === "light" ? "primary" : "secondary"}
                     helper={
-                      errorState && nameInput == ""
+                      errorState && nameInput === ""
                         ? "To continue, please give the graph a name."
                         : ""
                     }
-                    state={errorState && nameInput == "" ? "error" : "default"}
+                    state={errorState && nameInput === "" ? "error" : "default"}
                     onInput={handleName}
                   />
                   <div style={{ marginTop: "28px" }} />
@@ -127,8 +154,8 @@ function App({ flows }: { flows: Flow[] }) {
                     id="modal-description-area"
                     placeholder="Description"
                     rows={4}
-                    mode-variant={theme == "light" ? "primary" : "secondary"}
-                    state={errorState && descInput == "" ? "error" : "default"}
+                    mode-variant={theme === "light" ? "primary" : "secondary"}
+                    state={errorState && descInput === "" ? "error" : "default"}
                     onInput={handleDesc}
                   />
                 </span>
@@ -152,7 +179,7 @@ function App({ flows }: { flows: Flow[] }) {
 
             <div className={styles["content__main__cards"]}>
               {flows.map((flow) => (
-                <Card key={flow.id} data={flow} />
+                <Card key={flow.id} data={flow} deleteFlow={deleteGraph} />
               ))}
             </div>
 

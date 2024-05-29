@@ -124,6 +124,10 @@ GET {{baseUrl}}/api/parse-ttl/?className=HTTPAction
 GET  {{baseUrl}}/api/flows
 Content-Type: application/json
 
-### Save Graph
+### Get Graph
 GET  {{baseUrl}}/api/flow/acadf73f-6008-46e6-a2c4-ae928bde315d
+Content-Type: application/json
+
+### Delete Flow
+DELETE {{baseUrl}}/api/flow/acadf73f-6008-46e6-a2c4-ae928bde315d
 Content-Type: application/json

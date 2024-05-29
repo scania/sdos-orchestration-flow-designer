@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import styles from "./card.module.scss";
 
-const Card = ({ data }) => {
+const Card = ({ data, deleteFlow }: any) => {
   const router = useRouter();
   return (
     <div className={styles.card}>
@@ -15,6 +15,12 @@ const Card = ({ data }) => {
             onClick={() => {
               router.push(`/ofd/id/${data.id}`);
             }}
+          ></tds-button>
+          <tds-button
+            size="xs"
+            text="Delete"
+            variant="danger"
+            onClick={() => deleteFlow(data.id)}
           ></tds-button>
         </div>
         <h3>{data.name}</h3>

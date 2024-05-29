@@ -103,6 +103,11 @@ export const updateGraph = async (
   );
 };
 
+export const deleteGraph = async (graphName: string) => {
+  const dropGraph = QueryFactory.dropGraph(graphName);
+  return await executeQuery(DB_NAME_WRITE, dropGraph);
+};
+
 export const fetchAllSHACLShapes = async () => {
   return await executeQuery(
     DB_NAME_VALIDATE,
