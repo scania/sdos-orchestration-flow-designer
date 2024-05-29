@@ -175,14 +175,25 @@ function App({
               </Button>
             </div>
 
-            <h2 className={styles["content__headingcontent"]}>Graphs</h2>
+            <h2 className={styles["content__headingContent"]}>Graphs</h2>
 
             <div className={styles["content__main__cards"]}>
-              {flows.map((flow) => (
-                <Card key={flow.id} data={flow} deleteFlow={deleteGraph} />
-              ))}
+              {flows && !!flows.length ? (
+                <>
+                  {flows.map((flow) => (
+                    <Card
+                      key={flow.id}
+                      data={flow}
+                      confirmLabel="Do you wish to delete this graph?"
+                      confirmFunction={deleteGraph}
+                      confirmButtonLabel="Delete graph"
+                    />
+                  ))}
+                </>
+              ) : (
+                <h5>No saved graphs found</h5>
+              )}
             </div>
-
             <div className={styles["content__main__line"]}>
               <tds-divider orientation="horizontal"></tds-divider>
             </div>
