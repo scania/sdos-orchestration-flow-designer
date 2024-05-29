@@ -57,6 +57,7 @@ function App({
   const [nameInput, setNameInput] = useState<string>("");
   const [descInput, setDescInput] = useState<string>("");
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
+  const [errorHelperText, setErrorHelperText] = useState<string>("");
   const router = useRouter();
 
   const handleName = (event: FormEvent<HTMLTdsTextFieldElement>) => {
@@ -76,23 +77,45 @@ function App({
     }
   };
 
-  const createNewGraph = () => {
-    localStorage.removeItem("graphDescription");
+  const checkNameExists = async (name: string): Promise<boolean> => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/flow/name-exists/${encodeURIComponent(
+          `http://example.org/${name}`
+        )}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to check if name exists:", error);
+      return false;
+    }
+  };
+
+  const createNewGraph = async () => {
     if (nameInput === "") {
       setErrorState(true);
-    } else {
-      setErrorState(false);
-      router.push(
-        {
-          pathname: `/ofd/new`,
-          query: {
-            graphName: nameInput.replace(/\s+/g, "-"),
-            description: descInput,
-          },
-        },
-        `/ofd/${nameInput.replace(/\s+/g, "-")}`
-      );
+      setErrorHelperText("graph name is required");
+      return;
     }
+
+    setErrorState(false);
+    const nameExists = await checkNameExists(nameInput);
+    if (nameExists) {
+      setErrorState(true);
+      setErrorHelperText("graph name already exists");
+      return;
+    }
+
+    router.push(
+      {
+        pathname: `/ofd/new`,
+        query: {
+          graphName: nameInput.replace(/\s+/g, "-"),
+          description: descInput,
+        },
+      },
+      `/ofd/new`
+    );
   };
 
   const deleteGraph = async (id: string) => {
@@ -141,12 +164,8 @@ function App({
                     placeholder="Name"
                     size="sm"
                     mode-variant={theme === "light" ? "primary" : "secondary"}
-                    helper={
-                      errorState && nameInput === ""
-                        ? "To continue, please give the graph a name."
-                        : ""
-                    }
-                    state={errorState && nameInput === "" ? "error" : "default"}
+                    helper={errorState ? errorHelperText : ""}
+                    state={errorState ? "error" : "default"}
                     onInput={handleName}
                   />
                   <div style={{ marginTop: "28px" }} />
@@ -155,7 +174,6 @@ function App({
                     placeholder="Description"
                     rows={4}
                     mode-variant={theme === "light" ? "primary" : "secondary"}
-                    state={errorState && descInput === "" ? "error" : "default"}
                     onInput={handleDesc}
                   />
                 </span>
