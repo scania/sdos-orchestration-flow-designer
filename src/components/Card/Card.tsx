@@ -1,8 +1,15 @@
 import { useRouter } from "next/router";
 import styles from "./card.module.scss";
 
-const Card = ({ data, confirmFunction, confirmButtonLabel, confirmLabel }: any) => {
+const Card = ({
+  data,
+  confirmFunction,
+  confirmButtonLabel,
+  confirmLabel,
+}: any) => {
   const router = useRouter();
+  const dialogId = `dialog-${data.id}`;
+
   return (
     <div className={styles.card}>
       <div className={styles.card__top}>
@@ -11,7 +18,7 @@ const Card = ({ data, confirmFunction, confirmButtonLabel, confirmLabel }: any) 
           <div className={styles.card__top__header__buttons}>
             <tds-button
               size="xs"
-              id="dialog"
+              id={dialogId}
               text="Delete"
               variant="danger"
             ></tds-button>
@@ -37,7 +44,7 @@ const Card = ({ data, confirmFunction, confirmButtonLabel, confirmLabel }: any) 
         </dl>
       </div>
       {/* Dialog modal */}
-      <tds-modal selector="#dialog" size="xs">
+      <tds-modal selector={`#${dialogId}`} size="xs" style={{ zIndex: 9999 }}>
         <span slot="body">
           <h4 className="tds-modal-headline">{confirmLabel}</h4>
         </span>
