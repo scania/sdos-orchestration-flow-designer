@@ -1,14 +1,14 @@
+import { env } from "@/lib/env";
+import { FormEvent, useState } from "react";
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useTheme } from "@/context/ThemeProvider";
+import axios from "axios";
 import Button from "@/components/Button";
 import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
-import Tabs from "@/components/Tabs/Tabs";
-import { useTheme } from "@/context/ThemeProvider";
-import { getSession, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { FormEvent, useState } from "react";
 import styles from "./landing.module.scss";
-import axios from "axios";
-import { env } from "@/lib/env";
+import Tabs from "@/components/Tabs/Tabs";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -21,16 +21,19 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
-  const response = await axios.get(`${env.NEXTAUTH_URL}/api/flows`, {
+  const baseUrl = env.NEXTAUTH_URL;
+  const response = await axios.get(`${baseUrl}/api/flows`, {
     headers: {
       cookie: context.req.headers.cookie, // Forward the session cookie
     },
   });
-
-  const flows = response.data;
+  const initialFlows = response.data;
 
   return {
-    props: { flows },
+    props: {
+      baseUrl,
+      initialFlows,
+    },
   };
 }
 
@@ -41,11 +44,20 @@ interface Flow {
   createdAt: Date;
   updatedAt: Date;
 }
-function App({ flows }: { flows: Flow[] }) {
+
+function App({
+  initialFlows,
+  baseUrl,
+}: {
+  initialFlows: Flow[];
+  baseUrl: string;
+}) {
   const { theme } = useTheme();
   const [errorState, setErrorState] = useState<boolean>(false);
   const [nameInput, setNameInput] = useState<string>("");
   const [descInput, setDescInput] = useState<string>("");
+  const [flows, setFlows] = useState<Flow[]>(initialFlows);
+  const [errorHelperText, setErrorHelperText] = useState<string>("");
   const router = useRouter();
 
   const handleName = (event: FormEvent<HTMLTdsTextFieldElement>) => {
@@ -56,24 +68,62 @@ function App({ flows }: { flows: Flow[] }) {
     setDescInput(event.currentTarget.value);
   };
 
-  const createNewGraph = () => {
-    localStorage.removeItem("graphDescription");
-    if (nameInput == "") {
-      setErrorState(true);
-    } else {
-      /* Navigate to workspace page */
+  const fetchFlows = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/flows`);
+      setFlows(response.data);
+    } catch (error) {
+      console.error("Failed to fetch flows:", error);
+    }
+  };
 
-      setErrorState(false);
-      router.push(
-        {
-          pathname: `/ofd/new`,
-          query: {
-            graphName: nameInput.replace(/\s+/g, "-"),
-            description: descInput,
-          },
-        },
-        `/ofd/${nameInput.replace(/\s+/g, "-")}`
+  const checkNameExists = async (name: string): Promise<boolean> => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/flow/name-exists/${encodeURIComponent(
+          `http://example.org/${name}`
+        )}`
       );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to check if name exists:", error);
+      return false;
+    }
+  };
+
+  const createNewGraph = async () => {
+    if (nameInput === "") {
+      setErrorState(true);
+      setErrorHelperText("graph name is required");
+      return;
+    }
+
+    setErrorState(false);
+    const nameExists = await checkNameExists(nameInput);
+    if (nameExists) {
+      setErrorState(true);
+      setErrorHelperText("graph name already exists");
+      return;
+    }
+
+    router.push(
+      {
+        pathname: `/ofd/new`,
+        query: {
+          graphName: nameInput.replace(/\s+/g, "-"),
+          description: descInput,
+        },
+      },
+      `/ofd/new`
+    );
+  };
+
+  const deleteGraph = async (id: string) => {
+    try {
+      await axios.delete(`${baseUrl}/api/flow/${id}`);
+      await fetchFlows(); // Fetch the updated flows after deletion
+    } catch (error) {
+      console.error("Failed to delete graph:", error);
     }
   };
 
@@ -113,13 +163,9 @@ function App({ flows }: { flows: Flow[] }) {
                     id="modal-name-field"
                     placeholder="Name"
                     size="sm"
-                    mode-variant={theme == "light" ? "primary" : "secondary"}
-                    helper={
-                      errorState && nameInput == ""
-                        ? "To continue, please give the graph a name."
-                        : ""
-                    }
-                    state={errorState && nameInput == "" ? "error" : "default"}
+                    mode-variant={theme === "light" ? "primary" : "secondary"}
+                    helper={errorState ? errorHelperText : ""}
+                    state={errorState ? "error" : "default"}
                     onInput={handleName}
                   />
                   <div style={{ marginTop: "28px" }} />
@@ -127,8 +173,7 @@ function App({ flows }: { flows: Flow[] }) {
                     id="modal-description-area"
                     placeholder="Description"
                     rows={4}
-                    mode-variant={theme == "light" ? "primary" : "secondary"}
-                    state={errorState && descInput == "" ? "error" : "default"}
+                    mode-variant={theme === "light" ? "primary" : "secondary"}
                     onInput={handleDesc}
                   />
                 </span>
@@ -148,14 +193,25 @@ function App({ flows }: { flows: Flow[] }) {
               </Button>
             </div>
 
-            <h2 className={styles["content__headingcontent"]}>Graphs</h2>
+            <h2 className={styles["content__headingContent"]}>Graphs</h2>
 
             <div className={styles["content__main__cards"]}>
-              {flows.map((flow) => (
-                <Card key={flow.id} data={flow} />
-              ))}
+              {flows && !!flows.length ? (
+                <>
+                  {flows.map((flow) => (
+                    <Card
+                      key={flow.id}
+                      data={flow}
+                      confirmLabel="Do you wish to delete this graph?"
+                      confirmFunction={deleteGraph}
+                      confirmButtonLabel="Delete graph"
+                    />
+                  ))}
+                </>
+              ) : (
+                <h5>No saved graphs found</h5>
+              )}
             </div>
-
             <div className={styles["content__main__line"]}>
               <tds-divider orientation="horizontal"></tds-divider>
             </div>
