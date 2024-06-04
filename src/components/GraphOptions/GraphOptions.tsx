@@ -1,7 +1,7 @@
 import styles from "./graphOptions.module.scss";
 import React from "react";
 
-const GraphOptions = ({ selector }) => {
+const GraphOptions = ({ selector, graphDescription, graphName }) => {
   return (
     <tds-modal selector={selector} size="xs">
       <h5 className="tds-headline-05" slot="header">
@@ -13,19 +13,22 @@ const GraphOptions = ({ selector }) => {
           label="Title"
           label-position="outside"
           size="md"
-          value="Placeholder"
+          disabled
+          value={graphName}
         ></tds-text-field>
         <tds-textarea
           label="Description"
-          helper="Character left"
-          max-length="140"
+          // helper="Character left"
+          // max-length="140"
           label-position="outside"
-          placeholder="Placeholder"
-          value="Placeholder"
+          disabled
+          value={graphDescription}
         ></tds-textarea>
+        {/*
         <div className={styles.body__divider}>
           <tds-divider orientation="horizontal"></tds-divider>
         </div>
+        
         <tds-dropdown
           name="dropdown"
           label="Access level"
@@ -40,6 +43,7 @@ const GraphOptions = ({ selector }) => {
           </tds-dropdown-option>
           <tds-dropdown-option value="public">Public</tds-dropdown-option>
         </tds-dropdown>
+
         <div className={styles.body__securityUrlContainer}>
           <a
             href="https://it.reflex.scania.com/00005/7600.html"
@@ -72,9 +76,10 @@ const GraphOptions = ({ selector }) => {
             <tds-icon slot="icon" name="plus"></tds-icon>
           </tds-button>
         </div>
+                */}
       </div>
       <span slot="actions">
-        <div className={styles.action}>
+        {/*<div className={styles.action}>
           <tds-button
             type="button"
             size="sm"
@@ -87,7 +92,7 @@ const GraphOptions = ({ selector }) => {
             variant="secondary"
             text="Cancel"
           ></tds-button>
-        </div>
+              </div> */}
       </span>
     </tds-modal>
   );

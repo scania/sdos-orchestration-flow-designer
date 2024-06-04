@@ -502,7 +502,7 @@ const ForceGraphComponent: React.FC = ({
           <span id="graph-options" className={styles.page__header__options}>
             Options
           </span>
-          <GraphOptions selector="#graph-options"/>
+          <GraphOptions selector="#graph-options" graphDescription={graphDescription} graphName={router.query.graphName || graphName || ""}/>
           <span className={styles.page__header__save} onClick={handleSaveClick}>
             Save
           </span>
