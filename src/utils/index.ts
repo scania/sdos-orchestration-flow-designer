@@ -137,3 +137,78 @@ export const setEdgeProperties = (
     ...commonEdgeProps,
   };
 };
+
+export const initializeNodes = () => [
+  {
+    id: generateClassId(),
+    type: "input",
+    data: {
+      label: "Task",
+      formData: {
+        className: "Task",
+        objectProperties: [
+          {
+            shape: "https://kg.scania.com/it/iris_orchestration/hasActionShape",
+            minCount: 1,
+            path: "https://kg.scania.com/it/iris_orchestration/hasAction",
+            className: "https://kg.scania.com/it/iris_orchestration/Action",
+            subClasses: [
+              "https://kg.scania.com/it/iris_orchestration/HTTPAction",
+              "https://kg.scania.com/it/iris_orchestration/ResultAction",
+              "https://kg.scania.com/it/iris_orchestration/SOAPAction",
+              "https://kg.scania.com/it/iris_orchestration/ScriptAction",
+              "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
+              "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
+            ],
+          },
+          {
+            shape:
+              "https://kg.scania.com/it/iris_orchestration/inputParameterShape_optional",
+            minCount: 0,
+            path: "https://kg.scania.com/it/iris_orchestration/inputParameter",
+            className: "https://kg.scania.com/it/iris_orchestration/Parameter",
+            subClasses: [
+              "https://kg.scania.com/it/iris_orchestration/BasicCredentialsParameter",
+              "https://kg.scania.com/it/iris_orchestration/HTTPParameter",
+              "https://kg.scania.com/it/iris_orchestration/StandardParameter",
+              "https://kg.scania.com/it/iris_orchestration/TokenCredentialsParameter",
+            ],
+          },
+          {
+            shape:
+              "https://kg.scania.com/it/iris_orchestration/hasMetadataShape",
+            path: "",
+            className: "",
+            subClasses: [],
+          },
+          {
+            shape:
+              "https://kg.scania.com/it/iris_orchestration/hasContextShape",
+            minCount: 0,
+            path: "https://kg.scania.com/it/iris_orchestration/hasContext",
+            className:
+              "https://kg.scania.com/it/iris_orchestration/JsonLdContext",
+            subClasses: [],
+            maxCount: 1,
+          },
+        ],
+        formFields: [
+          {
+            name: "https://kg.scania.com/it/iris_orchestration/label",
+            type: "text",
+            label: "Label",
+            value: "",
+            validation: {
+              required: true,
+              minLength: 1,
+              maxLength: 50,
+              message: "Label must be a string with 1 to 50 characters",
+            },
+          },
+        ],
+      },
+    },
+    position: { x: 0, y: 0 },
+    sourcePosition: "right",
+  },
+];

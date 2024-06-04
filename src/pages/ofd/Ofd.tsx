@@ -1,7 +1,7 @@
-import Toast from "@/components/Toast/Toast";
 import { GraphBody } from "@/services/graphSchema";
 import {
   generateClassId,
+  initializeNodes,
   getPaths,
   isValidConnection,
   setEdgeProperties,
@@ -20,13 +20,13 @@ import React, {
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
 import ReactFlow, {
+  addEdge,
   Background,
   Connection,
   Controls,
   Edge,
   Node,
   ReactFlowProvider,
-  addEdge,
   useEdgesState,
   useKeyPress,
   useNodesState,
@@ -37,81 +37,10 @@ import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
+import { captureCursorPosition } from "../../lib/frontend/helper";
+import Toast from "@/components/Toast/Toast";
 
-const initialNodes = [
-  {
-    id: generateClassId(),
-    type: "input",
-    data: {
-      label: "Task",
-      formData: {
-        className: "Task",
-        objectProperties: [
-          {
-            shape: "https://kg.scania.com/it/iris_orchestration/hasActionShape",
-            minCount: 1,
-            path: "https://kg.scania.com/it/iris_orchestration/hasAction",
-            className: "https://kg.scania.com/it/iris_orchestration/Action",
-            subClasses: [
-              "https://kg.scania.com/it/iris_orchestration/HTTPAction",
-              "https://kg.scania.com/it/iris_orchestration/ResultAction",
-              "https://kg.scania.com/it/iris_orchestration/SOAPAction",
-              "https://kg.scania.com/it/iris_orchestration/ScriptAction",
-              "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-              "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
-            ],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/inputParameterShape_optional",
-            minCount: 0,
-            path: "https://kg.scania.com/it/iris_orchestration/inputParameter",
-            className: "https://kg.scania.com/it/iris_orchestration/Parameter",
-            subClasses: [
-              "https://kg.scania.com/it/iris_orchestration/BasicCredentialsParameter",
-              "https://kg.scania.com/it/iris_orchestration/HTTPParameter",
-              "https://kg.scania.com/it/iris_orchestration/StandardParameter",
-              "https://kg.scania.com/it/iris_orchestration/TokenCredentialsParameter",
-            ],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/hasMetadataShape",
-            path: "",
-            className: "",
-            subClasses: [],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/hasContextShape",
-            minCount: 0,
-            path: "https://kg.scania.com/it/iris_orchestration/hasContext",
-            className:
-              "https://kg.scania.com/it/iris_orchestration/JsonLdContext",
-            subClasses: [],
-            maxCount: 1,
-          },
-        ],
-        formFields: [
-          {
-            name: "https://kg.scania.com/it/iris_orchestration/label",
-            type: "text",
-            label: "Label",
-            value: "",
-            validation: {
-              required: true,
-              minLength: 1,
-              maxLength: 50,
-              message: "Label must be a string with 1 to 50 characters",
-            },
-          },
-        ],
-      },
-    },
-    position: { x: 0, y: 0 },
-    sourcePosition: "right",
-  },
-];
+const initialNodes = initializeNodes();
 const nodeTypes = {
   input: CircularNode,
   output: CircularNode,
@@ -120,10 +49,10 @@ const nodeTypes = {
 
 const ForceGraphComponent: React.FC = ({
   apiBaseUrl,
-  graphName,
   description,
-  initNodes,
+  graphName,
   initEdges,
+  initNodes,
 }: any) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
@@ -258,6 +187,19 @@ const ForceGraphComponent: React.FC = ({
         router.query?.graphName || graphName || "Private"
       }`,
       description: graphDescription,
+      isDraft: false,
+    };
+    mutation.mutate(payload);
+  };
+  const handleDraftClick = () => {
+    const payload = {
+      nodes,
+      edges,
+      graphName: `http://example.org/${
+        router.query?.graphName || graphName || "Private"
+      }`,
+      description: graphDescription,
+      isDraft: true,
     };
     mutation.mutate(payload);
   };
@@ -281,15 +223,6 @@ const ForceGraphComponent: React.FC = ({
     setSetupMode(false);
   }, [setSelectedNode, setSetupMode]);
 
-  const captureCursorPosition = () => {
-    const handleMouseMove = (event: { clientX: any; clientY: any }) => {
-      setTargetNodePosition({ x: event.clientX, y: event.clientY });
-      // Remove listener immediately after capturing position
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-  };
-
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
       const sourceNode = nodes.find((node) => node.id === params.source);
@@ -304,7 +237,7 @@ const ForceGraphComponent: React.FC = ({
       }
       setConnectionParams(params);
       setEdgeSelections([...paths.map((item) => item.split("/").pop() || "")]);
-      captureCursorPosition();
+      captureCursorPosition(setTargetNodePosition);
       return;
     },
     [nodes]
@@ -499,6 +432,12 @@ const ForceGraphComponent: React.FC = ({
         </div>
         <div>
           <span className={styles.page__header__options}>Options</span>
+          <span
+            className={styles.page__header__save}
+            onClick={handleDraftClick}
+          >
+            Save Draft
+          </span>
           <span className={styles.page__header__save} onClick={handleSaveClick}>
             Save
           </span>

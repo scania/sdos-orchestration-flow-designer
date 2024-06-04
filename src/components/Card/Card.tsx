@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import styles from "./card.module.scss";
+import { convertToLocalTime } from "@/lib/frontend/helper";
 
 const Card = ({
   data,
@@ -8,8 +9,8 @@ const Card = ({
   confirmLabel,
 }: any) => {
   const router = useRouter();
-  const dialogId = `dialog-${data.id}`;
-
+  const { id, name, description, isDraft, updatedAt } = data;
+  const dialogId = `dialog-${id}`;
   return (
     <div className={styles.card}>
       <div className={styles.card__top}>
@@ -27,20 +28,20 @@ const Card = ({
               text="Open"
               variant="secondary"
               onClick={() => {
-                router.push(`/ofd/id/${data.id}`);
+                router.push(`/ofd/id/${id}`);
               }}
             ></tds-button>
           </div>
         </div>
-        <h3 className={styles.card__top__name}>{data.name}</h3>
-        <p className={styles.card__top__description}>{data.description}</p>
+        <h3 className={styles.card__top__name}>{name.split("/").pop()}</h3>
+        <p className={styles.card__top__description}>{description}</p>
       </div>
       <div className={styles.card__bottom}>
         <dl className={styles.card__data}>
           <dt className={styles.card__data__key}>State</dt>
-          <dd>{"Saved"}</dd>
+          <dd>{isDraft ? "Draft" : "Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>
-          <dd>{data.updatedAt.slice(0, 10)}</dd>
+          <dd>{convertToLocalTime(updatedAt)}</dd>
         </dl>
       </div>
       {/* Dialog modal */}

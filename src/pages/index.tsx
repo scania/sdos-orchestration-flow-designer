@@ -43,6 +43,7 @@ interface Flow {
   description: string;
   createdAt: Date;
   updatedAt: Date;
+  isDraft: Boolean;
 }
 
 function App({
