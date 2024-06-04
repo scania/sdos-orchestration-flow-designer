@@ -1,38 +1,25 @@
-// pages/api/graphs/index.ts
-
+import {
+  findUserByEmail,
+  handleError,
+  validateSession,
+} from "@/lib/backend/helper";
 import { GraphBody, graphSave } from "@/services/graphSchema";
 import { updateGraph } from "@/services/stardogService";
 import { generateJsonLdFromState } from "@/utils";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]";
 import prisma from "../../../lib/prisma";
 import logger from "@/lib/logger";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  //get session not working here, to be investigated
-  const session = await getServerSession(req, res, authOptions);
-  if (!session) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-  if (!session.user) {
-    res.status(401).json({ error: "User not found" });
-    return;
-  }
-  if (!session.user.email) {
-    res.status(401).json({ error: "User Email not found" });
-    return;
-  }
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  switch (req.method) {
-    case "POST":
-      try {
+  try {
+    const session = await validateSession(req, res);
+    if (!session || !session.user || !session.user.email) return;
+
+    const user = await findUserByEmail(session.user.email, res);
+    if (!user) return;
+
+    switch (req.method) {
+      case "POST":
         const parsedBody = graphSave.parse(req.body) as GraphBody;
         const { nodes, edges, graphName, description, isDraft } = parsedBody;
         if (!nodes || !edges) {
@@ -58,6 +45,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             userId: user.id,
           },
         });
+
         let response;
         if (existingFlow) {
           // Update the existing Flow
@@ -82,15 +70,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             },
           });
         }
+
         if (response) {
           res.status(200).json(response);
         }
-      } catch (error) {
-        res.status(400).json({ error: error });
-      }
-      break;
-    default:
-      res.status(405).json({ error: "Method not allowed." });
-      break;
+
+        break;
+      default:
+        res.status(405).json({ error: "Method not allowed." });
+        break;
+    }
+  } catch (error) {
+    handleError(error, res);
   }
 };
