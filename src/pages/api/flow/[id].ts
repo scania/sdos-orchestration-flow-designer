@@ -31,6 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         createdAt: true,
         updatedAt: true,
         userId: true,
+        isDraft: true,
       },
     });
 

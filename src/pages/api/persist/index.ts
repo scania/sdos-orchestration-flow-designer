@@ -7,6 +7,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import prisma from "../../../lib/prisma";
+import logger from "@/lib/logger";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   //get session not working here, to be investigated
@@ -33,13 +34,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     case "POST":
       try {
         const parsedBody = graphSave.parse(req.body) as GraphBody;
-        const { nodes, edges, graphName, description } = parsedBody;
+        const { nodes, edges, graphName, description, isDraft } = parsedBody;
         if (!nodes || !edges) {
           res.status(501).json({ error: "Nodes and Edges not found" });
           return;
         }
         const graphData = generateJsonLdFromState({ nodes, edges });
-        const response = await updateGraph(graphName, graphData); //saving to stardog
+
+        if (!isDraft) {
+          try {
+            await updateGraph(graphName, graphData); //saving to stardog
+            logger.info("saved to stardog");
+          } catch (error) {
+            logger.error("error saving to stardog");
+            res.status(501).json({ error: "Error Saving to Stardog" });
+          }
+        }
+
         // Check if a Flow with the same name exists for this user
         const existingFlow = await prisma.flow.findFirst({
           where: {
@@ -47,29 +58,33 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             userId: user.id,
           },
         });
-
+        let response;
         if (existingFlow) {
           // Update the existing Flow
-          await prisma.flow.update({
+          response = await prisma.flow.update({
             where: { id: existingFlow.id },
             data: {
               description: description || "",
               state: JSON.stringify({ nodes, edges }),
+              isDraft,
             },
           });
         }
 
         if (!existingFlow) {
-          await prisma.flow.create({
+          response = await prisma.flow.create({
             data: {
               name: graphName,
               description: description || "",
               state: JSON.stringify({ nodes, edges }),
               user: { connect: { id: user.id } },
+              isDraft,
             },
           });
         }
-        res.status(200).json(response);
+        if (response) {
+          res.status(200).json(response);
+        }
       } catch (error) {
         res.status(400).json({ error: error });
       }

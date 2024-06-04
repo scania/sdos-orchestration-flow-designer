@@ -120,11 +120,11 @@ Content-Type: application/json
 ### parse shacl
 GET {{baseUrl}}/api/parse-ttl/?className=HTTPAction
 
-### Save Graph
+### List Flows 
 GET  {{baseUrl}}/api/flows
 Content-Type: application/json
 
-### Get Graph
+### Get Flow with Id
 GET  {{baseUrl}}/api/flow/acadf73f-6008-46e6-a2c4-ae928bde315d
 Content-Type: application/json
 
@@ -133,5 +133,5 @@ DELETE {{baseUrl}}/api/flow/acadf73f-6008-46e6-a2c4-ae928bde315d
 Content-Type: application/json
 
 ### Check if name exists 
-GET  {{baseUrl}}/api/flow/name-exists/http%3A%2F%2Fexample.org%2Fasdfas
+GET  {{baseUrl}}/api/flow/name-exists/http%3A%2F%2Fexample.org%2test
 Content-Type: application/json
