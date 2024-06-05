@@ -61,42 +61,32 @@ const DropDownListDynamic = dynamic(() => Promise.resolve(DropDownListItems), {
 });
 
 const Header = () => {
+  const { data: session } = useSession();
+
   return (
     <tds-header>
       <tds-header-title>ORCHESTRATION FLOW DESIGNER BETA 1.0</tds-header-title>
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <tds-icon name="search"></tds-icon>
-        </div>
-      </tds-header-dropdown>
-
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <Link href="/settings">
-            <tds-icon name="settings"></tds-icon>
-          </Link>
-        </div>
-      </tds-header-dropdown>
-
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <tds-icon name="bento"></tds-icon>
-        </div>
-      </tds-header-dropdown>
-
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <img
-            src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
-            style={{ maxWidth: 'unset' }}
-            alt="User menu."
-          />
-        </div>
-        <tds-header-dropdown-list size="lg">
-          <DropDownListDynamic />
-        </tds-header-dropdown-list>
-      </tds-header-dropdown>
-
+      {session ? (
+        <>
+          <tds-header-item slot="end">
+              <Link href="/settings">
+                <tds-icon name="settings" size="22px"></tds-icon>
+              </Link>
+          </tds-header-item>
+          <tds-header-dropdown slot="end" no-dropdown-icon>
+            <div slot="icon">
+              <img
+                src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
+                style={{ maxWidth: "unset" }}
+                alt="User menu."
+              />
+            </div>
+            <tds-header-dropdown-list size="lg">
+              <DropDownListDynamic />
+            </tds-header-dropdown-list>
+          </tds-header-dropdown>
+        </>
+      ) : null}
       <tds-header-brand-symbol slot="end">
         <Link aria-label="Scania - red gryphon on blue shield" href="/"></Link>
       </tds-header-brand-symbol>
