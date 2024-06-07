@@ -118,7 +118,7 @@ export const setEdgeProperties = (
   //get source label
   const commonEdgeProps = {
     ...defaultParams,
-    markerEnd: { type: MarkerType.Arrow },
+    markerEnd: { type: MarkerType.Arrow, width: 32, height: 32 },
   };
   const pathName = path;
   const pathNameLabel = pathName?.split("/").pop() || "";
