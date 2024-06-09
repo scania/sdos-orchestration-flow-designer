@@ -1,3 +1,3 @@
-import FrontPage from "@/components/FrontPage";
+import FrontPage from "@/pages/auth/login";
 
 export default () => <FrontPage mode="logout" />;
