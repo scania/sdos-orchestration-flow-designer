@@ -93,9 +93,7 @@ function App({
     description: string;
   }) => {
     const { name, description } = data;
-
     clearErrors("name");
-
     const nameExists = await checkNameExists(name);
     if (nameExists) {
       setError("name", {
@@ -104,7 +102,6 @@ function App({
       });
       return;
     }
-
     router.push(
       {
         pathname: `/ofd/new`,
@@ -183,6 +180,7 @@ function App({
                       mode-variant={theme === "light" ? "primary" : "secondary"}
                       {...register("description")}
                     />
+                    <div style={{ marginTop: "28px" }} />
                     <span slot="actions">
                       <tds-button
                         size="md"
