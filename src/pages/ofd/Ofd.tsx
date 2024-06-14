@@ -458,6 +458,7 @@ const ForceGraphComponent: React.FC = ({
           setupMode={setupMode}
           graphName={router.query.graphName || graphName || ""}
           graphDescription={graphDescription}
+          searchString={searchString}
           setSearchString={setSearchString}
           selectedPrimaryCategory={selectedPrimaryCategory}
           setSelectedPrimaryCategory={setSelectedPrimaryCategory}
