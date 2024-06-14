@@ -31,6 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         createdAt: true,
         updatedAt: true,
         userId: true,
+        isDraft: true,
       },
     });
 
@@ -51,7 +52,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(200).json(flow);
 
       case "DELETE":
-        await deleteGraph(flow.name);
+        if (!flow.isDraft) {
+          await deleteGraph(flow.name);
+        }
+
         const deleteFlow = await prisma.flow.delete({
           where: {
             id: id as string,
