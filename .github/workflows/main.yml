@@ -3,12 +3,12 @@ on:
   push:
     branches:
       - "**"
-      -"!develop"
-      -"!main"
+      - "!develop"
+      - "!main"
   pull_request:
     branches:
       - "**"
-      -"!main"
+      - "!main"
   workflow_dispatch:
 
 permissions:
