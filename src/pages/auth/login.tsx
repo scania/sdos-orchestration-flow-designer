@@ -1,7 +1,7 @@
 import Link from "@/components/Link";
 import { signIn } from "next-auth/react";
 import React from "react";
-import styles from "./FrontPage.module.scss";
+import styles from "./login.module.scss";
 type Mode = "login" | "logout";
 interface FrontPageProps {
   mode: Mode;
@@ -14,7 +14,7 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
         <div className={styles.login__title}>
           {mode === "logout" ? (
             <h3
-              className={`tds-headline-03 tds-text-grey-600 ${styles.login__title}`}
+              className={`tds-headline-03 ${styles.login__title}`}
             >
               You have been signed out
             </h3>
@@ -32,7 +32,6 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
           )}
         </div>
         <tds-divider orientation="horizontal"></tds-divider>
-
         <div className={styles.login__signInButton}>
           <tds-button
             type="button"
@@ -51,10 +50,9 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
           </Link>
         </div>
         <div className={styles.login__leftPane__bottom}>
-          <div className={styles.login__spacer}></div>
           <div>
-            <a href="#" className={styles.login__leftPane__link}>
-              Knowledge graph as a service
+            <a href="https://it.reflex.scania.com/00005/ontology.html" target="_blank" className={`tds-body-02 ${styles.login__leftPane__link}`}>
+              About Knowledge graph as a service
             </a>
             <tds-icon
               name="redirect"
@@ -66,26 +64,23 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
       </div>
 
       <div className={styles.login__rightPane}>
-        <div className={styles.login__rightPane__text}>
+        <div className={`tds-text-grey-50 ${styles.login__rightPane__text}`}>
           <h1
-            className="tds-headline-01 tds-text-grey-50"
-            style={{ fontSize: 50 }}
+            className="tds-expressive-headline-02"
           >
             WELCOME TO OUR ORCHESTRATION SERVICE
           </h1>
-          <h3 className="tds-headline-03 tds-text-grey-50">
+          <h3 className="tds-headline-04">
             A part of knowledge graphs as a service.
           </h3>
           <p
-            className="tds-body-01 tds-text-grey-50"
-            style={{ fontWeight: 400 }}
+            className="tds-body-01"
           >
             Through this application, you are able to use our orchestration
             service and create an orchestration flow graph.
           </p>
           <p
-            className="tds-body-01 tds-text-grey-50"
-            style={{ fontWeight: 400 }}
+            className="tds-body-01"
           >
             The result lets us complete the knowledge graph by collecting all
             relevant data within Scania.
