@@ -113,6 +113,8 @@ describe("Api testing", () => {
   it("fetches list of Classes used in OFD", () => {
     cy.request("/api/classes").then((response) => {
       expect(response.status).to.eq(200);
+      cy.log('status:', response);
+      console.log('status: ' + response);
     });
   });
 

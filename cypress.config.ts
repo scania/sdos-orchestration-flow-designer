@@ -40,6 +40,8 @@ export default defineConfig({
   viewportHeight: 1080,
   viewportWidth: 1920,
   video: false,
+  pageLoadTimeout: 60000,
+  "chromeWebSecurity": false,
 
   // Reporter config
   reporter: "cypress-mochawesome-reporter",
@@ -60,7 +62,7 @@ export default defineConfig({
     setupNodeEvents,
     specPattern: [
       "cypress/features/**/*.feature",
-      "cypress/integration/**/*.test.ts",
+      "cypress/integration/**/*.test.ts"
     ],
     baseUrl: BASE_URL,
     experimentalModifyObstructiveThirdPartyCode: true,
