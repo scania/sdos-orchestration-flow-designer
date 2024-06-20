@@ -14,7 +14,7 @@ export async function getServerSideProps(context: any) {
   }
   return {
     props: {
-      apiBaseUrl: env.NEXTAUTH_URL,
+      apiBaseUrl: env.BASE_URL,
     },
   };
 }

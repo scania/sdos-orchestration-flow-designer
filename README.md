@@ -57,13 +57,19 @@ These three env variables should be added as part of authenticating the user in 
 
 ### Next.js Configuration
 
-- `NEXTAUTH_URL` - The URL of your Next.js application, used for authentication callbacks.
+- `BASE_URL` - The URL of your Next.js application, used for authentication callbacks.
 - `NEXT_PUBLIC_API_BASE_URL` - The base URL of your API, accessible from the client side.
 
 ### Application Logging and Environment Mode
 
 - `LOG_LEVEL` - Optional. Sets the level of logging detail (e.g., `debug`, `info`, `warn`, `error`).
 - `NODE_ENV` - Optional. Explicitly Specifies the environment in which the application is running. Acceptable values are `development`, `test`, `production`.
+
+### Testing
+
+- `TEST_USERNAME` - Optional. Username of test user used for e2e testing using cypress
+- `TEST_PASSWORD` - Optional. Password of test user used for e2e testing using cypress
+- `TEST_BASE_URL` - Optional. Base URL of test environment used for e2e testing using cypress. Test uses BASE_URL if missing
 
 Example `.env.local` file:
 
@@ -74,8 +80,11 @@ AZURE_AD_TENANT_ID=your-azure-ad-tenant-id
 STARDOG_USERNAME=your-stardog-username
 STARDOG_PASSWORD=your-stardog-password
 STARDOG_ENDPOINT=your-stardog-endpoint
-NEXTAUTH_URL=http://localhost:3000
+BASE_URL=http://localhost:3000
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+TEST_USERNAME=your-test-username
+TEST_PASSWORD=your-test-password
+TEST_BASE_URL=http://localhost:3000
 ```
 
 ### Getting started to run the development server

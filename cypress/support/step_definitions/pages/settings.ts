@@ -50,6 +50,10 @@ When( "dark mode is toggled", () => {
     cy.get("div.mode-switcher > tds-toggle > div > input").uncheck({force: true});
 });
 
+When( "home button is clicked", () => {
+    cy.get('[title-text="Pages"] > :nth-child(1) > a').click({force: true, multiple: true});
+});
+
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -64,7 +68,7 @@ Then( "the settings button should be visible", () => {
 
 
 Then( "the settings page should be in view", () => {
-    cy.get("h1").contains("Settings");
+    cy.contains('h1', 'Settings').should("exist");
 });
 
 

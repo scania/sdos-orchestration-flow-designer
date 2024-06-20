@@ -84,6 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   return (
                     <div
                       draggable
+                      id={className}
                       key={index}
                       onClick={() => setHighlightedClassLabel(className)}
                       onDragStart={(e) => handleOnDrag(e, className)}
