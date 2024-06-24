@@ -4,6 +4,12 @@ import Tabs from "@/components/Tabs/Tabs";
 import { ObjectProperties } from "@/utils/types";
 import React, { useState } from "react";
 import styles from "./ofd.module.scss";
+import {
+  TdsButton,
+  TdsIcon,
+  TdsTextField,
+  TdsDivider,
+} from "@scania/tegel-react";
 
 type SidebarProps = {
   showExtendedPanel: boolean;
@@ -101,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                               : ""
                           }`}
                         >
-                          <tds-icon name="double_kebab" size="16px"></tds-icon>
+                          <TdsIcon name="double_kebab" size="16px"></TdsIcon>
                         </div>
                         <span className={styles.classes__class__content__label}>
                           {className}
@@ -123,22 +129,22 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className={styles.sidebar__type_and_toggle}>
           <h6 className={styles["tds-detail-06"]}>Private</h6>
           {/* This still needs replacing with dynamic content */}
-          <tds-icon
+          <TdsIcon
             onClick={() => setShowExtendedPanel(!showExtendedPanel)}
             slot="icon"
             size="20px"
             name={showExtendedPanel ? "chevron_up" : "chevron_down"}
-          ></tds-icon>
+          ></TdsIcon>
         </div>
         <h3 className={styles.sidebar__primaryHeading}>{graphName || ""}</h3>
         <p className={styles.sidebar__description}>{graphDescription}</p>
       </div>
       {showExtendedPanel && !setupMode ? (
         <>
-          <tds-divider orientation="horizontal"></tds-divider>
+          <TdsDivider orientation="horizontal"></TdsDivider>
           <div className={styles.sidebar__search}>
             <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
-            <tds-text-field
+            <TdsTextField
               className={styles["tds-text-field"]}
               placeholder="Search..."
               value={searchString}
@@ -163,10 +169,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         </>
       ) : showExtendedPanel && setupMode ? (
         <>
-          <tds-divider orientation="horizontal"></tds-divider>
+          <TdsDivider orientation="horizontal"></TdsDivider>
           <div className={styles.sidebar__search}>
             <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
-            <tds-text-field
+            <TdsTextField
               className={styles["tds-text-field"]}
               placeholder="Search..."
               value={searchString}
@@ -195,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className={styles.sidebar__chips}>
             {renderSecondaryClasses()}
             <div className={styles.classes__footer}>
-              <tds-button
+              <TdsButton
                 type="button"
                 variant="primary"
                 size="sm"
@@ -203,8 +209,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                 disabled={!highlightedClassLabel}
                 onClick={addToGraph}
               >
-                <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
-              </tds-button>
+                <TdsIcon slot="icon" size="16px" name="plus"></TdsIcon>
+              </TdsButton>
             </div>
           </div>
         </>

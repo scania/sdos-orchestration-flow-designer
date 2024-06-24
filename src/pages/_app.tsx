@@ -5,6 +5,9 @@ import type { AppProps } from "next/app";
 import "../stencil-components";
 import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { defineCustomElements } from "@scania/tegel-react";
+
+defineCustomElements();
 
 const queryClient = new QueryClient();
 

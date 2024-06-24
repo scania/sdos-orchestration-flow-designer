@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import React, { useEffect, useMemo, useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import styles from "./ofd.module.scss";
-import { defineCustomElements, TdsTextarea } from "@scania/tegel-react";
+import { TdsTextarea } from "@scania/tegel-react";
 import { DynamicFormProps, FormField, IFormInput } from "@/utils/types";
-defineCustomElements();
 
 // Helper functions for encoding and decoding
 const replaceSpecialChars = (str: string) => str.replace(/[/.]/g, "_");

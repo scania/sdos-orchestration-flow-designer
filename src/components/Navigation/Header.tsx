@@ -1,79 +1,35 @@
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
+import {
+  TdsHeader,
+  TdsIcon,
+  TdsHeaderDropdownList,
+  TdsHeaderTitle,
+  TdsHeaderBrandSymbol,
+  TdsHeaderDropdown,
+  TdsHeaderItem,
+} from "@scania/tegel-react";
 
-const DropDownListItems = () => {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const handleLogout = (e: any) => {
-    e.preventDefault();
-    signOut({ callbackUrl: "/auth/logout" });
-  };
-
-  return (
-    <>
-      {session ? (
-        <>
-          <tds-header-dropdown-list-user
-            header={session?.user?.name || ""}
-            subheader="Admin"
-          ></tds-header-dropdown-list-user>
-          <tds-header-dropdown-list-item
-            onClick={() => {
-              router.push("/settings");
-            }}
-          >
-            <Link href="settings">
-              <tds-icon name="settings"></tds-icon>
-              <div className="tds-u-pl1">Settings</div>
-            </Link>
-          </tds-header-dropdown-list-item>
-          <tds-header-dropdown-list-item>
-            <Link href="help">
-              <tds-icon name="info"></tds-icon>
-              <div className="tds-u-pl1">Need Help?</div>
-            </Link>
-          </tds-header-dropdown-list-item>
-          <tds-header-dropdown-list-item onClick={handleLogout}>
-            <Link href="#" passHref>
-              <div style={{ display: "inline-block" }}>
-                <tds-icon
-                  name="profile_inactive"
-                  style={{ display: "inline-block" }}
-                ></tds-icon>
-                <div className="tds-u-pl1" style={{ display: "inline-block" }}>
-                  Logout
-                </div>
-              </div>
-            </Link>
-          </tds-header-dropdown-list-item>
-        </>
-      ) : (
-        <></>
-      )}
-    </>
-  );
-};
-
-const DropDownListDynamic = dynamic(() => Promise.resolve(DropDownListItems), {
+const DropDownListDynamic = dynamic(() => import("./DropDownListItems"), {
   ssr: false,
 });
 
-const Header = () => {
-  const { data: session } = useSession();
+const Header: React.FC = () => {
+  const { data: session, status } = useSession();
+  const isLoading = status === "loading";
 
   return (
-    <tds-header>
-      <tds-header-title>ORCHESTRATION FLOW DESIGNER BETA 1.0</tds-header-title>
-      {session ? (
+    <TdsHeader>
+      <TdsHeaderTitle>ORCHESTRATION FLOW DESIGNER BETA 1.0</TdsHeaderTitle>
+      {!isLoading && session && (
         <>
-          <tds-header-item slot="end">
-              <Link href="/settings">
-                <tds-icon name="settings" size="22px"></tds-icon>
-              </Link>
-          </tds-header-item>
-          <tds-header-dropdown slot="end" no-dropdown-icon>
+          <TdsHeaderItem slot="end">
+            <Link href="/settings">
+              <TdsIcon name="settings" size="22px" />
+            </Link>
+          </TdsHeaderItem>
+          <TdsHeaderDropdown slot="end" no-dropdown-icon>
             <div slot="icon">
               <img
                 src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
@@ -81,16 +37,18 @@ const Header = () => {
                 alt="User menu."
               />
             </div>
-            <tds-header-dropdown-list size="lg">
-              <DropDownListDynamic />
-            </tds-header-dropdown-list>
-          </tds-header-dropdown>
+            <TdsHeaderDropdownList size="lg">
+              <DropDownListDynamic session={session} />
+            </TdsHeaderDropdownList>
+          </TdsHeaderDropdown>
         </>
-      ) : null}
-      <tds-header-brand-symbol slot="end">
-        <Link aria-label="Scania - red gryphon on blue shield" href="/"></Link>
-      </tds-header-brand-symbol>
-    </tds-header>
+      )}
+      <TdsHeaderBrandSymbol slot="end">
+        <Link href="/" aria-label="Scania - red gryphon on blue shield">
+          <></>
+        </Link>
+      </TdsHeaderBrandSymbol>
+    </TdsHeader>
   );
 };
 
