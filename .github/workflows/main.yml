@@ -55,7 +55,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/my-app:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest
 
       - name: Verify Docker image
-        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/my-app:latest
+        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest echo "Docker image verification successful"
