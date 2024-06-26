@@ -37,6 +37,8 @@ jobs:
 
   BuildAndPushDockerImage:
     runs-on: ubuntu-latest
+    environment:
+      - name: develop
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
