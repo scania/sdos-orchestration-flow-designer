@@ -36,21 +36,21 @@
     "reactflow": "^11.10.1",
     "sass": "^1.66.1",
     "stardog": "^5.2.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@types/node": "20.5.0",
+    "typescript": "5.1.6"
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^20.0.5",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
     "@types/jsonld": "^1.5.13",
     "@types/n3": "^1.16.4",
-    "@types/node": "20.5.0",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
     "cypress": "^13.9.0",
     "cypress-mochawesome-reporter": "^3.6.0",
     "prisma": "^5.14.0",
-    "storybook": "^7.3.1",
-    "typescript": "5.1.6"
+    "storybook": "^7.3.1"
   },
   "cypress-cucumber-preprocessor": {
     "filterSpecs": true,
