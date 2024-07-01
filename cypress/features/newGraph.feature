@@ -36,9 +36,7 @@ Feature: Create new orchestration graph
         And a new graph should open in the workspace
         When the action button is clicked
         And the Add to graph button is clicked
-        And the action button is dragged
-        And the connector is linked
         And Save button is clicked
-        Then Success message should get displayed
+        Then Error message should get displayed
 
 

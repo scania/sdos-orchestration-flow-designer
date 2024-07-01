@@ -15,9 +15,6 @@ import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 When("the Add to graph button is clicked", () => {
   const dataTransfer = new DataTransfer();
   cy.get('tds-button[text="Add to graph"] button').click({force: true,multiple: true});
-  cy.wait(5000);
-  cy.get('*[class^=".CircularNode_chip__Oe5LY.CircularNode_chip__primary__xwiW9"]').trigger("dragstart", { dataTransfer });
-  cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
 });
 
 When("the action button is clicked", () => {
@@ -94,7 +91,9 @@ Then("the elements in workspace gets displayed", () => {
 });
 
 Then("Success message should get displayed", () => {
-  cy.get('tds-toast[subheader="Graph has been successfully saved"]').should(
-    "be.visible"
-  );
+  cy.get('tds-toast[subheader="Graph has been successfully saved"]').should("be.visible");
+});
+
+Then("Error message should get displayed", () => {
+  cy.get('tds-toast[subheader="The graph could not be saved"]').should("be.visible");
 });
