@@ -12,6 +12,7 @@ type SidebarProps = {
   graphName: any;
   graphDescription: string;
   setSearchString: (value: string) => void;
+  searchString: string;
   selectedPrimaryCategory: string;
   setSelectedPrimaryCategory: (value: string) => void;
   renderClasses: () => JSX.Element;
@@ -29,10 +30,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   graphName,
   graphDescription,
   setSearchString,
+  searchString,
   selectedPrimaryCategory,
   setSelectedPrimaryCategory,
   renderClasses,
-  secondaryProperties,
+  secondaryProperties = [],
   highlightedClassLabel,
   setHighlightedClassLabel,
   handleOnDrag,
@@ -119,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     <aside className={styles.sidebar}>
       <div className={styles.sidebar__header}>
         <div className={styles.sidebar__type_and_toggle}>
-          <h6 className={styles["tds-detail-06"]}>Private</h6>{" "}
+          <h6 className={styles["tds-detail-06"]}>Private</h6>
           {/* This still needs replacing with dynamic content */}
           <tds-icon
             onClick={() => setShowExtendedPanel(!showExtendedPanel)}
@@ -139,6 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <tds-text-field
               className={styles["tds-text-field"]}
               placeholder="Search..."
+              value={searchString}
               onInput={(e: { currentTarget: { value: string } }) =>
                 setSearchString(e.currentTarget.value)
               }
@@ -166,6 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <tds-text-field
               className={styles["tds-text-field"]}
               placeholder="Search..."
+              value={searchString}
               onInput={(e: { currentTarget: { value: string } }) =>
                 setSearchString(e.currentTarget.value)
               }

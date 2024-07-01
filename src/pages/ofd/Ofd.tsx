@@ -1,7 +1,7 @@
-import Toast from "@/components/Toast/Toast";
 import { GraphBody } from "@/services/graphSchema";
 import {
   generateClassId,
+  initializeNodes,
   getPaths,
   isValidConnection,
   setEdgeProperties,
@@ -20,13 +20,13 @@ import React, {
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
 import ReactFlow, {
+  addEdge,
   Background,
   Connection,
   Controls,
   Edge,
   Node,
   ReactFlowProvider,
-  addEdge,
   useEdgesState,
   useKeyPress,
   useNodesState,
@@ -34,91 +34,27 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
+import GraphOptions from "../../components/GraphOptions/GraphOptions";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
+import { captureCursorPosition } from "../../lib/frontend/helper";
+import Toast from "@/components/Toast/Toast";
 
-const initialNodes = [
-  {
-    id: generateClassId(),
-    type: "input",
-    data: {
-      label: "Task",
-      formData: {
-        className: "Task",
-        objectProperties: [
-          {
-            shape: "https://kg.scania.com/it/iris_orchestration/hasActionShape",
-            minCount: 1,
-            path: "https://kg.scania.com/it/iris_orchestration/hasAction",
-            className: "https://kg.scania.com/it/iris_orchestration/Action",
-            subClasses: [
-              "https://kg.scania.com/it/iris_orchestration/HTTPAction",
-              "https://kg.scania.com/it/iris_orchestration/ResultAction",
-              "https://kg.scania.com/it/iris_orchestration/SOAPAction",
-              "https://kg.scania.com/it/iris_orchestration/ScriptAction",
-              "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-              "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
-            ],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/inputParameterShape_optional",
-            minCount: 0,
-            path: "https://kg.scania.com/it/iris_orchestration/inputParameter",
-            className: "https://kg.scania.com/it/iris_orchestration/Parameter",
-            subClasses: [
-              "https://kg.scania.com/it/iris_orchestration/BasicCredentialsParameter",
-              "https://kg.scania.com/it/iris_orchestration/HTTPParameter",
-              "https://kg.scania.com/it/iris_orchestration/StandardParameter",
-              "https://kg.scania.com/it/iris_orchestration/TokenCredentialsParameter",
-            ],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/hasMetadataShape",
-            path: "",
-            className: "",
-            subClasses: [],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/hasContextShape",
-            minCount: 0,
-            path: "https://kg.scania.com/it/iris_orchestration/hasContext",
-            className:
-              "https://kg.scania.com/it/iris_orchestration/JsonLdContext",
-            subClasses: [],
-            maxCount: 1,
-          },
-        ],
-        formFields: [
-          {
-            name: "https://kg.scania.com/it/iris_orchestration/label",
-            type: "text",
-            label: "Label",
-            value: "",
-            validation: {
-              required: true,
-              minLength: 1,
-              maxLength: 50,
-              message: "Label must be a string with 1 to 50 characters",
-            },
-          },
-        ],
-      },
-    },
-    position: { x: 0, y: 0 },
-    sourcePosition: "right",
-  },
-];
+const initialNodes = initializeNodes();
 const nodeTypes = {
   input: CircularNode,
   output: CircularNode,
   default: CircularNode,
 };
 
-const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
+const ForceGraphComponent: React.FC = ({
+  apiBaseUrl,
+  description,
+  graphName,
+  initEdges,
+  initNodes,
+}: any) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -128,7 +64,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState([]);
-  const [graphDescription, setGraphDescription] = useState("");
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
@@ -145,6 +80,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
   >(null);
+  const graphDescription = description || router.query.description || "";
   const [targetNodePosition, setTargetNodePosition] = useState<any>({
     x: 0,
     y: 0,
@@ -194,7 +130,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
   };
 
   const secondaryProperties = useMemo(() => {
-    const cachedData = selectedNode?.data.formData?.objectProperties;
+    const cachedData = selectedNode?.data.formData?.objectProperties || [];
     if (cachedData) {
       // Process cachedData as needed, excluding connectors for main flow
       return cachedData.filter(
@@ -227,19 +163,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     },
   });
 
-  // Using this to prevent graphDescription to be null on page refresh
-  useEffect(() => {
-    if (localStorage.getItem("graphDescription")) {
-      setGraphDescription(localStorage.getItem("graphDescription") as string);
-    } else if (router.query.description) {
-      setGraphDescription(router.query.description as string);
-      localStorage.setItem(
-        "graphDescription",
-        router.query.description as string
-      );
-    }
-  }, [router.query.description, router]);
-
   function filteredPrimaryClasses(classes: any) {
     const filteredPrimaryClasses = classes.filter(
       (item: any) =>
@@ -261,7 +184,23 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     const payload = {
       nodes,
       edges,
-      graphName: `http://example.org/${router.query?.graphName || "Private"}`,
+      graphName: `http://example.org/${
+        router.query?.graphName || graphName || "Private"
+      }`,
+      description: graphDescription,
+      isDraft: false,
+    };
+    mutation.mutate(payload);
+  };
+  const handleDraftClick = () => {
+    const payload = {
+      nodes,
+      edges,
+      graphName: `http://example.org/${
+        router.query?.graphName || graphName || "Private"
+      }`,
+      description: graphDescription,
+      isDraft: true,
     };
     mutation.mutate(payload);
   };
@@ -285,15 +224,6 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     setSetupMode(false);
   }, [setSelectedNode, setSetupMode]);
 
-  const captureCursorPosition = () => {
-    const handleMouseMove = (event: { clientX: any; clientY: any }) => {
-      setTargetNodePosition({ x: event.clientX, y: event.clientY });
-      // Remove listener immediately after capturing position
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-  };
-
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
       const sourceNode = nodes.find((node) => node.id === params.source);
@@ -308,7 +238,7 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
       }
       setConnectionParams(params);
       setEdgeSelections([...paths.map((item) => item.split("/").pop() || "")]);
-      captureCursorPosition();
+      captureCursorPosition(setTargetNodePosition);
       return;
     },
     [nodes]
@@ -358,6 +288,18 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
     },
     [reactFlowInstance]
   );
+  useEffect(() => {
+    // Initialize state from props if they are provided and not empty
+    if (
+      initNodes &&
+      initEdges &&
+      initNodes.length > 0 &&
+      initEdges.length > 0
+    ) {
+      setNodes(initNodes);
+      setEdges(initEdges);
+    }
+  }, [initNodes, initEdges]);
 
   useEffect(() => {
     if (classDetails && isPendingClassDetailsAction && dropInfo) {
@@ -490,7 +432,20 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
           </Link>
         </div>
         <div>
-          <span className={styles.page__header__options}>Options</span>
+          <GraphOptions
+            selector="#graph-options"
+            graphDescription={graphDescription}
+            graphName={router.query.graphName || graphName || ""}
+          />
+          <span id="graph-options" className={styles.page__header__options}>
+            Options
+          </span>
+          <span
+            className={styles.page__header__save}
+            onClick={handleDraftClick}
+          >
+            Save Draft
+          </span>
           <span className={styles.page__header__save} onClick={handleSaveClick}>
             Save
           </span>
@@ -501,8 +456,9 @@ const ForceGraphComponent: React.FC = ({ apiBaseUrl }: any) => {
           showExtendedPanel={showExtendedPanel}
           setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
-          graphName={router.query.graphName || ""}
+          graphName={router.query.graphName || graphName || ""}
           graphDescription={graphDescription}
+          searchString={searchString}
           setSearchString={setSearchString}
           selectedPrimaryCategory={selectedPrimaryCategory}
           setSelectedPrimaryCategory={setSelectedPrimaryCategory}

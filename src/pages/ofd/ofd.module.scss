@@ -10,10 +10,11 @@
     }
 
     &__options {
-      margin-right: 20px;
+      cursor: pointer;
     }
 
     &__save {
+      margin-left: 20px;
       cursor: pointer;
     }
   }

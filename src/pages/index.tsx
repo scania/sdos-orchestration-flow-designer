@@ -1,12 +1,15 @@
-import Button from "@/components/Button";
-import Card from "@/components/Card";
-import Panel from "@/components/Tabs/Panel";
-import Tabs from "@/components/Tabs/Tabs";
-import { useTheme } from "@/context/ThemeProvider";
-import { getSession, useSession } from "next-auth/react";
+import { env } from "@/lib/env";
+import { useState } from "react";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { FormEvent, useState } from "react";
+import { useTheme } from "@/context/ThemeProvider";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import Button from "@/components/Button";
+import Card from "@/components/Card/Card";
+import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
+import Tabs from "@/components/Tabs/Tabs";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -19,45 +22,104 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
+  const baseUrl = env.NEXTAUTH_URL;
+  const response = await axios.get(`${baseUrl}/api/flows`, {
+    headers: {
+      cookie: context.req.headers.cookie, // Forward the session cookie
+    },
+  });
+  const initialFlows = response.data;
+
   return {
-    props: {},
+    props: {
+      baseUrl,
+      initialFlows,
+    },
   };
 }
 
-function App() {
+interface Flow {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isDraft: Boolean;
+}
+
+function App({
+  initialFlows,
+  baseUrl,
+}: {
+  initialFlows: Flow[];
+  baseUrl: string;
+}) {
   const { theme } = useTheme();
-  const [cardCount, setCardCount] = useState<number>(7);
-  const { data: session } = useSession();
-  const [errorState, setErrorState] = useState<boolean>(false);
-  const [nameInput, setNameInput] = useState<string>("");
-  const [descInput, setDescInput] = useState<string>("");
+  const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm();
 
-  const renderCards = () =>
-    new Array(cardCount)
-      .fill(null)
-      .map((item, index) => <Card key={index}></Card>);
-
-  const handleName = (event: FormEvent<HTMLTdsTextFieldElement>) => {
-    setNameInput(event.currentTarget.value);
+  const fetchFlows = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/flows`);
+      setFlows(response.data);
+    } catch (error) {
+      console.error("Failed to fetch flows:", error);
+    }
   };
 
-  const handleDesc = (event: FormEvent<HTMLTdsTextareaElement>) => {
-     setDescInput(event.currentTarget.value);
-   };
+  const checkNameExists = async (name: string): Promise<boolean> => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/flow/name-exists/${encodeURIComponent(
+          `http://example.org/${name}`
+        )}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to check if name exists:", error);
+      return false;
+    }
+  };
 
-  const createNewGraph = () => {
-    localStorage.removeItem("graphDescription");
-    if (nameInput == "") {
-      setErrorState(true);
-    } else {
-      /* Navigate to workspace page */
+  const createNewGraph = async (data: {
+    name: string;
+    description: string;
+  }) => {
+    const { name, description } = data;
+    clearErrors("name");
+    const nameExists = await checkNameExists(name);
+    if (nameExists) {
+      setError("name", {
+        type: "manual",
+        message: "graph name already exists",
+      });
+      return;
+    }
+    router.push(
+      {
+        pathname: `/ofd/new`,
+        query: {
+          graphName: name.replace(/\s+/g, "-"),
+          description,
+        },
+      },
+      `/ofd/new`
+    );
+  };
 
-      setErrorState(false);
-      router.push({
-        pathname: `/ofd/${nameInput.replace(/\s+/g, "-")}`,
-        query: { description: descInput }
-      }, `/ofd/${nameInput.replace(/\s+/g, "-")}`)
+  const deleteGraph = async (id: string) => {
+    try {
+      await axios.delete(`${baseUrl}/api/flow/${id}`);
+      await fetchFlows(); // Fetch the updated flows after deletion
+    } catch (error) {
+      console.error("Failed to delete graph:", error);
     }
   };
 
@@ -93,37 +155,41 @@ function App() {
                   Create new graph
                 </h5>
                 <span slot="body">
-                  <tds-text-field
-                    id="modal-name-field"
-                    placeholder="Name"
-                    size="sm"
-                    mode-variant={theme == "light" ? "primary" : "secondary"}
-                    helper={
-                      errorState && nameInput == ""
-                        ? "To continue, please give the graph a name."
-                        : ""
-                    }
-                    state={errorState && nameInput == "" ? "error" : "default"}
-                    onInput={handleName}
-                  />
-                  <div style={{ marginTop: "28px" }} />
-                  <tds-textarea
-                    id="modal-description-area"
-                    placeholder="Description"
-                    rows={4}
-                    mode-variant={theme == "light" ? "primary" : "secondary"}
-                    state={errorState && descInput == "" ? "error" : "default"}
-                    onInput={handleDesc}
-                  />
-                </span>
-                <span slot="actions">
-                  <tds-button
-                    size="md"
-                    text="Create"
-                    type="submit"
-                    modeVariant="primary"
-                    onClick={createNewGraph}
-                  />
+                  <form onSubmit={handleSubmit(createNewGraph)}>
+                    <tds-text-field
+                      id="modal-name-field"
+                      placeholder="Name"
+                      size="sm"
+                      mode-variant={theme === "light" ? "primary" : "secondary"}
+                      helper={errors.name ? errors.name.message : ""}
+                      state={errors.name ? "error" : "default"}
+                      {...register("name", {
+                        required: "graph name is required",
+                        pattern: {
+                          value: /^[a-zA-Z0-9\s]+$/,
+                          message:
+                            "graph name cannot contain special characters",
+                        },
+                      })}
+                    />
+                    <div style={{ marginTop: "28px" }} />
+                    <tds-textarea
+                      id="modal-description-area"
+                      placeholder="Description"
+                      rows={4}
+                      mode-variant={theme === "light" ? "primary" : "secondary"}
+                      {...register("description")}
+                    />
+                    <div style={{ marginTop: "28px" }} />
+                    <span slot="actions">
+                      <tds-button
+                        size="md"
+                        text="Create"
+                        type="submit"
+                        modeVariant="primary"
+                      />
+                    </span>
+                  </form>
                 </span>
               </tds-modal>
               <Button type="button" variant="secondary">
@@ -132,20 +198,27 @@ function App() {
               </Button>
             </div>
 
-            <h2 className={styles["content__headingcontent"]}>In Focus</h2>
+            <h2 className={styles["content__headingContent"]}>Graphs</h2>
 
             <div className={styles["content__main__cards"]}>
-              {renderCards()}
+              {flows && !!flows.length ? (
+                <>
+                  {flows.map((flow) => (
+                    <Card
+                      key={flow.id}
+                      data={flow}
+                      confirmLabel="Do you wish to delete this graph?"
+                      confirmFunction={deleteGraph}
+                      confirmButtonLabel="Delete graph"
+                    />
+                  ))}
+                </>
+              ) : (
+                <h5>No saved graphs found</h5>
+              )}
             </div>
-
             <div className={styles["content__main__line"]}>
               <tds-divider orientation="horizontal"></tds-divider>
-            </div>
-
-            <h2 className={styles["content__headingcontent"]}>Other</h2>
-
-            <div className={styles["content__main__cards"]}>
-              {renderCards()}
             </div>
           </div>
         </div>

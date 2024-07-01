@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import NextAuth from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "../../../lib/prisma";
 import { env } from "../../../lib/env";
 
 export const authOptions = {
@@ -11,11 +13,11 @@ export const authOptions = {
       tenantId: env.OFD_AZURE_AD_TENANT_ID,
     }),
   ],
-  //this needs to be in .env for production, used to encrypt tokens
   secret: env.NEXTAUTH_SECRET,
+  adapter: PrismaAdapter(prisma),
   pages: {
-    signIn: "auth/login",
-    signOut: "auth/logout",
+    signIn: "/auth/login",
+    signOut: "/auth/logout",
   },
 };
 

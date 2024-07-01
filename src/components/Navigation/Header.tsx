@@ -88,7 +88,7 @@ const Header = () => {
         <div slot="icon">
           <img
             src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
-            style={{ maxWidth: 'unset' }}
+            style={{ maxWidth: "unset" }}
             alt="User menu."
           />
         </div>
@@ -96,7 +96,6 @@ const Header = () => {
           <DropDownListDynamic />
         </tds-header-dropdown-list>
       </tds-header-dropdown>
-
       <tds-header-brand-symbol slot="end">
         <Link aria-label="Scania - red gryphon on blue shield" href="/"></Link>
       </tds-header-brand-symbol>
