@@ -1,11 +1,8 @@
 name: Build and Publish Docker Image
 on:
   push:
-    branches:
-      - master
-      - develop
-  workflow_dispatch:
-
+    tags:
+      - "*"
 permissions:
   contents: read
   id-token: write
@@ -31,7 +28,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ github.ref_name }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest
 
       - name: Verify Docker image
-        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest echo "Docker image verification successful"
+        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ github.ref_name }} echo "Docker image verification successful"
