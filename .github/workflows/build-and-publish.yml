@@ -1,8 +1,10 @@
 name: Build and Publish Docker Image
 on:
-  push:
-    tags:
-      - "*"
+  workflow_run:
+    workflows: ["License Scan"]
+    types:
+      - completed
+
 permissions:
   contents: read
   id-token: write
