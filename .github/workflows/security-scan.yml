@@ -1,14 +1,11 @@
 name: (Security) Secret Scan
+
 on:
   push:
-    branches:
-      - "**"
     branches-ignore:
       - develop
       - main
   pull_request:
-    branches:
-      - "**"
     branches-ignore:
       - develop
       - main
