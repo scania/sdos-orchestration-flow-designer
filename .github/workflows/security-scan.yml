@@ -1,9 +1,17 @@
 name: (Security) Secret Scan
 on:
   push:
-    branches: "**"
+    branches:
+      - "**"
+    branches-ignore:
+      - develop
+      - main
   pull_request:
-    branches: "**"
+    branches:
+      - "**"
+    branches-ignore:
+      - develop
+      - main
   workflow_dispatch:
 
 permissions:
