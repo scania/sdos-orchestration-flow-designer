@@ -1,6 +1,5 @@
 {
   "name": "orchestration-flow-designer",
-  "version": "0.1.0",
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
@@ -12,13 +11,15 @@
     "build-storybook": "storybook build",
     "test": "npx cypress run",
     "cypress": "npx cypress open",
-    "prestart": "node validateEnv.js"
+    "prestart": "node validateEnv.js",
+    "check-licenses": "node checkLicenseCompatibility.js"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
     "@prisma/client": "^5.14.0",
     "@scania/tegel": "^0.0.11",
     "@scania/tegel-react": "^1.6.1",
+    "@types/node": "20.5.0",
     "axios": "^1.6.1",
     "classnames": "^2.3.2",
     "dotenv": "^16.3.1",
@@ -36,9 +37,8 @@
     "reactflow": "^11.10.1",
     "sass": "^1.66.1",
     "stardog": "^5.2.0",
-    "zod": "^3.23.8",
-    "@types/node": "20.5.0",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^20.0.5",
@@ -49,6 +49,7 @@
     "@types/react-dom": "18.2.7",
     "cypress": "^13.9.0",
     "cypress-mochawesome-reporter": "^3.6.0",
+    "license-checker": "^25.0.1",
     "prisma": "^5.14.0",
     "storybook": "^7.3.1"
   },
