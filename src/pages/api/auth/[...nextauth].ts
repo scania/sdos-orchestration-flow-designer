@@ -19,6 +19,12 @@ export const authOptions = {
     signIn: "/auth/login",
     signOut: "/auth/logout",
   },
+  callbacks: {
+    async session({ session, user }: { session: any; user: any }) {
+      session.user.id = user.id;
+      return session;
+    },
+  },
 };
 
 export default (req: NextApiRequest, res: NextApiResponse) =>
