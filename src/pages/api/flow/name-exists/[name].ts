@@ -6,7 +6,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const session = await validateSession(req, res);
-    if (!session || !session.user || !session.user.email) return;
+    if (!session || !session.user || !session.user.id) return;
 
     const { name } = req.query;
     if (!name) {
@@ -19,7 +19,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const flow = await prisma.flow.findFirst({
           where: { name: name as string },
         });
-        console.log("existing name", flow, name);
         if (flow) {
           return res.status(200).json(true);
         }

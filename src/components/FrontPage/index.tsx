@@ -26,7 +26,7 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
               <h3
                 className={`tds-headline-03 tds-text-grey-600 ${styles.login__title}`}
               >
-                Orchestration Flow Designer Beta 1.0
+                Orchestration Flow Designer Beta 0.7.1
               </h3>
             </>
           )}
