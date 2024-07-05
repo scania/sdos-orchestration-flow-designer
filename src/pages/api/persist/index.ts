@@ -1,5 +1,5 @@
 import {
-  findUserByEmail,
+  findUserById,
   handleError,
   validateSession,
 } from "@/lib/backend/helper";
@@ -13,9 +13,9 @@ import logger from "@/lib/logger";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const session = await validateSession(req, res);
-    if (!session || !session.user || !session.user.email) return;
+    if (!session || !session.user || !session.user.id) return;
 
-    const user = await findUserByEmail(session.user.email, res);
+    const user = await findUserById(session.user.id, res);
     if (!user) return;
 
     switch (req.method) {

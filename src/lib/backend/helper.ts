@@ -21,17 +21,17 @@ export const validateSession = async (
     return null;
   }
 
-  if (!session.user.email) {
-    logger.error("User email not found in session.");
-    res.status(401).json({ error: "User email not found" });
+  if (!session.user.id) {
+    logger.error("User id not found in session.");
+    res.status(401).json({ error: "User id not found" });
     return null;
   }
 
   return session;
 };
 
-export const findUserByEmail = async (email: string, res: NextApiResponse) => {
-  const user = await prisma.user.findUnique({ where: { email } });
+export const findUserById = async (id: string, res: NextApiResponse) => {
+  const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
     logger.error("User not found in database.");
     res.status(404).json({ error: "User not found" });
