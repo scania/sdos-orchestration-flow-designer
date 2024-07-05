@@ -4,7 +4,7 @@ import jsonld, { JsonLdDocument } from "jsonld";
 import { GraphData } from "@/utils";
 import { QueryFactory } from "@/queryFactory";
 
-const DB_NAME_READ = "metaphactory";
+const DB_NAME_READ = "vctofdpoc";
 const DB_NAME_WRITE = "ofg";
 const DB_NAME_VALIDATE = "validation";
 const DB_SHACL_GRAPH = "http://scania.org/validate";
@@ -16,22 +16,12 @@ export interface ClassEntity {
   category: string;
 }
 
-const fetchClassesQuery = `SELECT DISTINCT  ?parentClass ?parentLabel ?class ?labelProps ?category where { 
-  graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
-      VALUES ?parentClass { 
-          <https://kg.scania.com/it/iris_orchestration/Action> 
-          <https://kg.scania.com/it/iris_orchestration/Script> 
-          <https://kg.scania.com/it/iris_orchestration/Parameter> 
-      }
-      ?class  rdf:type owl:Class; 
-          rdfs:label ?labelProps;
-          rdfs:subClassOf ?parentClass .
-      ?parentClass rdfs:label ?parentLabel .
+const fetchClassesQuery = ` SELECT ?parentClass ?class  where {
+      ?class  rdf:type owl:Class.
+       OPTIONAL { ?class rdfs:subClassOf ?parentClass .}
       FILTER NOT EXISTS {
           ?subclass rdfs:subClassOf ?class .
       }    
-      BIND(localname(?parentClass) as ?category)
-  }
 } ORDER BY ?parentClass`;
 const executeQuery = async (dbName: string, testQuery: string) => {
   try {
@@ -49,11 +39,12 @@ const executeQuery = async (dbName: string, testQuery: string) => {
 
 export const fetchClasses = async (): Promise<ClassEntity[]> => {
   const response = await executeQuery(DB_NAME_READ, fetchClassesQuery);
+  console.log(response);
   return response.map((item: any) => ({
     uri: item.class.value,
-    className: item.labelProps.value,
-    parentClassUri: item.parentClass.value,
-    category: item.category.value,
+    className: item.class.value.split("/").pop(),
+    parentClassUri: item.class.value,
+    category: "Actions",
   }));
 };
 
