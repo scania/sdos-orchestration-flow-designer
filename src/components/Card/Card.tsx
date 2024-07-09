@@ -9,13 +9,13 @@ const Card = ({
   confirmLabel,
 }: any) => {
   const router = useRouter();
-  const { id, name, description, isDraft, updatedAt } = data;
+  const { id, name, description, isDraft, updatedAt, isPrivate, user } = data;
   const dialogId = `dialog-${id}`;
   return (
     <div className={styles.card}>
       <div className={styles.card__top}>
         <div className={styles.card__top__header}>
-          <span>Private</span>
+          <span>{isPrivate ? "Private" : "Shared"}</span>
           <div className={styles.card__top__header__buttons}>
             <tds-button
               size="xs"
@@ -38,6 +38,8 @@ const Card = ({
       </div>
       <div className={styles.card__bottom}>
         <dl className={styles.card__data}>
+          <dt className={styles.card__data__key}>Created By</dt>
+          <dd>{user.name}</dd>
           <dt className={styles.card__data__key}>State</dt>
           <dd>{isDraft ? "Draft" : "Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>

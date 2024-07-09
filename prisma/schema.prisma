@@ -70,4 +70,5 @@ model VerificationToken {
   isDraft     Boolean
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  isPrivate   Boolean @default(false)
 }

@@ -31,6 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             isDraft: true,
             user: true,
             updatedAt: true,
+            isPrivate: true,
           },
           orderBy: [
             {

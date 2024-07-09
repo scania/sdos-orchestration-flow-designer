@@ -206,7 +206,7 @@ function App({
                           size="lg"
                           open-direction="auto"
                           defaultValue={"shared"}
-                          onChange={(e) => field.onChange(e.target.value)}
+                          onTdsChange={(e) => field.onChange(e.detail.value)}
                         >
                           <TdsDropdownOption value="shared">
                             Shared
