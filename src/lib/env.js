@@ -13,9 +13,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
   TEST_USERNAME: z.string().optional(),
   TEST_PASSWORD: z.string().optional(),
-  TEST_BASE_URL: z.string().url().optional(),
-  SDOS_AZURE_AD_CLIENT_ID: z.string().uuid().nonempty(),
-  SDOS_AZURE_AD_CLIENT_SECRET: z.string().nonempty(),
+  TEST_BASE_URL: z.string().url().optional()
 
 });
 

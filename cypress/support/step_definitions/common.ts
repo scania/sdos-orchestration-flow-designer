@@ -9,7 +9,7 @@ import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 Given( "OFD home page is in view", () => {
     cy.visit('/');
     cy.get('tds-header-title')
-    .should("contain.text", "ORCHESTRATION FLOW DESIGNER BETA 1.0");
+    .should("contain.text", "ORCHESTRATION FLOW GRAPH DESIGNER BETA 0.7.1");
 });
 
 // ------------------------------------------------------------------------------------

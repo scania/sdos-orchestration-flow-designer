@@ -54,13 +54,14 @@ function loginViaAAD(username, password) {
     // Validate that the login was successful
     cy.visit("/");
     cy.get("button").contains("Sign in").click();
-    cy.get("h2").contains("My Work").should("be.visible");
+    cy.wait(5000);
+    cy.contains('h2', 'My Work').should("be.visible");
 }
+
 //log off
 // afterEach(() => {
-
 //     cy.get('img[alt="User menu."]').click();
-//     cy.get('a > :nth-child(1) > .tds-u-pl1').click();
+//     cy.get('tds-header-dropdown-list-item[role="listitem"] div').eq(3).click();
 //     cy.clearCookies();
 //     cy.clearLocalStorage();
 // });

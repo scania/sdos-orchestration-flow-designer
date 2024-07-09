@@ -94,7 +94,5 @@ Then("the elements in workspace gets displayed", () => {
 });
 
 Then("Success message should get displayed", () => {
-  cy.get('tds-toast[subheader="Graph has been successfully saved"]').should(
-    "be.visible"
-  );
+  cy.get('tds-toast[subheader="Graph has been successfully saved"]').should("be.visible");
 });
