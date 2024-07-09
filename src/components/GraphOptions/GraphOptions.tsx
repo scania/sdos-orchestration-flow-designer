@@ -1,29 +1,42 @@
 import styles from "./graphOptions.module.scss";
 import React from "react";
 
-const GraphOptions = ({ selector, graphDescription, graphName }) => {
+import { TdsTextarea, TdsTextField, TdsModal } from "@scania/tegel-react";
+
+const GraphOptions = ({
+  selector,
+  graphDescription,
+  graphName,
+  accessType,
+}) => {
   return (
-    <tds-modal selector={selector} size="xs">
+    <TdsModal selector={selector} size="xs">
       <h5 className="tds-headline-05" slot="header">
         Options
       </h5>
       <div slot="body" className={styles.body}>
-        <tds-text-field
+        <TdsTextField
           placeholder="Title"
           label="Title"
           label-position="outside"
           size="md"
           disabled
           value={graphName}
-        ></tds-text-field>
-        <tds-textarea
+        ></TdsTextField>
+        <TdsTextarea
           label="Description"
           // helper="Character left"
           // max-length="140"
           label-position="outside"
           disabled
           value={graphDescription}
-        ></tds-textarea>
+        ></TdsTextarea>
+        <TdsTextField
+          label="Access Type"
+          label-position="outside"
+          disabled
+          value={accessType}
+        ></TdsTextField>
         {/*
         <div className={styles.body__divider}>
           <tds-divider orientation="horizontal"></tds-divider>
@@ -52,20 +65,20 @@ const GraphOptions = ({ selector, graphDescription, graphName }) => {
             Named graph security
           </a>
         </div>
-        <tds-text-field
+        <TdsTextField
           placeholder="Creator"
           label="Creator"
           label-position="outside"
           size="md"
           value="Placeholder"
-        ></tds-text-field>
-        <tds-text-field
+        ></TdsTextField>
+        <TdsTextField
           placeholder="Contributor"
           label="Contributor"
           label-position="outside"
           size="md"
           value="Placeholder"
-        ></tds-text-field>
+        ></TdsTextField>
         <div className={styles.body__contributorsContainer}>
           <tds-button
             type="button"
@@ -94,7 +107,7 @@ const GraphOptions = ({ selector, graphDescription, graphName }) => {
           ></tds-button>
               </div> */}
       </span>
-    </tds-modal>
+    </TdsModal>
   );
 };
 

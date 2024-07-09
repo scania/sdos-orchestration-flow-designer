@@ -4,12 +4,22 @@ import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
 import axios from "axios";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Button from "@/components/Button";
 import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
+import {
+  TdsIcon,
+  TdsDivider,
+  TdsModal,
+  TdsButton,
+  TdsTextField,
+  TdsTextarea,
+  TdsDropdown,
+  TdsDropdownOption,
+} from "@scania/tegel-react";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -62,6 +72,7 @@ function App({
     handleSubmit,
     setError,
     clearErrors,
+    control,
     formState: { errors },
   } = useForm();
 
@@ -91,8 +102,9 @@ function App({
   const createNewGraph = async (data: {
     name: string;
     description: string;
+    accessType: string;
   }) => {
-    const { name, description } = data;
+    const { name, description, accessType } = data;
     clearErrors("name");
     const nameExists = await checkNameExists(name);
     if (nameExists) {
@@ -108,6 +120,7 @@ function App({
         query: {
           graphName: name.replace(/\s+/g, "-"),
           description,
+          accessType,
         },
       },
       `/ofd/new`
@@ -148,15 +161,15 @@ function App({
                 variant="primary"
               >
                 <div className="tds-u-mr1">Create new graph</div>
-                <tds-icon name="plus" size="16px"></tds-icon>
+                <TdsIcon name="plus" size="16px"></TdsIcon>
               </Button>
-              <tds-modal selector="#create-new-graph-button" size="xs">
+              <TdsModal selector="#create-new-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
                   Create new graph
                 </h5>
                 <span slot="body">
                   <form onSubmit={handleSubmit(createNewGraph)}>
-                    <tds-text-field
+                    <TdsTextField
                       id="modal-name-field"
                       placeholder="Name"
                       size="sm"
@@ -173,7 +186,7 @@ function App({
                       })}
                     />
                     <div style={{ marginTop: "28px" }} />
-                    <tds-textarea
+                    <TdsTextarea
                       id="modal-description-area"
                       placeholder="Description"
                       rows={4}
@@ -181,8 +194,32 @@ function App({
                       {...register("description")}
                     />
                     <div style={{ marginTop: "28px" }} />
+                    <Controller
+                      name="accessType"
+                      control={control}
+                      defaultValue="shared"
+                      render={({ field }) => (
+                        <TdsDropdown
+                          {...field}
+                          label-position="outside"
+                          placeholder="Placeholder"
+                          size="lg"
+                          open-direction="auto"
+                          defaultValue={"shared"}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        >
+                          <TdsDropdownOption value="shared">
+                            Shared
+                          </TdsDropdownOption>
+                          <TdsDropdownOption value="private">
+                            Private
+                          </TdsDropdownOption>
+                        </TdsDropdown>
+                      )}
+                    />
+                    <div style={{ marginTop: "28px" }} />
                     <span slot="actions">
-                      <tds-button
+                      <TdsButton
                         size="md"
                         text="Create"
                         type="submit"
@@ -191,10 +228,10 @@ function App({
                     </span>
                   </form>
                 </span>
-              </tds-modal>
+              </TdsModal>
               <Button type="button" variant="secondary">
                 <div className="tds-u-mr1">Find graph to reuse</div>
-                <tds-icon name="redirect" size="16px"></tds-icon>
+                <TdsIcon name="redirect" size="16px"></TdsIcon>
               </Button>
             </div>
 
@@ -218,7 +255,7 @@ function App({
               )}
             </div>
             <div className={styles["content__main__line"]}>
-              <tds-divider orientation="horizontal"></tds-divider>
+              <TdsDivider orientation="horizontal"></TdsDivider>
             </div>
           </div>
         </div>

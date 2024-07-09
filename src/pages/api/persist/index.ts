@@ -21,7 +21,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
       case "POST":
         const parsedBody = graphSave.parse(req.body) as GraphBody;
-        const { nodes, edges, graphName, description, isDraft } = parsedBody;
+        const { nodes, edges, graphName, description, isDraft, isPrivate } =
+          parsedBody;
         if (!nodes || !edges) {
           res.status(501).json({ error: "Nodes and Edges not found" });
           return;
@@ -67,6 +68,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               state: JSON.stringify({ nodes, edges }),
               user: { connect: { id: user.id } },
               isDraft,
+              isPrivate,
             },
           });
         }

@@ -154,7 +154,7 @@ const ForceGraphComponent: React.FC = ({
     return response.data;
   };
 
-  const mutation = useMutation(saveData, {
+  const saveGraph = useMutation(saveData, {
     onSuccess: () => {
       showToast("success", "Success", "Graph has been successfully saved");
     },
@@ -189,8 +189,9 @@ const ForceGraphComponent: React.FC = ({
       }`,
       description: graphDescription,
       isDraft: false,
+      isPrivate: router.query.accessType === "private",
     };
-    mutation.mutate(payload);
+    saveGraph.mutate(payload);
   };
   const handleDraftClick = () => {
     const payload = {
@@ -201,8 +202,9 @@ const ForceGraphComponent: React.FC = ({
       }`,
       description: graphDescription,
       isDraft: true,
+      accessType: router.query.accessType,
     };
-    mutation.mutate(payload);
+    saveGraph.mutate(payload);
   };
 
   const handleFormSubmit = useCallback(
@@ -436,6 +438,7 @@ const ForceGraphComponent: React.FC = ({
             selector="#graph-options"
             graphDescription={graphDescription}
             graphName={router.query.graphName || graphName || ""}
+            accessType={router.query.accessType}
           />
           <span id="graph-options" className={styles.page__header__options}>
             Options
