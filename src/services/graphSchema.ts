@@ -17,7 +17,7 @@ export const graphSave = z.object({
   graphName: z.string(),
   description: z.string().optional(),
   isDraft: z.boolean(),
-  isPrivate: z.boolean(),
+  isPrivate: z.boolean().optional(),
 });
 
 export type GraphBody = z.infer<typeof graphSave>;

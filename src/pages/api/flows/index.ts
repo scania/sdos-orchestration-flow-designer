@@ -19,9 +19,31 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     switch (req.method) {
       case "GET":
-        const existingFlows = await prisma.flow.findMany({
+        const privateFlows = await prisma.flow.findMany({
           where: {
             userId: user.id,
+            isPrivate: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            isDraft: true,
+            user: true,
+            updatedAt: true,
+            isPrivate: true,
+          },
+          orderBy: [
+            {
+              updatedAt: "desc",
+            },
+          ],
+        });
+
+        const sharedFlows = await prisma.flow.findMany({
+          where: {
+            isPrivate: false,
           },
           select: {
             id: true,
@@ -41,7 +63,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         });
 
         logger.info("Fetched flows successfully.");
-        return res.status(200).json(existingFlows);
+        return res.status(200).json([...sharedFlows, ...privateFlows]);
 
       default:
         logger.error("Method not allowed.");
