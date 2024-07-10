@@ -9,6 +9,7 @@ const envSchema = z.object({
   STARDOG_ENDPOINT: z.string().url().min(1),
   NEXTAUTH_URL: z.string().url().min(1),
   NEXTAUTH_SECRET: z.string().uuid().min(1),
+  DATABASE_URL: z.string().url().min(1),
   LOG_LEVEL: z.string().optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
 });
