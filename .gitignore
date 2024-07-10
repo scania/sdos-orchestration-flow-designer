@@ -43,7 +43,3 @@ cypress/videos/
 cypress/reports/
 cypress.env.json
 *.db
-
-#temporary addition of migration files, to be removed before prod deployment
-migration.sql
-migration_lock.toml
