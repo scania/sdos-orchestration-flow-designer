@@ -35,6 +35,7 @@ import "reactflow/dist/style.css";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import GraphOptions from "../../components/GraphOptions/GraphOptions";
+import ExecuteGraph from "../../components/ExecuteGraph/ExecuteGraph";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
@@ -437,16 +438,25 @@ const ForceGraphComponent: React.FC = ({
             graphDescription={graphDescription}
             graphName={router.query.graphName || graphName || ""}
           />
-          <span id="graph-options" className={styles.page__header__options}>
+          <span id="graph-options" className={styles.page__header__action}>
             Options
           </span>
+          <ExecuteGraph
+            selector="#execute-graph"
+            // TODO - replace placeholder params
+            parameters={[{name:'hej'}, {name: 'hesd'}, {name: 'TestParameter'}]}
+            graphName={router.query.graphName || graphName || ""}
+          />
+          <span id="execute-graph" className={styles.page__header__action}>
+            Execute
+          </span>
           <span
-            className={styles.page__header__save}
+            className={styles.page__header__action}
             onClick={handleDraftClick}
           >
             Save Draft
           </span>
-          <span className={styles.page__header__save} onClick={handleSaveClick}>
+          <span className={styles.page__header__action} onClick={handleSaveClick}>
             Save
           </span>
         </div>
