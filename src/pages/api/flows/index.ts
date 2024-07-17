@@ -21,7 +21,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       case "GET":
         const privateFlows = await prisma.flow.findMany({
           where: {
-            userId: user.id,
+            createdById: user.id,
             isPrivate: true,
           },
           select: {
@@ -30,7 +30,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             description: true,
             createdAt: true,
             isDraft: true,
-            user: true,
+            createdBy: true,
             updatedAt: true,
             isPrivate: true,
           },
@@ -51,7 +51,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             description: true,
             createdAt: true,
             isDraft: true,
-            user: true,
+            createdBy: true,
             updatedAt: true,
             isPrivate: true,
           },

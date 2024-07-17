@@ -30,7 +30,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         state: true,
         createdAt: true,
         updatedAt: true,
-        userId: true,
+        createdById: true,
         isDraft: true,
       },
     });
@@ -40,7 +40,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(404).json({ error: "Flow not found" });
     }
 
-    if (flow.userId !== user.id) {
+    if (flow.createdById !== user.id) {
       logger.error("Unauthorized access to flow.");
       return res.status(403).json({ error: "Forbidden" });
     }

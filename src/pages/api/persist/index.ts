@@ -36,6 +36,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           } catch (error) {
             logger.error("error saving to stardog");
             res.status(501).json({ error: "Error Saving to Stardog" });
+            return;
           }
         }
 
@@ -43,7 +44,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const existingFlow = await prisma.flow.findFirst({
           where: {
             name: graphName,
-            userId: user.id,
+            createdById: user.id,
           },
         });
 
@@ -56,6 +57,22 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               description: description || "",
               state: JSON.stringify({ nodes, edges }),
               isDraft,
+              isPrivate,
+              updatedById: user.id,
+            },
+          });
+
+          // Create a new FlowHistory record
+          await prisma.flowHistory.create({
+            data: {
+              flowId: existingFlow.id,
+              name: graphName,
+              description: description || "",
+              state: JSON.stringify({ nodes, edges }),
+              isDraft,
+              isPrivate,
+              createdById: existingFlow.createdById,
+              updatedById: user.id,
             },
           });
         }
@@ -66,9 +83,24 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               name: graphName,
               description: description || "",
               state: JSON.stringify({ nodes, edges }),
-              user: { connect: { id: user.id } },
+              createdById: user.id,
+              updatedById: user.id,
               isDraft,
               isPrivate,
+            },
+          });
+
+          // Create a new FlowHistory record
+          await prisma.flowHistory.create({
+            data: {
+              flowId: response.id,
+              name: graphName,
+              description: description || "",
+              state: JSON.stringify({ nodes, edges }),
+              isDraft,
+              isPrivate,
+              createdById: user.id,
+              updatedById: user.id,
             },
           });
         }

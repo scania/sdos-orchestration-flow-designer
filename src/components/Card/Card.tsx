@@ -9,7 +9,8 @@ const Card = ({
   confirmLabel,
 }: any) => {
   const router = useRouter();
-  const { id, name, description, isDraft, updatedAt, isPrivate, user } = data;
+  const { id, name, description, isDraft, updatedAt, isPrivate, createdBy } =
+    data;
   const dialogId = `dialog-${id}`;
   return (
     <div className={styles.card}>
@@ -39,7 +40,7 @@ const Card = ({
       <div className={styles.card__bottom}>
         <dl className={styles.card__data}>
           <dt className={styles.card__data__key}>Created By</dt>
-          <dd>{user.name}</dd>
+          <dd>{createdBy.name}</dd>
           <dt className={styles.card__data__key}>State</dt>
           <dd>{isDraft ? "Draft" : "Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>

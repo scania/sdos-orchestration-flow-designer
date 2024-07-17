@@ -57,13 +57,32 @@ CREATE TABLE "Flow" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
-    "userId" TEXT NOT NULL,
+    "createdById" TEXT NOT NULL,
+    "updatedById" TEXT,
     "state" TEXT NOT NULL,
     "isDraft" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "isPrivate" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Flow_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "FlowHistory" (
+    "id" TEXT NOT NULL,
+    "flowId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "state" TEXT NOT NULL,
+    "isDraft" BOOLEAN NOT NULL,
+    "isPrivate" BOOLEAN NOT NULL,
+    "createdById" TEXT NOT NULL,
+    "updatedById" TEXT,
+    "revertedFromId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "FlowHistory_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -88,4 +107,16 @@ ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Flow" ADD CONSTRAINT "Flow_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Flow" ADD CONSTRAINT "Flow_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Flow" ADD CONSTRAINT "Flow_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FlowHistory" ADD CONSTRAINT "FlowHistory_flowId_fkey" FOREIGN KEY ("flowId") REFERENCES "Flow"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FlowHistory" ADD CONSTRAINT "FlowHistory_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FlowHistory" ADD CONSTRAINT "FlowHistory_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
