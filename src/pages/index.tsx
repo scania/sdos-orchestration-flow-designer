@@ -55,6 +55,7 @@ interface Flow {
   createdAt: Date;
   updatedAt: Date;
   isDraft: Boolean;
+  isPrivate: Boolean;
 }
 
 function App({
@@ -66,6 +67,7 @@ function App({
 }) {
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
+  const [selectedTab, setSelectedTab] = useState<string>("My Work");
   const router = useRouter();
   const {
     register,
@@ -75,6 +77,10 @@ function App({
     control,
     formState: { errors },
   } = useForm();
+
+  const displayedFlows = flows.filter((flow) =>
+    selectedTab === "My Work" ? flow.isPrivate : !flow.isPrivate
+  );
 
   const fetchFlows = async () => {
     try {
@@ -136,128 +142,138 @@ function App({
     }
   };
 
+  const handleTabClick = (value: string) => {
+    setSelectedTab(value);
+  };
+
   return (
     <div className={`App`}>
       <main className={styles.main}>
         <div className={styles.tabs}>
-          <Tabs>
-            <Panel title="My Work"></Panel>
-            <Panel title="All Designs"></Panel>
+          <Tabs selected={0} onParentClick={handleTabClick}>
+            <Panel title="My Work" value="My Work"></Panel>
+            <Panel title="All Designs" value="All Designs"></Panel>
           </Tabs>
         </div>
         <div className={styles.content}>
-          <div className={styles["header__project-summary"]}>
-            <h2 className={styles["content__heading"]}>My Work</h2>
-            Open and edit your orchestration flow graph or create a new one.
-            <br />
-            You can also view what graph are available to you from other
-            <br /> projects
-          </div>
-          <div className={styles["content__main"]}>
-            <div className={styles["content__main__buttons"]}>
-              <Button
-                id="create-new-graph-button"
-                type="button"
-                variant="primary"
-              >
-                <div className="tds-u-mr1">Create new graph</div>
-                <TdsIcon name="plus" size="16px"></TdsIcon>
-              </Button>
-              <TdsModal selector="#create-new-graph-button" size="xs">
-                <h5 className="tds-modal-headline" slot="header">
-                  Create new graph
-                </h5>
-                <span slot="body">
-                  <form onSubmit={handleSubmit(createNewGraph)}>
-                    <TdsTextField
-                      id="modal-name-field"
-                      placeholder="Name"
-                      size="sm"
-                      mode-variant={theme === "light" ? "primary" : "secondary"}
-                      helper={errors.name ? errors.name.message : ""}
-                      state={errors.name ? "error" : "default"}
-                      {...register("name", {
-                        required: "graph name is required",
-                        pattern: {
-                          value: /^[a-zA-Z0-9\s]+$/,
-                          message:
-                            "graph name cannot contain special characters",
-                        },
-                      })}
-                    />
-                    <div style={{ marginTop: "28px" }} />
-                    <TdsTextarea
-                      id="modal-description-area"
-                      placeholder="Description"
-                      rows={4}
-                      mode-variant={theme === "light" ? "primary" : "secondary"}
-                      {...register("description")}
-                    />
-                    <div style={{ marginTop: "28px" }} />
-                    <Controller
-                      name="accessType"
-                      control={control}
-                      defaultValue="shared"
-                      render={({ field }) => (
-                        <TdsDropdown
-                          {...field}
-                          label-position="outside"
-                          placeholder="Placeholder"
-                          size="lg"
-                          open-direction="auto"
-                          defaultValue={"shared"}
-                          onTdsChange={(e) => field.onChange(e.detail.value)}
-                        >
-                          <TdsDropdownOption value="shared">
-                            Shared
-                          </TdsDropdownOption>
-                          <TdsDropdownOption value="private">
-                            Private
-                          </TdsDropdownOption>
-                        </TdsDropdown>
-                      )}
-                    />
-                    <div style={{ marginTop: "28px" }} />
-                    <span slot="actions">
-                      <TdsButton
-                        size="md"
-                        text="Create"
-                        type="submit"
-                        modeVariant="primary"
+          <>
+            <div className={styles["header__project-summary"]}>
+              <h2 className={styles["content__heading"]}>My Work</h2>
+              Open and edit your orchestration flow graph or create a new one.
+              <br />
+              You can also view what graph are available to you from other
+              <br /> projects
+            </div>
+            <div className={styles["content__main"]}>
+              <div className={styles["content__main__buttons"]}>
+                <Button
+                  id="create-new-graph-button"
+                  type="button"
+                  variant="primary"
+                >
+                  <div className="tds-u-mr1">Create new graph</div>
+                  <TdsIcon name="plus" size="16px"></TdsIcon>
+                </Button>
+                <TdsModal selector="#create-new-graph-button" size="xs">
+                  <h5 className="tds-modal-headline" slot="header">
+                    Create new graph
+                  </h5>
+                  <span slot="body">
+                    <form onSubmit={handleSubmit(createNewGraph)}>
+                      <TdsTextField
+                        id="modal-name-field"
+                        placeholder="Name"
+                        size="sm"
+                        mode-variant={
+                          theme === "light" ? "primary" : "secondary"
+                        }
+                        helper={errors.name ? errors.name.message : ""}
+                        state={errors.name ? "error" : "default"}
+                        {...register("name", {
+                          required: "graph name is required",
+                          pattern: {
+                            value: /^[a-zA-Z0-9\s]+$/,
+                            message:
+                              "graph name cannot contain special characters",
+                          },
+                        })}
                       />
-                    </span>
-                  </form>
-                </span>
-              </TdsModal>
-              <Button type="button" variant="secondary">
-                <div className="tds-u-mr1">Find graph to reuse</div>
-                <TdsIcon name="redirect" size="16px"></TdsIcon>
-              </Button>
-            </div>
+                      <div style={{ marginTop: "28px" }} />
+                      <TdsTextarea
+                        id="modal-description-area"
+                        placeholder="Description"
+                        rows={4}
+                        mode-variant={
+                          theme === "light" ? "primary" : "secondary"
+                        }
+                        {...register("description")}
+                      />
+                      <div style={{ marginTop: "28px" }} />
+                      <Controller
+                        name="accessType"
+                        control={control}
+                        defaultValue="shared"
+                        render={({ field }) => (
+                          <TdsDropdown
+                            {...field}
+                            label-position="outside"
+                            placeholder="Placeholder"
+                            size="lg"
+                            open-direction="auto"
+                            defaultValue={"shared"}
+                            onTdsChange={(e) => field.onChange(e.detail.value)}
+                          >
+                            <TdsDropdownOption value="shared">
+                              Shared
+                            </TdsDropdownOption>
+                            <TdsDropdownOption value="private">
+                              Private
+                            </TdsDropdownOption>
+                          </TdsDropdown>
+                        )}
+                      />
+                      <div style={{ marginTop: "28px" }} />
+                      <span slot="actions">
+                        <TdsButton
+                          size="md"
+                          text="Create"
+                          type="submit"
+                          modeVariant="primary"
+                        />
+                      </span>
+                    </form>
+                  </span>
+                </TdsModal>
+                <Button type="button" variant="secondary">
+                  <div className="tds-u-mr1">Find graph to reuse</div>
+                  <TdsIcon name="redirect" size="16px"></TdsIcon>
+                </Button>
+              </div>
 
-            <h2 className={styles["content__headingContent"]}>Graphs</h2>
+              <h2 className={styles["content__headingContent"]}>Graphs</h2>
 
-            <div className={styles["content__main__cards"]}>
-              {flows && !!flows.length ? (
-                <>
-                  {flows.map((flow) => (
-                    <Card
-                      key={flow.id}
-                      data={flow}
-                      confirmLabel="Do you wish to delete this graph?"
-                      confirmFunction={deleteGraph}
-                      confirmButtonLabel="Delete graph"
-                    />
-                  ))}
-                </>
-              ) : (
-                <h5>No saved graphs found</h5>
-              )}
+              <div className={styles["content__main__cards"]}>
+                {flows && !!flows.length ? (
+                  <>
+                    {displayedFlows.map((flow) => (
+                      <Card
+                        key={flow.id}
+                        data={flow}
+                        confirmLabel="Do you wish to delete this graph?"
+                        confirmFunction={deleteGraph}
+                        confirmButtonLabel="Delete graph"
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <h5>No saved graphs found</h5>
+                )}
+              </div>
+              <div className={styles["content__main__line"]}>
+                <TdsDivider orientation="horizontal"></TdsDivider>
+              </div>
             </div>
-            <div className={styles["content__main__line"]}>
-              <TdsDivider orientation="horizontal"></TdsDivider>
-            </div>
-          </div>
+          </>
         </div>
       </main>
     </div>
