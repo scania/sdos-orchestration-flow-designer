@@ -114,15 +114,6 @@ function App({
     );
   };
 
-  const deleteGraph = async (id: string) => {
-    try {
-      await axios.delete(`${baseUrl}/api/flow/${id}`);
-      await fetchFlows(); // Fetch the updated flows after deletion
-    } catch (error) {
-      console.error("Failed to delete graph:", error);
-    }
-  };
-
   return (
     <div className={`App`}>
       <main className={styles.main}>
@@ -207,9 +198,8 @@ function App({
                     <Card
                       key={flow.id}
                       data={flow}
-                      confirmLabel="Do you wish to delete this graph?"
-                      confirmFunction={deleteGraph}
-                      confirmButtonLabel="Delete graph"
+                      baseUrl={baseUrl}
+                      fetchFlows={fetchFlows}
                     />
                   ))}
                 </>
