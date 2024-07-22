@@ -48,8 +48,8 @@ const Card = ({
               content={(
               <HandleGraphMenu 
               id={dialogId}
-              onDeleteClick={() => deleteGraph(data.id)}
-              onExecuteClick={() => router.push("/executeFlow")}
+              onDeleteClick={() => deleteGraph(id)}
+              onExecuteClick={() => router.push(`/executeFlow/id/${id}`)}
               />
               )}
             >

@@ -39,7 +39,9 @@ function ExecuteFlow() {
 
   const executeGraph = () => {
     axios
-      .get(`PLACEHOLDER_URL`)
+      .post('PLACEHOLDER_URL', {
+        graphId: 123123
+      })
       .then((res) => {
         alert("Successfully executed graph");
         setResult("The result after a successful call goes here");
