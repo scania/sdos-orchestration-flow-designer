@@ -22,7 +22,8 @@ When( "the modal's close button is clicked", () => {
 
 When( "the modal's create button is clicked", () => {
     // This button can only be found in shadow dom
-    cy.get("tds-modal").find("button[type=submit]").click();
+   // cy.get("tds-modal").find("button[type=submit]").click();
+   cy.get('tds-button[text="Create"] button').click();
 });
 
 
