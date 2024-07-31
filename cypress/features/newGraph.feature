@@ -1,5 +1,6 @@
 Feature: Create new orchestration graph
 
+
     Scenario: Create new graph using drop and drop
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -14,6 +15,7 @@ Feature: Create new orchestration graph
         And Save button is clicked
         Then Success message should get displayed
 
+    
     Scenario: Features of Create new graph page
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -25,6 +27,7 @@ Feature: Create new orchestration graph
         And a new graph should open in the workspace
         And the elements in workspace gets displayed
 
+    
     Scenario: Created Graph gets reflected in My Work Page
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -44,7 +47,8 @@ Feature: Create new orchestration graph
         And Test description should get displayed
         And Delete Button should get displayed
         And Open Button should get displayed
-        
+
+      
     Scenario: Save as Draft new graph using drop and drop
         Given OFD home page is in view
         When the button "Create new graph" is clicked

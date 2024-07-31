@@ -50,6 +50,7 @@ When("Open Button is clicked", () => {
   cy.reload();
   cy.wait(1000);
   cy.contains('button', 'Open').eq(0).first().click();
+  cy.wait(3000);
 });
 
 When("Save Draft button is clicked", () => {
@@ -135,11 +136,11 @@ Then("Saved state should get displayed", () => {
   cy.contains('dd', 'Saved').should("be.visible");
 });
 
-Then("Draft state Should not get displayed", () => {
+Then("Draft state should not get displayed", () => {
   cy.contains('dd', 'Draft').should("not.exist");
 });
 
-Then("Graph page Should get displayed", () => {
+Then("Graph page should get displayed", () => {
   cy.contains("span", "Options").should("exist");
   cy.contains("span", "Save").should("exist");
 });

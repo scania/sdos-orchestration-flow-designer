@@ -11,12 +11,14 @@ import { env } from "../../src/lib/env";
 Cypress.on("uncaught:exception", (err, runnable) => {
   return false;
 });
-
+const username = Cypress.env("TEST_USERNAME");
+const password = Cypress.env("TEST_PASSWORD");
 beforeEach(() => {
-   loginViaAAD(env.TEST_USERNAME || "", env.TEST_PASSWORD || "");
+  // process.env.
+   loginViaAAD('', '');
    deleteAllGraphs();
 });
-
+console.log(username);
 function loginViaAAD(username: string, password: string) {
   cy.session(
     "auto_OFD Test",
