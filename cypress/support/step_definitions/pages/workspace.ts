@@ -47,14 +47,11 @@ When("Save button is clicked", () => {
 });
 
 When("Open Button is clicked", () => {
-  cy.reload();
-  cy.wait(1000);
   cy.contains('button', 'Open').eq(0).first().click();
-  cy.wait(3000);
+
 });
 
 When("Save Draft button is clicked", () => {
-  cy.contains('span', 'Save Draft').click();
   cy.contains('span', 'Save Draft').click();
 });
 
@@ -77,7 +74,13 @@ Then("the elements in workspace gets displayed", () => {
   cy.contains("li", "Parameters").should("exist");
   cy.contains("li", "Scripts").should("exist");
   cy.contains("h6", "Library").should("exist");
+  cy.contains("span", "Options").should("exist");
+  cy.contains("span", "Save").should("exist");
+  cy.get("div.CircularNode_container__task__V_yNM div").eq(0).should("exist");
+  cy.contains("span", "My work").should("exist");
+});
 
+Then("the Action items in workspace should get displayed", () => {
   cy.contains("span", "Sparql Convert Action").should("exist");
   cy.contains("span", "Script Action").should("exist");
   cy.contains("span", "Virtual Graph Action").should("exist");
@@ -85,26 +88,26 @@ Then("the elements in workspace gets displayed", () => {
   cy.contains("span", "HTTP Action").should("exist");
   cy.contains("span", "Result Action").should("exist");
   cy.contains("span", "SOAP Action").should("exist");
+});
 
+
+
+Then("the Parameters should get displayed", () => {
   cy.contains("li", "Parameters").click();
   cy.contains("span", "Token Credentials Parameter").should("exist");
   cy.contains("span", "Standard Parameter").should("exist");
   cy.contains("span", "Basic Credentials Parameter").should("exist");
   cy.contains("span", "HTTP Parameter").should("exist");
+});
 
+Then("the Scripts items should get displayed", () => {
   cy.contains("li", "Scripts").click();
   cy.contains("span", "Groovy Script").should("exist");
   cy.contains("span", "Python Script").should("exist");
-
-  cy.contains("span", "Options").should("exist");
-  cy.contains("span", "Save").should("exist");
-  cy.get("div.CircularNode_container__task__V_yNM div").eq(0).should("exist");
-  cy.contains("span", "My work").should("exist");
 });
 
 Then("Success message should get displayed", () => {
   cy.get('tds-toast[subheader="Graph has been successfully saved"]').should("be.visible");
-  cy.wait(2000);
 });
 
 Then("Error message should get displayed", () => {

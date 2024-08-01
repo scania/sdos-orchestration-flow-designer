@@ -25,6 +25,10 @@ Feature: Create new orchestration graph
         Then the workspace page should be visible
         And a new graph should open in the workspace
         And the elements in workspace gets displayed
+        And the Action items in workspace should get displayed
+        And the Parameters should get displayed
+        And the Scripts items should get displayed
+
 
     Scenario: Created Graph gets reflected in My Work Page
         Given OFD home page is in view
