@@ -43,7 +43,7 @@ When("the connector is linked", () => {
 });
 
 When("Save button is clicked", () => {
-  cy.contains("span", "Save").click();
+  cy.get('span.ofd_page__header__save__fCkej').eq(1).click();
 });
 
 When("Open Button is clicked", () => {
