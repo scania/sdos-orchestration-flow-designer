@@ -91,8 +91,3 @@ function deleteAllGraphs() {
     }
   });
 }
-
-// afterEach(() => {
-//   deleteAllGraphs();
-//   logOff();
-// });

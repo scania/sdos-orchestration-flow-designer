@@ -14,7 +14,10 @@ import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 
 When("the Add to graph button is clicked", () => {
   const dataTransfer = new DataTransfer();
-  cy.get('tds-button[text="Add to graph"] button').click({force: true,multiple: true});
+  cy.get('tds-button[text="Add to graph"] button').click({
+    force: true,
+    multiple: true,
+  });
 });
 
 When("the action button is clicked", () => {
@@ -43,16 +46,15 @@ When("the connector is linked", () => {
 });
 
 When("Save button is clicked", () => {
-  cy.get('span.ofd_page__header__save__fCkej').eq(1).click();
+  cy.get("span.ofd_page__header__save__fCkej").eq(1).click();
 });
 
 When("Open Button is clicked", () => {
-  cy.contains('button', 'Open').eq(0).first().click();
-
+  cy.contains("button", "Open").eq(0).first().click();
 });
 
 When("Save Draft button is clicked", () => {
-  cy.contains('span', 'Save Draft').click();
+  cy.contains("span", "Save Draft").click();
 });
 
 // ------------------------------------------------------------------------------------
@@ -90,8 +92,6 @@ Then("the Action items in workspace should get displayed", () => {
   cy.contains("span", "SOAP Action").should("exist");
 });
 
-
-
 Then("the Parameters should get displayed", () => {
   cy.contains("li", "Parameters").click();
   cy.contains("span", "Token Credentials Parameter").should("exist");
@@ -107,46 +107,47 @@ Then("the Scripts items should get displayed", () => {
 });
 
 Then("Success message should get displayed", () => {
-  cy.get('tds-toast[subheader="Graph has been successfully saved"]').should("be.visible");
+  cy.get('tds-toast[subheader="Graph has been successfully saved"]').should(
+    "be.visible"
+  );
 });
 
 Then("Error message should get displayed", () => {
-  cy.get('tds-toast[subheader="The graph could not be saved"]').should("be.visible");
+  cy.get('tds-toast[subheader="The graph could not be saved"]').should(
+    "be.visible"
+  );
 });
 
 Then("Test name should get displayed", () => {
-  cy.get('h3').should("be.visible").and("contain.text", "Test-Name")
+  cy.get("h3").should("be.visible").and("contain.text", "Test-Name");
 });
 
 Then("Test description should get displayed", () => {
-  cy.get('p').should("be.visible").and("contain.text", "Test Description")
+  cy.get("p").should("be.visible").and("contain.text", "Test Description");
 });
 
 Then("Delete Button should get displayed", () => {
-  cy.contains('button', 'Delete').eq(0).focus();
-  cy.contains('button', 'Delete').eq(0).should("be.visible");
+  cy.contains("button", "Delete").eq(0).focus();
+  cy.contains("button", "Delete").eq(0).should("be.visible");
 });
 
 Then("Open Button should get displayed", () => {
-  cy.contains('button', 'Open').eq(0).should("be.visible");
+  cy.contains("button", "Open").eq(0).should("be.visible");
 });
 
 Then("Draft state should get displayed", () => {
-  cy.contains('dd', 'Draft').should("be.visible");
+  cy.contains("dd", "Draft").should("be.visible");
 });
 
 Then("Saved state should get displayed", () => {
-  cy.contains('dd', 'Saved').should("be.visible");
+  cy.contains("dd", "Saved").should("be.visible");
 });
 
 Then("Draft state should not get displayed", () => {
-  cy.contains('dd', 'Draft').should("not.exist");
+  cy.contains("dd", "Draft").should("not.exist");
 });
 
 Then("Graph page should get displayed", () => {
   cy.contains("span", "Options").should("exist");
   cy.contains("span", "Save").should("exist");
 });
-
-
-

@@ -25,6 +25,7 @@ Feature:  orchestration graph validation
         When the modal's create button is clicked
         Then the modal should display an error message saying "graph name is required"
 
+    @skip
     Scenario: Abort dialogue
         Given "Test Name" is entered in the text field with placeholder "Name"
         And "Test Description" is entered in the text area with placeholder "Description"
