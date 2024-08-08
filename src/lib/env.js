@@ -16,6 +16,12 @@ const envSchema = z.object({
 
 //This will make all env vars optional
 const buildEnvSchema = envSchema.partial();
+
+/**
+ * @typedef {z.infer<typeof envSchema>} Env
+ */
+
+/** @type {Env} */
 let env;
 
 //making all vars optional during build and as per envSchema during start
