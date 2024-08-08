@@ -50,7 +50,7 @@ Feature: Create new orchestration graph
         And Delete Button should get displayed
         And Open Button should get displayed
 
-    Scenario: Save as Draft new graph using drop and drop
+    Scenario: Save as Draft new graph using drag and drop
         Given OFD home page is in view
         When the button "Create new graph" is clicked
         Then the create new graph modal is visible
