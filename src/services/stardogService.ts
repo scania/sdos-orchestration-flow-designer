@@ -1,4 +1,4 @@
-import { query, Connection, ConnectionOptions } from "stardog";
+import { query, Connection } from "stardog";
 import jsonld, { JsonLdDocument } from "jsonld";
 import { GraphData } from "@/utils";
 import { QueryFactory } from "@/queryFactory";
@@ -6,8 +6,6 @@ import { env } from "@/lib/env";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = "ofg";
-const DB_NAME_VALIDATE = "validation";
-const DB_SHACL_GRAPH = "http://scania.org/validate";
 
 export interface ClassEntity {
   uri: string;

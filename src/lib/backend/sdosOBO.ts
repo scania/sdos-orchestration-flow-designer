@@ -18,11 +18,11 @@ export async function getOBOToken(token: JWT): Promise<string> {
       tokenEndpoint,
       new URLSearchParams({
         grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        client_id: env.OFD_AZURE_AD_CLIENT_ID,
-        client_secret: env.OFD_AZURE_AD_CLIENT_SECRET,
+        client_id: env.OFD_AZURE_AD_CLIENT_ID!,
+        client_secret: env.OFD_AZURE_AD_CLIENT_SECRET!,
         assertion: token.accessToken as string,
         requested_token_use: "on_behalf_of",
-        scope: "api://3a691ed5-bdea-43b1-be30-dcee49f19605/user_impersonation",
+        scope: "api://ce742e40-7d46-49cc-84d4-a89fdbe12ec6/user_impersonation",
       }),
       {
         headers: {
