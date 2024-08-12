@@ -20,29 +20,3 @@ Cypress.Commands.add('drag', { prevSubject: 'element' }, (subject, targetSelecto
 
 
 
-Cypress.Commands.add('deleteAllGraphs', () => {
-  cy.get('body').then(($body) => {
-    const graphs = $body.find('div[class*="card_card__tO"]');
-    if (graphs.length > 0) {
-      cy.get('div[class*="card_card__tO"]').each(($graph) => {
-        cy.wrap($graph).within(() => {
-          cy.get('.delete-button-selector').click();
-        });
-      });
-
-      cy.get('div[class*="card_card__tO"]').should('not.exist');
-    } else {
-      cy.log('No graphs found to delete');
-    }
-  });
-});
-
-Cypress.Commands.add('logOff', () => {
-  cy.get(".center-image").click();
-  cy.get("a > :nth-child(1) > .tds-u-pl1").click();
-  cy.url().should('include', '/login');
-  cy.clearCookies();
-  cy.clearLocalStorage();
-});
-
-

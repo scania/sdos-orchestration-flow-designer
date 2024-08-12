@@ -10,8 +10,8 @@ Feature: Create new orchestration graph
         When the modal's create button is clicked
         Then the workspace page should be visible
         And a new graph should open in the workspace
-        When the action button is dragged
-        And the connector is linked
+        When "Script" action button is dragged
+        And "first" connector is linked
         And Save button is clicked
         Then Success message should get displayed
 
@@ -39,8 +39,8 @@ Feature: Create new orchestration graph
         When the modal's create button is clicked
         Then the workspace page should be visible
         And a new graph should open in the workspace
-        When the action button is dragged
-        And the connector is linked
+        When "Script" action button is dragged
+        And "first" connector is linked
         And Save button is clicked
         Then Success message should get displayed
         When the My work icon is clicked
@@ -59,8 +59,8 @@ Feature: Create new orchestration graph
         When the modal's create button is clicked
         Then the workspace page should be visible
         And a new graph should open in the workspace
-        When the action button is dragged
-        And the connector is linked
+        When "Script" action button is dragged
+        And "first" connector is linked
         And Save Draft button is clicked
         Then Success message should get displayed
         When the My work icon is clicked
@@ -77,8 +77,8 @@ Feature: Create new orchestration graph
         When the modal's create button is clicked
         Then the workspace page should be visible
         And a new graph should open in the workspace
-        When the action button is dragged
-        And the connector is linked
+        When "Script" action button is dragged
+        And "first" connector is linked
         And Save Draft button is clicked
         Then Success message should get displayed
         When the My work icon is clicked
@@ -109,5 +109,56 @@ Feature: Create new orchestration graph
         And the Add to graph button is clicked
         And Save button is clicked
         Then Error message should get displayed
+
+    
+    Scenario: Multiple element Graph
+        Given OFD home page is in view
+        When the button "Create new graph" is clicked
+        Then the create new graph modal is visible
+        Given "Test Name" is entered in the text field with placeholder "Name"
+        And "Test Description" is entered in the text area with placeholder "Description"
+        When the modal's create button is clicked
+        Then the workspace page should be visible
+        And a new graph should open in the workspace
+        When "Script" action button is dragged
+        And "first" connector is linked
+        When "HTTP" action button is dragged
+        And "second" connector is linked
+        When "Result" action button is dragged
+        And "third" connector is linked
+        And Save button is clicked
+        Then Success message should get displayed
+
+    Scenario: Complete Flow
+        Given OFD home page is in view
+        When the button "Create new graph" is clicked
+        Then the create new graph modal is visible
+        Given "Test Name" is entered in the text field with placeholder "Name"
+        And "Test Description" is entered in the text area with placeholder "Description"
+        When the modal's create button is clicked
+        Then the workspace page should be visible
+        When "Sparql Convert" action button is dragged
+        And "first" connector is linked
+        And Save button is clicked
+        Then Success message should get displayed
+        when Task label is clicked
+Then 'Enter Setup' button should get displayed
+When 'Enter Setup' button is clicked
+Then  new panel should get displayed
+when 'No Name' button is clicked'
+And labelName 'TestingActionLabel' is provided
+And 'Save' button is clicked
+And 'Leave setup' button is clicked
+Then label 'TestingLabel' should get displayed
+When 'Sparql Convert Action' button is clicked
+Then 'Enter Setup' button should get displayed
+Then 'Enter Setup' button should get displayed
+When 'Enter Setup' button is clicked
+Then  new panel should get displayed
+when 'No Name' button is clicked'
+And labelName 'TestingActionLabel' is provided
+And 'Save' button is clicked
+And 'Leave setup' button is clicked
+Then label 'TestingLabel' should get displayed
 
 
