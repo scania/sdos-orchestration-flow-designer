@@ -1,6 +1,5 @@
 Feature: Create new orchestration graph
-
-
+    
     Scenario: Create new graph using drop and drop
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -15,6 +14,7 @@ Feature: Create new orchestration graph
         And Save button is clicked
         Then Success message should get displayed
 
+    
     Scenario: Features of Create new graph page
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -29,7 +29,7 @@ Feature: Create new orchestration graph
         And the Parameters should get displayed
         And the Scripts items should get displayed
 
-
+    
     Scenario: Created Graph gets reflected in My Work Page
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -47,9 +47,10 @@ Feature: Create new orchestration graph
         Then OFD home page is in view
         And Test name should get displayed
         And Test description should get displayed
-        And Delete Button should get displayed
-        And Open Button should get displayed
+        And "Delete" button should be visible
+        And "Open" button should be visible
 
+    
     Scenario: Save as Draft new graph using drag and drop
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -68,6 +69,7 @@ Feature: Create new orchestration graph
         And Test name should get displayed
         And Draft state should get displayed
 
+    
     Scenario: Open Draft graph and Save
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -85,8 +87,8 @@ Feature: Create new orchestration graph
         Then OFD home page is in view
         And Test name should get displayed
         And Draft state should get displayed
-        And Open Button should get displayed
-        When Open Button is clicked
+        And "Open" button should be visible
+        When "Open" button is clicked
         Then Graph page should get displayed
         When Save button is clicked
         Then Success message should get displayed
@@ -96,6 +98,7 @@ Feature: Create new orchestration graph
         And Saved state should get displayed
         And Draft state should not get displayed
 
+    
     Scenario: Error message on saving incomplete graph
         Given OFD home page is in view
         When the button "Create new graph" is clicked
@@ -141,24 +144,20 @@ Feature: Create new orchestration graph
         And "first" connector is linked
         And Save button is clicked
         Then Success message should get displayed
-        when Task label is clicked
-Then 'Enter Setup' button should get displayed
-When 'Enter Setup' button is clicked
-Then  new panel should get displayed
-when 'No Name' button is clicked'
-And labelName 'TestingActionLabel' is provided
-And 'Save' button is clicked
-And 'Leave setup' button is clicked
-Then label 'TestingLabel' should get displayed
-When 'Sparql Convert Action' button is clicked
-Then 'Enter Setup' button should get displayed
-Then 'Enter Setup' button should get displayed
-When 'Enter Setup' button is clicked
-Then  new panel should get displayed
-when 'No Name' button is clicked'
-And labelName 'TestingActionLabel' is provided
-And 'Save' button is clicked
-And 'Leave setup' button is clicked
-Then label 'TestingLabel' should get displayed
-
-
+        When user clicks on the element with data-tooltip "Task"
+        And "Enter Setup" button is clicked
+        Then new panel should get displayed
+        When No Name label is clicked
+        And labelName 'TestingLabel' is provided
+        And Save button in panel  is clicked
+        And "Leave setup" button is clicked
+        Then label "TestingLabel" should get displayed
+        When user clicks on the element with data-tooltip "Sparql Convert Action"
+        And "Enter Setup" button is clicked
+        Then new panel should get displayed
+        When No Name label is clicked
+        And labelName 'TestingActionLabel' is provided
+        And Save button in panel  is clicked
+        And "Leave setup" button is clicked
+        Then label "TestingActionLabel" should get displayed
+        
