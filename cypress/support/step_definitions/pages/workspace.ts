@@ -1,4 +1,4 @@
-import {  Then, When } from "@badeball/cypress-cucumber-preprocessor";
+import { Then, When } from "@badeball/cypress-cucumber-preprocessor";
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -11,6 +11,7 @@ import {  Then, When } from "@badeball/cypress-cucumber-preprocessor";
 // -------------------------------- WHEN ----------------------------------------------
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------------
@@ -119,38 +120,34 @@ When("Save button is clicked", () => {
   cy.get("span.ofd_page__header__save__fCkej").eq(1).click();
 });
 
-// When("Open Button is clicked", () => {
-//   cy.contains("button", "Open").eq(0).first().click();
-// });
-
 When("Save Draft button is clicked", () => {
   cy.contains("span", "Save Draft").click();
 });
 
-When('user clicks on the element with data-tooltip {string}', (tooltipValue) => {
-  cy.get(`div[data-tooltip="${tooltipValue}"] span`).click();
+When(
+  "user clicks on the element with data-tooltip {string}",
+  (tooltipValue) => {
+    cy.get(`div[data-tooltip="${tooltipValue}"] span`).click();
+  }
+);
+
+When("No Name label is clicked", () => {
+  cy.contains("h5", "No Name").should("exist");
+  cy.contains("h5", "No Name").click();
 });
 
-When('Enter Setup button is clicked', () => {
-  cy.contains('button', 'Enter Setup').should('exist');
-  cy.contains('button', 'Enter Setup').click();
-});
-
-When('No Name label is clicked', () => {
-  cy.contains('h5', 'No Name').should("exist");
-  cy.contains('h5', 'No Name').click();
-});
-
-When('labelName {string} is provided', (labelName: string) => {
+When("labelName {string} is provided", (labelName: string) => {
   cy.get('input[type="text"]').eq(2).type(labelName);
 });
 
-When('Save button in panel  is clicked', () => {
+When("Save button in panel  is clicked", () => {
   cy.get('tds-button[text="Save"] button').click();
 });
 
-When('{string} button is clicked', (buttonText: unknown) => {
-  cy.contains('button', buttonText as string).first().click();
+When("{string} button is clicked", (buttonText: unknown) => {
+  cy.contains("button", buttonText as string)
+    .first()
+    .click();
 });
 
 // ------------------------------------------------------------------------------------
@@ -234,9 +231,9 @@ Then("Draft state should not get displayed", () => {
   cy.contains("dd", "Draft").should("not.exist");
 });
 
-Then('{string} state should {string}get displayed', (state, visibility) => {
-  const shouldExist = visibility === '' ? 'be.visible' : 'not.exist';
-  cy.contains('dd', state as string).should(shouldExist);
+Then("{string} state should {string}get displayed", (state, visibility) => {
+  const shouldExist = visibility === "" ? "be.visible" : "not.exist";
+  cy.contains("dd", state as string).should(shouldExist);
 });
 
 Then("Graph page should get displayed", () => {
@@ -244,15 +241,19 @@ Then("Graph page should get displayed", () => {
   cy.contains("span", "Save").should("exist");
 });
 
-Then('new panel should get displayed', () => {
- cy.contains('h5', 'No Name').should("exist");
+Then("new panel should get displayed", () => {
+  cy.contains("h5", "No Name").should("exist");
 });
 
-Then('label {string} should get displayed', (labelText: string) => {
-  cy.contains(labelText).should('be.visible');
+Then("label {string} should get displayed", (labelText: string) => {
+  cy.contains(labelText).should("be.visible");
 });
 
-Then('{string} button should be visible', (buttonText: unknown) => {
-  cy.contains('button', buttonText as string).first().focus();
-  cy.contains('button', buttonText as string).first().should('be.visible');
+Then("{string} button should be visible", (buttonText: unknown) => {
+  cy.contains("button", buttonText as string)
+    .first()
+    .focus();
+  cy.contains("button", buttonText as string)
+    .first()
+    .should("be.visible");
 });

@@ -180,7 +180,7 @@ const ForceGraphComponent: React.FC = ({
     return filteredPrimaryClasses;
   }
 
-  const handleSaveClick = () => {
+  const handleSaveClick = (isDraftSave) => {
     const payload = {
       nodes,
       edges,
@@ -188,19 +188,7 @@ const ForceGraphComponent: React.FC = ({
         router.query?.graphName || graphName || "Private"
       }`,
       description: graphDescription,
-      isDraft: false,
-    };
-    mutation.mutate(payload);
-  };
-  const handleDraftClick = () => {
-    const payload = {
-      nodes,
-      edges,
-      graphName: `http://example.org/${
-        router.query?.graphName || graphName || "Private"
-      }`,
-      description: graphDescription,
-      isDraft: true,
+      isDraft: isDraftSave,
     };
     mutation.mutate(payload);
   };
@@ -442,11 +430,11 @@ const ForceGraphComponent: React.FC = ({
           </span>
           <span
             className={styles.page__header__save}
-            onClick={handleDraftClick}
+            onClick={() => handleSaveClick(true)}
           >
             Save Draft
           </span>
-          <span className={styles.page__header__save} onClick={handleSaveClick}>
+          <span className={styles.page__header__save} onClick={() => handleSaveClick(false)}>
             Save
           </span>
         </div>
