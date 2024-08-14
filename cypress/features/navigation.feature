@@ -1,6 +1,6 @@
 Feature: Navigation through pages
 
-Scenario: home button in settings page
+Scenario: Home button in settings page
         Given OFD home page is in view 
         And the settings button is clicked
         And the settings page should be in view

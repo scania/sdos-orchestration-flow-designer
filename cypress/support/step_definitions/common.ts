@@ -47,9 +47,8 @@ When("the text area with placeholder {string} is cleared", (field: string) => {
 });
 
 When("the link {string} is clicked", (text: string) => {
-  cy.contains('a', 'Home').click();
+  cy.contains("a", text).click();
 });
-
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------

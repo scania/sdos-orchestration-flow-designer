@@ -1,4 +1,18 @@
-import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
+import { Then, When } from "@badeball/cypress-cucumber-preprocessor";
+
+// ------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------
+// -------------------------------- GIVEN ---------------------------------------------
+// ------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------
+// -------------------------------- WHEN ----------------------------------------------
+// ------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------
+
+
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -13,7 +27,6 @@ import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 // ------------------------------------------------------------------------------------
 
 When("the Add to graph button is clicked", () => {
-  const dataTransfer = new DataTransfer();
   cy.get('tds-button[text="Add to graph"] button').click({
     force: true,
     multiple: true,
@@ -27,10 +40,54 @@ When("the action button is clicked", () => {
   });
 });
 
-When("the action button is dragged", () => {
+When("{string} action button is dragged", (action) => {
   const dataTransfer = new DataTransfer();
-  cy.get("div[draggable=true]").first().trigger("dragstart", { dataTransfer });
-  cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
+  switch (action) {
+    case "Sparql Convert":
+      cy.get("div[draggable=true]")
+        .first()
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
+      break;
+    case "Script":
+      cy.get("div[draggable=true]")
+        .eq(1)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
+      break;
+    case "Virtual Graph":
+      cy.get("div[draggable=true]")
+        .eq(2)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
+      break;
+    case "Result":
+      cy.get("div[draggable=true]")
+        .eq(3)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").last().trigger("drop", { dataTransfer });
+      break;
+    case "HTTP":
+      cy.get("div[draggable=true]")
+        .eq(4)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").last().trigger("drop", { dataTransfer });
+      break;
+    case "SOAP":
+      cy.get("div[draggable=true]")
+        .eq(5)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
+      break;
+    default:
+      cy.log(`No action matched for ${action}`);
+  }
 });
 
 When("the My work icon is clicked", () => {
@@ -40,21 +97,57 @@ When("the My work icon is clicked", () => {
   });
 });
 
-When("the connector is linked", () => {
-  cy.get('div[data-handlepos="right"]').first().click();
-  cy.get('div[data-handlepos="left"]').click();
+When("{string} connector is linked", (serial) => {
+  switch (serial) {
+    case "first":
+      cy.get('div[data-handlepos="right"]').first().click();
+      cy.get('div[data-handlepos="left"]').click();
+      break;
+    case "second":
+      cy.get('div[data-handlepos="right"]').eq(1).click();
+      cy.get('div[data-handlepos="left"]').eq(1).click();
+      break;
+    case "third":
+      cy.get('div[data-handlepos="right"]').eq(2).click();
+      cy.get('div[data-handlepos="left"]').eq(2).click();
+      break;
+    default:
+      cy.log(`No connector for ${serial}`);
+  }
 });
 
 When("Save button is clicked", () => {
   cy.get("span.ofd_page__header__save__fCkej").eq(1).click();
 });
 
-When("Open Button is clicked", () => {
-  cy.contains("button", "Open").eq(0).first().click();
-});
-
 When("Save Draft button is clicked", () => {
   cy.contains("span", "Save Draft").click();
+});
+
+When(
+  "user clicks on the element with data-tooltip {string}",
+  (tooltipValue) => {
+    cy.get(`div[data-tooltip="${tooltipValue}"] span`).click();
+  }
+);
+
+When("No Name label is clicked", () => {
+  cy.contains("h5", "No Name").should("exist");
+  cy.contains("h5", "No Name").click();
+});
+
+When("labelName {string} is provided", (labelName: string) => {
+  cy.get('input[type="text"]').eq(2).type(labelName);
+});
+
+When("Save button in panel  is clicked", () => {
+  cy.get('tds-button[text="Save"] button').click();
+});
+
+When("{string} button is clicked", (buttonText: unknown) => {
+  cy.contains("button", buttonText as string)
+    .first()
+    .click();
 });
 
 // ------------------------------------------------------------------------------------
@@ -126,15 +219,6 @@ Then("Test description should get displayed", () => {
   cy.get("p").should("be.visible").and("contain.text", "Test Description");
 });
 
-Then("Delete Button should get displayed", () => {
-  cy.contains("button", "Delete").eq(0).focus();
-  cy.contains("button", "Delete").eq(0).should("be.visible");
-});
-
-Then("Open Button should get displayed", () => {
-  cy.contains("button", "Open").eq(0).should("be.visible");
-});
-
 Then("Draft state should get displayed", () => {
   cy.contains("dd", "Draft").should("be.visible");
 });
@@ -147,7 +231,29 @@ Then("Draft state should not get displayed", () => {
   cy.contains("dd", "Draft").should("not.exist");
 });
 
+Then("{string} state should {string}get displayed", (state, visibility) => {
+  const shouldExist = visibility === "" ? "be.visible" : "not.exist";
+  cy.contains("dd", state as string).should(shouldExist);
+});
+
 Then("Graph page should get displayed", () => {
   cy.contains("span", "Options").should("exist");
   cy.contains("span", "Save").should("exist");
+});
+
+Then("new panel should get displayed", () => {
+  cy.contains("h5", "No Name").should("exist");
+});
+
+Then("label {string} should get displayed", (labelText: string) => {
+  cy.contains(labelText).should("be.visible");
+});
+
+Then("{string} button should be visible", (buttonText: unknown) => {
+  cy.contains("button", buttonText as string)
+    .first()
+    .focus();
+  cy.contains("button", buttonText as string)
+    .first()
+    .should("be.visible");
 });
