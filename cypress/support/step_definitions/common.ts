@@ -46,6 +46,10 @@ When("the text area with placeholder {string} is cleared", (field: string) => {
   cy.get('textarea[placeholder="' + field + '"]').clear();
 });
 
+When("the link {string} is clicked", (text: string) => {
+  cy.contains("a", text).click();
+});
+
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 // -------------------------------- THEN ----------------------------------------------
