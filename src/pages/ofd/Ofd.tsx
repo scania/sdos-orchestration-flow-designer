@@ -439,21 +439,12 @@ const ForceGraphComponent: React.FC = ({
             Execute
           </span>
           <span
-<<<<<<< HEAD
-            className={styles.page__header__action}
-            onClick={handleDraftClick}
-          >
-            Save Draft
-          </span>
-          <span className={styles.page__header__action} onClick={handleSaveClick}>
-=======
             className={styles.page__header__save}
             onClick={() => handleSaveClick(true)}
           >
             Save Draft
           </span>
           <span className={styles.page__header__save} onClick={() => handleSaveClick(false)}>
->>>>>>> develop
             Save
           </span>
         </div>
