@@ -4,11 +4,13 @@ import {
   validateSession,
 } from "@/lib/backend/helper";
 import { GraphBody, graphSave } from "@/services/graphSchema";
-import { updateGraph } from "@/services/stardogService";
+import { getStardogInstance } from "@/services/stardogService";
 import { generateJsonLdFromState } from "@/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../lib/prisma";
 import logger from "@/lib/logger";
+import { getToken } from "next-auth/jwt";
+import { env } from "@/lib/env";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -18,6 +20,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const user = await findUserById(session.user.id, res);
     if (!user) return;
 
+    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+    const oboToken = token?.stardogOBO?.token;
+    if (!oboToken) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const stardog = getStardogInstance({ token: oboToken });
     switch (req.method) {
       case "POST":
         const parsedBody = graphSave.parse(req.body) as GraphBody;
@@ -30,7 +39,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         if (!isDraft) {
           try {
-            await updateGraph(graphName, graphData); //saving to stardog
+            await stardog.updateGraph(graphName, graphData); //saving to stardog
             logger.info("saved to stardog");
           } catch (error) {
             logger.error("error saving to stardog");

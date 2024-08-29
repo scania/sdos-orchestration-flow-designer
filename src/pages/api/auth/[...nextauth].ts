@@ -1,9 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth from "next-auth";
 import AzureADProvider from "next-auth/providers/azure-ad";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import prisma from "../../../lib/prisma";
 import { env } from "../../../lib/env";
+import { refreshAccessToken } from "@/lib/backend/auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "@/lib/prisma";
 
 export const authOptions = {
   providers: [
@@ -11,6 +12,11 @@ export const authOptions = {
       clientId: env.OFD_AZURE_AD_CLIENT_ID,
       clientSecret: env.OFD_AZURE_AD_CLIENT_SECRET,
       tenantId: env.OFD_AZURE_AD_TENANT_ID,
+      authorization: {
+        params: {
+          scope: `openid profile email offline_access api://${env.OFD_AZURE_AD_CLIENT_ID}/email`,
+        },
+      },
     }),
   ],
   secret: env.NEXTAUTH_SECRET,
@@ -19,9 +25,32 @@ export const authOptions = {
     signIn: "/auth/login",
     signOut: "/auth/logout",
   },
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    async session({ session, user }: { session: any; user: any }) {
-      session.user.id = user.id;
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+        token.accessTokenExpires = account.expires_at;
+      }
+      try {
+        const refreshedToken = await refreshAccessToken(token);
+        return {
+          ...token,
+          ...refreshedToken,
+        };
+      } catch (error) {
+        return {};
+      }
+    },
+
+    async session({ session, token }) {
+      if (Object.keys(token).length === 0) {
+        return null;
+      }
+      session.user.id = token.sub;
       return session;
     },
   },
