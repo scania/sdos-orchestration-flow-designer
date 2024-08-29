@@ -3,10 +3,12 @@ import {
   handleError,
   validateSession,
 } from "@/lib/backend/helper";
+import { env } from "@/lib/env";
 import logger from "@/lib/logger";
 import prisma from "@/lib/prisma";
-import { deleteGraph } from "@/services/stardogService";
+import { getStardogInstance } from "@/services/stardogService";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getToken } from "next-auth/jwt";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -47,13 +49,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     logger.info("Flow retrieved successfully.");
 
+    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+    const oboToken = token?.stardogOBO?.token;
+    if (!oboToken) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const stardog = getStardogInstance({ token: oboToken });
     switch (req.method) {
       case "GET":
         return res.status(200).json(flow);
 
       case "DELETE":
         if (!flow.isDraft) {
-          await deleteGraph(flow.name);
+          await stardog.deleteGraph(flow.name);
         }
 
         const deleteFlow = await prisma.flow.delete({
