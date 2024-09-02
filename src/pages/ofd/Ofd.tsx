@@ -428,7 +428,11 @@ const ForceGraphComponent: React.FC = ({
           <span id="graph-options" className={styles.page__header__action}>
             Options
           </span>
-          <span id="execute-graph" className={styles.page__header__action} onClick={() => router.push(`/executeFlow/id/123`)}>
+          <span
+            id="execute-graph"
+            className={styles.page__header__action}
+            onClick={() => router.push(`/executeFlow/id/123`)}
+          >
             Execute
           </span>
           <span
@@ -437,7 +441,10 @@ const ForceGraphComponent: React.FC = ({
           >
             Save Draft
           </span>
-          <span className={styles.page__header__action} onClick={() => handleSaveClick(false)}>
+          <span
+            className={styles.page__header__action}
+            onClick={() => handleSaveClick(false)}
+          >
             Save
           </span>
         </div>

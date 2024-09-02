@@ -141,6 +141,10 @@ function App({
                 <div className="tds-u-mr1">Create new graph</div>
                 <tds-icon name="plus" size="16px"></tds-icon>
               </Button>
+              <Button id="execute-graph-button" type="button" variant="primary">
+                <div className="tds-u-mr1">Execute Graph</div>
+                <tds-icon name="send" size="16px"></tds-icon>
+              </Button>
               <tds-modal selector="#create-new-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
                   Create new graph
@@ -170,6 +174,40 @@ function App({
                       rows={4}
                       mode-variant={theme === "light" ? "primary" : "secondary"}
                       {...register("description")}
+                    />
+                    <div style={{ marginTop: "28px" }} />
+                    <span slot="actions">
+                      <tds-button
+                        size="md"
+                        text="Create"
+                        type="submit"
+                        modeVariant="primary"
+                      />
+                    </span>
+                  </form>
+                </span>
+              </tds-modal>
+              <tds-modal selector="#execute-graph-button" size="xs">
+                <h5 className="tds-modal-headline" slot="header">
+                  Execute Graph with IRI
+                </h5>
+                <span slot="body">
+                  <form onSubmit={handleSubmit(() => {})}>
+                    <tds-text-field
+                      id="modal-name-field"
+                      placeholder="https://example.com/test"
+                      size="sm"
+                      mode-variant={theme === "light" ? "primary" : "secondary"}
+                      helper={errors.name ? errors.name.message : ""}
+                      state={errors.name ? "error" : "default"}
+                      {...register("iri", {
+                        required: "Graph IRI is required",
+                        pattern: {
+                          value: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/,
+                          message:
+                            "Please enter a valid IRI (URL format required)",
+                        },
+                      })}
                     />
                     <div style={{ marginTop: "28px" }} />
                     <span slot="actions">
