@@ -1,5 +1,5 @@
 import { env } from "@/lib/env";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
@@ -56,6 +56,7 @@ function App({
 }) {
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
+  const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
   const router = useRouter();
   const {
     register,
@@ -78,6 +79,18 @@ function App({
       console.error("Failed to fetch flows:", error);
     }
   };
+
+  // TODO - Used to add event listener to modal, can probably be resolved with tegel/react
+  useEffect(() => {
+    let modal = document.querySelector("#execute-graph-iri-modal");
+    modal.addEventListener("tdsClose", (event) => {
+      handleModalClose();
+    })}, []);
+  
+  // TODO - Add same functionality for all modals on the page
+  const handleModalClose = () => {
+    setExecuteGraphIriValue("")
+  }
 
   const checkNameExists = async (name: string): Promise<boolean> => {
     try {
@@ -119,10 +132,9 @@ function App({
     );
   };
 
-  const handleExecute = (data: { iri: string }) => {
-    const { iri } = data;
+  const handleExecute = () => {
     router.push({
-      pathname: `/executeFlow/iri/${encodeURIComponent(iri)}`,
+      pathname: `/executeFlow/iri/${encodeURIComponent(executeGraphIriValue)}`,
     });
   };
   return (
@@ -198,7 +210,7 @@ function App({
                   </form>
                 </span>
               </tds-modal>
-              <tds-modal selector="#execute-graph-button" size="xs">
+              <tds-modal id="execute-graph-iri-modal" tds-close={() => handleModalClose()} selector="#execute-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
                   Execute Graph with IRI
                 </h5>
@@ -209,6 +221,10 @@ function App({
                       placeholder="https://example.com/test"
                       size="sm"
                       mode-variant={theme === "light" ? "primary" : "secondary"}
+                      value={executeGraphIriValue}
+                      onInput={(e: { currentTarget: { value: string } }) =>
+                        setExecuteGraphIriValue(e.currentTarget.value)
+                      }
                       helper={
                         errorsExecuteGraph.iri
                           ? errorsExecuteGraph.iri.message
