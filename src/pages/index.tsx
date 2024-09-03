@@ -64,6 +64,11 @@ function App({
     clearErrors,
     formState: { errors },
   } = useForm();
+  const {
+    register: registerExecuteGraph,
+    handleSubmit: handleSubmitExecuteGraph,
+    formState: { errors: errorsExecuteGraph },
+  } = useForm();
 
   const fetchFlows = async () => {
     try {
@@ -114,6 +119,12 @@ function App({
     );
   };
 
+  const handleExecute = (data: { iri: string }) => {
+    const { iri } = data;
+    router.push({
+      pathname: `/executeFlow/iri/${encodeURIComponent(iri)}`,
+    });
+  };
   return (
     <div className={`App`}>
       <main className={styles.main}>
@@ -192,15 +203,19 @@ function App({
                   Execute Graph with IRI
                 </h5>
                 <span slot="body">
-                  <form onSubmit={handleSubmit(() => {})}>
+                  <form onSubmit={handleSubmitExecuteGraph(handleExecute)}>
                     <tds-text-field
                       id="modal-name-field"
                       placeholder="https://example.com/test"
                       size="sm"
                       mode-variant={theme === "light" ? "primary" : "secondary"}
-                      helper={errors.name ? errors.name.message : ""}
-                      state={errors.name ? "error" : "default"}
-                      {...register("iri", {
+                      helper={
+                        errorsExecuteGraph.iri
+                          ? errorsExecuteGraph.iri.message
+                          : ""
+                      }
+                      state={errorsExecuteGraph.iri ? "error" : "default"}
+                      {...registerExecuteGraph("iri", {
                         required: "Graph IRI is required",
                         pattern: {
                           value: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/,
@@ -213,7 +228,7 @@ function App({
                     <span slot="actions">
                       <tds-button
                         size="md"
-                        text="Create"
+                        text="Execute"
                         type="submit"
                         modeVariant="primary"
                       />
