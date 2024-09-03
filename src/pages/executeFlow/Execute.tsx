@@ -14,9 +14,15 @@ interface ExecuteProp {
   iri: string;
   flowId: string | null;
   baseUrl: string;
+  initParameters: any[];
 }
 
-function ExecuteFlow({ iri, flowId = null, baseUrl }: ExecuteProp) {
+function ExecuteFlow({
+  iri,
+  flowId = null,
+  baseUrl,
+  initParameters,
+}: ExecuteProp) {
   // The mode changes between "initial, editParameter and existingParameter"
   const [mode, setMode] = useState("initial");
   // Creating a new parameter object
@@ -33,11 +39,7 @@ function ExecuteFlow({ iri, flowId = null, baseUrl }: ExecuteProp) {
     value: "",
   });
   // Placeholder parameters, should be replaced with real parameters
-  const [parameters, setParameters] = useState<Parameter[]>([
-    { name: "One parameter", value: "JSON of the parameter goes here" },
-    { name: "Test", value: "JSON of the parameter goes here" },
-    { name: "Third example", value: "JSON of the parameter goes here" },
-  ]);
+  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
 
   // Save/Create a new parameter
   const saveParameter = () => {

@@ -33,10 +33,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         await handleGetRequest(req, res, userId);
         break;
 
-      case "POST":
-        await handlePostRequest(req, res, userId);
-        break;
-
       default:
         logger.warn("Method not allowed.", { method: req.method });
         res.status(405).json({ error: "Method not allowed." });
@@ -74,38 +70,5 @@ const handleGetRequest = async (
   } catch (error) {
     logger.error("Error fetching parameters.", { error });
     res.status(500).json({ error: "Failed to fetch parameters" });
-  }
-};
-
-const handlePostRequest = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  userId: string
-) => {
-  try {
-    const { name, flowId, iri, data } = req.body;
-    logger.debug("Creating a new parameter with data:", {
-      name,
-      userId,
-      flowId,
-      iri,
-      data,
-    });
-
-    const newParameter = await prisma.parameter.create({
-      data: {
-        name,
-        userId,
-        flowId,
-        iri,
-        data,
-      },
-    });
-
-    logger.info("Parameter created successfully.", { id: newParameter.id });
-    res.status(201).json(newParameter);
-  } catch (error) {
-    logger.error("Error creating parameter.", { error });
-    res.status(500).json({ error: "Failed to create parameter" });
   }
 };

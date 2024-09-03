@@ -76,13 +76,13 @@ model VerificationToken {
 
  model Parameter {
   id          String   @id @default(uuid())
-  name        String   @unique
+  name        String   
   userId      String
   flowId      String?
   iri         String? 
-  flow        Flow?     @relation(fields: [id], references: [id], onDelete: Cascade)
+  flow        Flow?     @relation(fields: [flowId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  data        Json 
+  value        Json 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

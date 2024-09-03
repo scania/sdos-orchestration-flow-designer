@@ -17,24 +17,38 @@ export async function getServerSideProps(context: any) {
   const { id } = context.params;
 
   try {
-    const response = await axios.get(`${env.NEXTAUTH_URL}/api/flow/iri`, {
+    // Fetch the IRI
+    const iriResponse = await axios.get(`${env.NEXTAUTH_URL}/api/flow/iri`, {
       params: { flowId: id },
       headers: {
         Cookie: context.req.headers.cookie || "",
       },
     });
+    const iri = iriResponse.data.iri;
+    // Fetch the parameters associated with the flow
+    const parametersResponse = await axios.get(
+      `${env.NEXTAUTH_URL}/api/parameters`,
+      {
+        params: { flowId: id },
+        headers: {
+          Cookie: context.req.headers.cookie || "",
+        },
+      }
+    );
 
-    const iri = response.data.iri;
+    const initParameters = parametersResponse.data;
+    console.log(initParameters, "initial parameters with id");
 
     return {
       props: {
         iri,
         flowId: id,
         baseUrl: env.NEXTAUTH_URL,
+        initParameters,
       },
     };
   } catch (error) {
-    console.error("Error fetching IRI:", error);
+    console.error("Error fetching data:", error);
 
     return {
       notFound: true,
@@ -42,6 +56,6 @@ export async function getServerSideProps(context: any) {
   }
 }
 
-const Execute = dynamic(() => import("../Execute.tsx"), { ssr: false });
+const Execute = dynamic(() => import("../Execute"), { ssr: false });
 
 export default Execute;
