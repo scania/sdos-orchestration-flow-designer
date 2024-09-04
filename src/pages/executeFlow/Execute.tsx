@@ -4,7 +4,7 @@ import Link from "next/link";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import { Parameter as ParameterTemplate } from "@/utils/types";
-
+import JsonView from "@uiw/react-json-view";
 interface Parameter {
   id?: string;
   name: string;
@@ -28,14 +28,16 @@ function ExecuteFlow({
 }: ExecuteProp) {
   // The mode changes between "initial, editParameter and existingParameter"
   const [mode, setMode] = useState("initial");
-  console.log("parameterTemplte", taskTemplate);
-  // Creating a new parameter object
-  const [creatingNewParameter, setCreatingNewParameter] = useState<Parameter>({
+  const initNewParameter = {
     name: "parameter",
     value: JSON.stringify(taskTemplate),
-  });
+  };
+  console.log("parameterTemplte", taskTemplate);
+  // Creating a new parameter object
+  const [creatingNewParameter, setCreatingNewParameter] =
+    useState<Parameter>(initNewParameter);
   // The result of the execution
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState({});
   // Boolean to enable/disable editing of the parameter
   const [enableEditParameter, setEnableEditParameter] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState({
@@ -43,6 +45,18 @@ function ExecuteFlow({
     name: "",
     value: "",
   });
+  const isValidJson = (value) => {
+    if (typeof value === "object") {
+      return true;
+    }
+    try {
+      JSON.parse(value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   // Placeholder parameters, should be replaced with real parameters
   const [parameters, setParameters] = useState<Parameter[]>(initParameters);
 
@@ -67,7 +81,7 @@ function ExecuteFlow({
 
   // Change mode, reset certain options
   const changeMode = (mode) => {
-    setCreatingNewParameter({});
+    setCreatingNewParameter(initNewParameter);
     setMode(mode);
   };
 
@@ -90,29 +104,40 @@ function ExecuteFlow({
     changeMode("existingParameter");
   };
 
-  // Executing of a graph
-  const executeGraph = () => {
-    axios
-      .post("PLACEHOLDER_URL", {
-        graphId: 123123,
-      })
-      .then((res) => {
-        (
-          document.querySelector(
-            `[selector="execution-result-modal"]`
-          ) as HTMLTdsModalElement
-        ).showModal();
-        setResult("The result after a successful call goes here");
-      })
-      .catch((res) => {
-        (
-          document.querySelector(
-            `[selector="execution-result-modal"]`
-          ) as HTMLTdsModalElement
-        ).showModal();
-        setResult("Failed to execute graph!");
-      });
+  const executeGraph = async () => {
+    try {
+      // Make the POST request using async/await
+      const response = await axios.post(
+        `${baseUrl}/api/execute/sync`,
+        {
+          subjectIri: iri,
+          parameters: JSON.parse(selectedParameter.value),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const result = response.data;
+      // Show the result in the modal
+      (
+        document.querySelector(
+          `[selector="execution-result-modal"]`
+        ) as HTMLTdsModalElement
+      ).showModal();
+      setResult(result);
+    } catch (error) {
+      (
+        document.querySelector(
+          `[selector="execution-result-modal"]`
+        ) as HTMLTdsModalElement
+      ).showModal();
+      setResult(`Failed to execute graph! Error: ${error.message}`);
+    }
   };
+
   return (
     <div>
       {/* TODO - create component out of this navbar, its used in graph editor aswell */}
@@ -305,13 +330,21 @@ function ExecuteFlow({
               Result
             </h5>
             <span slot="body">
-              <tds-textarea
-                rows="7"
-                label="JSON"
-                value={result}
-                label-position="outside"
-                placeholder="Placeholder"
-              ></tds-textarea>
+              {result && isValidJson(result) ? (
+                // Show JsonView if result is valid JSON
+                <JsonView
+                  value={result} // Parse the JSON for the JsonView component
+                  indentWidth={4}
+                  displayDataTypes={true}
+                  collapsed={false}
+                  displayObjectSize={true}
+                  enableClipboard={true}
+                  quotes={`"`}
+                />
+              ) : (
+                // If not JSON, show the result as plain text
+                <p>{result}</p>
+              )}
             </span>
             <div slot="actions" className={styles.action}>
               <tds-button
