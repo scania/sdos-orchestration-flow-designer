@@ -10,6 +10,8 @@ import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
+import TaskSelection from "@/components/TaskSelection";
+import { Task } from "@/utils/types";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -85,12 +87,13 @@ function App({
     let modal = document.querySelector("#execute-graph-iri-modal");
     modal.addEventListener("tdsClose", (event) => {
       handleModalClose();
-    })}, []);
-  
+    });
+  }, []);
+
   // TODO - Add same functionality for all modals on the page
   const handleModalClose = () => {
-    setExecuteGraphIriValue("")
-  }
+    setExecuteGraphIriValue("");
+  };
 
   const checkNameExists = async (name: string): Promise<boolean> => {
     try {
@@ -132,9 +135,10 @@ function App({
     );
   };
 
-  const handleExecute = () => {
+  const handleExecute = (task: Task) => {
+    console.log(task, "task");
     router.push({
-      pathname: `/executeFlow/iri/${encodeURIComponent(executeGraphIriValue)}`,
+      pathname: `/executeFlow/iri/${encodeURIComponent(task.subjectIri)}`,
     });
   };
   return (
@@ -210,48 +214,18 @@ function App({
                   </form>
                 </span>
               </tds-modal>
-              <tds-modal id="execute-graph-iri-modal" tds-close={() => handleModalClose()} selector="#execute-graph-button" size="xs">
-                <h5 className="tds-modal-headline" slot="header">
-                  Execute Graph with IRI
-                </h5>
-                <span slot="body">
-                  <form onSubmit={handleSubmitExecuteGraph(handleExecute)}>
-                    <tds-text-field
-                      id="modal-name-field"
-                      placeholder="https://example.com/test"
-                      size="sm"
-                      mode-variant={theme === "light" ? "primary" : "secondary"}
-                      value={executeGraphIriValue}
-                      onInput={(e: { currentTarget: { value: string } }) =>
-                        setExecuteGraphIriValue(e.currentTarget.value)
-                      }
-                      helper={
-                        errorsExecuteGraph.iri
-                          ? errorsExecuteGraph.iri.message
-                          : ""
-                      }
-                      state={errorsExecuteGraph.iri ? "error" : "default"}
-                      {...registerExecuteGraph("iri", {
-                        required: "Graph IRI is required",
-                        pattern: {
-                          value: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/,
-                          message:
-                            "Please enter a valid IRI (URL format required)",
-                        },
-                      })}
-                    />
-                    <div style={{ marginTop: "28px" }} />
-                    <span slot="actions">
-                      <tds-button
-                        size="md"
-                        text="Execute"
-                        type="submit"
-                        modeVariant="primary"
-                      />
-                    </span>
-                  </form>
-                </span>
-              </tds-modal>
+              {/* Execute Graph Modal */}
+              <TaskSelection
+                executeGraphIriValue={executeGraphIriValue}
+                setExecuteGraphIriValue={setExecuteGraphIriValue}
+                errorsExecuteGraph={errorsExecuteGraph}
+                registerExecuteGraph={registerExecuteGraph}
+                handleSubmitExecuteGraph={handleSubmitExecuteGraph}
+                handleExecute={handleExecute}
+                theme={theme}
+                handleModalClose={handleModalClose}
+                baseUrl={baseUrl}
+              />
               <Button type="button" variant="secondary">
                 <div className="tds-u-mr1">Find graph to reuse</div>
                 <tds-icon name="redirect" size="16px"></tds-icon>

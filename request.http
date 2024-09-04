@@ -176,3 +176,23 @@ Content-Type: application/json
 ### Delete a parameter by ID
 DELETE {{baseUrl}}/api/parameters?id=parameter-id-here
 Content-Type: application/json
+
+### Execute Graph Synchronously
+POST {{baseUrl}}/api/execute/sync
+Content-Type: application/json
+
+{
+    "graphId": "graph-id-here"
+}
+
+### Execute Graph Asynchronously
+POST {{baseUrl}}/api/execute/async
+Content-Type: application/json
+
+{
+    "graphId": "graph-id-here"
+}
+
+### Fetch All Tasks
+GET {{baseUrl}}/api/execute/tasks
+Content-Type: application/json

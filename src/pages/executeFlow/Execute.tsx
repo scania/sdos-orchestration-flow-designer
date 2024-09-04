@@ -42,11 +42,22 @@ function ExecuteFlow({
   const [parameters, setParameters] = useState<Parameter[]>(initParameters);
 
   // Save/Create a new parameter
-  const saveParameter = () => {
-    alert(
-      `an object with name: ${creatingNewParameter.name} and value: ${creatingNewParameter.value} saved as a new parameter`
-    );
-    changeMode("initial");
+  const saveParameter = async () => {
+    try {
+      const response = await axios.post("/api/parameter", {
+        name: creatingNewParameter.name,
+        value: creatingNewParameter.value, // Assuming 'value' is part of creatingNewParameter
+        iri,
+      });
+      alert(`Parameter saved with ID: ${response.data.id}`);
+      const parametersResponse = await axios.get(`/api/parameters`, {
+        params: { iri },
+      });
+      setParameters(parametersResponse.data);
+      changeMode("initial");
+    } catch (error) {
+      alert("An error occurred while saving the parameter.");
+    }
   };
 
   // Change mode, reset certain options
