@@ -79,6 +79,22 @@ function ExecuteFlow({
     }
   };
 
+  const deleteParameter = async () => {
+    try {
+      const response = await axios.delete(
+        `/api/parameter?id=${selectedParameter.id}`
+      );
+      alert(`Parameter deleted`);
+      const parametersResponse = await axios.get(`/api/parameters`, {
+        params: { iri },
+      });
+      setParameters(parametersResponse.data);
+      changeMode("initial");
+    } catch (error) {
+      alert("An error occurred while deleting the parameter.");
+    }
+  };
+
   // Change mode, reset certain options
   const changeMode = (mode) => {
     setCreatingNewParameter(initNewParameter);
@@ -87,6 +103,8 @@ function ExecuteFlow({
 
   // Save an existing parameter with a new value
   const saveEditedParameter = () => {
+    console.log(selectedParameter, "selected Parameter after Edit");
+    console.log(creatingNewParameter, "selected Parameter after Edit");
     alert("You have edited a parameter and saved it");
   };
 
@@ -98,6 +116,7 @@ function ExecuteFlow({
   // Selection of a existing parameter
   const selectParameter = (param) => {
     setSelectedParameter({
+      id: param.id,
       name: param.name,
       value: param.value,
     });
@@ -303,6 +322,13 @@ function ExecuteFlow({
                   variant="secondary"
                   text={enableEditParameter ? "Cancel" : "Edit parameter"}
                   onClick={() => setEnableEditParameter(!enableEditParameter)}
+                ></tds-button>
+                <tds-button
+                  type="button"
+                  size="sm"
+                  variant="danger"
+                  text="Delete"
+                  onClick={() => deleteParameter()}
                 ></tds-button>
                 {enableEditParameter && (
                   <tds-button
