@@ -196,3 +196,7 @@ Content-Type: application/json
 ### Fetch All Tasks
 GET {{baseUrl}}/api/execute/tasks
 Content-Type: application/json
+
+### Fetch Task Parameters by IRI
+GET {{baseUrl}}/api/parameters/template?iri=task-iri-here
+Content-Type: application/json

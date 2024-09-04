@@ -3,6 +3,7 @@ import { getSession } from "next-auth/react";
 import Link from "next/link";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
+import { Parameter as ParameterTemplate } from "@/utils/types";
 
 interface Parameter {
   id?: string;
@@ -15,6 +16,7 @@ interface ExecuteProp {
   flowId: string | null;
   baseUrl: string;
   initParameters: any[];
+  taskTemplate: ParameterTemplate[];
 }
 
 function ExecuteFlow({
@@ -22,9 +24,11 @@ function ExecuteFlow({
   flowId = null,
   baseUrl,
   initParameters,
+  taskTemplate = [],
 }: ExecuteProp) {
   // The mode changes between "initial, editParameter and existingParameter"
   const [mode, setMode] = useState("initial");
+  console.log("parameterTemplte", taskTemplate);
   // Creating a new parameter object
   const [creatingNewParameter, setCreatingNewParameter] = useState<Parameter>({
     name: "",
