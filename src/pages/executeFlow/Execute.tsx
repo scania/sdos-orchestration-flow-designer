@@ -31,14 +31,15 @@ function ExecuteFlow({
   console.log("parameterTemplte", taskTemplate);
   // Creating a new parameter object
   const [creatingNewParameter, setCreatingNewParameter] = useState<Parameter>({
-    name: "",
-    value: "",
+    name: "parameter",
+    value: JSON.stringify(taskTemplate),
   });
   // The result of the execution
   const [result, setResult] = useState("");
   // Boolean to enable/disable editing of the parameter
   const [enableEditParameter, setEnableEditParameter] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState({
+    id: "",
     name: "",
     value: "",
   });
