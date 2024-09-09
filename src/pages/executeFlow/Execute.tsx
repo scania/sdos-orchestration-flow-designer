@@ -228,7 +228,7 @@ function ExecuteFlow({
                 }
               />
               <tds-textarea
-                rows="7"
+                rows="20"
                 label="JSON"
                 value={creatingNewParameter.value}
                 label-position="outside"
@@ -265,7 +265,7 @@ function ExecuteFlow({
                 })}
               </tds-dropdown>
               <tds-textarea
-                rows="7"
+                rows="20"
                 disabled={!enableEditParameter}
                 label="JSON"
                 label-position="outside"
@@ -361,7 +361,7 @@ function ExecuteFlow({
                 <JsonView
                   value={result} // Parse the JSON for the JsonView component
                   indentWidth={4}
-                  displayDataTypes={true}
+                  displayDataTypes={false}
                   collapsed={false}
                   displayObjectSize={true}
                   enableClipboard={true}

@@ -182,15 +182,8 @@ POST {{baseUrl}}/api/execute/sync
 Content-Type: application/json
 
 {
-    "graphId": "graph-id-here"
-}
-
-### Execute Graph Asynchronously
-POST {{baseUrl}}/api/execute/async
-Content-Type: application/json
-
-{
-    "graphId": "graph-id-here"
+    "subjectIri": "graph-id-here",
+    "parameters": []
 }
 
 ### Fetch All Tasks

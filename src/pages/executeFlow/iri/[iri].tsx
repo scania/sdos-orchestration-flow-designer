@@ -18,7 +18,6 @@ export async function getServerSideProps(context: any) {
   const { iri } = context.params;
 
   try {
-    // Fetch parameters and task template in parallel
     const [parametersResponse, templateResponse] = await Promise.all([
       axios.get(`${env.NEXTAUTH_URL}/api/parameters`, {
         params: { iri },
@@ -46,7 +45,7 @@ export async function getServerSideProps(context: any) {
         iri,
         baseUrl: env.NEXTAUTH_URL,
         initParameters,
-        taskTemplate, // Pass the template as a prop
+        taskTemplate,
       },
     };
   } catch (error) {
