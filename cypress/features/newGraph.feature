@@ -160,4 +160,60 @@ Feature: Create new orchestration graph
         And Save button in panel  is clicked
         And "Leave setup" button is clicked
         Then label "TestingActionLabel" should get displayed
+
+    
+    Scenario: Multiple element different category Graph 
+        Given OFD home page is in view
+        When the button "Create new graph" is clicked
+        Then the create new graph modal is visible
+        Given "Test Name" is entered in the text field with placeholder "Name"
+        And "Test Description" is entered in the text area with placeholder "Description"
+        When the modal's create button is clicked
+        Then the workspace page should be visible
+        And a new graph should open in the workspace
+        When "Script" action button is dragged
+        And "first" connector is linked
+        When "HTTP" parameter button is dragged
+        And "second" connector is linked
+        And inputParameter is selected as connectorname
+        When "Groovy" Script button is dragged
+        And "third" connector is linked
+        And Save button is clicked
+        Then Success message should get displayed
+
+    Scenario: verify change of graph state
+        Given OFD home page is in view
+        When the button "Create new graph" is clicked
+        Then the create new graph modal is visible
+        Given "Test Name" is entered in the text field with placeholder "Name"
+        And "Test Description" is entered in the text area with placeholder "Description"
+        When the modal's create button is clicked
+        Then the workspace page should be visible
+        And a new graph should open in the workspace
+        When "Script" action button is dragged
+        And "first" connector is linked
+        And Save Draft button is clicked
+        Then Success message should get displayed
+        When the My work icon is clicked
+        Then OFD home page is in view
+        And Test name should get displayed
+        And Draft state should get displayed
+        And "Open" button should be visible
+        When "Open" button is clicked
+        Then Graph page should get displayed
+        When Save button is clicked
+        Then Success message should get displayed
+        When the My work icon is clicked
+        Then OFD home page is in view
+        And Test name should get displayed
+        And Saved state should get displayed
+        And Draft state should not get displayed
+        When "Open" button is clicked
+        Then Graph page should get displayed
+        When Save Draft button is clicked
+        Then Success message should get displayed
+        When the My work icon is clicked
+        Then OFD home page is in view
+        And Test name should get displayed
+        And Draft state should get displayed
         

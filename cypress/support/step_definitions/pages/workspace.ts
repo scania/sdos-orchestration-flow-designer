@@ -12,20 +12,6 @@ import { Then, When } from "@badeball/cypress-cucumber-preprocessor";
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-
-
-// ------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------
-// -------------------------------- GIVEN ---------------------------------------------
-// ------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------
-// -------------------------------- WHEN ----------------------------------------------
-// ------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------
-
 When("the Add to graph button is clicked", () => {
   cy.get('tds-button[text="Add to graph"] button').click({
     force: true,
@@ -149,6 +135,69 @@ When("{string} button is clicked", (buttonText: unknown) => {
     .first()
     .click();
 });
+
+When("{string} parameter button is dragged", (Parameter) => {
+  const dataTransfer = new DataTransfer();
+  cy.contains("li", "Parameters").click();
+  switch (Parameter) {
+    case "Token Credentials":
+      cy.get('div[draggable="true"] span')
+        .first()
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
+      break;
+    case "Standard":
+      cy.get('div[draggable="true"] span')
+        .eq(1)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").trigger("drop", { dataTransfer });
+      break;
+    case "Basic Credentials":
+      cy.get('div[draggable="true"] span')
+        .eq(2)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").last().trigger("drop", { dataTransfer });
+      break;
+    case "HTTP":
+      cy.get('div[draggable="true"] span')
+        .eq(3)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").last().trigger("drop", { dataTransfer });
+      break;
+    default:
+      cy.log(`No Parameters matched for ${Parameter}`);
+  }
+});
+When("{string} Script button is dragged", (Script) => {
+  const dataTransfer = new DataTransfer();
+  cy.contains("li", "Scripts").click();
+  switch (Script) {
+    case "Groovy":
+      cy.get('div[draggable="true"] span').eq(0)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").last().trigger("drop", { dataTransfer });
+      break;
+    case "Python":
+      cy.get('div[draggable="true"] span')
+        .eq(1)
+        .trigger("dragstart", { dataTransfer })
+        .click();
+      cy.get("div.react-flow__node").last().trigger("drop", { dataTransfer });
+      break;
+    default:
+      cy.log(`No Parameters matched for ${Script}`);
+  }
+});
+
+When("inputParameter is selected as connectorname", () => {
+  cy.get('li[value="inputParameter"]').click();
+});
+
 
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
