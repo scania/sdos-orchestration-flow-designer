@@ -196,12 +196,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           <p className="tds-detail-06">{label}</p>
           <div className={styles["description__label"]}>{renderLabel()}</div>
         </div>
-        <tds-icon
-          name="link_broken"
-          size="24"
-          style={{ cursor: "pointer" }}
-          svg-title="Not saved in library"
-        ></tds-icon>
       </div>
       <article className={styles["form-body-section"]}>
         {hasAttributes ? (
