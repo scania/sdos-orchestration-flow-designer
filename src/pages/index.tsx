@@ -192,10 +192,6 @@ function App({
                   </form>
                 </span>
               </tds-modal>
-              <Button type="button" variant="secondary">
-                <div className="tds-u-mr1">Find graph to reuse</div>
-                <tds-icon name="redirect" size="16px"></tds-icon>
-              </Button>
             </div>
 
             <h2 className={styles["content__headingContent"]}>Graphs</h2>
