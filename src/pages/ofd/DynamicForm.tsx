@@ -1,13 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import React, { useEffect, useMemo, useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import styles from "./ofd.module.scss";
-import { defineCustomElements, TdsTextarea } from "@scania/tegel-react";
+import { TdsTextarea } from "@scania/tegel-react";
 import { DynamicFormProps, FormField, IFormInput } from "@/utils/types";
-defineCustomElements();
-
-// Helper functions for encoding and decoding
-const replaceSpecialChars = (str: string) => str.replace(/[/.]/g, "_");
-const restoreSpecialChars = (str: string) => str.replace(/_/g, "/");
+import { replaceSpecialChars } from "@/helpers/helper";
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
   formData = { formFields: [] },
@@ -32,7 +28,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     watch,
     setFocus,
     setValue,
-    control,
   } = useForm<IFormInput>({
     defaultValues: formInitialValues,
   });
@@ -81,7 +76,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         <div onClick={toggleEditMode} style={{ cursor: "pointer" }}>
           <tds-icon
             name="error"
-            size="16px"
+            size="16"
             style={{ color: "red", marginRight: "4px" }}
           ></tds-icon>
           <h5 className="tds-headline-05" style={{ display: "inline" }}>
@@ -96,7 +91,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         <>
           <input
             type="text"
-            className={styles["test"]}
+            className={styles["label-input"]}
             {...register(
               replaceSpecialChars(
                 "https://kg.scania.com/it/iris_orchestration/label"
@@ -107,10 +102,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             )}
             onBlur={toggleEditMode}
             onKeyDown={(e) => {
-              e.key === "Enter" ? toggleEditMode() : null;
+              e.key === "Enter" && toggleEditMode();
             }}
           />
-          {labelValue ? (
+          {labelValue &&
             <tds-icon
               name="tick"
               size="20"
@@ -120,9 +115,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               }}
               onClick={toggleEditMode}
             ></tds-icon>
-          ) : (
-            <></>
-          )}
+          }
         </>
       );
     }
@@ -143,22 +136,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     );
   };
   const renderInputField = (field: FormField) => {
-    const { name, type, label, validation } = field;
+    const { name, label, validation } = field;
     const fieldName = name.split("/");
     const validationRules = {
       required: validation.required ? "This field is required" : false,
-      // minLength: validation.min
-      //   ? {
-      //       value: validation.min,
-      //       message: validation.message || "Minimum length is not met",
-      //     }
-      //   : undefined,
-      // maxLength: validation.max
-      //   ? {
-      //       value: validation.max,
-      //       message: validation.message || "Maximum length exceeded",
-      //     }
-      //   : undefined,
       pattern: validation.pattern
         ? {
             value: new RegExp(validation.pattern),
@@ -198,23 +179,21 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         </div>
       </div>
       <article className={styles["form-body-section"]}>
-        {hasAttributes ? (
+        {hasAttributes &&
           <div className={styles["form-body-section__header"]}>
             <div
               style={{
                 display: "flex",
                 gap: "4px",
+                alignItems: "center"
               }}
             >
               <h5 className="tds-headline-05">Attributes</h5>
-              {Object.keys(formState.errors).length > 0 ? (
+              {Object.keys(formState.errors).length > 0 &&
                 <tds-badge
                   size="sm"
-                  style={{ transform: "translateY(30%)" }}
                 ></tds-badge>
-              ) : (
-                <></>
-              )}
+              }
             </div>
 
             <tds-button
@@ -224,23 +203,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               text="Copy IRI Address"
             ></tds-button>
           </div>
-        ) : (
-          <></>
-        )}
+        }
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className={styles["form-body-section__form"]}>
             {formFields
               .filter(({ name }) => !excludeKeys.includes(name))
               .map((field) => renderInputField(field))}
           </div>
-          <div className={styles["form-body-section__actions"]}>
             <section
-              style={{
-                display: "flex",
-                gap: "16px",
-                justifyContent: "left",
-                marginTop: 34,
-              }}
+            className={styles["form__action-menu"]}
             >
               <tds-button
                 type="submit"
@@ -256,7 +227,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 onClick={onClose}
               ></tds-button>
             </section>
-          </div>
         </form>
       </article>
     </>
