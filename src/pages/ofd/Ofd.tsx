@@ -516,7 +516,7 @@ const ForceGraphComponent: React.FC = ({
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
-                {setupMode ? (
+                {setupMode &&
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
@@ -527,9 +527,7 @@ const ForceGraphComponent: React.FC = ({
                       label={selectedNode.data.label}
                     />
                   </div>
-                ) : (
-                  <></>
-                )}
+                }
               </div>
             </ReactFlowProvider>
             <div className={styles["setup-button"]}>
