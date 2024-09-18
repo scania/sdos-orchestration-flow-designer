@@ -2,7 +2,7 @@ import axios from "axios";
 import { JWT } from "next-auth/jwt";
 import { env } from "../env";
 import logger from "../logger";
-import { cacheFetch, cacheSet } from "../backend/cache";
+import { cacheGet, cacheSet } from "../backend/cache";
 
 interface OBOTokenResponse {
   access_token: string;
@@ -47,14 +47,13 @@ export async function getOBOToken(token: JWT): Promise<OBOTokenResponse> {
       throw new Error("Failed to obtain OBO token");
     }
   };
-
-  const oboToken = await cacheFetch<OBOTokenResponse>(
-    cacheKey,
-    fetchNewOBOToken,
-    undefined
-  ); // TTL is set later
-
-  cacheSet(cacheKey, oboToken, oboToken.expires_in);
+  let oboToken: OBOTokenResponse | undefined;
+  const timeBuffer = 60;
+  oboToken = cacheGet(cacheKey);
+  if (!oboToken) {
+    oboToken = await fetchNewOBOToken();
+    cacheSet(cacheKey, oboToken, oboToken.expires_in - timeBuffer);
+  }
 
   logger.info(`Returning OBO token for user ${token.sub}`);
   return oboToken;

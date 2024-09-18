@@ -298,12 +298,7 @@ const ForceGraphComponent: React.FC = ({
 
       const newNode = {
         id: generateClassId(),
-        type:
-          type === "Task"
-            ? "input"
-            : type === "Result Action"
-            ? "output"
-            : "default",
+        type: type === "Task" ? "input" : "default",
         position,
         sourcePosition: "right",
         targetPosition: "left",
@@ -434,7 +429,10 @@ const ForceGraphComponent: React.FC = ({
           >
             Save Draft
           </span>
-          <span className={styles.page__header__save} onClick={() => handleSaveClick(false)}>
+          <span
+            className={styles.page__header__save}
+            onClick={() => handleSaveClick(false)}
+          >
             Save
           </span>
         </div>
