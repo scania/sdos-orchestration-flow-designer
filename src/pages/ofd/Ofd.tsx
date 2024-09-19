@@ -415,7 +415,7 @@ const ForceGraphComponent: React.FC = ({
       <header className={styles.page__header + " tds-detail-02"}>
         <div>
           <Link href="/">
-            <span className={styles.page__header__back}>My work</span>
+            <span className={styles.page__header__back}>Back</span>
             <tds-icon slot="icon" size="14px" name="back"></tds-icon>
           </Link>
         </div>
