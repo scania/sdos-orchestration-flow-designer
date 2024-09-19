@@ -1,6 +1,4 @@
 import { env } from "../env";
-import { getOBOToken as getStardogOBOToken } from "./stardogOBO";
-import { getOBOToken as getSdosOBOToken } from "./sdosOBO";
 import logger from "../logger";
 
 const isTokenValid = (expires_at: number): boolean => {
@@ -18,14 +16,15 @@ export async function refreshAccessToken(oldToken: any) {
   try {
     logger.info(`Refreshing access token for user: ${token.sub}`);
 
-    if (!isTokenValid(token.accessTokenExpires)) {
+    //adding buffer time
+    if (!isTokenValid(token.accessTokenExpires - 500)) {
       const url = `https://login.microsoftonline.com/${env.OFD_AZURE_AD_TENANT_ID}/oauth2/v2.0/token`;
       const params = new URLSearchParams({
         client_id: env.OFD_AZURE_AD_CLIENT_ID,
         client_secret: env.OFD_AZURE_AD_CLIENT_SECRET,
         grant_type: "refresh_token",
         refresh_token: token.refreshToken,
-        scope: "https://graph.microsoft.com/.default",
+        scope: `openid profile email offline_access api://${env.OFD_AZURE_AD_CLIENT_ID}/email`,
       });
 
       const response = await fetch(url, {
@@ -52,36 +51,9 @@ export async function refreshAccessToken(oldToken: any) {
       logger.info("Access token is still valid, no need to refresh.");
     }
 
-    // Handle Stardog OBO token
-    if (!token.stardogOBO || !isTokenValid(token.stardogOBO.expires_in)) {
-      logger.info("Fetching new Stardog OBO token...");
-      const stardogOBOResponse = await getStardogOBOToken({
-        accessToken: token.accessToken,
-      });
-      token.stardogOBO = {
-        token: stardogOBOResponse.access_token,
-        expires_in:
-          Math.floor(Date.now() / 1000) + stardogOBOResponse.expires_in,
-      };
-      logger.info("Stardog OBO token refreshed.");
-    }
-
-    // Handle SDOS OBO token
-    if (!token.sdosOBO || !isTokenValid(token.sdosOBO.expires_in)) {
-      logger.info("Fetching new SDOS OBO token...");
-      const sdosOBOResponse = await getSdosOBOToken({
-        accessToken: token.accessToken,
-      });
-      token.sdosOBO = {
-        token: sdosOBOResponse.access_token,
-        expires_in: Math.floor(Date.now() / 1000) + sdosOBOResponse.expires_in,
-      };
-      logger.info("SDOS OBO token refreshed.");
-    }
-
     return token;
   } catch (error) {
-    logger.error("Failed to refresh access or OBO tokens:", error);
+    logger.error("Failed to refresh access token", error);
     throw error;
   }
 }
