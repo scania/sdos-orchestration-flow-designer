@@ -52,24 +52,11 @@ const Header = () => {
       </tds-header-title>
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
-          <tds-icon name="search"></tds-icon>
-        </div>
-      </tds-header-dropdown>
-
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
           <Link href="/settings">
             <tds-icon name="settings"></tds-icon>
           </Link>
         </div>
       </tds-header-dropdown>
-
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <tds-icon name="bento"></tds-icon>
-        </div>
-      </tds-header-dropdown>
-
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
           <img
