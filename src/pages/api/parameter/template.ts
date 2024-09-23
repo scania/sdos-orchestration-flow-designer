@@ -1,12 +1,12 @@
+import { getSDOSOBOToken } from "@/lib/backend/sdosOBO";
+import { TasksResponse } from "@/utils/types";
+import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]";
-import logger from "../../../lib/logger";
-import { env } from "../../../lib/env";
-import prisma from "@/lib/prisma";
 import { getToken } from "next-auth/jwt";
-import axios from "axios";
-import { TasksResponse } from "@/utils/types";
+import { env } from "../../../lib/env";
+import logger from "../../../lib/logger";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -29,7 +29,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    const oboToken = token?.sdosOBO?.token;
+
+    if (!token) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const { access_token } = await getSDOSOBOToken(token);
+
+    logger.debug("Obtained SDOS OBO token:");
+    if (!access_token) {
+      logger.error("OBO token missing.");
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
     switch (req.method) {
       case "GET":
         const { iri } = req.query;
@@ -39,7 +52,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             `${env.SDOS_ENDPOINT}/sdos/getAllAvailableTasks`,
             {
               headers: {
-                Authorization: `Bearer ${oboToken}`,
+                Authorization: `Bearer ${access_token}`,
               },
             }
           );

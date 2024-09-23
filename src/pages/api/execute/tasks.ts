@@ -6,6 +6,7 @@ import { env } from "../../../lib/env";
 import { getToken } from "next-auth/jwt";
 import axios from "axios";
 import { TasksResponse } from "@/utils/types";
+import { getSDOSOBOToken } from "@/lib/backend/sdosOBO";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -20,8 +21,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    const oboToken = token?.sdosOBO?.token;
-    if (!oboToken) {
+    if (!token) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const { access_token } = await getSDOSOBOToken(token);
+
+    logger.debug("Obtained SDOS OBO token:");
+    if (!access_token) {
+      logger.error("OBO token missing.");
       res.status(403).json({ error: "Forbidden" });
       return;
     }
@@ -33,7 +41,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             `${env.SDOS_ENDPOINT}/sdos/getAllAvailableTasks`,
             {
               headers: {
-                Authorization: `Bearer ${oboToken}`,
+                Authorization: `Bearer ${access_token}`,
               },
             }
           );

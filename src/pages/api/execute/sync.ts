@@ -5,6 +5,7 @@ import logger from "../../../lib/logger";
 import { env } from "../../../lib/env";
 import { getToken } from "next-auth/jwt";
 import axios from "axios";
+import { getSDOSOBOToken } from "../../../lib/backend/sdosOBO";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -21,9 +22,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Fetch the OBO token from the session
     const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    const oboToken = token?.sdosOBO?.token;
-    logger.debug("Obtained OBO token:", oboToken); // Log the OBO token
-    if (!oboToken) {
+    if (!token) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const { access_token } = await getSDOSOBOToken(token);
+
+    logger.debug("Obtained SDOS OBO token:");
+    if (!access_token) {
       logger.error("OBO token missing.");
       res.status(403).json({ error: "Forbidden" });
       return;
@@ -64,7 +70,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             },
             {
               headers: {
-                Authorization: `Bearer ${oboToken}`,
+                Authorization: `Bearer ${access_token}`,
                 "Content-Type": "application/json",
                 Accept: "application/ld+json",
               },
