@@ -23,7 +23,7 @@ function ExecuteFlow({
   iri,
   flowId = null,
   baseUrl,
-  initParameters,
+  initParameters = [],
   taskTemplate = [],
 }: ExecuteProp) {
   // The mode changes between "initial, editParameter and existingParameter"
