@@ -3,6 +3,7 @@ import {
   handleError,
   validateSession,
 } from "@/lib/backend/helper";
+import { getOBOToken } from "@/lib/backend/stardogOBO";
 import { env } from "@/lib/env";
 import logger from "@/lib/logger";
 import prisma from "@/lib/prisma";
@@ -46,16 +47,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       logger.error("Unauthorized access to flow.");
       return res.status(403).json({ error: "Forbidden" });
     }
-
     logger.info("Flow retrieved successfully.");
-
     const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    const oboToken = token?.stardogOBO?.token;
-    if (!oboToken) {
+    const { access_token } = await getOBOToken(token!);
+    if (!access_token) {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    const stardog = getStardogInstance({ token: oboToken });
+    const stardog = getStardogInstance({ token: access_token });
     switch (req.method) {
       case "GET":
         return res.status(200).json(flow);

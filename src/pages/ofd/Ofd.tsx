@@ -298,12 +298,7 @@ const ForceGraphComponent: React.FC = ({
 
       const newNode = {
         id: generateClassId(),
-        type:
-          type === "Task"
-            ? "input"
-            : type === "Result Action"
-            ? "output"
-            : "default",
+        type: type === "Task" ? "input" : "default",
         position,
         sourcePosition: "right",
         targetPosition: "left",

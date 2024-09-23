@@ -45,11 +45,6 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
             }
           ></tds-button>
         </div>
-        <div>
-          <Link href="#" underline>
-            Request Access Via Scania now
-          </Link>
-        </div>
         <div className={styles.login__leftPane__bottom}>
           <div className={styles.login__spacer}></div>
           <div>

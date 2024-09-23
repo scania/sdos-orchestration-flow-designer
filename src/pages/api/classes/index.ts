@@ -5,6 +5,7 @@ import { authOptions } from "../auth/[...nextauth]";
 import logger from "../../../lib/logger";
 import { env } from "../../../lib/env";
 import { getToken } from "next-auth/jwt";
+import { getOBOToken as getStardogOBOToken } from "../../../lib/backend/stardogOBO";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -17,15 +18,21 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     }
     const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    const oboToken = token?.stardogOBO?.token;
-    if (!oboToken) {
+    if (!token) {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    const stardog = getStardogInstance({ token: oboToken });
+
+    const { access_token } = await getStardogOBOToken(token);
+
+    if (!access_token) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const stardog = getStardogInstance({ token: access_token });
     switch (req.method) {
       case "GET":
-        const response = await stardog.fetchClasses(oboToken);
+        const response = await stardog.fetchClasses(access_token);
         logger.info("Fetched classes successfully.");
         res.status(200).json(response);
         break;

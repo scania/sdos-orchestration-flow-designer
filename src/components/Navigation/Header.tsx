@@ -19,22 +19,6 @@ const DropDownListItems = () => {
             header={session?.user?.name || ""}
             subheader="Admin"
           ></tds-header-dropdown-list-user>
-          <tds-header-dropdown-list-item
-            onClick={() => {
-              router.push("/settings");
-            }}
-          >
-            <Link href="settings">
-              <tds-icon name="settings"></tds-icon>
-              <div className="tds-u-pl1">Settings</div>
-            </Link>
-          </tds-header-dropdown-list-item>
-          <tds-header-dropdown-list-item>
-            <Link href="help">
-              <tds-icon name="info"></tds-icon>
-              <div className="tds-u-pl1">Need Help?</div>
-            </Link>
-          </tds-header-dropdown-list-item>
           <tds-header-dropdown-list-item onClick={handleLogout}>
             <Link href="#" passHref>
               <div style={{ display: "inline-block" }}>
@@ -68,24 +52,11 @@ const Header = () => {
       </tds-header-title>
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
-          <tds-icon name="search"></tds-icon>
-        </div>
-      </tds-header-dropdown>
-
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
           <Link href="/settings">
             <tds-icon name="settings"></tds-icon>
           </Link>
         </div>
       </tds-header-dropdown>
-
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <tds-icon name="bento"></tds-icon>
-        </div>
-      </tds-header-dropdown>
-
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
           <img
