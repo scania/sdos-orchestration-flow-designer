@@ -216,6 +216,7 @@ const ForceGraphComponent: React.FC = ({
   const exitSetupMode = useCallback(() => {
     setSelectedNode(null);
     setSetupMode(false);
+    setHighlightedClassLabel("")
   }, [setSelectedNode, setSetupMode]);
 
   const onConnect = useCallback(
@@ -535,7 +536,10 @@ const ForceGraphComponent: React.FC = ({
                   text="Enter Setup"
                   mode-variant="primary"
                   onClick={() => {
-                    setSetupMode(true);
+                    [
+                      setSetupMode(true),
+                      setHighlightedClassLabel("")
+                    ]
                   }}
                 ></tds-button>
               ) : (
