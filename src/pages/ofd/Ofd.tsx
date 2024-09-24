@@ -120,6 +120,12 @@ const ForceGraphComponent: React.FC = ({
     setTargetNodePosition({ x: 0, y: 0 });
   };
 
+  const isNodeDeletable = () => {
+    if(selectedNode?.data?.label !== 'Task'){
+      return true;
+    }
+  }
+
   const onEdgeSelect = (path: string) => {
     setEdges((eds) => {
       if (!connectionParams) return;
@@ -487,7 +493,7 @@ const ForceGraphComponent: React.FC = ({
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
-                  deleteKeyCode={"Delete"}
+                  deleteKeyCode={isNodeDeletable() ? 'Delete' : null }
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   isValidConnection={isValidConnection(nodes)}
