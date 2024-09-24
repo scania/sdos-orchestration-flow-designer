@@ -128,8 +128,8 @@ function App({
       <main className={styles.main}>
         <div className={styles.tabs}>
           <Tabs>
-            <Panel title="My Work"></Panel>
-            <Panel title="All Designs"></Panel>
+            {/* Manually create array in this in order to be able to map thru children in tabs component */}
+            {[<Panel title="Graphs"></Panel>]}
           </Tabs>
         </div>
         <div className={styles.content}>
