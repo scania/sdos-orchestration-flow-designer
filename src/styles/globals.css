@@ -90,13 +90,6 @@ i {
   align-items: center;
 }
 
-@media screen and (max-width: 650px) {
-  .tabs {
-    width: 300px;
-    margin: auto;
-  }
-}
-
 .opaque-35 {
   opacity: 0.35;
 }
