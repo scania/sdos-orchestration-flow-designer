@@ -29,7 +29,11 @@ export default memo((node) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const deleteNode = () => {
-    deleteElements({ nodes: [{ id }] });
+    if(node.data.label !== 'Task'){
+      // Delete the node if it is not of type "Task" which should not be deletable
+      deleteElements({ nodes: [{ id }] });
+    }
+    setIsPopoverOpen(false)
   };
 
   return (
