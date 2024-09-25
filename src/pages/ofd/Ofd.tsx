@@ -32,6 +32,7 @@ import ReactFlow, {
   useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import CustomEdge from '../../components/CustomEdge/CustomEdge';
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import GraphOptions from "../../components/GraphOptions/GraphOptions";
@@ -217,6 +218,10 @@ const ForceGraphComponent: React.FC = ({
     setSelectedNode(null);
     setSetupMode(false);
   }, [setSelectedNode, setSetupMode]);
+
+  const edgeTypes = {
+    'custom-edge': CustomEdge,
+  };
 
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
@@ -505,6 +510,7 @@ const ForceGraphComponent: React.FC = ({
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
+                  edgeTypes={edgeTypes}
                 >
                   <Controls style={{ display: "flex" }} position="top-center" />
                   {/* @ts-ignore */}
