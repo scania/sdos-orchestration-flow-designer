@@ -5,6 +5,7 @@ const envSchema = z.object({
   OFD_AZURE_AD_CLIENT_SECRET: z.string().min(1),
   OFD_AZURE_AD_TENANT_ID: z.string().uuid().min(1),
   SDOS_CLIENT_ID: z.string().uuid().min(1),
+  SDOS_ENDPOINT: z.string().url().min(1),
   STARDOG_CLIENT_ID: z.string().uuid().min(1),
   STARDOG_ENDPOINT: z.string().url().min(1),
   NEXTAUTH_URL: z.string().url().min(1),
