@@ -19,6 +19,14 @@
   background: #555 !important;
 }
 
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #2058A8 !important; 
+}
+
+.react-flow__edge-path{
+  stroke: #37414F !important;
+}
+
 .react-flow__handle-connecting {
   background: red !important;
 }
