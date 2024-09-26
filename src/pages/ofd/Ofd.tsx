@@ -336,7 +336,7 @@ const ForceGraphComponent: React.FC = ({
           showToast("error", "Error", "Could not fetch classes from Stardog");
         }),
     {
-      staleTime: 1000 * 60 * 5, //5 minutes
+      staleTime: Infinity,
     }
   );
 
