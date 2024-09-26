@@ -48,7 +48,9 @@ const Header = () => {
   return (
     <tds-header>
       <tds-header-title>
-        ORCHESTRATION FLOW GRAPH DESIGNER BETA 0.7.1
+        {`ORCHESTRATION FLOW GRAPH DESIGNER BETA ${
+          process.env.NEXT_PUBLIC_VERSION || ""
+        }`}
       </tds-header-title>
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
