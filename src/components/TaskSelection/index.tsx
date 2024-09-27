@@ -49,7 +49,6 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
         size="lg"
         multiselect={false}
         onTdsChange={(e) => {
-          console.log(e, "tds change");
           const selectedTaskValue = e.detail.value;
           const selectedTask = tasks.find(
             (task) => task.label === selectedTaskValue
@@ -78,21 +77,6 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
         <p>{selectedTask?.subjectIri}</p>
       </div>
     );
-    // return (
-    //   <div style={{ marginTop: "15px" }}>
-    //     <TdsTextarea
-    //       type="text"
-    //       size="lg"
-    //       mode-variant="primary"
-    //       state="default"
-    //       label="IRI"
-    //       label-position="outside"
-    //       value={selectedTask.subjectIri}
-    //       no-min-width
-    //       readOnly
-    //     ></TdsTextarea>
-    //   </div>
-    // );
   };
   return (
     <tds-modal

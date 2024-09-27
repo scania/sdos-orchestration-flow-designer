@@ -42,8 +42,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         // Extract subjectIri and parameters from the request body
         const { subjectIri, parameters } = req.body;
 
-        console.log("Request body:", { subjectIri, parameters }); // Log the received body
-
         if (!subjectIri || !parameters) {
           logger.error("subjectIri or parameters missing in request body.");
           res
@@ -53,7 +51,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         try {
-          // Log the outbound request details
           logger.info("Sending POST request to external API.");
           logger.debug("Request details:", {
             subjectIri,
@@ -61,9 +58,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             endpoint: `${env.SDOS_ENDPOINT}/sdos/runOrchestrationSync`,
           });
 
-          // Make a POST request to the external API with the provided data
           const response = await axios.post(
-            `${env.SDOS_ENDPOINT}/sdos/runOrchestrationSync`, // Adjust endpoint accordingly
+            `${env.SDOS_ENDPOINT}/sdos/runOrchestrationSync`,
             {
               subjectIri,
               parameters,
@@ -78,12 +74,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           );
 
           logger.info("Orchestration executed successfully.");
-          logger.debug("API Response data:", response.data); // Log the response data
-          console.log("API Response data:", response.data); // Log the response data
+          logger.debug("API Response data:", response.data);
+          console.log("API Response data:", response.data);
           res.status(200).json(response.data);
         } catch (error) {
           logger.error("Error executing orchestration:", error?.message);
-          logger.debug("Error details:", error); // Log the full error object
+          logger.debug("Error details:", error);
           res.status(500).json({ error: "Failed to execute orchestration" });
         }
         break;
@@ -96,7 +92,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
   } catch (error) {
     logger.error("An unexpected error occurred:", error?.message);
-    logger.debug("Error details:", error); // Log the full error object
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
