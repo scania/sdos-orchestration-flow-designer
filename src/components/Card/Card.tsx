@@ -6,12 +6,7 @@ import styles from "./card.module.scss";
 import { convertToLocalTime } from "@/lib/frontend/helper";
 import axios from "axios";
 
-
-const Card = ({
-  data,
-  baseUrl,
-  fetchFlows
-}: any) => {
+const Card = ({ data, baseUrl, fetchFlows }: any) => {
   const router = useRouter();
   const { id, name, description, isDraft, updatedAt } = data;
   const dialogId = `dialog-${id}`;
@@ -21,7 +16,7 @@ const Card = ({
   const deleteGraph = async (id: string) => {
     try {
       await axios.delete(`${baseUrl}/api/flow/${data.id}`);
-      await fetchFlows(); // Fetch the updated flows after deletion
+      await fetchFlows();
     } catch (error) {
       console.error("Failed to delete graph:", error);
     }
@@ -44,14 +39,14 @@ const Card = ({
             <Popover
               isOpen={isPopoverOpen}
               onClickOutside={() => setIsPopoverOpen(false)}
-              positions={["top", "bottom", "left", "right"]} // preferred positions by priority
-              content={(
-              <HandleGraphMenu 
-              id={dialogId}
-              onDeleteClick={() => deleteGraph(id)}
-              onExecuteClick={() => router.push(`/executeFlow/id/${id}`)}
-              />
-              )}
+              positions={["top", "bottom", "left", "right"]}
+              content={
+                <HandleGraphMenu
+                  id={dialogId}
+                  onDeleteClick={() => deleteGraph(id)}
+                  onExecuteClick={() => router.push(`/executeFlow/id/${id}`)}
+                />
+              }
             >
               <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
                 <tds-icon name="meatballs" size="20px"></tds-icon>
