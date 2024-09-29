@@ -1,0 +1,53 @@
+@import "../../styles/variables.scss";
+
+.nav {
+  background: white;
+  padding: 6px 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+}
+
+.main {
+  padding: 36px 24px 44px 24px;
+  max-width: $page-max-width;
+}
+
+.action {
+  display: flex;
+  gap: 16px;
+  margin: 24px 0px;
+  justify-content: flex-end;
+}
+
+.contentContainer {
+  width: 50%;
+  margin: 0 auto;
+
+  &__headerContainer {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  &__newParameterContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__parameterContainer {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    &__btn {
+      flex: 2;
+    }
+
+    &__dropdown {
+      flex: 3;
+    }
+  }
+}

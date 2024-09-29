@@ -105,3 +105,23 @@ export interface DynamicFormProps {
   excludeKeys: string[];
   label: string;
 }
+
+export interface KeyValuePair {
+  key: string;
+  value: string;
+}
+
+export interface Parameter {
+  label: string;
+  keyValuePairs: KeyValuePair[];
+}
+
+export interface Task {
+  label: string;
+  subjectIri: string;
+  parameters: Parameter[];
+}
+
+export interface TasksResponse {
+  tasks: Task[];
+}

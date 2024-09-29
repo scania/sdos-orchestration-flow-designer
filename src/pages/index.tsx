@@ -1,5 +1,5 @@
 import { env } from "@/lib/env";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
@@ -10,6 +10,8 @@ import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
+import TaskSelection from "@/components/TaskSelection";
+import { Task } from "@/utils/types";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -56,6 +58,7 @@ function App({
 }) {
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
+  const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
   const router = useRouter();
   const {
     register,
@@ -63,6 +66,11 @@ function App({
     setError,
     clearErrors,
     formState: { errors },
+  } = useForm();
+  const {
+    register: registerExecuteGraph,
+    handleSubmit: handleSubmitExecuteGraph,
+    formState: { errors: errorsExecuteGraph },
   } = useForm();
 
   const fetchFlows = async () => {
@@ -72,6 +80,19 @@ function App({
     } catch (error) {
       console.error("Failed to fetch flows:", error);
     }
+  };
+
+  // TODO - Used to add event listener to modal, can probably be resolved with tegel/react
+  useEffect(() => {
+    let modal = document.querySelector("#execute-graph-iri-modal");
+    modal.addEventListener("tdsClose", (event) => {
+      handleModalClose();
+    });
+  }, []);
+
+  // TODO - Add same functionality for all modals on the page
+  const handleModalClose = () => {
+    setExecuteGraphIriValue("");
   };
 
   const checkNameExists = async (name: string): Promise<boolean> => {
@@ -114,15 +135,11 @@ function App({
     );
   };
 
-  const deleteGraph = async (id: string) => {
-    try {
-      await axios.delete(`${baseUrl}/api/flow/${id}`);
-      await fetchFlows(); // Fetch the updated flows after deletion
-    } catch (error) {
-      console.error("Failed to delete graph:", error);
-    }
+  const handleExecute = (task: Task) => {
+    router.push({
+      pathname: `/executeFlow/iri/${encodeURIComponent(task.subjectIri)}`,
+    });
   };
-
   return (
     <div className={`App`}>
       <main className={styles.main}>
@@ -149,6 +166,10 @@ function App({
               >
                 <div className="tds-u-mr1">Create new graph</div>
                 <tds-icon name="plus" size="16px"></tds-icon>
+              </Button>
+              <Button id="execute-graph-button" type="button" variant="primary">
+                <div className="tds-u-mr1">Execute Graph</div>
+                <tds-icon name="send" size="16px"></tds-icon>
               </Button>
               <tds-modal selector="#create-new-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
@@ -192,6 +213,18 @@ function App({
                   </form>
                 </span>
               </tds-modal>
+              {/* Execute Graph Modal */}
+              <TaskSelection
+                executeGraphIriValue={executeGraphIriValue}
+                setExecuteGraphIriValue={setExecuteGraphIriValue}
+                errorsExecuteGraph={errorsExecuteGraph}
+                registerExecuteGraph={registerExecuteGraph}
+                handleSubmitExecuteGraph={handleSubmitExecuteGraph}
+                handleExecute={handleExecute}
+                theme={theme}
+                handleModalClose={handleModalClose}
+                baseUrl={baseUrl}
+              />
             </div>
 
             <h2 className={styles["content__headingContent"]}>Graphs</h2>
@@ -203,9 +236,8 @@ function App({
                     <Card
                       key={flow.id}
                       data={flow}
-                      confirmLabel="Do you wish to delete this graph?"
-                      confirmFunction={deleteGraph}
-                      confirmButtonLabel="Delete graph"
+                      baseUrl={baseUrl}
+                      fetchFlows={fetchFlows}
                     />
                   ))}
                 </>

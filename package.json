@@ -22,6 +22,7 @@
     "@scania/tegel": "^0.0.11",
     "@scania/tegel-react": "^1.6.1",
     "@types/node": "20.5.0",
+    "@uiw/react-json-view": "^2.0.0-alpha.27",
     "axios": "^1.6.1",
     "classnames": "^2.3.2",
     "dotenv": "^16.3.1",
