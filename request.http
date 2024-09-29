@@ -135,3 +135,61 @@ Content-Type: application/json
 ### Check if name exists 
 GET  {{baseUrl}}/api/flow/name-exists/http%3A%2F%2Fexample.org%2test
 Content-Type: application/json
+
+### Get parameters with flow id
+GET  {{baseUrl}}/api/parameters?flowId=123
+Content-Type: application/json
+
+### Get parameters with flow id
+GET  {{baseUrl}}/api/parameter?flowId=123
+Content-Type: application/json
+
+### Create a new parameter
+POST {{baseUrl}}/api/parameter
+Content-Type: application/json
+
+{
+    "name": "cool Parameter ",
+    "iri": "http://example.org/iri",
+    "value": {
+        "key": "value"
+    }
+}
+
+### Fetch a parameter by ID
+GET {{baseUrl}}/api/parameters?id=parameter-id-here
+Content-Type: application/json
+
+### Update a parameter by ID
+PUT {{baseUrl}}/api/parameters?id=parameter-id-here
+Content-Type: application/json
+
+{
+    "name": "Updated Parameter",
+    "flowId": "123",
+    "iri": "http://example.org/updated-iri",
+    "value": {
+        "key": "updated-value"
+    }
+}
+
+### Delete a parameter by ID
+DELETE {{baseUrl}}/api/parameters?id=parameter-id-here
+Content-Type: application/json
+
+### Execute Graph Synchronously
+POST {{baseUrl}}/api/execute/sync
+Content-Type: application/json
+
+{
+    "subjectIri": "graph-id-here",
+    "parameters": []
+}
+
+### Fetch All Tasks
+GET {{baseUrl}}/api/execute/tasks
+Content-Type: application/json
+
+### Fetch Task Parameters by IRI
+GET {{baseUrl}}/api/parameter/template?iri=task-iri-here
+Content-Type: application/json

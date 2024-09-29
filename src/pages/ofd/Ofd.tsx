@@ -431,17 +431,24 @@ const ForceGraphComponent: React.FC = ({
             graphDescription={graphDescription}
             graphName={router.query.graphName || graphName || ""}
           />
-          <span id="graph-options" className={styles.page__header__options}>
+          <span id="graph-options" className={styles.page__header__action}>
             Options
           </span>
           <span
-            className={styles.page__header__save}
+            id="execute-graph"
+            className={styles.page__header__action}
+            onClick={() => router.push(`/executeFlow/id/123`)}
+          >
+            Execute
+          </span>
+          <span
+            className={styles.page__header__action}
             onClick={() => handleSaveClick(true)}
           >
             Save Draft
           </span>
           <span
-            className={styles.page__header__save}
+            className={styles.page__header__action}
             onClick={() => handleSaveClick(false)}
           >
             Save
