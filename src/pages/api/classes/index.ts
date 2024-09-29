@@ -43,7 +43,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         break;
     }
   } catch (error) {
-    console.log(error);
     logger.error("An error occurred:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }

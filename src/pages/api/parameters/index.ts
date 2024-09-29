@@ -51,14 +51,17 @@ const handleGetRequest = async (
 ) => {
   try {
     const { flowId, iri } = req.query;
-    logger.debug("Fetching parameters with query:", { flowId, iri });
+    const decodedIri = iri
+      ? Buffer.from(iri as string, "base64").toString("utf8")
+      : undefined;
+    logger.debug("Fetching parameters with query:", { flowId, decodedIri });
 
     const parameters = await prisma.parameter.findMany({
       where: {
         userId,
         AND: [
           flowId ? { flowId: flowId as string } : {},
-          iri ? { iri: iri as string } : {},
+          iri ? { iri: decodedIri as string } : {},
         ],
       },
     });

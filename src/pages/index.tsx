@@ -136,8 +136,10 @@ function App({
   };
 
   const handleExecute = (task: Task) => {
+    const encodedIri = Buffer.from(task.subjectIri).toString("base64");
+
     router.push({
-      pathname: `/executeFlow/iri/${encodeURIComponent(task.subjectIri)}`,
+      pathname: `/executeFlow/iri/${encodedIri}`,
     });
   };
   return (

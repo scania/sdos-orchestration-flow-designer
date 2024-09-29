@@ -47,6 +47,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       case "GET":
         const { iri } = req.query;
 
+        const decodedIri = Buffer.from(iri as string, "base64").toString(
+          "utf8"
+        );
         try {
           const response = await axios.get<TasksResponse>(
             `${env.SDOS_ENDPOINT}/sdos/getAllAvailableTasks`,
@@ -59,9 +62,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
           const data = response.data;
 
-          const task = data.tasks.find((task) => task.subjectIri === iri);
+          const task = data.tasks.find(
+            (task) => task.subjectIri === decodedIri
+          );
           if (!task) {
-            logger.warn(`Task with IRI ${iri} not found.`);
+            logger.warn(`Task with IRI ${decodedIri} not found.`);
             res.status(200).json([]);
           }
           logger.info("Fetched template successfully.");

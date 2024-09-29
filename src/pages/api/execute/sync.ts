@@ -75,7 +75,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
           logger.info("Orchestration executed successfully.");
           logger.debug("API Response data:", response.data);
-          console.log("API Response data:", response.data);
           res.status(200).json(response.data);
         } catch (error) {
           logger.error("Error executing orchestration:", error?.message);

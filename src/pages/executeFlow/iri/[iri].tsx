@@ -16,6 +16,7 @@ export async function getServerSideProps(context: any) {
   }
 
   const { iri } = context.params;
+  const decodedIri = Buffer.from(iri, "base64").toString("utf8");
 
   try {
     const [parametersResponse, templateResponse] = await Promise.all([
@@ -42,7 +43,7 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        iri,
+        iri: decodedIri,
         baseUrl: env.NEXTAUTH_URL,
         initParameters,
         taskTemplate,

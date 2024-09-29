@@ -32,19 +32,17 @@ function ExecuteFlow({
     name: "parameter",
     value: JSON.stringify(taskTemplate),
   };
-  console.log("parameterTemplte", taskTemplate);
-  // Creating a new parameter object
   const [creatingNewParameter, setCreatingNewParameter] =
     useState<Parameter>(initNewParameter);
-  // The result of the execution
   const [result, setResult] = useState({});
-  // Boolean to enable/disable editing of the parameter
   const [enableEditParameter, setEnableEditParameter] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState({
     id: "",
     name: "",
     value: "",
   });
+  const encodedIri = Buffer.from(iri).toString("base64");
+
   const isValidJson = (value) => {
     if (typeof value === "object") {
       return true;
@@ -70,7 +68,7 @@ function ExecuteFlow({
       });
       alert(`Parameter saved with ID: ${response.data.id}`);
       const parametersResponse = await axios.get(`/api/parameters`, {
-        params: { iri },
+        params: { encodedIri },
       });
       setParameters(parametersResponse.data);
       changeMode("initial");
@@ -86,7 +84,7 @@ function ExecuteFlow({
       );
       alert(`Parameter deleted`);
       const parametersResponse = await axios.get(`/api/parameters`, {
-        params: { iri },
+        params: { encodedIri },
       });
       setParameters(parametersResponse.data);
       changeMode("initial");
@@ -103,8 +101,6 @@ function ExecuteFlow({
 
   // Save an existing parameter with a new value
   const saveEditedParameter = () => {
-    console.log(selectedParameter, "selected Parameter after Edit");
-    console.log(creatingNewParameter, "selected Parameter after Edit");
     alert("You have edited a parameter and saved it");
   };
 
