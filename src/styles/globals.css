@@ -94,6 +94,10 @@ i {
   opacity: 0.35;
 }
 
+.bold{
+  font-weight: bold;
+}
+
 .mobile-nav-item {
   display: none;
 }

@@ -9,45 +9,54 @@
 }
 
 .main {
-  padding: 36px 24px 44px 24px;
-  max-width: $page-max-width;
+
+  & hr{
+    border: none;
+    background: #DBDFE6;
+    height: 1px;
+  }
+
 }
 
 .action {
-  display: flex;
-  gap: 16px;
-  margin: 24px 0px;
-  justify-content: flex-end;
+
 }
 
-.contentContainer {
-  width: 50%;
-  margin: 0 auto;
+.headerContainer {
+  padding: 16px 24px;
 
-  &__headerContainer {
-    margin-bottom: 16px;
+  &__detailsContainer{
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
+  }
+}
+
+.contentContainer{
+  padding: 56px;
+
+  & hr{
+    border: none;
+    background: #DBDFE6;
+    height: 1px;
+    margin-top: 16px;
   }
 
-  &__newParameterContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  &__parameterContainer {
+  &__parameterContainer{
     display: flex;
     gap: 16px;
-    align-items: center;
-
-    &__btn {
-      flex: 2;
-    }
-
-    &__dropdown {
-      flex: 3;
-    }
+    margin-bottom: 24px;
   }
+  
+  &__parameterChoice{
+    display: flex;
+    gap: 8px;
+    padding: 24px 0px;
+  }
+}
+
+.footerContainer{
+  display: flex;
+  justify-content: flex-end;
+  padding: 24px 0px;
 }
