@@ -191,7 +191,7 @@ const ForceGraphComponent: React.FC = ({
     const payload = {
       nodes,
       edges,
-      graphName: `http://example.org/${
+      graphName: `https://kg.scania.com/iris_orchestration/${
         router.query?.graphName || graphName || "Private"
       }`,
       description: graphDescription,

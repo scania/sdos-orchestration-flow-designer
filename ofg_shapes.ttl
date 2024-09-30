@@ -97,7 +97,8 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :hasScriptShape ;
+                :hasScriptShape , 
+                :scriptShape ;
     sh:targetClass :PythonScript .
 
 
@@ -110,7 +111,8 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :hasScriptShape ;
+                :hasScriptShape,  
+                :scriptShape ;
     sh:targetClass :GroovyScript .   
 
 
@@ -159,7 +161,8 @@
     rdfs:label "HTTPConnector Shape"@en ;
     rdfs:comment "Shape for validation of HTTPConnectors."@en ;
     sh:property :baseUrlShape ,
-                :hasAuthenticationMethodHTTPBearerTokenORBasicAuthenticationMethodShape ;
+                :hasAuthenticationMethodHTTPBearerTokenAuthenticationMethodShape,
+                :hasAuthenticationMethodHTTPBasicAuthenticationMethodShape;
     sh:targetClass :HTTPConnector .
 
 :KafkaConnectorShape a sh:NodeShape ;
@@ -251,6 +254,12 @@
 # SYSTEM
 #--------
 
+
+:SystemShape a sh:NodeShape ;
+    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    rdfs:label "Connector Shape"@en ;
+    rdfs:comment "Shape for validation of all Connectors."@en ;
+    sh:targetClass :System.
 
 # TASK
 #-------

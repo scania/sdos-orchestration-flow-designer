@@ -6,6 +6,7 @@ import { env } from "@/lib/env";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = "ofg";
+// const DB_NAME_WRITE = "testdborchestration";
 
 export interface ClassEntity {
   uri: string;
