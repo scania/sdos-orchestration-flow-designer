@@ -156,6 +156,7 @@ const ForceGraphComponent: React.FC = ({
   }, [deletePressed]);
 
   const saveData = async (data: GraphBody) => {
+    console.log(data);
     const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
     return response.data;
   };
@@ -432,7 +433,8 @@ const ForceGraphComponent: React.FC = ({
           <span
             id="execute-graph"
             className={styles.page__header__action}
-            onClick={() => router.push(`/executeFlow/id/123`)}
+            // TODO - replace hardcoded value
+            onClick={() => router.push(`/executeFlow/id/e817ce2f-1824-465b-9c53-88126a9b0b02`)}
           >
             Execute
           </span>
