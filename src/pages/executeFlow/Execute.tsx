@@ -40,7 +40,7 @@ function ExecuteFlow({
     iri: "iri",
   });
   // The result of the execution
-  const [result, setResult] = useState();
+  const [result, setResult] = useState("");
   // Boolean to enable/disable editing of the parameter
   const [enableEditParameter, setEnableEditParameter] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState({
@@ -92,6 +92,20 @@ function ExecuteFlow({
     setParameters(parametersResponse.data);
   };
 
+
+
+    // TODO - Used to add event listener to modal, can probably be resolved with tegel/react
+    useEffect(() => {
+      let modal = document.querySelector("#execution-result-modal");
+      modal.addEventListener("tdsClose", (event) => {
+        handleModalClose();
+      });
+    }, []);
+
+    const handleModalClose = () => {
+      setResult("");
+    }
+
   const deleteParameter = async () => {
     try {
       const response = await axios.delete(
@@ -115,7 +129,7 @@ function ExecuteFlow({
 
   // Save the execution result
   const saveExecutionResult = () => {
-    alert("Execution result has been saved");
+    // Incoming functionality
   };
 
   // Selection of a existing parameter
@@ -123,7 +137,6 @@ function ExecuteFlow({
     const parameter = parameters.find(
       (param) => param.name == selectedParameterName
     );
-    // TODO - Figure out how to handle object in dropdown change
     setSelectedParameter({
       id: parameter?.id || "",
       name: parameter?.name || "",
@@ -146,16 +159,21 @@ function ExecuteFlow({
           },
         }
       );
-      setResult(response.data);
+      
       // Show the result in the modal
       (
         document.querySelector(
           `[selector="execution-result-modal"]`
         ) as HTMLTdsModalElement
       ).showModal();
+      setResult(response.data);
     } catch (error) {
-      console.log("error1");
-      // setResult(`Failed to execute graph! Error: ${error.message}`);
+      (
+        document.querySelector(
+          `[selector="execution-result-modal"]`
+        ) as HTMLTdsModalElement
+      ).showModal();
+      setResult("Could not execute the graph");
     }
   };
 
@@ -333,7 +351,7 @@ function ExecuteFlow({
           </div>
         </div>
       </div>
-      <tds-modal selector="execution-result-modal" size="sm">
+      <tds-modal id="execution-result-modal" selector="execution-result-modal" size="sm" tds-close={() => handleModalClose()}>
       <h5 className="tds-modal-headline" slot="header">
         Execute Graph with IRI
       </h5>
