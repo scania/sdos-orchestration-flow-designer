@@ -30,8 +30,9 @@ function ExecuteFlow({
   taskTemplate = [],
 }: ExecuteProp) {
   const [selectedTab, setSelectedTab] = useState("Execution");
-  const [selectedExecutionMethod, setSelectedExecutionMethod] =
-    useState("Create");
+  const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
+    "Create" | "Existing" | "Editing"
+  >("Create");
   console.log("parameterTemplte", taskTemplate);
   // Creating a new parameter object
   const [newParameter, setNewParameter] = useState({
@@ -43,11 +44,9 @@ function ExecuteFlow({
   const [result, setResult] = useState("");
   // Boolean to enable/disable editing of the parameter
   const [enableEditParameter, setEnableEditParameter] = useState(false);
-  const [selectedParameter, setSelectedParameter] = useState({
-    id: "",
-    name: "",
-    value: "",
-  });
+  const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
+    null
+  );
   const isValidJson = (value) => {
     if (typeof value === "object") {
       return true;
@@ -92,19 +91,17 @@ function ExecuteFlow({
     setParameters(parametersResponse.data);
   };
 
+  // TODO - Used to add event listener to modal, can probably be resolved with tegel/react
+  useEffect(() => {
+    let modal = document.querySelector("#execution-result-modal");
+    modal.addEventListener("tdsClose", (event) => {
+      handleModalClose();
+    });
+  }, []);
 
-
-    // TODO - Used to add event listener to modal, can probably be resolved with tegel/react
-    useEffect(() => {
-      let modal = document.querySelector("#execution-result-modal");
-      modal.addEventListener("tdsClose", (event) => {
-        handleModalClose();
-      });
-    }, []);
-
-    const handleModalClose = () => {
-      setResult("");
-    }
+  const handleModalClose = () => {
+    setResult("");
+  };
 
   const deleteParameter = async () => {
     try {
@@ -133,12 +130,12 @@ function ExecuteFlow({
   };
 
   // Selection of a existing parameter
-  const selectParameter = (selectedParameterName) => {
+  const selectParameter = (selectedParameterId: string) => {
     const parameter = parameters.find(
-      (param) => param.name == selectedParameterName
+      (param) => param.id == selectedParameterId
     );
     setSelectedParameter({
-      id: parameter?.id || "",
+      id: parameter?.id,
       name: parameter?.name || "",
       value: parameter?.value || "",
     });
@@ -159,7 +156,6 @@ function ExecuteFlow({
           },
         }
       );
-      
       // Show the result in the modal
       (
         document.querySelector(
@@ -242,7 +238,8 @@ function ExecuteFlow({
                     <tds-radio-button
                       name="rb-example"
                       onClick={(e) => {
-                        parameters.length && setSelectedExecutionMethod("Existing")
+                        parameters.length &&
+                          setSelectedExecutionMethod("Existing");
                       }}
                       disabled={!parameters.length}
                       value="savedParams"
@@ -269,14 +266,17 @@ function ExecuteFlow({
                             })
                           }
                         />
-                        <div className={styles.contentContainer__parameterContainer__saveBtn}>
-                        <tds-button
-                          text="Save"
-                          size="sm"
-                          onClick={() => saveParameter()}
-                        ></tds-button>
+                        <div
+                          className={
+                            styles.contentContainer__parameterContainer__saveBtn
+                          }
+                        >
+                          <tds-button
+                            text="Save"
+                            size="sm"
+                            onClick={() => saveParameter()}
+                          ></tds-button>
                         </div>
-
                       </div>
                       <tds-textarea
                         label="JSON"
@@ -299,7 +299,7 @@ function ExecuteFlow({
                       >
                         <TdsDropdown
                           name="dropdown"
-                          label="Parameter name"
+                          label="Select Parameter Set"
                           label-position="outside"
                           placeholder="Placeholder"
                           size="sm"
@@ -311,17 +311,37 @@ function ExecuteFlow({
                           open-direction="auto"
                           normalizeText={true}
                         >
-                          {parameters.map((parameter, index) => {
+                          {parameters.map((parameter) => {
                             return (
                               <TdsDropdownOption
-                                value={parameter.name}
-                                key={index}
+                                value={parameter.id}
+                                key={parameter.id}
                               >
                                 {parameter.name}
                               </TdsDropdownOption>
                             );
                           })}
                         </TdsDropdown>
+                        {selectedParameter && (
+                          <>
+                            <tds-button
+                              text="Edit"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedExecutionMethod("Editing");
+                              }}
+                            ></tds-button>
+
+                            <tds-button
+                              text="Delete"
+                              size="sm"
+                              variant="secondary"
+                              // onClick={() => {
+                              //   setSelectedExecutionMethod("Editing");
+                              // }}
+                            ></tds-button>
+                          </>
+                        )}
                       </div>
                       <tds-textarea
                         label="JSON"
@@ -334,45 +354,110 @@ function ExecuteFlow({
                             value: e.target.value,
                           })
                         }
-                        value={selectedParameter.value}
+                        value={selectedParameter ? selectedParameter.value : ""}
+                      ></tds-textarea>
+                    </>
+                  )}
+                  {selectedExecutionMethod === "Editing" && (
+                    <>
+                      <div
+                        className={styles.contentContainer__parameterContainer}
+                      >
+                        <TdsDropdown
+                          name="dropdown"
+                          label="Select Parameter Set"
+                          label-position="outside"
+                          placeholder="Placeholder"
+                          size="lg"
+                          multiselect={false}
+                          onTdsChange={(e) => {
+                            selectParameter(e.detail.value);
+                          }}
+                          filter
+                          open-direction="auto"
+                          normalizeText={true}
+                        >
+                          {parameters.map((parameter) => {
+                            return (
+                              <TdsDropdownOption
+                                value={parameter.id}
+                                key={parameter.id}
+                              >
+                                {parameter.name}
+                              </TdsDropdownOption>
+                            );
+                          })}
+                        </TdsDropdown>
+                        {selectedParameter && (
+                          <>
+                            <tds-button
+                              text="Save"
+                              size="sm"
+                              // variant="seondary"
+                              onClick={() => {
+                                setSelectedExecutionMethod("Editing");
+                              }}
+                            ></tds-button>
+                          </>
+                        )}
+                      </div>
+                      <tds-textarea
+                        label="JSON"
+                        rows="10"
+                        disabled
+                        label-position="outside"
+                        onInput={(e) =>
+                          setNewParameter({
+                            ...newParameter,
+                            value: e.target.value,
+                          })
+                        }
+                        value={selectedParameter ? selectedParameter.value : ""}
                       ></tds-textarea>
                     </>
                   )}
                 </div>
               )}
               {selectedTab === "Results" && <div>Results</div>}
-              <div className={styles.footerContainer}>
-                <tds-button
-                  text="Execute"
-                  onClick={() => executeGraph()}
-                ></tds-button>
-              </div>
+              {selectedParameter && selectedExecutionMethod === "Existing" && (
+                <div className={styles.footerContainer}>
+                  <tds-button
+                    text="Execute"
+                    onClick={() => executeGraph()}
+                  ></tds-button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <tds-modal id="execution-result-modal" selector="execution-result-modal" size="sm" tds-close={() => handleModalClose()}>
-      <h5 className="tds-modal-headline" slot="header">
-        Execute Graph with IRI
-      </h5>
-      <span slot="body">
-      {result && isValidJson(result) ? (
-                // Show JsonView if result is valid JSON
-                <JsonView
-                  value={result} // Parse the JSON for the JsonView component
-                  indentWidth={4}
-                  displayDataTypes={false}
-                  collapsed={false}
-                  displayObjectSize={true}
-                  enableClipboard={true}
-                  quotes={`"`}
-                />
-              ) : (
-                // If not JSON, show the result as plain text
-                <p>{result}</p>
-              )}
-      </span>
-    </tds-modal>
+      <tds-modal
+        id="execution-result-modal"
+        selector="execution-result-modal"
+        size="sm"
+        tds-close={() => handleModalClose()}
+      >
+        <h5 className="tds-modal-headline" slot="header">
+          Execute Graph with IRI
+        </h5>
+        <span slot="body">
+          {result && isValidJson(result) ? (
+            // Show JsonView if result is valid JSON
+            <JsonView
+              value={result} // Parse the JSON for the JsonView component
+              indentWidth={4}
+              displayDataTypes={false}
+              collapsed={false}
+              displayObjectSize={true}
+              enableClipboard={true}
+              quotes={`"`}
+            />
+          ) : (
+            // If not JSON, show the result as plain text
+            <p>{result}</p>
+          )}
+        </span>
+      </tds-modal>
     </div>
   );
 }
