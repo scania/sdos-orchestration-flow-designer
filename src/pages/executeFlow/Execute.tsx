@@ -302,7 +302,7 @@ function ExecuteFlow({
                           label="Parameter name"
                           label-position="outside"
                           placeholder="Placeholder"
-                          size="lg"
+                          size="sm"
                           multiselect={false}
                           onTdsChange={(e) => {
                             selectParameter(e.detail.value);
