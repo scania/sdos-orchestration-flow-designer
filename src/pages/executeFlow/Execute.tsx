@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
+import Panel from "@/components/Tabs/Panel";
+import Tabs from "@/components/Tabs/Tabs";
+import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
 import { Parameter as ParameterTemplate } from "@/utils/types";
 import JsonView from "@uiw/react-json-view";
 interface Parameter {
@@ -26,26 +29,20 @@ function ExecuteFlow({
   initParameters = [],
   taskTemplate = [],
 }: ExecuteProp) {
-  // The mode changes between "initial, editParameter and existingParameter"
-  const [mode, setMode] = useState("initial");
-  const initNewParameter = {
-    name: "parameter",
-    value: JSON.stringify(taskTemplate),
-  };
-  console.log("parameterTemplte", taskTemplate);
-  // Creating a new parameter object
-  const [creatingNewParameter, setCreatingNewParameter] =
-    useState<Parameter>(initNewParameter);
-  // The result of the execution
-  const [result, setResult] = useState({});
-  // Boolean to enable/disable editing of the parameter
-  const [enableEditParameter, setEnableEditParameter] = useState(false);
-  const [selectedParameter, setSelectedParameter] = useState({
-    id: "",
+  const [selectedTab, setSelectedTab] = useState("Execution");
+  const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
+    "Create" | "Existing" | "Editing"
+  >("Create");
+  const [newParameter, setNewParameter] = useState<Parameter>({
     name: "",
-    value: "",
+    value: JSON.stringify(taskTemplate),
   });
-  const isValidJson = (value) => {
+  const [result, setResult] = useState("");
+  const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
+    null
+  );
+  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
+  const isValidJson = (value: any) => {
     if (typeof value === "object") {
       return true;
     }
@@ -57,15 +54,16 @@ function ExecuteFlow({
     }
   };
 
-  // Placeholder parameters, should be replaced with real parameters
-  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
+  useEffect(() => {
+    fetchParameters();
+  }, []);
 
   // Save/Create a new parameter
   const saveParameter = async () => {
     try {
       const response = await axios.post("/api/parameter", {
-        name: creatingNewParameter.name,
-        value: creatingNewParameter.value, // Assuming 'value' is part of creatingNewParameter
+        name: newParameter.name,
+        value: newParameter.value,
         iri,
       });
       alert(`Parameter saved with ID: ${response.data.id}`);
@@ -73,54 +71,81 @@ function ExecuteFlow({
         params: { iri },
       });
       setParameters(parametersResponse.data);
-      changeMode("initial");
     } catch (error) {
       alert("An error occurred while saving the parameter.");
     }
   };
 
+  const fetchParameters = async () => {
+    const parametersResponse = await axios.get(`/api/parameters`, {
+      params: { iri },
+    });
+    setParameters(parametersResponse.data);
+  };
+
+  // TODO - Used to add event listener to modal, can probably be resolved with tegel/react
+  useEffect(() => {
+    let modal = document.querySelector("#execution-result-modal");
+    modal.addEventListener("tdsClose", (event) => {
+      handleModalClose();
+    });
+  }, []);
+
+  const handleModalClose = () => {
+    setResult("");
+  };
+
   const deleteParameter = async () => {
     try {
-      const response = await axios.delete(
-        `/api/parameter?id=${selectedParameter.id}`
-      );
+      await axios.delete(`/api/parameter?id=${selectedParameter?.id}`);
       alert(`Parameter deleted`);
       const parametersResponse = await axios.get(`/api/parameters`, {
         params: { iri },
       });
       setParameters(parametersResponse.data);
-      changeMode("initial");
+      if (parametersResponse?.data.length === 0) {
+        setSelectedParameter(null);
+        setSelectedExecutionMethod("Create");
+        return;
+      }
+      setSelectedParameter(null);
+      setSelectedExecutionMethod("Existing");
     } catch (error) {
       alert("An error occurred while deleting the parameter.");
     }
   };
 
-  // Change mode, reset certain options
-  const changeMode = (mode) => {
-    setCreatingNewParameter(initNewParameter);
-    setMode(mode);
+  const saveEditedParameter = async () => {
+    try {
+      if (selectedParameter?.id) {
+        const response = await axios.put(
+          `/api/parameter/?id=${selectedParameter.id}`,
+          {
+            value: selectedParameter.value,
+          }
+        );
+        alert(`Parameter updated with ID: ${response.data.id}`);
+      }
+
+      const parametersResponse = await axios.get(`/api/parameters`, {
+        params: { iri },
+      });
+      setParameters(parametersResponse.data);
+      setSelectedExecutionMethod("Existing");
+    } catch (error) {
+      alert("An error occurred while saving the parameter.");
+    }
   };
 
-  // Save an existing parameter with a new value
-  const saveEditedParameter = () => {
-    console.log(selectedParameter, "selected Parameter after Edit");
-    console.log(creatingNewParameter, "selected Parameter after Edit");
-    alert("You have edited a parameter and saved it");
-  };
-
-  // Save the execution result
-  const saveExecutionResult = () => {
-    alert("Execution result has been saved");
-  };
-
-  // Selection of a existing parameter
-  const selectParameter = (param) => {
+  const selectParameter = (selectedParameterId: string) => {
+    const parameter = parameters.find(
+      (param) => param.id == selectedParameterId
+    );
     setSelectedParameter({
-      id: param.id,
-      name: param.name,
-      value: param.value,
+      id: parameter?.id,
+      name: parameter?.name || "",
+      value: parameter?.value || "",
     });
-    changeMode("existingParameter");
   };
 
   const executeGraph = async () => {
@@ -130,7 +155,7 @@ function ExecuteFlow({
         `${baseUrl}/api/execute/sync`,
         {
           subjectIri: iri,
-          parameters: JSON.parse(selectedParameter.value),
+          parameters: JSON.parse(selectedParameter?.value as string),
         },
         {
           headers: {
@@ -138,22 +163,20 @@ function ExecuteFlow({
           },
         }
       );
-
-      const result = response.data;
       // Show the result in the modal
       (
         document.querySelector(
           `[selector="execution-result-modal"]`
         ) as HTMLTdsModalElement
       ).showModal();
-      setResult(result);
+      setResult(response.data);
     } catch (error) {
       (
         document.querySelector(
           `[selector="execution-result-modal"]`
         ) as HTMLTdsModalElement
       ).showModal();
-      setResult(`Failed to execute graph! Error: ${error.message}`);
+      setResult("Could not execute the graph");
     }
   };
 
@@ -162,7 +185,7 @@ function ExecuteFlow({
       {/* TODO - create component out of this navbar, its used in graph editor aswell */}
       <div className={styles.nav}>
         <Link href="/">
-          <span>Back</span>
+          <span>Graph editor</span>
           <tds-icon
             slot="icon"
             style={{ marginLeft: "8px" }}
@@ -172,231 +195,262 @@ function ExecuteFlow({
         </Link>
       </div>
       <div className={styles.main}>
-        <div className={styles.contentContainer}>
-          <div
-            slot="header"
-            className={styles.contentContainer__headerContainer}
-          >
-            <span className="tds-detail-01">Execute graph</span>
-            <h2 className="tds-headline-02">{iri}</h2>
+        <hr className="divider" />
+        <div className={styles.headerContainer}>
+          <h3 className="tds-headline-03" style={{ marginBottom: "16px" }}>
+            Execution flow
+          </h3>
+          <div className={styles.headerContainer__detailsContainer}>
+            <div className="tds-detail-02">
+              Graph name:{" "}
+              <span className="bold"> Placeholder for graph name</span>
+            </div>
+            <div className="tds-detail-02">
+              User: <span className="bold">Placeholder for user </span>
+            </div>
+            <div className="tds-detail-02">
+              IRI: <span className="bold">{iri}</span>
+            </div>
           </div>
-          {mode === "initial" && (
-            <div className={styles.contentContainer__parameterContainer}>
-              <tds-button
-                class={styles.contentContainer__parameterContainer__btn}
-                onClick={() => setMode("newParameter")}
-                type="button"
-                size="sm"
-                variant="primary"
-                fullbleed
-                text="Create new parameter"
-              ></tds-button>
-              <span>or</span>
-              <tds-dropdown
-                class={styles.contentContainer__parameterContainer__dropdown}
-                name="dropdown"
-                placeholder="Choose parameter"
-                size="md"
-                open-direction="auto"
-              >
-                {parameters.map((param, index) => {
-                  return (
-                    <tds-dropdown-option
-                      value={param.name}
-                      key={index}
-                      onClick={() => selectParameter(param)}
+        </div>
+        <div className={styles.tabs}>
+          <Tabs
+            selectedIndex={selectedTab}
+            onParentClick={(value: string) => setSelectedTab(value)}
+          >
+            {[<Panel title="Execution" value="Execution"></Panel>]}
+            {/* Result tab hidden untill functionality added
+              <Panel title="Results" value="Results"></Panel>
+            */}
+          </Tabs>
+          <div className={styles.outerContentContainer}>
+            <div className={styles.contentContainer}>
+              {selectedTab === "Execution" && (
+                <div>
+                  <h6 className="tds-headline-06">Execute parameter</h6>
+                  <hr className="divider" />
+                  <div className={styles.contentContainer__parameterChoice}>
+                    <tds-radio-button
+                      name="rb-example"
+                      value="newParam"
+                      radio-id="create"
+                      onClick={(e) => {
+                        setSelectedExecutionMethod("Create");
+                        setSelectedParameter(null);
+                      }}
+                      checked={selectedExecutionMethod === "Create"}
                     >
-                      {param.name}
-                    </tds-dropdown-option>
-                  );
-                })}
-              </tds-dropdown>
-            </div>
-          )}
-          {mode === "newParameter" && (
-            <div className={styles.contentContainer__newParameterContainer}>
-              <tds-text-field
-                placeholder="Placeholder"
-                label="Parameter name"
-                label-position="outside"
-                value={creatingNewParameter.name}
-                onInput={(e: { currentTarget: { value: string } }) =>
-                  setCreatingNewParameter({
-                    ...creatingNewParameter,
-                    name: e.currentTarget.value,
-                  })
-                }
-              />
-              <tds-textarea
-                rows="20"
-                label="JSON"
-                value={creatingNewParameter.value}
-                label-position="outside"
-                placeholder="Placeholder"
-                onInput={(e: { currentTarget: { value: string } }) =>
-                  setCreatingNewParameter({
-                    ...creatingNewParameter,
-                    value: e.currentTarget.value,
-                  })
-                }
-              ></tds-textarea>
-            </div>
-          )}
-          {mode === "existingParameter" && (
-            <div className={styles.contentContainer__newParameterContainer}>
-              <tds-dropdown
-                class={styles.contentContainer__parameterContainer__dropdown}
-                name="dropdown"
-                placeholder="Choose parameter"
-                size="md"
-                open-direction="auto"
-                default-value={selectedParameter.name}
-              >
-                {parameters.map((param, index) => {
-                  return (
-                    <tds-dropdown-option
-                      value={param.name}
-                      key={index}
-                      onClick={() => selectParameter(param)}
+                      <div slot="label">Create new parameter</div>
+                    </tds-radio-button>
+
+                    <tds-radio-button
+                      name="rb-example"
+                      onClick={() => {
+                        parameters.length &&
+                          setSelectedExecutionMethod("Existing");
+                      }}
+                      disabled={!parameters.length}
+                      value="savedParams"
+                      radio-id="execute"
+                      checked={
+                        selectedExecutionMethod === "Editing" ||
+                        selectedExecutionMethod === "Existing"
+                      }
                     >
-                      {param.name}
-                    </tds-dropdown-option>
-                  );
-                })}
-              </tds-dropdown>
-              <tds-textarea
-                rows="20"
-                disabled={!enableEditParameter}
-                label="JSON"
-                label-position="outside"
-                placeholder="Placeholder"
-                value={selectedParameter.value}
-              ></tds-textarea>
-            </div>
-          )}
+                      <div slot="label">Saved parameters</div>
+                    </tds-radio-button>
+                  </div>
+                  {selectedExecutionMethod === "Create" && (
+                    <>
+                      <div
+                        className={styles.contentContainer__parameterContainer}
+                      >
+                        <tds-text-field
+                          placeholder="New name"
+                          label="Parameter name"
+                          size="sm"
+                          label-position="outside"
+                          value={newParameter.name}
+                          onInput={(e) =>
+                            setNewParameter({
+                              ...newParameter,
+                              name: e.target.value,
+                            })
+                          }
+                        />
+                        <div
+                          className={
+                            styles.contentContainer__parameterContainer__saveBtn
+                          }
+                        >
+                          <tds-button
+                            text="Save"
+                            size="sm"
+                            onClick={() => saveParameter()}
+                          ></tds-button>
+                        </div>
+                      </div>
+                      <tds-textarea
+                        label="JSON"
+                        rows="10"
+                        label-position="outside"
+                        onInput={(e) =>
+                          setNewParameter({
+                            ...newParameter,
+                            value: e.target.value,
+                          })
+                        }
+                        value={newParameter.value}
+                      ></tds-textarea>
+                    </>
+                  )}
+                  {selectedExecutionMethod === "Existing" && (
+                    <>
+                      <div
+                        className={styles.contentContainer__parameterContainer}
+                      >
+                        <TdsDropdown
+                          name="dropdown"
+                          label="Select Parameter Set"
+                          label-position="outside"
+                          placeholder="Placeholder"
+                          size="sm"
+                          multiselect={false}
+                          onTdsChange={(e) => {
+                            selectParameter(e.detail.value);
+                          }}
+                          filter
+                          open-direction="auto"
+                          normalizeText={true}
+                          defaultValue={selectedParameter?.id}
+                        >
+                          {parameters.map((parameter) => {
+                            return (
+                              <TdsDropdownOption
+                                value={parameter.id}
+                                key={parameter.id}
+                              >
+                                {parameter.name}
+                              </TdsDropdownOption>
+                            );
+                          })}
+                        </TdsDropdown>
+                        {selectedParameter && (
+                          <>
+                            <tds-button
+                              text="Edit"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedExecutionMethod("Editing");
+                              }}
+                            ></tds-button>
 
-          <div className={styles.action}>
-            {mode === "newParameter" && (
-              <>
-                <tds-button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  text="Back"
-                  onClick={() => changeMode("initial")}
-                ></tds-button>
-                <tds-button
-                  type="button"
-                  size="sm"
-                  variant="primary"
-                  text="Save parameter"
-                  onClick={() => saveParameter()}
-                ></tds-button>
-                {/*
+                            <tds-button
+                              text="Delete"
+                              size="sm"
+                              variant="secondary"
+                              onClick={deleteParameter}
+                            ></tds-button>
+                          </>
+                        )}
+                      </div>
+                      <tds-textarea
+                        label="JSON"
+                        rows="10"
+                        disabled
+                        label-position="outside"
+                        onInput={(e) =>
+                          setNewParameter({
+                            ...newParameter,
+                            value: e.target.value,
+                          })
+                        }
+                        value={selectedParameter ? selectedParameter.value : ""}
+                      ></tds-textarea>
+                    </>
+                  )}
+                  {selectedExecutionMethod === "Editing" && (
+                    <>
+                      <div
+                        className={styles.contentContainer__parameterContainer}
+                      >
+                        <tds-text-field
+                          placeholder="New name"
+                          label="Parameter name"
+                          size="sm"
+                          label-position="outside"
+                          value={selectedParameter?.name}
+                          disabled
+                        />
 
-                TODO - executing a graph with a newly created parameter might be a bit tricky, holding on this one for now
-
-                <tds-button
-                  type="button"
-                  size="sm"
-                  variant="primary"
-                  text="Execute"
-                  onClick={() => executeGraph()}
-                ></tds-button>
-                */}
-              </>
-            )}
-
-            {mode === "existingParameter" && (
-              <>
-                <tds-button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  text="Back"
-                  onClick={() => changeMode("initial")}
-                ></tds-button>
-                <tds-button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  text={enableEditParameter ? "Cancel" : "Edit parameter"}
-                  onClick={() => setEnableEditParameter(!enableEditParameter)}
-                ></tds-button>
-                <tds-button
-                  type="button"
-                  size="sm"
-                  variant="danger"
-                  text="Delete"
-                  onClick={() => deleteParameter()}
-                ></tds-button>
-                {enableEditParameter && (
+                        {selectedParameter && (
+                          <>
+                            <tds-button
+                              text="Save"
+                              size="sm"
+                              // variant="seondary"
+                              onClick={saveEditedParameter}
+                            ></tds-button>
+                          </>
+                        )}
+                      </div>
+                      <tds-textarea
+                        label="JSON"
+                        rows={10}
+                        label-position="outside"
+                        onInput={(e: any) =>
+                          selectedParameter &&
+                          setSelectedParameter({
+                            ...selectedParameter,
+                            value: e.target.value,
+                          })
+                        }
+                        value={selectedParameter ? selectedParameter.value : ""}
+                      ></tds-textarea>
+                    </>
+                  )}
+                </div>
+              )}
+              {selectedTab === "Results" && <div>Results</div>}
+              {selectedParameter && selectedExecutionMethod === "Existing" && (
+                <div className={styles.footerContainer}>
                   <tds-button
-                    type="button"
-                    size="sm"
-                    variant="primary"
-                    text="Save changes"
-                    onClick={() => saveEditedParameter()}
-                  ></tds-button>
-                )}
-                {!enableEditParameter && (
-                  <tds-button
-                    type="button"
-                    size="sm"
-                    variant="primary"
                     text="Execute"
                     onClick={() => executeGraph()}
                   ></tds-button>
-                )}
-              </>
-            )}
-          </div>
-          <tds-modal selector="execution-result-modal" size="sm">
-            <h5 className="tds-modal-headline" slot="header">
-              Result
-            </h5>
-            <span slot="body">
-              {result && isValidJson(result) ? (
-                // Show JsonView if result is valid JSON
-                <JsonView
-                  value={result} // Parse the JSON for the JsonView component
-                  indentWidth={4}
-                  displayDataTypes={false}
-                  collapsed={false}
-                  displayObjectSize={true}
-                  enableClipboard={true}
-                  quotes={`"`}
-                />
-              ) : (
-                // If not JSON, show the result as plain text
-                <p>{result}</p>
+                </div>
               )}
-            </span>
-            <div slot="actions" className={styles.action}>
-              <tds-button
-                type="button"
-                size="sm"
-                variant="primary"
-                text="Ok"
-                onClick={() => {
-                  (
-                    document.querySelector(
-                      `[selector="execution-result-modal"]`
-                    ) as HTMLTdsModalElement
-                  ).closeModal();
-                }}
-              ></tds-button>
-              <tds-button
-                type="button"
-                size="sm"
-                variant="secondary"
-                text="Save execution result"
-                onClick={() => saveExecutionResult()}
-              ></tds-button>
             </div>
-          </tds-modal>
+          </div>
         </div>
       </div>
+      <tds-modal
+        id="execution-result-modal"
+        selector="execution-result-modal"
+        size="sm"
+        tds-close={() => handleModalClose()}
+      >
+        <h5 className="tds-modal-headline" slot="header">
+          Execute Graph with IRI
+        </h5>
+        <span slot="body">
+          {result && isValidJson(result) ? (
+            // Show JsonView if result is valid JSON
+            <JsonView
+              value={result} // Parse the JSON for the JsonView component
+              indentWidth={4}
+              displayDataTypes={false}
+              collapsed={false}
+              displayObjectSize={true}
+              enableClipboard={true}
+              quotes={`"`}
+            />
+          ) : (
+            // If not JSON, show the result as plain text
+            <p>{result}</p>
+          )}
+        </span>
+      </tds-modal>
     </div>
   );
 }
