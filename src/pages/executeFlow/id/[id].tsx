@@ -37,7 +37,6 @@ export async function getServerSideProps(context: any) {
     );
 
     const initParameters = parametersResponse.data;
-    console.log(initParameters, "initial parameters with id");
 
     return {
       props: {

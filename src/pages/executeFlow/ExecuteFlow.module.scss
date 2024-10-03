@@ -9,71 +9,68 @@
 }
 
 .main {
-
-  & hr{
+  & hr {
     border: none;
-    background: #DBDFE6;
+    background: #dbdfe6;
     height: 1px;
   }
-
 }
 
 .action {
-
 }
 
 .headerContainer {
   padding: 16px 24px;
 
-  &__detailsContainer{
+  &__detailsContainer {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 }
 
-.outerContentContainer{
+.outerContentContainer {
   padding: 24px;
-  background: #F9FAFB;
+  background: #f9fafb;
 }
 
-.contentContainer{
+.contentContainer {
   padding: 32px;
   background: white;
 
-  & hr{
+  & hr {
     border: none;
-    background: #DBDFE6;
+    background: #dbdfe6;
     height: 1px;
     margin-top: 16px;
   }
 
-  &__parameterContainer{
+  &__parameterContainer {
     display: flex;
     gap: 16px;
     margin-bottom: 24px;
     align-items: flex-end;
 
-    &__saveBtn{
+    &__saveBtn {
       // Hack for tegel since they have a 4px height error container always visible =/
       margin-bottom: 4px;
     }
   }
-  
-  &__parameterChoice{
+
+  &__parameterChoice {
     display: flex;
     gap: 8px;
     padding: 24px 0px;
   }
 }
 
-.footerContainer{
+.footerContainer {
   display: flex;
   justify-content: flex-end;
   padding: 24px 0px;
 }
 
-.footerContainer{
+.footerContainer {
   display: flex;
   justify-content: flex-end;
   padding: 24px 0px;

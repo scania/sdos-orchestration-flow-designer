@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await getServerSession(req, res, authOptions);
     logger.debug("Session details:", { session });
 
-    if (!session || !session.user || env.NODE_ENV === "production") {
+    if (!session || !session.user || !session.user.id) {
       logger.warn("Unauthorized request attempted.", {
         ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
       });

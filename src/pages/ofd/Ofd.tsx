@@ -32,6 +32,7 @@ import ReactFlow, {
   useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import GraphOptions from "../../components/GraphOptions/GraphOptions";
@@ -121,10 +122,10 @@ const ForceGraphComponent: React.FC = ({
   };
 
   const isNodeDeletable = () => {
-    if(selectedNode?.data?.label !== 'Task'){
+    if (selectedNode?.data?.label !== "Task") {
       return true;
     }
-  }
+  };
 
   const onEdgeSelect = (path: string) => {
     setEdges((eds) => {
@@ -217,7 +218,12 @@ const ForceGraphComponent: React.FC = ({
   const exitSetupMode = useCallback(() => {
     setSelectedNode(null);
     setSetupMode(false);
+    setHighlightedClassLabel("");
   }, [setSelectedNode, setSetupMode]);
+
+  const edgeTypes = {
+    "custom-edge": CustomEdge,
+  };
 
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
@@ -337,7 +343,7 @@ const ForceGraphComponent: React.FC = ({
           showToast("error", "Error", "Could not fetch classes from Stardog");
         }),
     {
-      staleTime: 1000 * 60 * 5, //5 minutes
+      staleTime: Infinity,
     }
   );
 
@@ -434,7 +440,11 @@ const ForceGraphComponent: React.FC = ({
             id="execute-graph"
             className={styles.page__header__action}
             // TODO - replace hardcoded value
-            onClick={() => router.push(`/executeFlow/id/e817ce2f-1824-465b-9c53-88126a9b0b02`)}
+            onClick={() =>
+              router.push(
+                `/executeFlow/id/e817ce2f-1824-465b-9c53-88126a9b0b02`
+              )
+            }
           >
             Execute
           </span>
@@ -502,7 +512,7 @@ const ForceGraphComponent: React.FC = ({
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
-                  deleteKeyCode={isNodeDeletable() ? 'Delete' : null }
+                  deleteKeyCode={isNodeDeletable() ? "Delete" : null}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   isValidConnection={isValidConnection(nodes)}
@@ -514,12 +524,13 @@ const ForceGraphComponent: React.FC = ({
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
+                  edgeTypes={edgeTypes}
                 >
                   <Controls style={{ display: "flex" }} position="top-center" />
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
-                {setupMode ? (
+                {setupMode && (
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
@@ -530,8 +541,6 @@ const ForceGraphComponent: React.FC = ({
                       label={selectedNode.data.label}
                     />
                   </div>
-                ) : (
-                  <></>
                 )}
               </div>
             </ReactFlowProvider>
@@ -544,7 +553,7 @@ const ForceGraphComponent: React.FC = ({
                   text="Enter Setup"
                   mode-variant="primary"
                   onClick={() => {
-                    setSetupMode(true);
+                    [setSetupMode(true), setHighlightedClassLabel("")];
                   }}
                 ></tds-button>
               ) : (

@@ -151,7 +151,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             <Tabs
               selected={0}
               onParentClick={(value: string) =>
-                setSelectedPrimaryCategory(value)
+              [
+                setSelectedPrimaryCategory(value),
+                setHighlightedClassLabel("")
+              ]
               }
             >
               <Panel title="Actions" value="Action"></Panel>
@@ -179,7 +182,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             <Tabs
               selected={0}
               onParentClick={(value: string) =>
-                setSelectedSecondaryCategory(value)
+                [
+                  setSelectedSecondaryCategory(value),
+                  setHighlightedClassLabel("")
+                ]
               }
             >
               <Panel

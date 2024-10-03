@@ -146,16 +146,8 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-// for text box editable
-.test {
-  // background-color: transparent;
-  // font-family: "Scania Sans CY";
-  // font-size: 16px;
-  // font-style: normal;
-  // font-weight: 700;
-  // line-height: 24px; /* 150% */
-  // letter-spacing: -0.32px;
-  // border: none;
+
+.label-input {
   background-color: transparent;
   font-family: "Scania Sans", arial, helvetica, sans-serif;
   font-weight: bold;
@@ -164,8 +156,6 @@
   letter-spacing: -0.02em;
   border: none;
   &:focus {
-    // background-color: red;
-    // border: 0px;
     outline: none;
     border-bottom: 1px solid var(--tds-grey-600);
     .confirm-icon {
@@ -175,11 +165,6 @@
   }
 }
 
-.textarea {
-  background-color: red;
-  font-size: 25px;
-  padding: 10px;
-}
 .form {
   position: absolute;
   width: 360px;
@@ -194,13 +179,10 @@
   &-header {
     background-color: var(--tds-grey-200);
     display: flex;
-    padding-top: 24px;
-    padding-bottom: 24px;
+    padding: 24px 16px;
     justify-content: space-between;
     align-items: center;
-    padding-right: 16px;
 
-    padding-left: 16px;
     &:hover {
       .description__label .edit-icon {
         display: inline;
@@ -224,21 +206,19 @@
   }
 
   &-body-section {
-    // margin: 20px 0;
     padding: 16px;
 
     &__header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      .form-desc {
-      }
-      .copy {
-      }
+      margin-bottom: 16px;
     }
 
     &__form {
-      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
 
       &-field {
         display: block;
@@ -246,7 +226,7 @@
       }
     }
   }
-
+m
   &-button-container {
     text-align: center;
 
@@ -259,5 +239,11 @@
 
   :global(.tds-mode-dark) & {
     background-color: var(--tds-grey-958);
+  }
+
+  &__action-menu{
+    display: flex;
+    gap: 16px;
+    margin-top: 34px;
   }
 }

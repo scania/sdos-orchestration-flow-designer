@@ -136,7 +136,6 @@ function App({
   };
 
   const handleExecute = (task: Task) => {
-    console.log(task, "task");
     router.push({
       pathname: `/executeFlow/iri/${encodeURIComponent(task.subjectIri)}`,
     });
