@@ -9,8 +9,6 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test": "npx cypress run",
-    "cypress": "npx cypress open",
     "prestart": "node validateEnv.js",
     "prismaMigrateLocal": "dotenv -e .env.local -- npx prisma migrate dev",
     "prismaReset": "dotenv -e .env.local -- npx prisma migrate reset",
@@ -46,21 +44,13 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^20.0.5",
-    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
     "@types/jsonld": "^1.5.13",
     "@types/n3": "^1.16.4",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
-    "cypress": "^13.9.0",
-    "cypress-mochawesome-reporter": "^3.6.0",
     "dotenv-cli": "^7.4.2",
     "license-checker": "^25.0.1",
     "prisma": "^5.14.0",
     "storybook": "^7.3.1"
-  },
-  "cypress-cucumber-preprocessor": {
-    "filterSpecs": true,
-    "omitFiltered": true
   }
 }
