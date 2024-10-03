@@ -129,14 +129,8 @@ const handlePutRequest = async (
 ) => {
   try {
     const { id } = req.query;
-    const { name, flowId, iri, data } = req.body;
-    logger.debug("Updating parameter with data:", {
-      id,
-      name,
-      flowId,
-      iri,
-      data,
-    });
+    const { value } = req.body;
+    logger.debug("Updating parameter with data");
 
     const existingParameter = await prisma.parameter.findUnique({
       where: { id: id as string },
@@ -154,9 +148,6 @@ const handlePutRequest = async (
     const updatedParameter = await prisma.parameter.update({
       where: { id: id as string },
       data: {
-        name,
-        flowId,
-        iri,
         value,
       },
     });

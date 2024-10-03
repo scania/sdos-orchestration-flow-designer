@@ -33,21 +33,16 @@ function ExecuteFlow({
   const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
     "Create" | "Existing" | "Editing"
   >("Create");
-  console.log("parameterTemplte", taskTemplate);
-  // Creating a new parameter object
-  const [newParameter, setNewParameter] = useState({
+  const [newParameter, setNewParameter] = useState<Parameter>({
     name: "",
-    value: "",
-    iri: "iri",
+    value: JSON.stringify(taskTemplate),
   });
-  // The result of the execution
   const [result, setResult] = useState("");
-  // Boolean to enable/disable editing of the parameter
-  const [enableEditParameter, setEnableEditParameter] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
     null
   );
-  const isValidJson = (value) => {
+  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
+  const isValidJson = (value: any) => {
     if (typeof value === "object") {
       return true;
     }
@@ -62,9 +57,6 @@ function ExecuteFlow({
   useEffect(() => {
     fetchParameters();
   }, []);
-
-  // Placeholder parameters, should be replaced with real parameters
-  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
 
   // Save/Create a new parameter
   const saveParameter = async () => {
@@ -105,31 +97,46 @@ function ExecuteFlow({
 
   const deleteParameter = async () => {
     try {
-      const response = await axios.delete(
-        `/api/parameter?id=${selectedParameter.id}`
-      );
+      await axios.delete(`/api/parameter?id=${selectedParameter?.id}`);
       alert(`Parameter deleted`);
       const parametersResponse = await axios.get(`/api/parameters`, {
         params: { iri },
       });
       setParameters(parametersResponse.data);
+      if (parametersResponse?.data.length === 0) {
+        setSelectedParameter(null);
+        setSelectedExecutionMethod("Create");
+        return;
+      }
+      setSelectedParameter(null);
+      setSelectedExecutionMethod("Existing");
     } catch (error) {
       alert("An error occurred while deleting the parameter.");
     }
   };
 
-  // Save an existing parameter with a new value
-  const saveEditedParameter = () => {
-    console.log(selectedParameter, "selected Parameter after Edit");
-    alert("You have edited a parameter and saved it");
+  const saveEditedParameter = async () => {
+    try {
+      if (selectedParameter?.id) {
+        const response = await axios.put(
+          `/api/parameter/?id=${selectedParameter.id}`,
+          {
+            value: selectedParameter.value,
+          }
+        );
+        alert(`Parameter updated with ID: ${response.data.id}`);
+      }
+
+      const parametersResponse = await axios.get(`/api/parameters`, {
+        params: { iri },
+      });
+      setParameters(parametersResponse.data);
+      setSelectedExecutionMethod("Existing");
+    } catch (error) {
+      alert("An error occurred while saving the parameter.");
+    }
   };
 
-  // Save the execution result
-  const saveExecutionResult = () => {
-    // Incoming functionality
-  };
-
-  // Selection of a existing parameter
   const selectParameter = (selectedParameterId: string) => {
     const parameter = parameters.find(
       (param) => param.id == selectedParameterId
@@ -148,7 +155,7 @@ function ExecuteFlow({
         `${baseUrl}/api/execute/sync`,
         {
           subjectIri: iri,
-          parameters: JSON.parse(selectedParameter.value),
+          parameters: JSON.parse(selectedParameter?.value as string),
         },
         {
           headers: {
@@ -229,21 +236,26 @@ function ExecuteFlow({
                       radio-id="create"
                       onClick={(e) => {
                         setSelectedExecutionMethod("Create");
+                        setSelectedParameter(null);
                       }}
-                      checked="true"
+                      checked={selectedExecutionMethod === "Create"}
                     >
                       <div slot="label">Create new parameter</div>
                     </tds-radio-button>
 
                     <tds-radio-button
                       name="rb-example"
-                      onClick={(e) => {
+                      onClick={() => {
                         parameters.length &&
                           setSelectedExecutionMethod("Existing");
                       }}
                       disabled={!parameters.length}
                       value="savedParams"
                       radio-id="execute"
+                      checked={
+                        selectedExecutionMethod === "Editing" ||
+                        selectedExecutionMethod === "Existing"
+                      }
                     >
                       <div slot="label">Saved parameters</div>
                     </tds-radio-button>
@@ -310,6 +322,7 @@ function ExecuteFlow({
                           filter
                           open-direction="auto"
                           normalizeText={true}
+                          defaultValue={selectedParameter?.id}
                         >
                           {parameters.map((parameter) => {
                             return (
@@ -336,9 +349,7 @@ function ExecuteFlow({
                               text="Delete"
                               size="sm"
                               variant="secondary"
-                              // onClick={() => {
-                              //   setSelectedExecutionMethod("Editing");
-                              // }}
+                              onClick={deleteParameter}
                             ></tds-button>
                           </>
                         )}
@@ -363,52 +374,34 @@ function ExecuteFlow({
                       <div
                         className={styles.contentContainer__parameterContainer}
                       >
-                        <TdsDropdown
-                          name="dropdown"
-                          label="Select Parameter Set"
+                        <tds-text-field
+                          placeholder="New name"
+                          label="Parameter name"
+                          size="sm"
                           label-position="outside"
-                          placeholder="Placeholder"
-                          size="lg"
-                          multiselect={false}
-                          onTdsChange={(e) => {
-                            selectParameter(e.detail.value);
-                          }}
-                          filter
-                          open-direction="auto"
-                          normalizeText={true}
-                        >
-                          {parameters.map((parameter) => {
-                            return (
-                              <TdsDropdownOption
-                                value={parameter.id}
-                                key={parameter.id}
-                              >
-                                {parameter.name}
-                              </TdsDropdownOption>
-                            );
-                          })}
-                        </TdsDropdown>
+                          value={selectedParameter?.name}
+                          disabled
+                        />
+
                         {selectedParameter && (
                           <>
                             <tds-button
                               text="Save"
                               size="sm"
                               // variant="seondary"
-                              onClick={() => {
-                                setSelectedExecutionMethod("Editing");
-                              }}
+                              onClick={saveEditedParameter}
                             ></tds-button>
                           </>
                         )}
                       </div>
                       <tds-textarea
                         label="JSON"
-                        rows="10"
-                        disabled
+                        rows={10}
                         label-position="outside"
-                        onInput={(e) =>
-                          setNewParameter({
-                            ...newParameter,
+                        onInput={(e: any) =>
+                          selectedParameter &&
+                          setSelectedParameter({
+                            ...selectedParameter,
                             value: e.target.value,
                           })
                         }
