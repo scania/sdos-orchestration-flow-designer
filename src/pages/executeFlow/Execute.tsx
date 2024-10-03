@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
 import axios from "axios";
@@ -30,6 +31,7 @@ function ExecuteFlow({
   taskTemplate = [],
 }: ExecuteProp) {
   const [selectedTab, setSelectedTab] = useState("Execution");
+  const router = useRouter();
   const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
     "Create" | "Existing" | "Editing"
   >("Create");
@@ -103,16 +105,15 @@ function ExecuteFlow({
         params: { iri },
       });
       setParameters(parametersResponse.data);
-      if (parametersResponse?.data.length === 0) {
-        setSelectedParameter(null);
-        setSelectedExecutionMethod("Create");
-        return;
-      }
-      setSelectedParameter(null);
-      setSelectedExecutionMethod("Existing");
+      setSelectedExecutionMethod("Create");
     } catch (error) {
       alert("An error occurred while deleting the parameter.");
     }
+  };
+
+  const resetEditParameterValue = () => {
+    selectParameter(selectedParameter?.id || "");
+    setSelectedExecutionMethod("Existing");
   };
 
   const saveEditedParameter = async () => {
@@ -184,15 +185,15 @@ function ExecuteFlow({
     <div>
       {/* TODO - create component out of this navbar, its used in graph editor aswell */}
       <div className={styles.nav}>
-        <Link href="/">
-          <span>Graph editor</span>
+        <div onClick={router.back} className="pointer">
+          <span>Back</span>
           <tds-icon
             slot="icon"
             style={{ marginLeft: "8px" }}
             size="14px"
             name="back"
           ></tds-icon>
-        </Link>
+        </div>
       </div>
       <div className={styles.main}>
         <hr className="divider" />
@@ -388,8 +389,12 @@ function ExecuteFlow({
                             <tds-button
                               text="Save"
                               size="sm"
-                              // variant="seondary"
                               onClick={saveEditedParameter}
+                            ></tds-button>
+                            <tds-button
+                              text="Cancel"
+                              size="sm"
+                              onClick={() => resetEditParameterValue()}
                             ></tds-button>
                           </>
                         )}

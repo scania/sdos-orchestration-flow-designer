@@ -41,6 +41,10 @@ tds-header {
   flex-grow: 1;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .side-menu-and-main {
   display: flex;
   flex-grow: 1;
