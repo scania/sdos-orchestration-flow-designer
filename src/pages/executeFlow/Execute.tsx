@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { getSession } from "next-auth/react";
-import Link from "next/link";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import Panel from "@/components/Tabs/Panel";
@@ -321,7 +319,6 @@ function ExecuteFlow({
                           onTdsChange={(e) => {
                             selectParameter(e.detail.value);
                           }}
-                          filter
                           open-direction="auto"
                           normalizeText={true}
                           defaultValue={selectedParameter?.id}

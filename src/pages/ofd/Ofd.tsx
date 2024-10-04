@@ -157,7 +157,6 @@ const ForceGraphComponent: React.FC = ({
   }, [deletePressed]);
 
   const saveData = async (data: GraphBody) => {
-    console.log(data);
     const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
     return response.data;
   };
