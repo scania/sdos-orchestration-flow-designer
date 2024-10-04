@@ -202,13 +202,14 @@ function ExecuteFlow({
             Execution flow
           </h3>
           <div className={styles.headerContainer__detailsContainer}>
-            <div className="tds-detail-02">
+            {/* feature to be added  */}
+            {/* <div className="tds-detail-02">
               Graph name:{" "}
               <span className="bold"> Placeholder for graph name</span>
             </div>
             <div className="tds-detail-02">
               User: <span className="bold">Placeholder for user </span>
-            </div>
+            </div> */}
             <div className="tds-detail-02">
               IRI: <span className="bold">{iri}</span>
             </div>

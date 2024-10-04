@@ -439,10 +439,11 @@ const ForceGraphComponent: React.FC = ({
           <span
             id="execute-graph"
             className={styles.page__header__action}
-            // TODO - replace hardcoded value
             onClick={() =>
               router.push(
-                `/executeFlow/id/e817ce2f-1824-465b-9c53-88126a9b0b02`
+                `/executeFlow/id/${encodeURIComponent(
+                  `http://example.org/${graphName}`
+                )}`
               )
             }
           >
