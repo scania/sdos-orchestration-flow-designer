@@ -38,3 +38,10 @@ yarn-error.log*
 next-env.d.ts
 
 *.db
+
+# playwright
+/tests/user.json
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
