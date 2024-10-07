@@ -14,7 +14,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     logger.debug("Request details:", { method: req.method, url: req.url });
 
     const session = await getServerSession(req, res, authOptions);
-    if (!session && env.NODE_ENV === "production") {
+    if (!session) {
       logger.error("Unauthorized request.");
       res.status(401).json({ error: "Unauthorized" });
       return;

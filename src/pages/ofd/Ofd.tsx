@@ -32,7 +32,7 @@ import ReactFlow, {
   useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import CustomEdge from '../../components/CustomEdge/CustomEdge';
+import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import GraphOptions from "../../components/GraphOptions/GraphOptions";
@@ -122,10 +122,10 @@ const ForceGraphComponent: React.FC = ({
   };
 
   const isNodeDeletable = () => {
-    if(selectedNode?.data?.label !== 'Task'){
+    if (selectedNode?.data?.label !== "Task") {
       return true;
     }
-  }
+  };
 
   const onEdgeSelect = (path: string) => {
     setEdges((eds) => {
@@ -217,11 +217,11 @@ const ForceGraphComponent: React.FC = ({
   const exitSetupMode = useCallback(() => {
     setSelectedNode(null);
     setSetupMode(false);
-    setHighlightedClassLabel("")
+    setHighlightedClassLabel("");
   }, [setSelectedNode, setSetupMode]);
 
   const edgeTypes = {
-    'custom-edge': CustomEdge,
+    "custom-edge": CustomEdge,
   };
 
   const onConnect = useCallback(
@@ -438,7 +438,13 @@ const ForceGraphComponent: React.FC = ({
           <span
             id="execute-graph"
             className={styles.page__header__action}
-            onClick={() => router.push(`/executeFlow/id/123`)}
+            onClick={() =>
+              router.push(
+                `/executeFlow/id/${encodeURIComponent(
+                  `http://example.org/${graphName}`
+                )}`
+              )
+            }
           >
             Execute
           </span>
@@ -506,7 +512,7 @@ const ForceGraphComponent: React.FC = ({
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
-                  deleteKeyCode={isNodeDeletable() ? 'Delete' : null }
+                  deleteKeyCode={isNodeDeletable() ? "Delete" : null}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   isValidConnection={isValidConnection(nodes)}
@@ -524,7 +530,7 @@ const ForceGraphComponent: React.FC = ({
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
-                {setupMode &&
+                {setupMode && (
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
@@ -535,7 +541,7 @@ const ForceGraphComponent: React.FC = ({
                       label={selectedNode.data.label}
                     />
                   </div>
-                }
+                )}
               </div>
             </ReactFlowProvider>
             <div className={styles["setup-button"]}>
@@ -547,10 +553,7 @@ const ForceGraphComponent: React.FC = ({
                   text="Enter Setup"
                   mode-variant="primary"
                   onClick={() => {
-                    [
-                      setSetupMode(true),
-                      setHighlightedClassLabel("")
-                    ]
+                    [setSetupMode(true), setHighlightedClassLabel("")];
                   }}
                 ></tds-button>
               ) : (

@@ -41,6 +41,10 @@ tds-header {
   flex-grow: 1;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .side-menu-and-main {
   display: flex;
   flex-grow: 1;
@@ -92,6 +96,10 @@ i {
 
 .opaque-35 {
   opacity: 0.35;
+}
+
+.bold{
+  font-weight: bold;
 }
 
 .mobile-nav-item {
