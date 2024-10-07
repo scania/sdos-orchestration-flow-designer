@@ -6,7 +6,7 @@
     "dev": "node validateEnv.js && next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npx playwright test",
+    "test": "playwright test",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
