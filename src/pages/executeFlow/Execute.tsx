@@ -37,7 +37,7 @@ function ExecuteFlow({
   >("Create");
   const [newParameter, setNewParameter] = useState<Parameter>({
     name: "",
-    value: JSON.stringify(taskTemplate),
+    value: JSON.stringify(taskTemplate, null, 2),
   });
   const [result, setResult] = useState("");
   const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
