@@ -7,6 +7,7 @@ import Tabs from "@/components/Tabs/Tabs";
 import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
 import { Parameter as ParameterTemplate } from "@/utils/types";
 import JsonView from "@uiw/react-json-view";
+import Toast, { ToastItem } from "@/components/Toast/Toast";
 interface Parameter {
   id?: string;
   name: string;
@@ -29,6 +30,7 @@ function ExecuteFlow({
   taskTemplate = [],
 }: ExecuteProp) {
   const [selectedTab, setSelectedTab] = useState("Execution");
+  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const router = useRouter();
   const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
     "Create" | "Existing" | "Editing"
@@ -58,6 +60,15 @@ function ExecuteFlow({
     fetchParameters();
   }, []);
 
+  const showToast = (variant, header, description) => {
+    const toastProperties = {
+      variant,
+      header,
+      description,
+    };
+    setListOfToasts([...listOfToasts, toastProperties]);
+  };
+
   // Save/Create a new parameter
   const saveParameter = async () => {
     try {
@@ -66,13 +77,17 @@ function ExecuteFlow({
         value: newParameter.value,
         iri,
       });
-      alert(`Parameter saved with ID: ${response.data.id}`);
       const parametersResponse = await axios.get(`/api/parameters`, {
         params: { iri },
       });
       setParameters(parametersResponse.data);
+      showToast(
+        "success",
+        "Success",
+        `Parameter saved with ID: ${response.data.id}`
+      );
     } catch (error) {
-      alert("An error occurred while saving the parameter.");
+      showToast("error", "Error", "The graph could not be saved");
     }
   };
 
@@ -98,14 +113,18 @@ function ExecuteFlow({
   const deleteParameter = async () => {
     try {
       await axios.delete(`/api/parameter?id=${selectedParameter?.id}`);
-      alert(`Parameter deleted`);
+      showToast("success", "Success", `Parameter Deleted`);
       const parametersResponse = await axios.get(`/api/parameters`, {
         params: { iri },
       });
       setParameters(parametersResponse.data);
       setSelectedExecutionMethod("Create");
     } catch (error) {
-      alert("An error occurred while deleting the parameter.");
+      showToast(
+        "error",
+        "Error",
+        "An error occurred while deleting the parameter."
+      );
     }
   };
 
@@ -123,7 +142,11 @@ function ExecuteFlow({
             value: selectedParameter.value,
           }
         );
-        alert(`Parameter updated with ID: ${response.data.id}`);
+        showToast(
+          "success",
+          "Success",
+          `Parameter updated with ID: ${response.data.id}`
+        );
       }
 
       const parametersResponse = await axios.get(`/api/parameters`, {
@@ -132,7 +155,11 @@ function ExecuteFlow({
       setParameters(parametersResponse.data);
       setSelectedExecutionMethod("Existing");
     } catch (error) {
-      alert("An error occurred while saving the parameter.");
+      showToast(
+        "error",
+        "Error",
+        "An error occurred while editing the parameter."
+      );
     }
   };
 
@@ -454,6 +481,7 @@ function ExecuteFlow({
           )}
         </span>
       </tds-modal>
+      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 }
