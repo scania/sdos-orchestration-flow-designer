@@ -14,8 +14,6 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
   TEST_BASE_URL: z.string().url().optional(),
-  TEST_USERNAME: z.string().optional(),
-  TEST_PASSWORD: z.string().optional(),
 });
 
 //This will make all env vars optional
