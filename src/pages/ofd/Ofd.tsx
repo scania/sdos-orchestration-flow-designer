@@ -40,7 +40,7 @@ import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
 import { captureCursorPosition } from "../../lib/frontend/helper";
-import Toast from "@/components/Toast/Toast";
+import Toast, { ToastItem } from "@/components/Toast/Toast";
 
 const initialNodes = initializeNodes();
 const nodeTypes = {
@@ -64,7 +64,7 @@ const ForceGraphComponent: React.FC = ({
   const [searchString, setSearchString] = useState("");
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [listOfToasts, setListOfToasts] = useState([]);
+  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
@@ -440,7 +440,7 @@ const ForceGraphComponent: React.FC = ({
             className={styles.page__header__action}
             onClick={() =>
               router.push(
-                `/executeFlow/id/${encodeURIComponent(
+                `/executeFlow/iri/${encodeURIComponent(
                   `http://example.org/${graphName}`
                 )}`
               )
