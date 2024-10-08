@@ -440,7 +440,7 @@ const ForceGraphComponent: React.FC = ({
             className={styles.page__header__action}
             onClick={() =>
               router.push(
-                `/executeFlow/id/${encodeURIComponent(
+                `/executeFlow/iri/${encodeURIComponent(
                   `http://example.org/${graphName}`
                 )}`
               )

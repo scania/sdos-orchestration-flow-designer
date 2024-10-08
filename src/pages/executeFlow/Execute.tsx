@@ -319,7 +319,7 @@ function ExecuteFlow({
                       </div>
                       <tds-textarea
                         label="JSON"
-                        rows="10"
+                        rows={20}
                         label-position="outside"
                         onInput={(e) =>
                           setNewParameter({
@@ -382,7 +382,7 @@ function ExecuteFlow({
                       </div>
                       <tds-textarea
                         label="JSON"
-                        rows="10"
+                        rows={20}
                         disabled
                         label-position="outside"
                         onInput={(e) =>
@@ -426,7 +426,7 @@ function ExecuteFlow({
                       </div>
                       <tds-textarea
                         label="JSON"
-                        rows={10}
+                        rows={20}
                         label-position="outside"
                         onInput={(e: any) =>
                           selectedParameter &&
