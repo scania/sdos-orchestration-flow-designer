@@ -8,11 +8,14 @@ import {
 
 export const createSHACLProcessor = (rdf: Array<Quad>) => {
   const findShapeUriForClass = (className: string): string | undefined => {
-    return rdf.find(
+    console.log("class Name is:", className);
+    const result = rdf.find(
       (quad) =>
         quad.predicate === "http://www.w3.org/ns/shacl#targetClass" &&
         quad.object.endsWith(className)
     )?.subject;
+    console.log(result, "result");
+    return result;
   };
 
   const getSubclassOf = (className: string): string => {
@@ -29,6 +32,7 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
   };
 
   const getAllProperties = (shapeUri: string): Array<string> => {
+    if (!rdf) return [];
     return rdf
       .filter(
         (quad) =>

@@ -1,29 +1,23 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 require("dotenv").config({ path: "./.env.local" });
-
 
 const BASE_URL = process.env.TEST_BASE_URL || process.env.NEXTAUTH_URL;
 
 export default defineConfig({
-
-  testDir: './tests',
+  testDir: "./tests-e2e",
   fullyParallel: true,
-  reporter: [
-    [ 
-      'html', 
-    ]
-  ],
+  reporter: [["html"]],
   // Number of parallel workers (1 == serial)
   workers: 1,
 
   // CI specific config
   forbidOnly: !!process.env.CI, // fail if tests contain a test.only
   retries: process.env.CI ? 2 : 0, // Retry only if in CI
-    
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL: BASE_URL,
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
   },
 
   /* 
@@ -33,8 +27,8 @@ export default defineConfig({
   */
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
     // {
     //   name: 'firefox',
@@ -45,5 +39,4 @@ export default defineConfig({
     //   use: { ...devices['Desktop Safari'] },
     // }
   ],
-
 });
