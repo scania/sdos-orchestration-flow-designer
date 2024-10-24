@@ -197,12 +197,7 @@ function ExecuteFlow({
       ).showModal();
       setResult(response.data);
     } catch (error) {
-      (
-        document.querySelector(
-          `[selector="execution-result-modal"]`
-        ) as HTMLTdsModalElement
-      ).showModal();
-      setResult("Could not execute the graph");
+      showToast("error", "Error", "Could not execute graph");
     }
   };
 

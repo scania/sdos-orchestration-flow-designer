@@ -225,19 +225,18 @@ describe("createSHACLProcessor", () => {
   });
 
   describe("Error Handling", () => {
+    test("createSHACLProcessor throws error when rdf is undefined", () => {
+      expect(() => {
+        createSHACLProcessor(undefined as any);
+      }).toThrow("Invalid RDF data provided. Expected an array of quads.");
+    });
+
     test("findShapeUriForClass throws error when rdf is undefined", () => {
       expect(() => {
         createSHACLProcessor(undefined as any).findShapeUriForClass(
           "ClassName"
         );
-      }).toThrow();
-    });
-
-    test("getAllProperties returns empty array when rdf is undefined", () => {
-      const result = createSHACLProcessor(undefined as any).getAllProperties(
-        ":Shape"
-      );
-      expect(result).toEqual([]);
+      }).toThrow("Invalid RDF data provided. Expected an array of quads.");
     });
   });
 });
