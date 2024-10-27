@@ -1,5 +1,5 @@
 import { ContextDefinition } from "jsonld/jsonld";
-import { Connection, Edge, MarkerType, Node } from "reactflow";
+import { Connection, Edge, Node } from "reactflow";
 import { FormField, IClassConfig, ObjectProperties } from "./types";
 
 // Constants for RDF, OWL, and RDFS namespaces
@@ -7,6 +7,7 @@ const RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const OWL_NS = "http://www.w3.org/2002/07/owl#";
 const RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
 const IRIS_NS = "https://kg.scania.com/it/iris_orchestration/";
+const CORE_NS = "http://kg.scania.com/core/";
 
 // Context for JSON-LD
 const JSON_LD_CONTEXT: ContextDefinition = {
@@ -14,6 +15,7 @@ const JSON_LD_CONTEXT: ContextDefinition = {
   owl: OWL_NS,
   rdfs: RDFS_NS,
   iris: IRIS_NS,
+  core: CORE_NS,
 };
 
 // Interface for Class Configurations
@@ -22,6 +24,7 @@ export const generateClassId = () => `iris:${crypto.randomUUID()}`;
 interface IState {
   nodes: Node[];
   edges: Edge[];
+  metadata: { email: string };
 }
 
 export interface GraphData {
@@ -34,10 +37,10 @@ export interface GraphData {
  * @param state - The state containing nodes and edges.
  * @returns The JSON-LD payload.
  */
-//TODO: Write tests
 export const generateJsonLdFromState = ({
   nodes,
   edges,
+  metadata,
 }: IState): GraphData => {
   const findNodeFormFields = (nodeId: string): FormData => {
     const node = nodes.find((node) => node.id === nodeId);
@@ -54,27 +57,55 @@ export const generateJsonLdFromState = ({
     return obj;
   };
 
+  // Array to hold extra nodes (e.g., ResultMetaData nodes)
+  const extraNodes: any[] = [];
+
   const constructNodeData = (nodeId: string, additionalData = {}) => {
     const formData = findNodeFormFields(nodeId);
     const nodeData = convertFromFieldsToNodeData(formData);
 
     if (!nodeData) return null;
+
+    if (formData.className === "Task") {
+      const resultMetaDataNodeId = generateClassId();
+
+      const resultMetaDataNode = {
+        "@id": resultMetaDataNodeId,
+        "@type": ["owl:NamedIndividual", "iris:ResultMetaData"],
+        "rdfs:label": { "@value": "Result Metadata" },
+        "iris:description": {
+          "@value":
+            "This instance details will be used as Metadata in resultgraph which will be used for NamedGraph security. This description details will be copied to all the ResultGraph",
+        },
+        "iris:title": { "@value": "" },
+        "core:contributor": { "@value": metadata.email },
+        "core:graphType": { "@value": "private" },
+        "core:informationResponsible": {
+          "@value": metadata.email,
+        },
+      };
+
+      extraNodes.push(resultMetaDataNode);
+
+      nodeData["iris:hasResultMetaData"] = {
+        "@id": resultMetaDataNodeId,
+      };
+    }
+
     return { ...nodeData, ...additionalData, "@id": nodeId };
   };
 
-  // Collect all unique node IDs from edges
-  const uniqueNodeIds = new Set(
-    edges.flatMap((edge) => [edge.source, edge.target])
-  );
-
-  // Map each unique node ID to its corresponding data
-  const graphData: IClassConfig[] = Array.from(uniqueNodeIds)
-    .map((nodeId) => {
+  const graphData: IClassConfig[] = nodes
+    .map((node) => {
+      const nodeId = node.id;
       const additionalData =
         edges.find((edge) => edge.source === nodeId)?.data || {};
       return constructNodeData(nodeId, additionalData);
     })
     .filter((item): item is IClassConfig => item !== null);
+
+  graphData.push(...extraNodes);
+
   return {
     "@context": JSON_LD_CONTEXT,
     "@graph": graphData,
@@ -93,7 +124,7 @@ export const getPaths = ({
   const sourceObjectProperties: ObjectProperties[] =
     sourceFormData.objectProperties;
   const targetClass = `https://kg.scania.com/it/iris_orchestration/${targetFormData.className}`;
-  //find targetClassName in source to get path
+  // Find targetClassName in source to get path
   const paths = sourceObjectProperties
     .filter(
       (obj) =>
@@ -115,10 +146,9 @@ export const setEdgeProperties = (
   defaultParams: Edge<any> | Connection,
   path: string
 ) => {
-  //get source label
   const commonEdgeProps = {
     ...defaultParams,
-    type: 'custom-edge'
+    type: "custom-edge",
   };
   const pathName = path;
   const pathNameLabel = pathName?.split("/").pop() || "";
@@ -194,7 +224,7 @@ export const initializeNodes = () => [
         ],
         formFields: [
           {
-            name: "https://kg.scania.com/it/iris_orchestration/label",
+            name: "http://www.w3.org/2000/01/rdf-schema#label",
             type: "text",
             label: "Label",
             value: "",
