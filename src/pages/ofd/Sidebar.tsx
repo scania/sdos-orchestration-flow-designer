@@ -58,28 +58,39 @@ const Sidebar: React.FC<SidebarProps> = ({
     const connectorTypes = Array.from(
       new Set(classes.map((item) => item.path))
     );
+
     return (
       <>
         {connectorTypes.map((connectorType) => {
           const classesForConnectorType = classes.filter(
             (item) => item.path === connectorType
           );
-          if (!classesForConnectorType.length) return;
+          if (!classesForConnectorType.length) return null;
+
           const classNamesForConnectorType = classesForConnectorType[0]
             .subClasses.length
             ? classesForConnectorType[0].subClasses
             : [classesForConnectorType[0].className];
 
+          const filteredClassNames = classNamesForConnectorType.filter(
+            (item) => {
+              const className = item.split("/").pop() || "";
+              return className
+                .toLowerCase()
+                .includes(searchString.toLowerCase());
+            }
+          );
+
+          if (!filteredClassNames.length) return null;
+
           return (
             <Accordion
+              key={connectorType}
               label={connectorType.split("/").pop() || ""}
-              onButtonClick={() => alert("hey")}
-              // button={true}
-              // buttonText={"New"}
-              numberOfElements={classNamesForConnectorType.length}
+              numberOfElements={filteredClassNames.length}
             >
               <div className={styles.classes}>
-                {classNamesForConnectorType.map((item, index) => {
+                {filteredClassNames.map((item, index) => {
                   const className = item.split("/").pop() || "";
                   return (
                     <div
@@ -117,12 +128,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       </>
     );
   };
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.sidebar__header}>
         <div className={styles.sidebar__type_and_toggle}>
           <h6 className={styles["tds-detail-06"]}>Private</h6>
-          {/* This still needs replacing with dynamic content */}
           <tds-icon
             onClick={() => setShowExtendedPanel(!showExtendedPanel)}
             slot="icon"
@@ -150,12 +161,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className={styles.sidebar__tabs}>
             <Tabs
               selected={0}
-              onParentClick={(value: string) =>
-              [
+              onParentClick={(value: string) => [
                 setSelectedPrimaryCategory(value),
-                setHighlightedClassLabel("")
-              ]
-              }
+                setHighlightedClassLabel(""),
+              ]}
             >
               <Panel title="Actions" value="Action"></Panel>
               <Panel title="Parameters" value="Parameter"></Panel>
@@ -181,12 +190,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className={styles.sidebar__tabs}>
             <Tabs
               selected={0}
-              onParentClick={(value: string) =>
-                [
-                  setSelectedSecondaryCategory(value),
-                  setHighlightedClassLabel("")
-                ]
-              }
+              onParentClick={(value: string) => [
+                setSelectedSecondaryCategory(value),
+                setHighlightedClassLabel(""),
+              ]}
             >
               <Panel
                 title={`Required ${requiredClasses.length}`}

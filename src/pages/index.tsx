@@ -99,7 +99,7 @@ function App({
     try {
       const response = await axios.get(
         `${baseUrl}/api/flow/name-exists/${encodeURIComponent(
-          `http://example.org/${name}`
+          `https://kg.scania.com/iris_orchestration/${name}`
         )}`
       );
       return response.data;
