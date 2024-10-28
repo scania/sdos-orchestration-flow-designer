@@ -40,7 +40,7 @@ next-env.d.ts
 *.db
 
 # playwright
-/tests/user.json
+/tests-e2e/user.json
 /test-results/
 /playwright-report/
 /blob-report/

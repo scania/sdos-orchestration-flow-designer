@@ -8,7 +8,7 @@ import { replaceSpecialChars } from "@/helpers/helper";
 const DynamicForm: React.FC<DynamicFormProps> = ({
   formData = { formFields: [] },
   onSubmit,
-  excludeKeys = ["https://kg.scania.com/it/iris_orchestration/label"],
+  excludeKeys = ["http://www.w3.org/2000/01/rdf-schema#label"],
   label,
   onClose,
 }) => {
@@ -35,7 +35,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const { errors } = formState;
   const [isLabelEditMode, setIsLabelEditMode] = useState(false);
   const labelValue = watch(
-    replaceSpecialChars("https://kg.scania.com/it/iris_orchestration/label")
+    replaceSpecialChars("http://www.w3.org/2000/01/rdf-schema#label")
   );
 
   const hasAttributes =
@@ -48,7 +48,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   useEffect(() => {
     if (isLabelEditMode) {
       setFocus(
-        replaceSpecialChars("https://kg.scania.com/it/iris_orchestration/label")
+        replaceSpecialChars("http://www.w3.org/2000/01/rdf-schema#label")
       );
     }
   }, [isLabelEditMode]);
@@ -93,9 +93,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             type="text"
             className={styles["label-input"]}
             {...register(
-              replaceSpecialChars(
-                "https://kg.scania.com/it/iris_orchestration/label"
-              ),
+              replaceSpecialChars("http://www.w3.org/2000/01/rdf-schema#label"),
               {
                 required: "This field is required",
               }
@@ -105,7 +103,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               e.key === "Enter" && toggleEditMode();
             }}
           />
-          {labelValue &&
+          {labelValue && (
             <tds-icon
               name="tick"
               size="20"
@@ -115,7 +113,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               }}
               onClick={toggleEditMode}
             ></tds-icon>
-          }
+          )}
         </>
       );
     }
@@ -179,21 +177,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         </div>
       </div>
       <article className={styles["form-body-section"]}>
-        {hasAttributes &&
+        {hasAttributes && (
           <div className={styles["form-body-section__header"]}>
             <div
               style={{
                 display: "flex",
                 gap: "4px",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <h5 className="tds-headline-05">Attributes</h5>
-              {Object.keys(formState.errors).length > 0 &&
-                <tds-badge
-                  size="sm"
-                ></tds-badge>
-              }
+              {Object.keys(formState.errors).length > 0 && (
+                <tds-badge size="sm"></tds-badge>
+              )}
             </div>
 
             <tds-button
@@ -203,30 +199,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               text="Copy IRI Address"
             ></tds-button>
           </div>
-        }
+        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className={styles["form-body-section__form"]}>
             {formFields
               .filter(({ name }) => !excludeKeys.includes(name))
               .map((field) => renderInputField(field))}
           </div>
-            <section
-            className={styles["form__action-menu"]}
-            >
-              <tds-button
-                type="submit"
-                size="sm"
-                text="Save"
-                disabled={formState.isDirty ? false : true}
-              ></tds-button>
-              <tds-button
-                type="button"
-                size="sm"
-                variant="secondary"
-                text="Close"
-                onClick={onClose}
-              ></tds-button>
-            </section>
+          <section className={styles["form__action-menu"]}>
+            <tds-button
+              type="submit"
+              size="sm"
+              text="Save"
+              disabled={formState.isDirty ? false : true}
+            ></tds-button>
+            <tds-button
+              type="button"
+              size="sm"
+              variant="secondary"
+              text="Close"
+              onClick={onClose}
+            ></tds-button>
+          </section>
         </form>
       </article>
     </>

@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 const coreFields = [
   {
-    name: "https://kg.scania.com/it/iris_orchestration/label",
+    name: "http://www.w3.org/2000/01/rdf-schema#label",
     type: "text",
     label: "Label",
     value: "",
@@ -23,7 +23,9 @@ async function generateDynamicFormData(className: string) {
   const quads1 = await parseTTLFile(filePath1);
   const quads2 = await parseTTLFile(filePath2);
   const combinedQuads = quads1.concat(quads2);
+  console.log("json-data", combinedQuads);
   const jsonData = convertQuadsToJson(combinedQuads);
+  console.log("json-data", jsonData);
   const SHACLProcessor = createSHACLProcessor(jsonData);
   const shapeUri = SHACLProcessor.findShapeUriForClass(className);
   if (!shapeUri) {
