@@ -79,8 +79,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             .status(400)
             .json({ error: "Nodes and edges are required" });
         }
-
-        const graphData = generateJsonLdFromState({ nodes, edges });
+        const metadata = { email: user.email || "" };
+        const graphData = generateJsonLdFromState({ nodes, edges, metadata });
 
         if (!isDraft) {
           try {

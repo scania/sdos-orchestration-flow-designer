@@ -1,3 +1,4 @@
+// Import necessary types
 import {
   DynamicFormField,
   FormFieldType,
@@ -6,92 +7,130 @@ import {
   SHACLPropertyShape,
 } from "./types";
 
-export const createSHACLProcessor = (rdf: Array<Quad>) => {
+// Define the Quad type
+type Quad = {
+  subject: string;
+  predicate: string;
+  object: string;
+};
+
+export const createSHACLProcessor = (rdf: Quad[]) => {
+  if (!rdf || !Array.isArray(rdf)) {
+    throw new Error("Invalid RDF data provided. Expected an array of quads.");
+  }
+
+  const subjectIndex = new Map<string, Quad[]>();
+  const predicateIndex = new Map<string, Quad[]>();
+  const objectIndex = new Map<string, Quad[]>();
+  const subjectPredicateIndex = new Map<string, Map<string, Quad[]>>();
+
+  rdf.forEach((quad: Quad) => {
+    if (!subjectIndex.has(quad.subject)) {
+      subjectIndex.set(quad.subject, []);
+    }
+    subjectIndex.get(quad.subject)!.push(quad);
+
+    if (!predicateIndex.has(quad.predicate)) {
+      predicateIndex.set(quad.predicate, []);
+    }
+    predicateIndex.get(quad.predicate)!.push(quad);
+
+    if (!objectIndex.has(quad.object)) {
+      objectIndex.set(quad.object, []);
+    }
+    objectIndex.get(quad.object)!.push(quad);
+
+    if (!subjectPredicateIndex.has(quad.subject)) {
+      subjectPredicateIndex.set(quad.subject, new Map<string, Quad[]>());
+    }
+    const predicateMap = subjectPredicateIndex.get(quad.subject)!;
+    if (!predicateMap.has(quad.predicate)) {
+      predicateMap.set(quad.predicate, []);
+    }
+    predicateMap.get(quad.predicate)!.push(quad);
+  });
+
   const findShapeUriForClass = (className: string): string | undefined => {
-    return rdf.find(
-      (quad) =>
-        quad.predicate === "http://www.w3.org/ns/shacl#targetClass" &&
-        quad.object.endsWith(className)
+    console.log("class Name is:", className);
+    const quads =
+      predicateIndex.get("http://www.w3.org/ns/shacl#targetClass") || [];
+    const result = quads.find((quad) =>
+      quad.object.endsWith(className)
     )?.subject;
+    console.log(result, "result");
+    return result;
   };
 
   const getSubclassOf = (className: string): string => {
-    const subClassOf = rdf.filter(
-      (q) =>
-        q.subject.endsWith(className) &&
-        q.predicate === "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-    );
-    if (!subClassOf.length) {
+    const quads =
+      predicateIndex.get("http://www.w3.org/2000/01/rdf-schema#subClassOf") ||
+      [];
+    const subClassOfQuads = quads.filter((q) => q.subject.endsWith(className));
+    if (!subClassOfQuads.length) {
       return "undefined";
     }
-
-    return subClassOf[0].object;
+    return subClassOfQuads[0].object;
   };
 
   const getAllProperties = (shapeUri: string): Array<string> => {
-    return rdf
-      .filter(
-        (quad) =>
-          quad.subject === shapeUri &&
-          quad.predicate === "http://www.w3.org/ns/shacl#property"
-      )
-      .map((quad) => quad.object);
+    const predicateMap = subjectPredicateIndex.get(shapeUri);
+    if (!predicateMap) return [];
+    const quads = predicateMap.get("http://www.w3.org/ns/shacl#property") || [];
+    return quads.map((quad) => quad.object);
   };
 
   const getObjectProperties = (shapeUri: string): string[] => {
     const allProperties = getAllProperties(shapeUri);
-    const objectProperties = allProperties.filter((propertyUri) => {
-      const dataType = rdf.find(
-        (q) =>
-          q.subject === propertyUri &&
-          q.predicate === "http://www.w3.org/ns/shacl#datatype"
-      );
-      if (dataType) return false;
+    return allProperties.filter((propertyUri) => {
+      const predicateMap = subjectPredicateIndex.get(propertyUri);
+      if (
+        predicateMap &&
+        predicateMap.has("http://www.w3.org/ns/shacl#datatype")
+      ) {
+        return false;
+      }
       return true;
     });
-    return objectProperties;
   };
 
   const getSubClassesOf = (classUri: string): string[] => {
-    const subClasses = rdf.filter(
-      (q) =>
-        q.predicate === "http://www.w3.org/2000/01/rdf-schema#subClassOf" &&
-        q.object === classUri
-    );
+    const quads =
+      predicateIndex.get("http://www.w3.org/2000/01/rdf-schema#subClassOf") ||
+      [];
+    const subClasses = quads.filter((q) => q.object === classUri);
     const subClassNames = subClasses.map((subClass) => subClass.subject);
     return subClassNames;
   };
 
   const getObjectPropertyDetail = (shapeUri: string): ObjectProperties => {
-    const obj: any = {
+    const obj: ObjectProperties = {
       shape: shapeUri,
       path: "",
       className: "",
       subClasses: [],
       minCount: 0,
+      maxCount: undefined,
     };
-    rdf
-      .filter((q) => q.subject === shapeUri)
-      .forEach((q) => {
-        if (q.predicate === "http://www.w3.org/ns/shacl#path") {
-          obj.path = q.object;
-        }
-        if (q.predicate === "http://www.w3.org/ns/shacl#class") {
-          obj.className = q.object;
-          const subClasses = getSubClassesOf(q.object);
-          obj.subClasses = subClasses;
-        }
-        if (q.predicate === "http://www.w3.org/ns/shacl#minCount") {
-          obj.minCount = parseInt(q.object);
-        }
-        if (q.predicate === "http://www.w3.org/ns/shacl#maxCount") {
-          obj.maxCount = parseInt(q.object);
-        }
-      });
+    const quads = subjectIndex.get(shapeUri) || [];
+    quads.forEach((q) => {
+      if (q.predicate === "http://www.w3.org/ns/shacl#path") {
+        obj.path = q.object;
+      }
+      if (q.predicate === "http://www.w3.org/ns/shacl#class") {
+        obj.className = q.object;
+        const subClasses = getSubClassesOf(q.object);
+        obj.subClasses = subClasses;
+      }
+      if (q.predicate === "http://www.w3.org/ns/shacl#minCount") {
+        obj.minCount = parseInt(q.object);
+      }
+      if (q.predicate === "http://www.w3.org/ns/shacl#maxCount") {
+        obj.maxCount = parseInt(q.object);
+      }
+    });
     return obj;
   };
 
-  //We check the presence of sh:class for each object property
   const getObjectPropertyDetails = (shapeUri: string): ObjectProperties[] => {
     const objectProperties = getObjectProperties(shapeUri);
     return objectProperties.map((objUri) => getObjectPropertyDetail(objUri));
@@ -103,27 +142,27 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
     const allProperties = getAllProperties(shapeUri);
     return allProperties
       .map((propertyUri) => {
-        const dataType = rdf.find(
-          (q) =>
-            q.subject === propertyUri &&
-            q.predicate === "http://www.w3.org/ns/shacl#datatype"
-        )?.object;
+        const predicateMap = subjectPredicateIndex.get(propertyUri);
+        const dataType = predicateMap?.get(
+          "http://www.w3.org/ns/shacl#datatype"
+        )?.[0]?.object;
         return dataType ? { property: propertyUri, dataType } : null;
       })
-      .filter((prop) => prop !== null) as PropertyWithDataType[];
+      .filter((prop): prop is PropertyWithDataType => prop !== null);
   };
 
-  const getPropertyDetails = (propertyUri: string): object => {
-    return rdf
-      .filter((quad) => quad.subject === propertyUri)
-      .reduce((acc, quad) => {
-        const key = quad.predicate;
-        acc[key] = quad.object;
-        return acc;
-      }, {});
+  const getPropertyDetails = (propertyUri: string): SHACLPropertyShape => {
+    const quads = subjectIndex.get(propertyUri) || [];
+    return quads.reduce((acc: SHACLPropertyShape, quad) => {
+      const key = quad.predicate;
+      acc[key] = quad.object;
+      return acc;
+    }, {} as SHACLPropertyShape);
   };
 
-  const generatePropertyDetailsForClass = (className: string): object[] => {
+  const generatePropertyDetailsForClass = (
+    className: string
+  ): SHACLPropertyShape[] => {
     const shapeUri = findShapeUriForClass(className);
     if (!shapeUri) return [];
 
@@ -190,27 +229,26 @@ export const createSHACLProcessor = (rdf: Array<Quad>) => {
         type: type,
         label: comment,
         value: "",
+        validation: {},
       };
 
-      field.validation = {};
-
       if (minCount) {
-        field.validation.min = minCount;
+        field.validation!.min = minCount;
       }
       if (maxCount) {
-        field.validation.max = maxCount;
+        field.validation!.max = maxCount;
       }
 
       if (pattern) {
-        field.validation.pattern = pattern;
+        field.validation!.pattern = pattern;
       }
 
       if (minCount > 0) {
-        field.validation.required = true;
+        field.validation!.required = true;
       }
 
       // Remove validation object if empty
-      if (Object.keys(field.validation).length === 0) {
+      if (Object.keys(field.validation!).length === 0) {
         delete field.validation;
       }
 
