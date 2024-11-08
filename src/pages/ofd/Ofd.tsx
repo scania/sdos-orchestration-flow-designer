@@ -441,7 +441,9 @@ const ForceGraphComponent: React.FC = ({
             onClick={() =>
               router.push(
                 `/executeFlow/iri/${encodeURIComponent(
-                  `https://kg.scania.com/iris_orchestration/${graphName}`
+                  `https://kg.scania.com/it/iris_orchestration/${nodes[0].id
+                    .split(":")
+                    .pop()}`
                 )}`
               )
             }

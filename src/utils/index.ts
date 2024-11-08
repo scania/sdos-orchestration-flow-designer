@@ -39,9 +39,6 @@ export const generateJsonLdFromState = ({
   edges,
   metadata,
 }: IState): GraphData => {
-  console.log(JSON.stringify(nodes), "nodes");
-  console.log(JSON.stringify(edges), "edges");
-
   const findNodeFormFields = (nodeId: string): FormData => {
     const node = nodes.find((node) => node.id === nodeId);
     return node ? node.data.formData : null;
@@ -122,7 +119,6 @@ export const generateJsonLdFromState = ({
     .filter((item): item is IClassConfig => item !== null);
 
   graphData.push(...extraNodes);
-  console.log(JSON.stringify(graphData), "graphData");
   return {
     "@context": JSON_LD_CONTEXT,
     "@graph": graphData,
