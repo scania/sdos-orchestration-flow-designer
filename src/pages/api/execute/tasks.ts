@@ -26,7 +26,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     }
     const { access_token } = await getSDOSOBOToken(token);
-
     logger.debug("Obtained SDOS OBO token:");
     if (!access_token) {
       logger.error("OBO token missing.");

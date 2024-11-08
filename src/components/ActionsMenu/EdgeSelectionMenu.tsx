@@ -12,7 +12,7 @@ const EdgeSelectionMenu = ({ edges, onEdgeSelect }: any) => {
               value={item}
               key={item}
             >
-              {item}
+              {item.split("/").pop()}
             </li>
           );
         })}
