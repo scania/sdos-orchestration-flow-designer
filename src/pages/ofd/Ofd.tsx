@@ -237,7 +237,7 @@ const ForceGraphComponent: React.FC = ({
         });
       }
       setConnectionParams(params);
-      setEdgeSelections([...paths.map((item) => item.split("/").pop() || "")]);
+      setEdgeSelections([...paths]);
       captureCursorPosition(setTargetNodePosition);
       return;
     },
@@ -299,7 +299,7 @@ const ForceGraphComponent: React.FC = ({
       setNodes(initNodes);
       setEdges(initEdges);
     }
-  }, [initNodes, initEdges]);
+  }, []);
 
   useEffect(() => {
     if (classDetails && isPendingClassDetailsAction && dropInfo) {
@@ -441,7 +441,7 @@ const ForceGraphComponent: React.FC = ({
             onClick={() =>
               router.push(
                 `/executeFlow/iri/${encodeURIComponent(
-                  `http://example.org/${graphName}`
+                  `https://kg.scania.com/iris_orchestration/${graphName}`
                 )}`
               )
             }
