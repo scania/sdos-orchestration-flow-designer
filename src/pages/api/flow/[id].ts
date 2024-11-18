@@ -35,6 +35,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         updatedAt: true,
         userId: true,
         isDraft: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -43,10 +50,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(404).json({ error: "Flow not found" });
     }
 
-    if (flow.userId !== user.id) {
-      logger.error("Unauthorized access to flow.");
-      return res.status(403).json({ error: "Forbidden" });
-    }
     logger.info("Flow retrieved successfully.");
     const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
     const { access_token } = await getOBOToken(token!);

@@ -19,6 +19,7 @@ import React, {
 } from "react";
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
+import { useSession } from "next-auth/react";
 import ReactFlow, {
   addEdge,
   Background,
@@ -55,8 +56,10 @@ const ForceGraphComponent: React.FC = ({
   graphName,
   initEdges,
   initNodes,
+  user,
 }: any) => {
   const reactFlowWrapper = useRef(null);
+  const { data: session } = useSession();
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
@@ -86,6 +89,11 @@ const ForceGraphComponent: React.FC = ({
     x: 0,
     y: 0,
   });
+  const isCurrentUserAuthor = () => {
+    if (!user || !user.id) return false;
+    if (user.id === session?.user?.id) return true;
+    return false;
+  };
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -364,7 +372,7 @@ const ForceGraphComponent: React.FC = ({
             ) => {
               return (
                 <div
-                  draggable
+                  draggable={isCurrentUserAuthor()}
                   key={index}
                   onClick={() => setHighlightedClassLabel(item.className)}
                   onDragStart={(e: any) => handleOnDrag(e, item.className)}
@@ -398,7 +406,7 @@ const ForceGraphComponent: React.FC = ({
             variant="primary"
             size="sm"
             text="Add to graph"
-            disabled={!highlightedClassLabel}
+            disabled={!highlightedClassLabel || isCurrentUserAuthor()}
             onClick={() => addToGraph()}
           >
             <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
@@ -431,6 +439,7 @@ const ForceGraphComponent: React.FC = ({
             selector="#graph-options"
             graphDescription={graphDescription}
             graphName={router.query.graphName || graphName || ""}
+            user={user}
           />
           <span id="graph-options" className={styles.page__header__action}>
             Options
@@ -450,18 +459,24 @@ const ForceGraphComponent: React.FC = ({
           >
             Execute
           </span>
-          <span
-            className={styles.page__header__action}
-            onClick={() => handleSaveClick(true)}
-          >
-            Save Draft
-          </span>
-          <span
-            className={styles.page__header__action}
-            onClick={() => handleSaveClick(false)}
-          >
-            Save
-          </span>
+          {isCurrentUserAuthor() ? (
+            <>
+              <span
+                className={styles.page__header__action}
+                onClick={() => handleSaveClick(true)}
+              >
+                Save Draft
+              </span>
+              <span
+                className={styles.page__header__action}
+                onClick={() => handleSaveClick(false)}
+              >
+                Save
+              </span>
+            </>
+          ) : (
+            <></>
+          )}
         </div>
       </header>
       <main className={styles.page__main}>
@@ -527,6 +542,8 @@ const ForceGraphComponent: React.FC = ({
                   onNodeClick={handleNodeClick}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}
+                  nodesDraggable={isCurrentUserAuthor()}
+                  nodesConnectable={isCurrentUserAuthor()}
                 >
                   <Controls style={{ display: "flex" }} position="top-center" />
                   {/* @ts-ignore */}
@@ -541,6 +558,7 @@ const ForceGraphComponent: React.FC = ({
                       onSubmit={handleFormSubmit}
                       onClose={exitSetupMode}
                       label={selectedNode.data.label}
+                      readOnly={!isCurrentUserAuthor()}
                     />
                   </div>
                 )}

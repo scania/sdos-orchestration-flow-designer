@@ -11,6 +11,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   excludeKeys = ["http://www.w3.org/2000/01/rdf-schema#label"],
   label,
   onClose,
+  readOnly,
 }) => {
   const { formFields } = formData;
   const formInitialValues = useMemo(() => {
@@ -18,7 +19,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       acc[replaceSpecialChars(field.name)] = field.value || ""; // Use field.value or "" if undefined
       return acc;
     }, {});
-  }, [formFields]); // Dependency array ensures this only recalculates when formFields changes
+  }, [formFields]);
 
   const {
     register,
@@ -53,7 +54,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     }
   }, [isLabelEditMode]);
 
+  const toggleEditMode = () => {
+    if (readOnly) return;
+    setIsLabelEditMode(!isLabelEditMode);
+  };
+
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
+    if (readOnly) return;
     const filledData = formFields.map((field: FormField) => {
       const { name } = field;
       if (data[replaceSpecialChars(name)]) {
@@ -66,11 +73,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     reset(formValue);
   };
 
-  const toggleEditMode = () => {
-    setIsLabelEditMode(!isLabelEditMode);
-  };
-
   const renderLabel = () => {
+    if (readOnly) {
+      return (
+        <h5 className="tds-headline-05" style={{ display: "inline" }}>
+          {labelValue || "No Name"}
+        </h5>
+      );
+    }
+
     if (!labelValue && !isLabelEditMode) {
       return (
         <div onClick={toggleEditMode} style={{ cursor: "pointer" }}>
@@ -133,6 +144,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       </>
     );
   };
+
   const renderInputField = (field: FormField) => {
     const { name, label, validation } = field;
     const fieldName = name.split("/");
@@ -158,11 +170,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           helper={errors[nameWoSpecialChars]?.message}
           placeholder={label}
           onInput={(e: any) => {
+            if (readOnly) return;
             setValue(nameWoSpecialChars, e.target.value, {
               shouldDirty: true,
             });
           }}
           value={value}
+          disabled={readOnly}
         ></TdsTextarea>
       </section>
     );
@@ -211,7 +225,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               type="submit"
               size="sm"
               text="Save"
-              disabled={formState.isDirty ? false : true}
+              disabled={readOnly || !formState.isDirty}
             ></tds-button>
             <tds-button
               type="button"

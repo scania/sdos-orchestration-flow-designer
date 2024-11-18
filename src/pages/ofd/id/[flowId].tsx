@@ -19,7 +19,7 @@ export async function getServerSideProps(context: any) {
       cookie: context.req.headers.cookie, // Forward the session cookie
     },
   });
-  const { state, name, description } = data;
+  const { state, name, description, user } = data;
   const { nodes, edges } = JSON.parse(state);
   return {
     props: {
@@ -28,6 +28,7 @@ export async function getServerSideProps(context: any) {
       initEdges: edges,
       graphName: name.split("/").pop(),
       description,
+      user,
     },
   };
 }

@@ -37,7 +37,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     switch (req.method) {
       case "POST": {
-        logger.debug("POST request received."); // Log request method
+        logger.debug("POST request received.");
 
         // Extract subjectIri and parameters from the request body
         const { subjectIri, parameters } = req.body;
@@ -75,12 +75,41 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
           logger.info("Orchestration executed successfully.");
           logger.debug("API Response data:", response.data);
-          console.log("API Response data:", response.data);
           res.status(200).json(response.data);
         } catch (error) {
           logger.error("Error executing orchestration:", error?.message);
           logger.debug("Error details:", error);
-          res.status(500).json({ error: "Failed to execute orchestration" });
+
+          if (error.response) {
+            const statusCode = error.response.status || 500;
+            const errorData = error.response.data;
+
+            logger.error("API Error Response:", errorData);
+
+            let errorMessage = "Failed to execute orchestration";
+            if (errorData && typeof errorData === "object") {
+              if (
+                Array.isArray(errorData.messages) &&
+                errorData.messages.length > 0
+              ) {
+                errorMessage = errorData.messages.join(" ");
+              } else if (errorData.error || errorData.message) {
+                errorMessage = errorData.error || errorData.message;
+              }
+            } else if (typeof errorData === "string") {
+              errorMessage = errorData;
+            }
+
+            res.status(statusCode).json({ error: errorMessage });
+          } else if (error.request) {
+            logger.error("No response received from the API.");
+            res
+              .status(503)
+              .json({ error: "No response received from the API." });
+          } else {
+            logger.error("Error setting up the request:", error.message);
+            res.status(500).json({ error: error.message });
+          }
         }
         break;
       }

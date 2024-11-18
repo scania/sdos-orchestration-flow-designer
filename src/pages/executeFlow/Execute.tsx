@@ -197,7 +197,13 @@ function ExecuteFlow({
       ).showModal();
       setResult(response.data);
     } catch (error) {
-      showToast("error", "Error", "Could not execute graph");
+      let errorMessage = "Could not execute graph";
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      showToast("error", "Error", errorMessage);
     }
   };
 
