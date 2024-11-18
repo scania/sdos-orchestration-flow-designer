@@ -8,7 +8,7 @@ import axios from "axios";
 
 const Card = ({ data, baseUrl, fetchFlows }: any) => {
   const router = useRouter();
-  const { id, name, description, isDraft, updatedAt } = data;
+  const { id, name, description, isDraft, updatedAt, user } = data;
   const dialogId = `dialog-${id}`;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -63,6 +63,8 @@ const Card = ({ data, baseUrl, fetchFlows }: any) => {
           <dd>{isDraft ? "Draft" : "Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>
           <dd>{convertToLocalTime(updatedAt)}</dd>
+          <dt className={styles.card__data__key}>Author</dt>
+          <dd>{user?.email || user?.name}</dd>
         </dl>
       </div>
     </div>

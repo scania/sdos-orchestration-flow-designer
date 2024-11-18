@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
+import { TdsMessage } from "@scania/tegel-react";
 
 export interface ToastItem {
-  variant: undefined | "success" | "error" | "information" | "warning";
+  variant: "success" | "error" | "information" | "warning";
   header: string;
   description: string;
 }
@@ -15,29 +16,41 @@ interface ToastProps {
 const Toast: React.FC<ToastProps> = ({
   listOfToasts,
   setListOfToasts,
-  timeout,
+  timeout = 5000,
 }) => {
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setTimeout(() => {
       if (listOfToasts.length) {
         setListOfToasts([]);
       }
-    }, timeout || 5000);
+    }, timeout);
 
     return () => {
-      clearInterval(interval);
+      clearTimeout(timer);
     };
   }, [listOfToasts, setListOfToasts, timeout]);
 
   return (
-    <div style={{ position: "fixed", bottom: "32px", right: "10px" }}>
+    <div
+      style={{
+        position: "fixed",
+        bottom: "32px",
+        right: "10px",
+        zIndex: 1000,
+        maxWidth: "400px", // Set the maximum width here
+      }}
+    >
       {listOfToasts.map((toast, i) => (
-        <tds-toast
+        <TdsMessage
           key={i}
-          variant={toast.variant}
+          variant={toast.variant || "information"}
           header={toast.header}
-          subheader={toast.description}
-        />
+          minimal={false}
+          mode-variant="primary"
+          no-icon={false}
+        >
+          <div>{toast.description}</div>
+        </TdsMessage>
       ))}
     </div>
   );

@@ -20,9 +20,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
       case "GET":
         const existingFlows = await prisma.flow.findMany({
-          where: {
-            userId: user.id,
-          },
           select: {
             id: true,
             name: true,
@@ -30,6 +27,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             createdAt: true,
             isDraft: true,
             updatedAt: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+              },
+            },
           },
           orderBy: [
             {

@@ -104,6 +104,7 @@ export interface DynamicFormProps {
   onClose: () => void;
   excludeKeys: string[];
   label: string;
+  readOnly: boolean;
 }
 
 export interface KeyValuePair {

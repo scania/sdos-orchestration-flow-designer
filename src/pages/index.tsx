@@ -47,6 +47,11 @@ interface Flow {
   createdAt: Date;
   updatedAt: Date;
   isDraft: Boolean;
+  user: {
+    email: string;
+    id: "string";
+    name: "string";
+  };
 }
 
 function App({
