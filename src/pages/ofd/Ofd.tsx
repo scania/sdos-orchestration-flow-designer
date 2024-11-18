@@ -406,7 +406,7 @@ const ForceGraphComponent: React.FC = ({
             variant="primary"
             size="sm"
             text="Add to graph"
-            disabled={!highlightedClassLabel || isCurrentUserAuthor()}
+            disabled={!highlightedClassLabel || !isCurrentUserAuthor()}
             onClick={() => addToGraph()}
           >
             <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
