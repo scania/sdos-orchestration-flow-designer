@@ -6,21 +6,12 @@ import styles from "./card.module.scss";
 import { convertToLocalTime } from "@/lib/frontend/helper";
 import axios from "axios";
 
-const Card = ({ data, baseUrl, fetchFlows }: any) => {
+const Card = ({ data, deleteGraph }: any) => {
   const router = useRouter();
   const { id, name, description, isDraft, updatedAt, user } = data;
   const dialogId = `dialog-${id}`;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
-  const deleteGraph = async (id: string) => {
-    try {
-      await axios.delete(`${baseUrl}/api/flow/${data.id}`);
-      await fetchFlows();
-    } catch (error) {
-      console.error("Failed to delete graph:", error);
-    }
-  };
 
   return (
     <div className={styles.card}>
