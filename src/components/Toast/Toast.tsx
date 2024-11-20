@@ -37,7 +37,7 @@ const Toast: React.FC<ToastProps> = ({
         bottom: "32px",
         right: "10px",
         zIndex: 1000,
-        maxWidth: "400px", // Set the maximum width here
+        width: "400px",
       }}
     >
       {listOfToasts.map((toast, i) => (

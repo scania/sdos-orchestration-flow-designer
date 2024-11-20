@@ -90,8 +90,8 @@ const ForceGraphComponent: React.FC = ({
     y: 0,
   });
   const isCurrentUserAuthor = () => {
-    if (!user || !user.id) return false;
-    if (user.id === session?.user?.id) return true;
+    if (user?.id === session?.user?.id) return true;
+    if (!user && (session?.user || session?.user?.id)) return true;
     return false;
   };
   const {
