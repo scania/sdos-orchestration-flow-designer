@@ -1,5 +1,5 @@
 import { env } from "@/lib/env";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
@@ -12,6 +12,7 @@ import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
 import TaskSelection from "@/components/TaskSelection";
 import { Task } from "@/utils/types";
+import Toast, { ToastItem } from "@/components/Toast/Toast";
 
 // server side auth check
 export async function getServerSideProps(context: any) {
@@ -64,6 +65,7 @@ function App({
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
+  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const router = useRouter();
   const {
     register,
@@ -78,6 +80,27 @@ function App({
     formState: { errors: errorsExecuteGraph },
   } = useForm();
 
+  const onDeleteGraphClick = async (id: string) => {
+    try {
+      await axios.delete(`${baseUrl}/api/flow/${id}`);
+      await fetchFlows();
+      showToast("success", "Success", "Graph has been deleted");
+    } catch (error) {
+      showToast("error", "Error", "Graph can not be deleted");
+    }
+  };
+
+  const showToast = useCallback(
+    (
+      variant: "success" | "error" | "information" | "warning",
+      header: string,
+      description: string
+    ) => {
+      const toastProperties: ToastItem = { variant, header, description };
+      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
+    },
+    []
+  );
   const fetchFlows = async () => {
     try {
       const response = await axios.get(`${baseUrl}/api/flows`);
@@ -241,8 +264,7 @@ function App({
                     <Card
                       key={flow.id}
                       data={flow}
-                      baseUrl={baseUrl}
-                      fetchFlows={fetchFlows}
+                      deleteGraph={onDeleteGraphClick}
                     />
                   ))}
                 </>
@@ -255,6 +277,7 @@ function App({
             </div>
           </div>
         </div>
+        <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
       </main>
     </div>
   );

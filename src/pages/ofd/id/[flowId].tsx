@@ -20,6 +20,11 @@ export async function getServerSideProps(context: any) {
     },
   });
   const { state, name, description, user } = data;
+
+  const isCurrentUserAuthor = () => {
+    if (user?.id === session?.user?.id) return true;
+    return false;
+  };
   const { nodes, edges } = JSON.parse(state);
   return {
     props: {
@@ -28,7 +33,7 @@ export async function getServerSideProps(context: any) {
       initEdges: edges,
       graphName: name.split("/").pop(),
       description,
-      user,
+      isEditable: isCurrentUserAuthor(),
     },
   };
 }

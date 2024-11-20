@@ -17,7 +17,6 @@ const DropDownListItems = () => {
         <>
           <tds-header-dropdown-list-user
             header={session?.user?.name || ""}
-            subheader="Admin"
           ></tds-header-dropdown-list-user>
           <tds-header-dropdown-list-item onClick={handleLogout}>
             <Link href="#" passHref>

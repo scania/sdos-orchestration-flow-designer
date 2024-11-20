@@ -22,12 +22,6 @@ const GraphOptions = ({ selector, graphDescription, graphName, user }) => {
           disabled
           value={graphDescription}
         ></tds-textarea>
-        <tds-textarea
-          label="Author"
-          label-position="outside"
-          disabled
-          value={user?.email}
-        ></tds-textarea>
       </div>
       <span slot="actions"></span>
     </tds-modal>
