@@ -225,7 +225,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               type="submit"
               size="sm"
               text="Save"
-              disabled={readOnly || !formState.isDirty}
+              disabled={readOnly || !labelValue || !formState.isDirty}
             ></tds-button>
             <tds-button
               type="button"

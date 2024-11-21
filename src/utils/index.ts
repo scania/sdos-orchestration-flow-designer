@@ -242,7 +242,7 @@ export const initializeNodes = () => [
             name: "http://www.w3.org/2000/01/rdf-schema#label",
             type: "text",
             label: "Label",
-            value: "",
+            value: "Task",
             validation: {
               required: true,
               minLength: 1,
