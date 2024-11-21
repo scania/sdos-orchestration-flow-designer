@@ -125,9 +125,9 @@ const ForceGraphComponent: React.FC = ({
   };
 
   const isNodeDeletable = () => {
-    if (selectedNode?.data?.label !== "Task") {
-      return true;
-    }
+    if (!isEditable) return false;
+    if (selectedNode?.data?.label === "Task") return false;
+    return true;
   };
 
   const onEdgeSelect = (path: string) => {
