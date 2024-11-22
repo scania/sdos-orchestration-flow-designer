@@ -66,6 +66,7 @@ function App({
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+  const [toBeDeletedId, setToBeDeletedId] = useState<string | null>(null);
   const router = useRouter();
   const {
     register,
@@ -80,13 +81,25 @@ function App({
     formState: { errors: errorsExecuteGraph },
   } = useForm();
 
-  const onDeleteGraphClick = async (id: string) => {
+  const onDeleteGraphClick = (id: string) => {
+    const modal = document.querySelector(
+      '[selector="delete-graph-modal"]'
+    ) as HTMLTdsModalElement | null;
+    if (modal) {
+      setToBeDeletedId(id);
+      modal.showModal();
+    }
+  };
+
+  const onGraphDelete = async () => {
     try {
-      await axios.delete(`${baseUrl}/api/flow/${id}`);
+      await axios.delete(`${baseUrl}/api/flow/${toBeDeletedId}`);
       await fetchFlows();
       showToast("success", "Success", "Graph has been deleted");
+      setToBeDeletedId(null);
     } catch (error) {
       showToast("error", "Error", "Graph can not be deleted");
+      setToBeDeletedId(null);
     }
   };
 
@@ -170,6 +183,29 @@ function App({
   };
   return (
     <div className={`App`}>
+      <tds-modal
+        id="delete-graph-modal"
+        selector="delete-graph-modal"
+        size="sm"
+        // tds-close={handleModalClose}
+      >
+        <h5 className="tds-modal-headline" slot="header">
+          Are you sure?
+        </h5>
+        <span slot="body">This action once performed, can not be reverted</span>
+        <span
+          slot="actions"
+          style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}
+        >
+          <tds-button
+            data-dismiss-modal
+            size="md"
+            text="Delete"
+            variant="danger"
+            onClick={onGraphDelete}
+          ></tds-button>
+        </span>
+      </tds-modal>
       <main className={styles.main}>
         <div className={styles.tabs}>
           <Tabs>
