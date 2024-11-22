@@ -65,12 +65,24 @@ const Sidebar: React.FC<SidebarProps> = ({
           const classesForConnectorType = classes.filter(
             (item) => item.path === connectorType
           );
+
           if (!classesForConnectorType.length) return null;
 
-          const classNamesForConnectorType = classesForConnectorType[0]
-            .subClasses.length
-            ? classesForConnectorType[0].subClasses
-            : [classesForConnectorType[0].className];
+          let classNamesForConnectorType: string[] = [];
+
+          classesForConnectorType.forEach((item) => {
+            if (item.subClasses && item.subClasses.length > 0) {
+              classNamesForConnectorType = classNamesForConnectorType.concat(
+                item.subClasses
+              );
+            } else if (item.className) {
+              classNamesForConnectorType.push(item.className);
+            }
+          });
+
+          classNamesForConnectorType = Array.from(
+            new Set(classNamesForConnectorType)
+          );
 
           const filteredClassNames = classNamesForConnectorType.filter(
             (item) => {
@@ -90,12 +102,12 @@ const Sidebar: React.FC<SidebarProps> = ({
               numberOfElements={filteredClassNames.length}
             >
               <div className={styles.classes}>
-                {filteredClassNames.map((item, index) => {
+                {filteredClassNames.map((item) => {
                   const className = item.split("/").pop() || "";
                   return (
                     <div
                       draggable
-                      key={index}
+                      key={className}
                       onClick={() => setHighlightedClassLabel(className)}
                       onDragStart={(e) => handleOnDrag(e, className)}
                       className={`${styles.classes__class} ${
