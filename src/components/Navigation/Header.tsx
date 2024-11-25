@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
 
 const DropDownListItems = () => {
   const { data: session } = useSession();
-  const router = useRouter();
   const handleLogout = (e: any) => {
     e.preventDefault();
     signOut({ callbackUrl: "/auth/logout" });
@@ -46,11 +44,13 @@ const DropDownListDynamic = dynamic(() => Promise.resolve(DropDownListItems), {
 const Header = () => {
   return (
     <tds-header>
-      <tds-header-title>
-        {`ORCHESTRATION FLOW GRAPH DESIGNER BETA ${
-          process.env.NEXT_PUBLIC_VERSION || ""
-        }`}
-      </tds-header-title>
+      <Link href="/">
+        <tds-header-title>
+          {`ORCHESTRATION FLOW GRAPH DESIGNER BETA ${
+            process.env.NEXT_PUBLIC_VERSION || ""
+          }`}
+        </tds-header-title>
+      </Link>
       <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
         <div slot="icon">
           <Link href="/settings">
