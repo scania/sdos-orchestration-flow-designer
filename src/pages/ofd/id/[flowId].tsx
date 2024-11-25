@@ -19,7 +19,7 @@ export async function getServerSideProps(context: any) {
       cookie: context.req.headers.cookie, // Forward the session cookie
     },
   });
-  const { state, name, description, user } = data;
+  const { state, name, description, user, isDraft } = data;
 
   const isCurrentUserAuthor = () => {
     if (user?.id === session?.user?.id) return true;
@@ -34,6 +34,7 @@ export async function getServerSideProps(context: any) {
       graphName: name.split("/").pop(),
       description,
       isEditable: isCurrentUserAuthor(),
+      isDraftInitial: isDraft,
     },
   };
 }

@@ -50,14 +50,25 @@ const nodeTypes = {
   default: CircularNode,
 };
 
-const ForceGraphComponent: React.FC = ({
+interface ForceGraphProps {
+  apiBaseUrl: string;
+  description?: string;
+  graphName?: string;
+  initEdges?: Edge[];
+  initNodes?: Node[];
+  isEditable?: boolean;
+  isDraftInitial?: boolean;
+}
+
+const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   apiBaseUrl,
   description,
   graphName,
   initEdges,
   initNodes,
   isEditable = true,
-}: any) => {
+  isDraftInitial = true,
+}) => {
   const reactFlowWrapper = useRef(null);
   const { data: session } = useSession();
   //@ts-ignore
@@ -89,6 +100,7 @@ const ForceGraphComponent: React.FC = ({
     x: 0,
     y: 0,
   });
+  const [isDraft, setIsDraft] = useState<boolean>(isDraftInitial);
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -109,7 +121,7 @@ const ForceGraphComponent: React.FC = ({
     }
   );
 
-  const showToast = (variant, header, description) => {
+  const showToast = (variant: string, header: string, description: string) => {
     const toastProperties = {
       variant,
       header,
@@ -165,8 +177,16 @@ const ForceGraphComponent: React.FC = ({
   };
 
   const mutation = useMutation(saveData, {
-    onSuccess: () => {
-      showToast("success", "Success", "Graph has been successfully saved");
+    onSuccess: (data, variables) => {
+      const { isDraft: savedAsDraft } = variables;
+      showToast(
+        "success",
+        "Success",
+        savedAsDraft
+          ? "Draft has been successfully saved"
+          : "Graph has been successfully saved"
+      );
+      setIsDraft(savedAsDraft);
     },
     onError: (error) => {
       showToast("error", "Error", "The graph could not be saved");
@@ -190,7 +210,7 @@ const ForceGraphComponent: React.FC = ({
     return filteredPrimaryClasses;
   }
 
-  const handleSaveClick = (isDraftSave) => {
+  const handleSaveClick = (isDraftSave: boolean) => {
     const payload = {
       nodes,
       edges,
@@ -265,6 +285,7 @@ const ForceGraphComponent: React.FC = ({
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
+
   const onDrop = useCallback(
     (event: any) => {
       event.preventDefault();
@@ -291,6 +312,7 @@ const ForceGraphComponent: React.FC = ({
     },
     [reactFlowInstance]
   );
+
   useEffect(() => {
     // Initialize state from props if they are provided and not empty
     if (
@@ -420,6 +442,32 @@ const ForceGraphComponent: React.FC = ({
     setSelectedNode(node);
   };
 
+  const handleExecute = () => {
+    if (isDraft) {
+      showToast(
+        "warning",
+        "Cannot Execute",
+        "Cannot execute a draft. Please save the flow first."
+      );
+    } else {
+      if (nodes.length === 0) {
+        showToast(
+          "error",
+          "No Nodes",
+          "Cannot execute an empty flow. Please add nodes to the graph."
+        );
+        return;
+      }
+
+      const firstNodeId = nodes[0].id;
+      const iri = `https://kg.scania.com/it/iris_orchestration/${firstNodeId
+        .split(":")
+        .pop()}`;
+
+      router.push(`/executeFlow/iri/${encodeURIComponent(iri)}`);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <header className={styles.page__header + " tds-detail-02"}>
@@ -440,16 +488,11 @@ const ForceGraphComponent: React.FC = ({
           </span>
           <span
             id="execute-graph"
-            className={styles.page__header__action}
-            onClick={() =>
-              router.push(
-                `/executeFlow/iri/${encodeURIComponent(
-                  `https://kg.scania.com/it/iris_orchestration/${nodes[0].id
-                    .split(":")
-                    .pop()}`
-                )}`
-              )
-            }
+            className={`${styles.page__header__action} ${
+              isDraft ? styles.disabled : ""
+            }`}
+            onClick={handleExecute}
+            style={{ cursor: isDraft ? "not-allowed" : "pointer" }}
           >
             Execute
           </span>
@@ -468,9 +511,7 @@ const ForceGraphComponent: React.FC = ({
                 Save
               </span>
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </div>
       </header>
       <main className={styles.page__main}>
@@ -543,7 +584,7 @@ const ForceGraphComponent: React.FC = ({
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
-                {setupMode && (
+                {setupMode && selectedNode && (
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
@@ -567,12 +608,11 @@ const ForceGraphComponent: React.FC = ({
                   text="Enter Setup"
                   mode-variant="primary"
                   onClick={() => {
-                    [setSetupMode(true), setHighlightedClassLabel("")];
+                    setSetupMode(true);
+                    setHighlightedClassLabel("");
                   }}
                 ></tds-button>
-              ) : (
-                <></>
-              )}
+              ) : null}
 
               {setupMode ? (
                 <tds-button
@@ -581,13 +621,9 @@ const ForceGraphComponent: React.FC = ({
                   size="md"
                   text="Leave setup"
                   mode-variant="secondary"
-                  onClick={() => {
-                    exitSetupMode();
-                  }}
+                  onClick={exitSetupMode}
                 ></tds-button>
-              ) : (
-                <></>
-              )}
+              ) : null}
             </div>
           </div>
         </section>
