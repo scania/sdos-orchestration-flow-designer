@@ -19,7 +19,6 @@ import React, {
 } from "react";
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
-import { useSession } from "next-auth/react";
 import ReactFlow, {
   addEdge,
   Background,
@@ -43,7 +42,6 @@ import styles from "./ofd.module.scss";
 import { captureCursorPosition } from "../../lib/frontend/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 
-const initialNodes = initializeNodes();
 const nodeTypes = {
   input: CircularNode,
   output: CircularNode,
@@ -70,9 +68,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   isDraftInitial = true,
 }) => {
   const reactFlowWrapper = useRef(null);
-  const { data: session } = useSession();
   //@ts-ignore
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initializeNodes());
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
   const [searchString, setSearchString] = useState("");
@@ -210,7 +207,36 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     return filteredPrimaryClasses;
   }
 
+  // TODO: more comprehensive shacl validation,
+  // this only checks for at least one input Parameter,
+  // without which leads to sdos error
+  const isGraphValid = (nodes: Node[], edges: Edge[]) => {
+    const taskNodes = nodes.filter((node) => node.data.label === "Task");
+    const invalidTasks = taskNodes.filter((task) => {
+      const taskEdges = edges.filter(
+        (edge) => edge.source === task.id || edge.target === task.id
+      );
+      // Check if any edge has the required label for inputParameter
+      return !taskEdges.some(
+        (edge) =>
+          edge.data &&
+          edge.data[
+            "https://kg.scania.com/it/iris_orchestration/inputParameter"
+          ]
+      );
+    });
+    return invalidTasks.length === 0;
+  };
+
   const handleSaveClick = (isDraftSave: boolean) => {
+    if (!isGraphValid(nodes, edges) && !isDraftSave) {
+      showToast(
+        "error",
+        "Validation Error",
+        "Task node must be connected to at least one input Parameter."
+      );
+      return;
+    }
     const payload = {
       nodes,
       edges,
@@ -447,7 +473,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       showToast(
         "warning",
         "Cannot Execute",
-        "Cannot execute a draft. Please save the flow first."
+        "Cannot execute a draft. Must be saved to execute"
       );
     } else {
       if (nodes.length === 0) {

@@ -66,7 +66,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(200).json(flow);
 
       case "DELETE":
-        if (flow.userId !== user.id) {
+        const adminEmails =
+          env.ADMIN_EMAILS?.split(",").map((email: string) => email.trim()) ||
+          [];
+        const isAdmin = adminEmails.includes(user.email); // Check if user is an admin
+        if (flow.userId !== user.id && !isAdmin) {
           logger.error("User not authorized to delete this flow.");
           return res.status(403).json({ error: "Forbidden" });
         }
