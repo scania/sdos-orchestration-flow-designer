@@ -68,3 +68,13 @@ export async function deleteGraph(
     .click();
   await expect(graphCard).toHaveCount(0);
 }
+
+export async function openGraph(
+  page: Page,
+  graphName: string
+): Promise<void> {
+  const graphCard = page
+  .getByRole("heading", { name: graphName.split(" ").join("-") })
+  .locator("../..");
+  await graphCard.getByRole('button', { name: 'Open'}).click();
+}
