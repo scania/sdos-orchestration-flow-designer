@@ -22,9 +22,9 @@ export async function loginUser(
 export async function saveDraftGraph(page: Page): Promise<void> {
   // Save graph
   await page.getByText("Save Draft", { exact: true }).click();
-  await expect(page.locator('tds-toast[header="Success"]')).toBeVisible();
-  await expect(page.locator('tds-toast[header="Success"]')).toContainText(
-    "Graph has been successfully saved"
+  await expect(page.locator('tds-message[header="Success"]')).toBeVisible();
+  await expect(page.locator('tds-message[header="Success"]')).toContainText(
+    "Draft has been successfully saved"
   );
 }
 
@@ -48,8 +48,8 @@ export async function createGraph(
 export async function saveGraphToStardog(page: Page): Promise<void> {
   // Save graph
   await page.getByText("Save", { exact: true }).click();
-  await expect(page.locator('tds-toast[header="Success"]')).toBeVisible();
-  await expect(page.locator('tds-toast[header="Success"]')).toContainText(
+  await expect(page.locator('tds-message[header="Success"]')).toBeVisible();
+  await expect(page.locator('tds-message[header="Success"]')).toContainText(
     "Graph has been successfully saved"
   );
 }
@@ -62,10 +62,10 @@ export async function deleteGraph(
     .getByRole("heading", { name: graphName.split(" ").join("-") })
     .locator("../..");
   await graphCard.locator('tds-icon[name="meatballs"]').click();
-  await page
-    .locator("#react-tiny-popover-container")
-    .getByText("Delete")
-    .click();
+  await page.locator("#react-tiny-popover-container")
+  .getByText("Delete").click();
+  await page.locator('#delete-graph-modal')
+  .getByRole('button', { name: 'Delete' }).click();
   await expect(graphCard).toHaveCount(0);
 }
 

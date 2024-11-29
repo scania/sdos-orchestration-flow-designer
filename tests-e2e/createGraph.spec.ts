@@ -100,7 +100,7 @@ test.describe('Create orchestration graph', () => {
 
         await graphCard.getByRole('button', { name: 'Open' }).click();
         
-        // Drag 'n' drop Action
+        // Add Action
         const taskNode = page.locator('.react-flow__node-input');
         const scriptAction = page.getByText('Script Action', { exact: true });
         
@@ -116,6 +116,23 @@ test.describe('Create orchestration graph', () => {
         // Create connection
         await taskNode.locator('div[data-handlepos="right"]').click();
         await page.locator('.react-flow__node').getByText('Script Action')
+        .locator('../..').locator('div[data-handlepos="left"]').click();
+
+        // Add Parameter
+        await page.getByText('Parameters', { exact: true }).click();
+        const StandardParam = page.getByText('Standard Parameter', { exact: true });        
+        await StandardParam.dragTo(
+            taskNode,
+            { targetPosition: { // Offset in pixels
+                x: 400, 
+                y: 100
+            }, 
+            force: true }
+        );
+
+        // Create connection
+        await taskNode.locator('div[data-handlepos="right"]').click();
+        await page.locator('.react-flow__node').getByText('Standard Parameter')
         .locator('../..').locator('div[data-handlepos="left"]').click();
 
         await saveGraphToStardog(page);
