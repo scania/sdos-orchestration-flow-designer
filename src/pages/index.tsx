@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import Button from "@/components/Button";
 import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
@@ -246,18 +245,22 @@ function App({
           </div>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
-              <Button
+              <tds-button
                 id="create-new-graph-button"
-                type="button"
+                size="sm"
                 variant="primary"
+                text={"Create new graph"}
               >
-                <div className="tds-u-mr1">Create new graph</div>
-                <TdsIcon name="plus" size="16px"></TdsIcon>
-              </Button>
-              <Button id="execute-graph-button" type="button" variant="primary">
-                <div className="tds-u-mr1">Execute Graph</div>
-                <TdsIcon name="send" size="16px"></TdsIcon>
-              </Button>
+                <tds-icon size="16px" slot="icon" name="plus"></tds-icon>
+              </tds-button>
+              <tds-button
+                id="execute-graph-button"
+                size="sm"
+                variant="primary"
+                text={"Execute Graph"}
+              >
+                <tds-icon size="16px" slot="icon" name="send"></tds-icon>
+              </tds-button>
               <TdsModal selector="#create-new-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
                   Create new graph
