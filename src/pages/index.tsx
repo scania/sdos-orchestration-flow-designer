@@ -106,7 +106,7 @@ function App({
   const heading = selectedTab;
   const description =
     selectedTab === "My Work"
-      ? "Open and edit your orchestration flow graph or create a new one. You can also view what graphs are available to you from others."
+      ? "Open and edit your orchestration flow graph, or create a new one. You can also view which graphs are available to you from other projects."
       : "View graphs available to you from other projects.";
 
   const onDeleteGraphClick = (id: string, ownerId: string) => {
