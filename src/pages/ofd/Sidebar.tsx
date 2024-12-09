@@ -208,11 +208,11 @@ const Sidebar: React.FC<SidebarProps> = ({
               ]}
             >
               <Panel
-                title={`Required ${requiredClasses.length}`}
+                title={`Required ${requiredClasses.length ? `(${requiredClasses.length})` : ''}`}
                 value="required"
               ></Panel>
               <Panel
-                title={`Optional ${optionalClasses.length}`}
+                title={`Optional ${optionalClasses.length ? `(${optionalClasses.length})` : ''}`}
                 value="optional"
               ></Panel>
             </Tabs>

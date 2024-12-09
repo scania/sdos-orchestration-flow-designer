@@ -160,6 +160,7 @@ function App({
 
   const handleModalClose = () => {
     setExecuteGraphIriValue("");
+    clearErrors("name")
   };
 
   const checkNameExists = async (name: string): Promise<boolean> => {
