@@ -180,8 +180,17 @@ function App({
     name: string;
     description: string;
   }) => {
-    const { name, description } = data;
+    let { name, description } = data;
     clearErrors("name");
+    // removes whitespace from both sides of the name, but leaves whitespaces in the middle
+    name = data.name.trim()
+    if (name.length === 0) {
+      setError("name", {
+        type: "manual",
+        message: "Graph name can not be empty",
+      });
+      return;
+    }
     const nameExists = await checkNameExists(name.replace(/\s+/g, "-"));
     if (nameExists) {
       setError("name", {
