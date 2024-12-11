@@ -297,10 +297,22 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
 
+
+    // Get the bounding box of the graph area
+    const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
+
+    const viewport = reactFlowInstance.getViewport();
+    const { x, y, zoom } = viewport;
+
+    const position = {
+      x: (width / 2 - x) / zoom,
+      y: (height / 2 - y) / zoom
+    };
+
     // Store event-related data for later use
     setDropInfo({
       type: highlightedClassLabel,
-      position: { x: 10, y: 10 },
+      position: position
     });
 
     setIsPendingClassDetailsAction(true);
