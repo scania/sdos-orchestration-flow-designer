@@ -241,7 +241,7 @@ function App({
         <div className={styles.content}>
           <div className={styles["header__project-summary"]}>
             <h2 className={styles["content__heading"]}>{heading}</h2>
-            {description}
+            <p className={styles["content__description"]}>{description}</p>
           </div>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
