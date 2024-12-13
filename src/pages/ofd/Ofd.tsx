@@ -40,6 +40,7 @@ import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
 import { captureCursorPosition } from "../../lib/frontend/helper";
+import { randomizeValue } from "../../helpers/helper"
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 
 const nodeTypes = {
@@ -305,8 +306,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     const { x, y, zoom } = viewport;
 
     const position = {
-      x: (width / 2 - x) / zoom,
-      y: (height / 2 - y) / zoom
+      x: randomizeValue((width / 2 - x) / zoom),
+      y: randomizeValue((height / 2 - y) / zoom)
     };
 
     // Store event-related data for later use
