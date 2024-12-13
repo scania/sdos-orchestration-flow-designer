@@ -179,18 +179,18 @@ function App({
     name: string;
     description: string;
   }) => {
-    let { name, description } = data;
+    const { name, description } = data;
     clearErrors("name");
-    // removes whitespace from both sides of the name, but leaves whitespaces in the middle
-    name = data.name.trim()
-    if (name.length === 0) {
+    // Internal whitespaces are replaced with -, while leading and trailing spaces are removed entirely
+    const trimmedGraphName = name.trim().replace(/\s+/g, "-")
+    if (trimmedGraphName.length === 0) {
       setError("name", {
         type: "manual",
-        message: "Graph name can not be empty",
+        message: "Graph name is required",
       });
       return;
     }
-    const nameExists = await checkNameExists(name.replace(/\s+/g, "-"));
+    const nameExists = await checkNameExists(trimmedGraphName);
     if (nameExists) {
       setError("name", {
         type: "manual",
@@ -202,7 +202,7 @@ function App({
       {
         pathname: `/ofd/new`,
         query: {
-          graphName: name.replace(/\s+/g, "-"),
+          graphName: trimmedGraphName,
           description,
         },
       },
