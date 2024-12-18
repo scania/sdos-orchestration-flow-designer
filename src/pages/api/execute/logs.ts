@@ -9,10 +9,10 @@ import { getSDOSOBOToken } from "../../../lib/backend/sdosOBO";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    logger.info("Tasks request received.");
+    logger.info("Execution log request received.");
     logger.debug("Request details:", { method: req.method, url: req.url });
 
-    // Check the user session
+    //Check user session
     const session = await getServerSession(req, res, authOptions);
     if (!session && env.NODE_ENV === "production") {
       logger.error("Unauthorized request.");
@@ -26,8 +26,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    const { access_token } = await getSDOSOBOToken(token);
 
+    const { access_token } = await getSDOSOBOToken(token);
     logger.debug("Obtained SDOS OBO token:");
     if (!access_token) {
       logger.error("OBO token missing.");
@@ -36,54 +36,45 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     switch (req.method) {
-      case "POST": {
-        logger.debug("POST request received.");
-        const { subjectIri, parameters } = req.body;
+      case "GET": {
+        logger.debug("GET request received for execution logs.");
 
-        if (!subjectIri || !parameters) {
-          logger.error("subjectIri or parameters missing in request body.");
+        // Extract executionId from query parameters
+        const { executionId } = req.query;
+        if (!executionId || typeof executionId !== "string") {
+          logger.error(
+            "executionId is missing or invalid in query parameters."
+          );
           res
             .status(400)
-            .json({ error: "subjectIri and parameters are required." });
+            .json({ error: "executionId query parameter is required." });
           return;
         }
 
         try {
-          logger.info("Sending POST request to external API.");
+          logger.info("Sending GET request to SDOS getExecutionlog endpoint.");
           logger.debug("Request details:", {
-            subjectIri,
-            parameters,
-            endpoint: `${env.SDOS_ENDPOINT}/sdos/runOrchestrationSync`,
+            executionId,
+            endpoint: `${env.SDOS_ENDPOINT}/sdos/ls/getExecutionlog`,
           });
 
-          const response = await axios.post(
-            `${env.SDOS_ENDPOINT}/sdos/runOrchestrationSync`,
-            {
-              subjectIri,
-              parameters,
-            },
+          const response = await axios.get(
+            `${env.SDOS_ENDPOINT}/sdos/ls/getExecutionlog`,
             {
               headers: {
                 Authorization: `Bearer ${access_token}`,
-                "Content-Type": "application/json",
-                Accept: "application/ld+json",
+                Accept: "application/json",
               },
+              params: { executionId },
             }
           );
 
-          logger.info("Orchestration executed successfully.");
+          logger.info("Execution logs retrieved successfully.");
           logger.debug("API Response data:", response.data);
-
-          const executionId = response.headers["executionid"] || null;
-          console.log("execution id is", executionId);
-
-          if (executionId) {
-            res.setHeader("executionid", executionId);
-          }
 
           res.status(200).json(response.data);
         } catch (error: any) {
-          logger.error("Error executing orchestration:", error?.message);
+          logger.error("Error retrieving execution logs:", error?.message);
           logger.debug("Error details:", error);
 
           if (error.response) {
@@ -92,7 +83,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
             logger.error("API Error Response:", errorData);
 
-            let errorMessage = "Failed to execute orchestration";
+            let errorMessage = "Failed to retrieve execution logs";
             if (errorData && typeof errorData === "object") {
               if (
                 Array.isArray(errorData.messages) &&
@@ -121,7 +112,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       default:
-        logger.error("Method not allowed.");
+        logger.error("Method not allowed for execution logs endpoint.");
         res.status(405).json({ error: "Method not allowed." });
         break;
     }
