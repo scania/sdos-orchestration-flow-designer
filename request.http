@@ -193,3 +193,7 @@ Content-Type: application/json
 ### Fetch Task Parameters by IRI
 GET {{baseUrl}}/api/parameter/template?iri=task-iri-here
 Content-Type: application/json
+
+### Fetch execution logs 
+GET {{baseUrl}}/api/execute/logs/?executionId=http://result2024120213402236
+Content-Type: application/json
