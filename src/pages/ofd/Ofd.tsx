@@ -87,6 +87,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
   const [setupMode, setSetupMode] = useState(false);
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
@@ -132,6 +133,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setConnectionParams(null);
     setEdgeSelections([]);
     setTargetNodePosition({ x: 0, y: 0 });
+    setIsPopoverOpen(false)
   };
 
   const isNodeDeletable = () => {
@@ -288,6 +290,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       }
       setConnectionParams(params);
       setEdgeSelections([...paths]);
+      setIsPopoverOpen(true);
       captureCursorPosition(setTargetNodePosition);
       return;
     },
@@ -481,6 +484,16 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setSelectedNode(node);
   };
 
+  const handlePaneClick = () => {
+    // If popover is open, close it when clicking outside popover
+    setIsPopoverOpen(false);
+
+    // De-select node when clicking outside a node, except when in setup-mode
+    if(!setupMode) {
+      setSelectedNode(null)
+    }
+  }
+
   const handleExecute = () => {
     if (isDraft) {
       showToast(
@@ -575,11 +588,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
         <section className={styles.graph__canvas}>
           <div>
             <Popover
-              isOpen={!!edgeSelections.length}
+              isOpen={isPopoverOpen}
               content={
                 <SelectionMenu
                   edges={edgeSelections}
                   onEdgeSelect={onEdgeSelect}
+                  onClose={() => setIsPopoverOpen(false)}
                 ></SelectionMenu>
               }
               containerStyle={{
@@ -601,6 +615,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                 }}
               >
                 <ReactFlow
+                  onPaneClick={handlePaneClick}
                   nodes={nodes}
                   edges={edges}
                   deleteKeyCode={isNodeDeletable() ? "Delete" : null}
