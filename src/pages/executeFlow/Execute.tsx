@@ -38,6 +38,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     "Create" | "Existing" | "Editing"
   >("Create");
   const [result, setResult] = useState("");
+  const [detailedLog, setDetailedLog] = useState([]);
   const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
     null
   );
@@ -70,9 +71,17 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     (
       variant: "success" | "error" | "information" | "warning",
       header: string,
-      description: string
+      description: string,
+      timeout?: number,
+      onShowMore?: Function
     ) => {
-      const toastProperties: ToastItem = { variant, header, description };
+      const toastProperties: ToastItem = {
+        variant,
+        header,
+        description,
+        timeout,
+        onShowMore,
+      };
       setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
     },
     []
@@ -117,6 +126,22 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   useEffect(() => {
     const modal = document.querySelector(
       "#execution-result-modal"
+    ) as HTMLTdsModalElement | null;
+    const closeHandler = () => handleModalClose();
+
+    if (modal) {
+      modal.addEventListener("tdsClose", closeHandler);
+    }
+    return () => {
+      if (modal) {
+        modal.removeEventListener("tdsClose", closeHandler);
+      }
+    };
+  }, [handleModalClose]);
+
+  useEffect(() => {
+    const modal = document.querySelector(
+      "#execution-log-modal"
     ) as HTMLTdsModalElement | null;
     const closeHandler = () => handleModalClose();
 
@@ -207,6 +232,23 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     }
   };
 
+  const handleShowMore = async (toast: ToastItem) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/api/execute/logs?executionId=http:%2F%2Fresult2024121813051698"
+      );
+      const modal = document.querySelector(
+        '[selector="execution-log-modal"]'
+      ) as HTMLTdsModalElement | null;
+      if (modal) {
+        modal.showModal();
+      }
+      setDetailedLog(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const executeGraph = async () => {
     try {
       const response = await axios.post(
@@ -233,7 +275,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         error.response?.data?.error ||
         error.message ||
         "Could not execute graph";
-      showToast("error", "Error", errorMessage);
+      showToast("error", "Error", errorMessage, 10000, handleShowMore);
     }
   };
 
@@ -358,7 +400,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                       </div>
                       <tds-textarea
                         label="JSON"
-                        rows={20}
+                        rows={12}
                         label-position="outside"
                         helper={errors.value?.message || ""}
                         state={errors.value ? "error" : "default"}
@@ -377,7 +419,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                       ></tds-textarea>
                     </form>
                   )}
-
                   {/* Existing Parameters */}
                   {(selectedExecutionMethod === "Existing" ||
                     selectedExecutionMethod === "Editing") && (
@@ -434,7 +475,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 
                       <tds-textarea
                         label="JSON"
-                        rows={20}
+                        rows={12}
                         label-position="outside"
                         disabled={selectedExecutionMethod !== "Editing"}
                         helper={errors.value?.message || ""}
@@ -513,7 +554,41 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         </span>
       </tds-modal>
 
-      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
+      <tds-modal
+        id="execution-log-modal"
+        selector="execution-log-modal"
+        size="md"
+        tds-close={() => setDetailedLog([])}
+      >
+        <h5 className="tds-modal-headline" slot="header">
+          Graph execution log
+        </h5>
+        <span slot="body">
+          {detailedLog.map((item) => (
+            <div style={{background: '#e5e3e3', margin: '20px', display: 'flex', gap: '20px', padding: '10px'}}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                <tds-icon
+                  style={{color: 'blue'}}
+                  name="info"
+                  size="24px"
+                ></tds-icon>
+                </div>
+                </div>
+                <div>
+                <div>
+                  {item.message}
+                  </div>
+              </div>
+            </div>
+          ))}
+        </span>
+      </tds-modal>
+
+      <Toast
+        listOfToasts={listOfToasts}
+        setListOfToasts={setListOfToasts}
+      />
     </div>
   );
 };

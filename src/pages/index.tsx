@@ -134,9 +134,10 @@ function App({
     (
       variant: "success" | "error" | "information" | "warning",
       header: string,
-      description: string
+      description: string,
+      timeout: number
     ) => {
-      const toastProperties: ToastItem = { variant, header, description };
+      const toastProperties: ToastItem = { variant, header, description, timeout };
       setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
     },
     []

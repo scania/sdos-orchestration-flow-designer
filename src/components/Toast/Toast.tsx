@@ -5,30 +5,36 @@ export interface ToastItem {
   variant: "success" | "error" | "information" | "warning";
   header: string;
   description: string;
+  timeout?: number;
+  onShowMore?: Function
 }
 
 interface ToastProps {
   listOfToasts: ToastItem[];
   setListOfToasts: React.Dispatch<React.SetStateAction<ToastItem[]>>;
-  timeout?: number;
 }
 
-const Toast: React.FC<ToastProps> = ({
-  listOfToasts,
-  setListOfToasts,
-  timeout = 5000,
-}) => {
+const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (listOfToasts.length) {
-        setListOfToasts([]);
-      }
-    }, timeout);
+    const timers: NodeJS.Timeout[] = [];
+
+    listOfToasts.forEach((toast, index) => {
+      console.log(toast);
+      const toastTimeout = toast.timeout ?? 5000; // Default timeout if not specified
+      console.log(toast);
+      const timer = setTimeout(() => {
+        setListOfToasts((prevToasts) =>
+          prevToasts.filter((_, i) => i !== index)
+        );
+      }, toastTimeout);
+
+      timers.push(timer);
+    });
 
     return () => {
-      clearTimeout(timer);
+      timers.forEach(clearTimeout); // Clear all timers on cleanup
     };
-  }, [listOfToasts, setListOfToasts, timeout]);
+  }, [listOfToasts, setListOfToasts]);
 
   return (
     <div
@@ -50,6 +56,7 @@ const Toast: React.FC<ToastProps> = ({
           no-icon={false}
         >
           <div>{toast.description}</div>
+          {toast.onShowMore && <div style={{cursor: 'pointer', margin: '10px 0px'}} onClick={() => toast.onShowMore(toast)}>Show more</div>}
         </TdsMessage>
       ))}
     </div>
