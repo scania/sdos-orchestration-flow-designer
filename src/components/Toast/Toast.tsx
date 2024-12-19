@@ -19,9 +19,7 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
     const timers: NodeJS.Timeout[] = [];
 
     listOfToasts.forEach((toast, index) => {
-      console.log(toast);
       const toastTimeout = toast.timeout ?? 5000; // Default timeout if not specified
-      console.log(toast);
       const timer = setTimeout(() => {
         setListOfToasts((prevToasts) =>
           prevToasts.filter((_, i) => i !== index)
