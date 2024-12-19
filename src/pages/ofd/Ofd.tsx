@@ -129,11 +129,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   );
 
-  const showToast = (variant: string, header: string, description: string) => {
+  const showToast = (variant: string, header: string, description: string, timeout: number) => {
     const toastProperties = {
       variant,
       header,
       description,
+      timeout
     };
     setListOfToasts([...listOfToasts, toastProperties]);
   };
