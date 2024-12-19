@@ -3,12 +3,15 @@ import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
+import Modal from "@/components/Modal/Modal";
+import ExecutionLog from "@/components/ExecutionLog/ExecutionLog";
+import { isValidJson } from "@/helpers/helper";
 import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
 import { Parameter as ParameterTemplate } from "@/utils/types";
-import JsonView from "@uiw/react-json-view";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import { useForm } from "react-hook-form";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
+import ExecutionResult from "@/components/ExecutionResult/ExecutionResult";
 
 interface Parameter {
   id?: string;
@@ -33,11 +36,14 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 }) => {
   const [selectedTab, setSelectedTab] = useState<string>("Execution");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+  const [exectionLogModalIsOpen, setExectionLogModalIsOpen] = useState(false);
+  const [executionResultModalIsOpen, setExecutionResultModalIsOpen] =
+    useState(false);
   const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
     "Create" | "Existing" | "Editing"
   >("Create");
-  const [result, setResult] = useState("");
-  const [detailedLog, setDetailedLog] = useState([]);
+  const [executionResult, setExecutionResult] = useState("");
+  const [executionLog, setExecutionLog] = useState([]);
   const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
     null
   );
@@ -56,15 +62,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       value: JSON.stringify(taskTemplate, null, 2),
     },
   });
-
-  const isValidJson = useCallback((value: string) => {
-    try {
-      JSON.parse(value);
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
 
   const showToast = useCallback(
     (
@@ -117,42 +114,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       });
     }
   }, [selectedExecutionMethod, reset, selectedParameter, taskTemplate]);
-
-  const handleModalClose = useCallback(() => {
-    setResult("");
-  }, []);
-
-  useEffect(() => {
-    const modal = document.querySelector(
-      "#execution-result-modal"
-    ) as HTMLTdsModalElement | null;
-    const closeHandler = () => handleModalClose();
-
-    if (modal) {
-      modal.addEventListener("tdsClose", closeHandler);
-    }
-    return () => {
-      if (modal) {
-        modal.removeEventListener("tdsClose", closeHandler);
-      }
-    };
-  }, [handleModalClose]);
-
-  useEffect(() => {
-    const modal = document.querySelector(
-      "#execution-log-modal"
-    ) as HTMLTdsModalElement | null;
-    const closeHandler = () => handleModalClose();
-
-    if (modal) {
-      modal.addEventListener("tdsClose", closeHandler);
-    }
-    return () => {
-      if (modal) {
-        modal.removeEventListener("tdsClose", closeHandler);
-      }
-    };
-  }, [handleModalClose]);
 
   const saveParameter = async (data: Parameter) => {
     try {
@@ -232,17 +193,12 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   };
 
   const handleShowMore = async (toast: ToastItem) => {
+    setExectionLogModalIsOpen(true);
     try {
       const response = await axios.get(
         "http://localhost:3000/api/execute/logs?executionId=http:%2F%2Fresult2024121813051698"
       );
-      const modal = document.querySelector(
-        '[selector="execution-log-modal"]'
-      ) as HTMLTdsModalElement | null;
-      if (modal) {
-        modal.showModal();
-      }
-      setDetailedLog(response.data);
+      setExecutionLog(response.data);
     } catch (error) {
       console.error(error);
     }
@@ -262,25 +218,20 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
           },
         }
       );
-      const modal = document.querySelector(
-        '[selector="execution-result-modal"]'
-      ) as HTMLTdsModalElement | null;
-      if (modal) {
-        modal.showModal();
-      }
-      setResult(response.data);
+      setExecutionResultModalIsOpen(true);
+      setExecutionResult(response.data);
     } catch (error) {
       const errorMessage =
         error.response?.data?.error ||
         error.message ||
         "Could not execute graph";
-        showToast("error", "Error", errorMessage, 10000, handleShowMore);
+      showToast("error", "Error", errorMessage, 10000, handleShowMore);
     }
   };
 
   return (
     <div>
-      <ActionToolbar/>
+      <ActionToolbar />
       <div className={styles.main}>
         <div className={styles.headerContainer}>
           <h3 className="tds-headline-03" style={{ marginBottom: "16px" }}>
@@ -503,98 +454,23 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         </div>
       </div>
 
-      <tds-modal
-        id="execution-result-modal"
-        selector="execution-result-modal"
-        size="sm"
-        tds-close={handleModalClose}
+      <Modal
+        isOpen={executionResultModalIsOpen}
+        onRequestClose={() => setExecutionResultModalIsOpen(false)}
+        title="Graph execution result"
       >
-        <h5 className="tds-modal-headline" slot="header">
-          Execute Graph with IRI
-        </h5>
-        <span slot="body">
-          {result ? (
-            typeof result === "object" ? (
-              <JsonView
-                value={result}
-                indentWidth={4}
-                displayDataTypes={false}
-                collapsed={false}
-                displayObjectSize={true}
-                enableClipboard={true}
-                quotes={`"`}
-              />
-            ) : isValidJson(result) ? (
-              <JsonView
-                value={JSON.parse(result)}
-                indentWidth={4}
-                displayDataTypes={false}
-                collapsed={false}
-                displayObjectSize={true}
-                enableClipboard={true}
-                quotes={`"`}
-              />
-            ) : (
-              <p>{result}</p>
-            )
-          ) : null}
-        </span>
-      </tds-modal>
+        <ExecutionResult executionResult={executionResult} />
+      </Modal>
 
-      <tds-modal
-        id="execution-log-modal"
-        selector="execution-log-modal"
-        size="md"
-        tds-close={() => setDetailedLog([])}
+      <Modal
+        isOpen={exectionLogModalIsOpen}
+        onRequestClose={() => setExectionLogModalIsOpen(false)}
+        title="Graph execution log"
       >
-        <h5 className="tds-modal-headline" slot="header">
-          Graph execution log
-        </h5>
-        <span slot="body">
-          {detailedLog.map((item) => (
-            <>
-            <div style={{background: 'rgba(43,112,211, .1)', border: '2px solid rgba(43,112,211, .25)', margin: '20px', display: 'flex', gap: '20px', padding: '10px'}}>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                <tds-icon
-                  style={{color: 'rgba(43,112,211, 1)'}}
-                  name="info"
-                  size="22px"
-                ></tds-icon>
-                </div>
-                </div>
-                <div>
-                <div>
-                  {item.message}
-                </div>
-              </div>
-            </div>
-            <div style={{background: 'rgba(255, 35, 64, .1)', border: '2px solid rgba(255, 35, 64, .25)', margin: '20px', display: 'flex', gap: '20px', padding: '10px'}}>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                <tds-icon
-                  style={{color: 'rgba(255, 35, 64, 1)'}}
-                  name="error"
-                  size="22px"
-                ></tds-icon>
-                </div>
-                </div>
-                <div>
-                <div>
-                  {item.message}
-                </div>
-              </div>
-            </div>
-            </>
-            
-          ))}
-        </span>
-      </tds-modal>
+        <ExecutionLog executionLog={executionLog} />
+      </Modal>
 
-      <Toast
-        listOfToasts={listOfToasts}
-        setListOfToasts={setListOfToasts}
-      />
+      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };
