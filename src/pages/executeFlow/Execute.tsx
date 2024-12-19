@@ -198,7 +198,9 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       const response = await axios.get(
         "http://localhost:3000/api/execute/logs?executionId=http:%2F%2Fresult2024121813051698"
       );
-      setExecutionLog(response.data); 
+      setExecutionLog(response.data);
+      // Remove toasts when the user has clicked "Show more"
+      setListOfToasts([]);
     } catch (error) {
       console.error(error);
     }
