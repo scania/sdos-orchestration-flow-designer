@@ -1,10 +1,9 @@
 import React from 'react';
 import Modal from 'react-modal';
 
-// Bind modal to your app element for accessibility
+// Bind modal to app element for accessibility
 Modal.setAppElement('#__next');
 
-// Define the props type
 interface CustomModalProps {
   isOpen: boolean;
   onRequestClose: () => void;

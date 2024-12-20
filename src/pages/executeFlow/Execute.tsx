@@ -3,7 +3,7 @@ import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
-import Modal from "@/components/Modal/Modal";
+import Modal from "@/components/Modal/CustomModal";
 import ExecutionLog from "@/components/ExecutionLog/ExecutionLog";
 import { isValidJson } from "@/helpers/helper";
 import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
