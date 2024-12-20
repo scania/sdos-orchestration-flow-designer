@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import logger from "../../../lib/logger";
@@ -85,6 +86,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         } catch (error: any) {
           logger.error("Error executing orchestration:", error?.message);
           logger.debug("Error details:", error);
+
+          let executionId: string | null = null;
+          if (
+            error.response &&
+            error.response.headers &&
+            error.response.headers["executionid"]
+          ) {
+            executionId = error.response.headers["executionid"];
+            res.setHeader("executionid", executionId);
+          }
 
           if (error.response) {
             const statusCode = error.response.status || 500;
