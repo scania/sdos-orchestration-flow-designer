@@ -94,7 +94,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             error.response.headers["executionid"]
           ) {
             executionId = error.response.headers["executionid"];
-            res.setHeader("executionid", executionId);
+            res.setHeader("executionid", executionId!);
           }
 
           if (error.response) {
