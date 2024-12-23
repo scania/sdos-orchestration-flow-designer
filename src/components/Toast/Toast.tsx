@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { TdsMessage } from "@scania/tegel-react";
 
 export interface ToastItem {
@@ -6,7 +6,7 @@ export interface ToastItem {
   header: string;
   description: string;
   timeout?: number;
-  onShowMore?: Function
+  onShowMore?: (toast: ToastItem) => void;
 }
 
 interface ToastProps {
@@ -15,24 +15,48 @@ interface ToastProps {
 }
 
 const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
+  const timersRef = useRef<(NodeJS.Timeout | null)[]>([]);
+
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
+    timersRef.current.forEach((timer) => {
+      if (timer) clearTimeout(timer);
+    });
 
-    listOfToasts.forEach((toast, index) => {
-      const toastTimeout = toast.timeout ?? 5000; // Default timeout if not specified
-      const timer = setTimeout(() => {
-        setListOfToasts((prevToasts) =>
-          prevToasts.filter((_, i) => i !== index)
-        );
+    timersRef.current = listOfToasts.map((toast, index) => {
+      const toastTimeout = toast.timeout ?? 5000;
+      return setTimeout(() => {
+        removeToast(index);
       }, toastTimeout);
-
-      timers.push(timer);
     });
 
     return () => {
-      timers.forEach(clearTimeout); // Clear all timers on cleanup
+      timersRef.current.forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
     };
   }, [listOfToasts, setListOfToasts]);
+
+  const removeToast = (index: number) => {
+    setListOfToasts((prevToasts) => prevToasts.filter((_, i) => i !== index));
+  };
+
+  const handleMouseEnter = (index: number) => {
+    //Pause the timer by clearing it
+    if (timersRef.current[index]) {
+      clearTimeout(timersRef.current[index]!);
+      timersRef.current[index] = null;
+    }
+  };
+
+  const handleMouseLeave = (index: number) => {
+    // Reset the timeout completely from the start
+    const toast = listOfToasts[index];
+    if (!toast) return;
+    const toastTimeout = toast.timeout ?? 5000;
+    timersRef.current[index] = setTimeout(() => {
+      removeToast(index);
+    }, toastTimeout);
+  };
 
   return (
     <div
@@ -52,9 +76,18 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
           minimal={false}
           mode-variant="primary"
           no-icon={false}
+          onMouseEnter={() => handleMouseEnter(i)}
+          onMouseLeave={() => handleMouseLeave(i)}
         >
           <div>{toast.description}</div>
-          {toast.onShowMore && <div style={{cursor: 'pointer', margin: '10px 0px'}} onClick={() => toast.onShowMore(toast)}>Show more</div>}
+          {toast.onShowMore && (
+            <div
+              style={{ cursor: "pointer", margin: "10px 0px" }}
+              onClick={() => toast.onShowMore?.(toast)}
+            >
+              Show more
+            </div>
+          )}
         </TdsMessage>
       ))}
     </div>
