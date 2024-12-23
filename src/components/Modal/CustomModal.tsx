@@ -1,5 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
+import styles from "./customModal.module.scss";
+
 
 // Bind modal to app element for accessibility
 Modal.setAppElement('#__next');
@@ -22,9 +24,9 @@ const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, title
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
       padding: '20px',
-      borderRadius: '10px',
-      border: '1px solid #ccc',
+      borderRadius: '4px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      minWidth: window.innerWidth > 480 && '480px',
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -41,7 +43,14 @@ const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, title
       contentLabel={title || 'Modal'}
     >
       <div>
-        <h3>{title}</h3>
+        <div className={styles.header}>
+          <h5>
+            {title}
+          </h5>
+          <div className="pointer" >
+            <tds-icon onClick={onRequestClose} name="cross" />
+          </div>
+        </div>
         <div>{children}</div>
       </div>
     </Modal>
