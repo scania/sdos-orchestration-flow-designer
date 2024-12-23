@@ -79,7 +79,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           console.log("execution id is", executionId);
 
           if (executionId) {
-            res.setHeader("executionid", executionId);
+            res.setHeader("Execution-Id", executionId);
           }
 
           res.status(200).json(response.data);
@@ -87,6 +87,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           logger.error("Error executing orchestration:", error?.message);
           logger.debug("Error details:", error);
 
+          // TODO: TO BE DELETED, HARDCODED
+          res.setHeader("Execution-Id", "http://result2024121813051698");
           let executionId: string | null = null;
           if (
             error.response &&
@@ -94,7 +96,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             error.response.headers["executionid"]
           ) {
             executionId = error.response.headers["executionid"];
-            res.setHeader("executionid", executionId!);
+            res.setHeader("Execution-Id", executionId!);
           }
 
           if (error.response) {

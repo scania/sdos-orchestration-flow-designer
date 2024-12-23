@@ -192,19 +192,22 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     }
   };
 
-  const handleShowMore = async (toast: ToastItem) => {
-    setExectionLogModalIsOpen(true);
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/api/execute/logs?executionId=http:%2F%2Fresult2024121813051698"
-      );
-      setExecutionLog(response.data);
-      // Remove toasts when the user has clicked "Show more"
-      setListOfToasts([]);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const handleShowMore =
+    (executionIdHeader: string) => async (toast: ToastItem) => {
+      setExectionLogModalIsOpen(true);
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/execute/logs?executionId=${encodeURI(
+            executionIdHeader
+          )}`
+        );
+        setExecutionLog(response.data);
+        // Remove toasts when the user has clicked "Show more"
+        setListOfToasts([]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
   const executeGraph = async () => {
     try {
@@ -222,12 +225,24 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       );
       setExecutionResultModalIsOpen(true);
       setExecutionResult(response.data);
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage =
         error.response?.data?.error ||
         error.message ||
         "Could not execute graph";
-      showToast("error", "Error", errorMessage, 10000, handleShowMore);
+      let executionIdHeader: string | null = null;
+      if (error.response?.headers?.["execution-id"]) {
+        executionIdHeader = error.response.headers["execution-id"];
+        showToast(
+          "error",
+          "Error",
+          errorMessage,
+          10000,
+          handleShowMore(executionIdHeader!)
+        );
+        return;
+      }
+      showToast("error", "Error", errorMessage);
     }
   };
 
