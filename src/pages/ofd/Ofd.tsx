@@ -434,7 +434,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   draggable={isEditable}
                   key={index}
                   onClick={() => setHighlightedClassLabel(item.className)}
-                  onDragStart={(e: any) => handleOnDrag(e, item.className)}
+                  onDragStart={(e: any) => handleClassOnDrag(e, item.className)}
                   className={`${styles.classes__class} ${
                     highlightedClassLabel === item.className
                       ? styles.active__chip
@@ -475,12 +475,21 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     );
   };
 
-  function handleOnDrag(e: React.DragEvent, nodeType: any) {
+  function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
     e.dataTransfer.effectAllowed = "move";
   }
 
+  /* 
+    Set selected node on both click and drag start, same functionality
+    but split into two functions due to the fact that we might want to
+    have them behave differently after user-testing
+  */
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+  };
+
+  const handleNodeDragStart = (event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
   };
 
@@ -581,7 +590,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           secondaryProperties={secondaryProperties}
           highlightedClassLabel={highlightedClassLabel}
           setHighlightedClassLabel={setHighlightedClassLabel}
-          handleOnDrag={handleOnDrag}
+          handleOnDrag={handleClassOnDrag}
           addToGraph={addToGraph}
         />
 
@@ -629,6 +638,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   fitView
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
+                  onNodeDragStart={handleNodeDragStart}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}
                   nodesDraggable={isEditable}
