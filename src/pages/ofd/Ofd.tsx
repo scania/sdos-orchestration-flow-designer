@@ -40,8 +40,9 @@ import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
 import { captureCursorPosition } from "../../lib/frontend/helper";
-import { randomizeValue } from "../../helpers/helper"
+import { randomizeValue } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
+import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 
 const nodeTypes = {
   input: CircularNode,
@@ -95,7 +96,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
   const [setupMode, setSetupMode] = useState(false);
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
@@ -141,7 +142,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setConnectionParams(null);
     setEdgeSelections([]);
     setTargetNodePosition({ x: 0, y: 0 });
-    setIsPopoverOpen(false)
+    setIsPopoverOpen(false);
   };
 
   const isNodeDeletable = () => {
@@ -239,7 +240,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     return invalidTasks.length === 0;
   };
 
-  const handleSaveClick = (isDraftSave: boolean) => {
+  const handleSaveClick = (saveType: string) => {
+    let isDraftSave = false;
+
+    if (saveType === "draft") {
+      isDraftSave = true;
+    }
     if (!isGraphValid(nodes, edges) && !isDraftSave) {
       showToast(
         "error",
@@ -309,7 +315,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
 
-
     // Get the bounding box of the graph area
     const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
 
@@ -318,13 +323,13 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 
     const position = {
       x: randomizeValue((width / 2 - x) / zoom),
-      y: randomizeValue((height / 2 - y) / zoom)
+      y: randomizeValue((height / 2 - y) / zoom),
     };
 
     // Store event-related data for later use
     setDropInfo({
       type: highlightedClassLabel,
-      position: position
+      position: position,
     });
 
     setIsPendingClassDetailsAction(true);
@@ -506,10 +511,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setIsPopoverOpen(false);
 
     // De-select node when clicking outside a node, except when in setup-mode
-    if(!setupMode) {
-      setSelectedNode(null)
+    if (!setupMode) {
+      setSelectedNode(null);
     }
-  }
+  };
 
   const handleExecute = () => {
     if (isDraft) {
@@ -539,52 +544,15 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 
   return (
     <div className={styles.page}>
-      <header className={styles.page__header + " tds-detail-02"}>
-        <div>
-          <Link href="/">
-            <span className={styles.page__header__back}>Back</span>
-            <tds-icon slot="icon" size="14px" name="back"></tds-icon>
-          </Link>
-        </div>
-        <div>
-          <GraphOptions
-            selector="#graph-options"
-            graphDescription={graphDescription}
-            graphName={router.query.graphName || graphName || ""}
-            author={author}
-          />
-          <span id="graph-options" className={styles.page__header__action}>
-            Options
-          </span>
-          <span
-            id="execute-graph"
-            className={`${styles.page__header__action} ${
-              isDraft ? styles.disabled : ""
-            }`}
-            onClick={handleExecute}
-            style={{ cursor: isDraft ? "not-allowed" : "pointer" }}
-          >
-            Execute
-          </span>
-          {isEditable ? (
-            <>
-              <span
-                className={styles.page__header__action}
-                onClick={() => handleSaveClick(true)}
-              >
-                Save Draft
-              </span>
-              <span
-                className={styles.page__header__action}
-                onClick={() => handleSaveClick(false)}
-              >
-                Save
-              </span>
-            </>
-          ) : null}
-        </div>
-      </header>
-      <main className={styles.page__main}>
+      <ActionToolbar
+        graph={{ name: graphName, description: description, isDraft: isDraft }}
+        toolbar
+        handleExecute={handleExecute}
+        handleSaveClick={handleSaveClick}
+        isEditable={isEditable}
+      />
+
+      <div className={styles.page__main}>
         <Sidebar
           showExtendedPanel={showExtendedPanel}
           setShowExtendedPanel={setShowExtendedPanel}
@@ -700,7 +668,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
             </div>
           </div>
         </section>
-      </main>
+      </div>
       <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );

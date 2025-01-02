@@ -1,21 +1,4 @@
 .page {
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    box-shadow: 0px 3px 3px 0px #00000026;
-
-    &__back {
-      margin-right: 10px;
-    }
-
-  
-
-    &__action {
-      margin-left: 20px;
-      cursor: pointer;
-    }
-  }
 
   &__main {
     display: flex;
@@ -26,8 +9,6 @@
       width: 360px;
       margin: 20px;
       border-radius: 4px;
-      top: 10px;
-      left: 10px;
       position: absolute;
       background: white;
       z-index: 1;
@@ -72,12 +53,6 @@
 
     .graph__canvas {
       flex-grow: 1;
-      padding: 20px;
-
-      .reactflow-wrapper {
-        background-color: #fff;
-        border: 1px solid #ccc;
-      }
     }
   }
 

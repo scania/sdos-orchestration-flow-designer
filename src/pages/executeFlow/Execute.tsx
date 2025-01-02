@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/router";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import Panel from "@/components/Tabs/Panel";
@@ -9,6 +8,7 @@ import { Parameter as ParameterTemplate } from "@/utils/types";
 import JsonView from "@uiw/react-json-view";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import { useForm } from "react-hook-form";
+import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 
 interface Parameter {
   id?: string;
@@ -31,7 +31,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   initParameters = [],
   taskTemplate = [],
 }) => {
-  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<string>("Execution");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
@@ -239,20 +238,8 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 
   return (
     <div>
-      <div className={styles.nav}>
-        <div onClick={router.back} className="pointer">
-          <span>Back</span>
-          <tds-icon
-            slot="icon"
-            style={{ marginLeft: "8px" }}
-            size="14px"
-            name="back"
-          ></tds-icon>
-        </div>
-      </div>
-
+      <ActionToolbar/>
       <div className={styles.main}>
-        <hr className="divider" />
         <div className={styles.headerContainer}>
           <h3 className="tds-headline-03" style={{ marginBottom: "16px" }}>
             Execution flow

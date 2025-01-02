@@ -1,0 +1,20 @@
+.container {
+  background: white;
+  padding: 6px 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #dbdfe6;
+  justify-content: space-between;
+
+  &__actionsContainer{
+    display: flex;
+    gap: 20px;
+
+    &__disabled{
+      color: #cdd1db;
+      cursor: not-allowed;
+    }
+  }
+
+}
