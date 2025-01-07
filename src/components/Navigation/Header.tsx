@@ -2,46 +2,18 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
 
-const DropDownListItems = () => {
+const Header = dynamic(() => Promise.resolve(HeaderComponent), {
+  ssr: false,
+});
+
+const HeaderComponent = () => {
   const { data: session } = useSession();
+
   const handleLogout = (e: any) => {
     e.preventDefault();
     signOut({ callbackUrl: "/auth/logout" });
   };
 
-  return (
-    <>
-      {session ? (
-        <>
-          <tds-header-dropdown-list-user
-            header={session?.user?.name || ""}
-          ></tds-header-dropdown-list-user>
-          <tds-header-dropdown-list-item onClick={handleLogout}>
-            <Link href="#" passHref>
-              <div style={{ display: "inline-block" }}>
-                <tds-icon
-                  name="profile_inactive"
-                  style={{ display: "inline-block" }}
-                ></tds-icon>
-                <div className="tds-u-pl1" style={{ display: "inline-block" }}>
-                  Logout
-                </div>
-              </div>
-            </Link>
-          </tds-header-dropdown-list-item>
-        </>
-      ) : (
-        <></>
-      )}
-    </>
-  );
-};
-
-const DropDownListDynamic = dynamic(() => Promise.resolve(DropDownListItems), {
-  ssr: false,
-});
-
-const Header = () => {
   return (
     <tds-header>
       <Link href="/">
@@ -51,25 +23,47 @@ const Header = () => {
           }`}
         </tds-header-title>
       </Link>
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <Link href="/settings">
-            <tds-icon name="settings"></tds-icon>
-          </Link>
-        </div>
-      </tds-header-dropdown>
-      <tds-header-dropdown onClick={() => {}} slot="end" no-dropdown-icon>
-        <div slot="icon">
-          <img
-            src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
-            style={{ maxWidth: "unset" }}
-            alt="User menu."
-          />
-        </div>
-        <tds-header-dropdown-list size="lg">
-          <DropDownListDynamic />
-        </tds-header-dropdown-list>
-      </tds-header-dropdown>
+      {session?.user && (
+        <>
+          <tds-header-dropdown slot="end" no-dropdown-icon>
+            <div slot="icon">
+              <Link href="/settings">
+                <tds-icon name="settings"></tds-icon>
+              </Link>
+            </div>
+          </tds-header-dropdown>
+          <tds-header-dropdown slot="end" no-dropdown-icon>
+            <div slot="icon">
+              <img
+                src="https://www.svgrepo.com/show/384676/account-avatar-profile-user-6.svg"
+                style={{ maxWidth: "unset" }}
+                alt="User avatar"
+              />
+            </div>
+            <tds-header-dropdown-list size="lg">
+              <tds-header-dropdown-list-user
+                header={session?.user?.name || ""}
+              ></tds-header-dropdown-list-user>
+              <tds-header-dropdown-list-item onClick={handleLogout}>
+                <Link href="#" passHref>
+                  <div style={{ display: "inline-block" }}>
+                    <tds-icon
+                      name="profile_inactive"
+                      style={{ display: "inline-block" }}
+                    ></tds-icon>
+                    <div
+                      className="tds-u-pl1"
+                      style={{ display: "inline-block" }}
+                    >
+                      Logout
+                    </div>
+                  </div>
+                </Link>
+              </tds-header-dropdown-list-item>
+            </tds-header-dropdown-list>
+          </tds-header-dropdown>
+        </>
+      )}
       <tds-header-brand-symbol slot="end">
         <Link aria-label="Scania - red gryphon on blue shield" href="/"></Link>
       </tds-header-brand-symbol>
