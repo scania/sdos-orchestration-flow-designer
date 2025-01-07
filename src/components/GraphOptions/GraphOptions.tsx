@@ -1,7 +1,7 @@
 import styles from "./graphOptions.module.scss";
 import React from "react";
 
-const GraphOptions = ({ selector, graphDescription, graphName, user }) => {
+const GraphOptions = ({ selector, graphDescription, graphName, author }) => {
   return (
     <tds-modal selector={selector} size="xs">
       <h5 className="tds-headline-05" slot="header">
@@ -22,6 +22,14 @@ const GraphOptions = ({ selector, graphDescription, graphName, user }) => {
           disabled
           value={graphDescription}
         ></tds-textarea>
+        <tds-text-field
+          placeholder="Author"
+          label="Author"
+          label-position="outside"
+          size="md"
+          disabled
+          value={author?.email}
+        ></tds-text-field>
       </div>
       <span slot="actions"></span>
     </tds-modal>

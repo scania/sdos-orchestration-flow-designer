@@ -49,8 +49,15 @@ const nodeTypes = {
   default: CircularNode,
 };
 
+interface Author {
+  name: string;
+  id: string;
+  email: string;
+}
+
 interface ForceGraphProps {
   apiBaseUrl: string;
+  author: Author;
   description?: string;
   graphName?: string;
   initEdges?: Edge[];
@@ -62,6 +69,7 @@ interface ForceGraphProps {
 const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   apiBaseUrl,
   description,
+  author,
   graphName,
   initEdges,
   initNodes,
@@ -543,6 +551,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
             selector="#graph-options"
             graphDescription={graphDescription}
             graphName={router.query.graphName || graphName || ""}
+            author={author}
           />
           <span id="graph-options" className={styles.page__header__action}>
             Options
