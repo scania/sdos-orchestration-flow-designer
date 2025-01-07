@@ -45,7 +45,7 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
         name="dropdown"
         label="Label"
         label-position="outside"
-        placeholder="Placeholder"
+        placeholder="Select graph"
         size="lg"
         multiselect={false}
         onTdsChange={(e) => {
