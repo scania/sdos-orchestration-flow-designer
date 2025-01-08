@@ -39,7 +39,7 @@ const Card = ({ data, deleteGraph }: any) => {
                 />
               }
             >
-              <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+              <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
                 <tds-icon name="meatballs" size="20px"></tds-icon>
               </div>
             </Popover>

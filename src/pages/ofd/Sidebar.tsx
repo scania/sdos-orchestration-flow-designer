@@ -150,6 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => setShowExtendedPanel(!showExtendedPanel)}
             slot="icon"
             size="20px"
+            class="pointer"
             name={showExtendedPanel ? "chevron_up" : "chevron_down"}
           ></tds-icon>
         </div>

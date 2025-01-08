@@ -65,7 +65,7 @@ export default memo((node) => {
           positions={["top", "bottom", "left", "right"]} // preferred positions by priority
           content={<ActionsMenu onDeleteClick={() => deleteNode()} />}
         >
-          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
             <tds-icon name="meatballs" size="20px"></tds-icon>
           </div>
         </Popover>
