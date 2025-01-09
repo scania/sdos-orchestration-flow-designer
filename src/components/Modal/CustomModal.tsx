@@ -2,8 +2,6 @@ import React from 'react';
 import Modal from 'react-modal';
 import styles from "./customModal.module.scss";
 
-
-// Bind modal to app element for accessibility
 Modal.setAppElement('#__next');
 
 interface CustomModalProps {
@@ -13,8 +11,10 @@ interface CustomModalProps {
   children: React.ReactNode;
 }
 
-const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, title, children }) => {
-  const customStyles = {
+const getCustomStyles = () => {
+  const isMobile = window.innerWidth < 768;
+
+  return {
     content: {
       top: '50%',
       left: '50%',
@@ -23,31 +23,31 @@ const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, title
       maxHeight: '80vh',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      padding: '20px',
+      padding: isMobile ? '10px' : '20px',
       borderRadius: '4px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      minWidth: window.innerWidth > 480 && '480px',
+      minWidth: isMobile ? '280px' : '360px',
+      maxWidth: isMobile ? '90%' : '1200px',
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      // Z-index to override tegel-items with high z-index
-      zIndex: '101'
+      zIndex: '101',
     },
   };
+};
 
+const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, title, children }) => {
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      style={customStyles}
+      style={getCustomStyles()}
       contentLabel={title || 'Modal'}
     >
       <div>
         <div className={styles.header}>
-          <h5>
-            {title}
-          </h5>
-          <div className="pointer" >
+          <h5>{title}</h5>
+          <div className="pointer">
             <tds-icon onClick={onRequestClose} name="cross" />
           </div>
         </div>
@@ -57,4 +57,4 @@ const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, title
   );
 };
 
-export default CustomModal
+export default CustomModal;
