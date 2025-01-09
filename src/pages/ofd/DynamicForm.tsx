@@ -205,13 +205,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 <tds-badge size="sm"></tds-badge>
               )}
             </div>
-
-            <tds-button
-              type="button"
-              variant="ghost"
-              size="xs"
-              text="Copy IRI Address"
-            ></tds-button>
           </div>
         )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
