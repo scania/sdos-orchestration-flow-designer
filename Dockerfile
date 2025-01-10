@@ -1,9 +1,21 @@
-FROM node:20-slim
+FROM node:20
 WORKDIR /app
 ARG NEXT_PUBLIC_VERSION
 ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
-COPY . ./
-RUN npm install
+COPY package*.json ./
+RUN npm ci
+COPY . .
 RUN npm run build
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ARG NEXT_PUBLIC_VERSION
+ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
+COPY --from=builder /app/package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/validateEnv.js ./validateEnv.js
+COPY --from=builder /app/src ./src
 EXPOSE 3000
 CMD ["npm", "start"]
