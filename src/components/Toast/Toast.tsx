@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { TdsMessage } from "@scania/tegel-react";
+import styles from "./toast.module.scss";
 
 export interface ToastItem {
   variant: "success" | "error" | "information" | "warning";
@@ -41,7 +42,6 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
   };
 
   const handleMouseEnter = (index: number) => {
-    //Pause the timer by clearing it
     if (timersRef.current[index]) {
       clearTimeout(timersRef.current[index]!);
       timersRef.current[index] = null;
@@ -49,7 +49,6 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
   };
 
   const handleMouseLeave = (index: number) => {
-    // Reset the timeout completely from the start
     const toast = listOfToasts[index];
     if (!toast) return;
     const toastTimeout = toast.timeout ?? 5000;
@@ -59,18 +58,11 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: "32px",
-        right: "10px",
-        zIndex: 1000,
-        width: "400px",
-      }}
-    >
+    <div className={styles.container}>
       {listOfToasts.map((toast, i) => (
         <TdsMessage
           key={i}
+          class={styles.toast}
           variant={toast.variant || "information"}
           header={toast.header}
           minimal={false}
@@ -82,7 +74,7 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
           <div>{toast.description}</div>
           {toast.onShowMore && (
             <div
-              style={{ cursor: "pointer", margin: "10px 0px" }}
+              className={styles.showMore}
               onClick={() => toast.onShowMore?.(toast)}
             >
               Show more

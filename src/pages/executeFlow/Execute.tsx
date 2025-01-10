@@ -197,7 +197,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       setExectionLogModalIsOpen(true);
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/execute/logs?executionId=${encodeURI(
+          `${baseUrl}/api/execute/logs?executionId=${encodeURI(
             executionIdHeader
           )}`
         );
