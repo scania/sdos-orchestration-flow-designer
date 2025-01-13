@@ -47,7 +47,6 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
         label-position="outside"
         placeholder="Select graph"
         size="lg"
-        multiselect={false}
         onTdsChange={(e) => {
           const selectedTaskValue = e.detail.value;
           const selectedTask = tasks.find(
@@ -55,7 +54,6 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
           );
           setSelectedTask(selectedTask as Task);
         }}
-        filter
         open-direction="auto"
         normalizeText={true}
       >
