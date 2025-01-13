@@ -31,9 +31,9 @@ body,
   z-index: 900;
 }
 
-tds-header {
-  position: sticky;
-  top: 68px;
+.__tds-header-item-image{
+  margin: 0 !important;
+  position: initial !important;
 }
 
 .side-menu-and-main {
