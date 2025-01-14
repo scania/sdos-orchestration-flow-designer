@@ -3,12 +3,15 @@ import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
+import Modal from "@/components/Modal/CustomModal";
+import ExecutionLog from "@/components/ExecutionLog/ExecutionLog";
+import { isValidJson } from "@/helpers/helper";
 import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
 import { Parameter as ParameterTemplate } from "@/utils/types";
-import JsonView from "@uiw/react-json-view";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import { useForm } from "react-hook-form";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
+import ExecutionResult from "@/components/ExecutionResult/ExecutionResult";
 
 interface Parameter {
   id?: string;
@@ -33,10 +36,14 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 }) => {
   const [selectedTab, setSelectedTab] = useState<string>("Execution");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+  const [exectionLogModalIsOpen, setExectionLogModalIsOpen] = useState(false);
+  const [executionResultModalIsOpen, setExecutionResultModalIsOpen] =
+    useState(false);
   const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
     "Create" | "Existing" | "Editing"
   >("Create");
-  const [result, setResult] = useState("");
+  const [executionResult, setExecutionResult] = useState("");
+  const [executionLog, setExecutionLog] = useState([]);
   const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
     null
   );
@@ -56,22 +63,21 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     },
   });
 
-  const isValidJson = useCallback((value: string) => {
-    try {
-      JSON.parse(value);
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
-
   const showToast = useCallback(
     (
       variant: "success" | "error" | "information" | "warning",
       header: string,
-      description: string
+      description: string,
+      timeout?: number,
+      onShowMore?: Function
     ) => {
-      const toastProperties: ToastItem = { variant, header, description };
+      const toastProperties: ToastItem = {
+        variant,
+        header,
+        description,
+        timeout,
+        onShowMore,
+      };
       setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
     },
     []
@@ -108,26 +114,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       });
     }
   }, [selectedExecutionMethod, reset, selectedParameter, taskTemplate]);
-
-  const handleModalClose = useCallback(() => {
-    setResult("");
-  }, []);
-
-  useEffect(() => {
-    const modal = document.querySelector(
-      "#execution-result-modal"
-    ) as HTMLTdsModalElement | null;
-    const closeHandler = () => handleModalClose();
-
-    if (modal) {
-      modal.addEventListener("tdsClose", closeHandler);
-    }
-    return () => {
-      if (modal) {
-        modal.removeEventListener("tdsClose", closeHandler);
-      }
-    };
-  }, [handleModalClose]);
 
   const saveParameter = async (data: Parameter) => {
     try {
@@ -206,6 +192,23 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     }
   };
 
+  const handleShowMore =
+    (executionIdHeader: string) => async (toast: ToastItem) => {
+      setExectionLogModalIsOpen(true);
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/execute/logs?executionId=${encodeURI(
+            executionIdHeader
+          )}`
+        );
+        setExecutionLog(response.data);
+        // Remove toasts when the user has clicked "Show more"
+        setListOfToasts([]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
   const executeGraph = async () => {
     try {
       const response = await axios.post(
@@ -220,25 +223,32 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
           },
         }
       );
-      const modal = document.querySelector(
-        '[selector="execution-result-modal"]'
-      ) as HTMLTdsModalElement | null;
-      if (modal) {
-        modal.showModal();
-      }
-      setResult(response.data);
-    } catch (error) {
+      setExecutionResultModalIsOpen(true);
+      setExecutionResult(response.data);
+    } catch (error: any) {
       const errorMessage =
         error.response?.data?.error ||
         error.message ||
         "Could not execute graph";
+      let executionIdHeader: string | null = null;
+      if (error.response?.headers?.["execution-id"]) {
+        executionIdHeader = error.response.headers["execution-id"];
+        showToast(
+          "error",
+          "Error",
+          errorMessage,
+          10000,
+          handleShowMore(executionIdHeader!)
+        );
+        return;
+      }
       showToast("error", "Error", errorMessage);
     }
   };
 
   return (
     <div>
-      <ActionToolbar/>
+      <ActionToolbar />
       <div className={styles.main}>
         <div className={styles.headerContainer}>
           <h3 className="tds-headline-03" style={{ marginBottom: "16px" }}>
@@ -345,7 +355,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                       </div>
                       <tds-textarea
                         label="JSON"
-                        rows={20}
+                        rows={12}
                         label-position="outside"
                         helper={errors.value?.message || ""}
                         state={errors.value ? "error" : "default"}
@@ -364,7 +374,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                       ></tds-textarea>
                     </form>
                   )}
-
                   {/* Existing Parameters */}
                   {(selectedExecutionMethod === "Existing" ||
                     selectedExecutionMethod === "Editing") && (
@@ -421,7 +430,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 
                       <tds-textarea
                         label="JSON"
-                        rows={20}
+                        rows={12}
                         label-position="outside"
                         disabled={selectedExecutionMethod !== "Editing"}
                         helper={errors.value?.message || ""}
@@ -462,43 +471,21 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         </div>
       </div>
 
-      <tds-modal
-        id="execution-result-modal"
-        selector="execution-result-modal"
-        size="sm"
-        tds-close={handleModalClose}
+      <Modal
+        isOpen={executionResultModalIsOpen}
+        onRequestClose={() => setExecutionResultModalIsOpen(false)}
+        title="Graph execution result"
       >
-        <h5 className="tds-modal-headline" slot="header">
-          Execute Graph with IRI
-        </h5>
-        <span slot="body">
-          {result ? (
-            typeof result === "object" ? (
-              <JsonView
-                value={result}
-                indentWidth={4}
-                displayDataTypes={false}
-                collapsed={false}
-                displayObjectSize={true}
-                enableClipboard={true}
-                quotes={`"`}
-              />
-            ) : isValidJson(result) ? (
-              <JsonView
-                value={JSON.parse(result)}
-                indentWidth={4}
-                displayDataTypes={false}
-                collapsed={false}
-                displayObjectSize={true}
-                enableClipboard={true}
-                quotes={`"`}
-              />
-            ) : (
-              <p>{result}</p>
-            )
-          ) : null}
-        </span>
-      </tds-modal>
+        <ExecutionResult executionResult={executionResult} />
+      </Modal>
+
+      <Modal
+        isOpen={exectionLogModalIsOpen}
+        onRequestClose={() => setExectionLogModalIsOpen(false)}
+        title="Graph execution log"
+      >
+        <ExecutionLog executionLog={executionLog} />
+      </Modal>
 
       <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>

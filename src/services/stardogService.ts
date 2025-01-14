@@ -71,7 +71,6 @@ export const getStardogInstance = ({
 
   const fetchClasses = async (token: string): Promise<ClassEntity[]> => {
     const response = await executeQuery(DB_NAME_READ, fetchClassesQuery, token);
-    console.log(response);
     return response.map((item: any) => ({
       uri: item.class.value,
       className: item.labelProps.value,
