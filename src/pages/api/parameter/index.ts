@@ -86,7 +86,6 @@ const handlePostRequest = async (
     logger.info("Parameter created successfully.", { id: newParameter.id });
     res.status(201).json(newParameter);
   } catch (error) {
-    console.log(error, "error console");
     logger.error("Error creating parameter.", { error });
     res.status(500).json({ error: "Failed to create parameter" });
   }
