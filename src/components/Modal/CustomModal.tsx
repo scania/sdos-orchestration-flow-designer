@@ -11,37 +11,13 @@ interface CustomModalProps {
   children: React.ReactNode;
 }
 
-const getCustomStyles = () => {
-  const isMobile = window.innerWidth < 768;
-
-  return {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      maxHeight: '80vh',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      padding: isMobile ? '10px' : '20px',
-      borderRadius: '4px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      minWidth: isMobile ? '280px' : '360px',
-      maxWidth: isMobile ? '90%' : '1200px',
-    },
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: '101',
-    },
-  };
-};
-
 const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, title, children }) => {
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      style={getCustomStyles()}
+      className={styles.modalContent}
+      overlayClassName={styles.modalOverlay}
       contentLabel={title || 'Modal'}
     >
       <div>
