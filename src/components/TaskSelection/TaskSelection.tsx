@@ -83,6 +83,7 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
       isOpen={isExecuteGraphModalOpen}
       onRequestClose={() => setIsExecuteGraphModalOpen(false)}
       title="Execute Graph with IRI"
+      width={"lg"}
     >
         <div>
           <div style={{ height: "250px" }}>
