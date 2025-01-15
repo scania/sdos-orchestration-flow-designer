@@ -10,7 +10,6 @@ import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
 import {
-  TdsIcon,
   TdsDivider,
   TdsModal,
   TdsButton,
@@ -89,7 +88,6 @@ function App({
   } = useForm();
   const {
     register: registerExecuteGraph,
-    handleSubmit: handleSubmitExecuteGraph,
     formState: { errors: errorsExecuteGraph },
   } = useForm();
 
@@ -233,7 +231,7 @@ function App({
           ></tds-button>
         </span>
       </tds-modal>
-      <main className={styles.main}>
+      <main>
         <div className={styles.tabs}>
           <Tabs selected={0} onParentClick={handleTabClick}>
             <Panel title="My Work" value="My Work"></Panel>
@@ -241,9 +239,9 @@ function App({
           </Tabs>
         </div>
         <div className={styles.content}>
-          <div className={styles["header__project-summary"]}>
-            <h2 className={styles["content__heading"]}>{heading}</h2>
-            <p className={styles["content__description"]}>{description}</p>
+          <div className={styles["introduction"]}>
+            <h2 className={styles["introduction__heading"]}>{heading}</h2>
+            <p className={styles["introduction__description"]}>{description}</p>
           </div>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
@@ -312,7 +310,6 @@ function App({
                 setExecuteGraphIriValue={setExecuteGraphIriValue}
                 errorsExecuteGraph={errorsExecuteGraph}
                 registerExecuteGraph={registerExecuteGraph}
-                handleSubmitExecuteGraph={handleSubmitExecuteGraph}
                 isExecuteGraphModalOpen={isExecuteGraphModalOpen}
                 setIsExecuteGraphModalOpen={setIsExecuteGraphModalOpen}
                 handleExecute={handleExecute}

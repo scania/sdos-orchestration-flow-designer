@@ -8,9 +8,8 @@ import {
 } from "@/utils";
 import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import React, {
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -35,7 +34,6 @@ import "reactflow/dist/style.css";
 import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
-import GraphOptions from "../../components/GraphOptions/GraphOptions";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";

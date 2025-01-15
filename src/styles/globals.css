@@ -25,15 +25,10 @@ body,
   background-color: var(--tds-grey-900);
 }
 
-.announcement-banner {
+.header-container {
   position: sticky;
   top: 0;
   z-index: 900;
-}
-
-.__tds-header-item-image{
-  margin: 0 !important;
-  position: initial !important;
 }
 
 .side-menu-and-main {
@@ -45,38 +40,6 @@ body,
   cursor: pointer;
 }
 
-.side-menu-and-main {
-  display: flex;
-  flex-grow: 1;
-}
-
-.wrapper {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 32px;
-  max-width: 600px;
-  justify-content: center;
-  padding: 128px 0;
-}
-
-.switcher-container {
-  position: absolute;
-  height: 60px;
-  top: calc(96px + 68px);
-  right: 32px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tooltip-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .tooltip-paragraph b,
 i {
   padding: 0 2px;
@@ -85,12 +48,6 @@ i {
 .popover-container {
   display: flex;
   flex-wrap: nowrap;
-  align-items: center;
-}
-
-.tooltip-container {
-  display: flex;
-  justify-content: center;
   align-items: center;
 }
 
@@ -109,15 +66,5 @@ i {
 @media screen and (max-width: 992px) {
   .mobile-nav-item {
     display: block;
-  }
-}
-
-@media (min-width: 992px) {
-  tds-side-menu {
-    /* We suggest you attach the persistent side menu to your layout like this: */
-    height: calc(100vh - calc(64px + 68px));
-    position: sticky;
-    top: calc(64px + 68px);
-    left: 0;
   }
 }

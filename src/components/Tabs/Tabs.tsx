@@ -1,4 +1,4 @@
-import React, { useState, ReactElement } from "react";
+import { useState, ReactElement } from "react";
 import styles from "./Tabs.module.scss";
 
 interface TabsProps {
@@ -21,15 +21,15 @@ const Tabs: React.FC<TabsProps> = ({ children, selected, onParentClick }) => {
   return (
     <>
       <ul className={styles["inline"]}>
-        {children.map((elem, index) => {
+        {children.map((tab, index) => {
           let style = index === selectedIndex ? styles["selected"] : "";
           return (
             <li
               key={index}
               className={style}
-              onClick={() => handleChange(index, elem.props.title, elem.props.value)}
+              onClick={() => handleChange(index, tab.props.title, tab.props.value)}
             >
-              {elem.props.title}
+              {tab.props.title}
             </li>
           );
         })}
