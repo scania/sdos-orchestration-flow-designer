@@ -546,7 +546,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   return (
     <div className={styles.page}>
       <ActionToolbar
-        graph={{ name: graphName, description: description, isDraft: isDraft }}
+        graph={{ name: graphName, description: description, isDraft: isDraft, author }}
         toolbar
         handleExecute={handleExecute}
         handleSaveClick={handleSaveClick}
