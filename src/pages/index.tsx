@@ -75,6 +75,7 @@ function App({
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const [selectedTab, setSelectedTab] = useState<string>("My Work");
+  const [isExecuteGraphModalOpen, setIsExecuteGraphModalOpen] = useState(false);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [toBeDeletedId, setToBeDeletedId] = useState<string | null>(null);
@@ -151,15 +152,6 @@ function App({
     } catch (error) {
       console.error("Failed to fetch flows:", error);
     }
-  };
-
-  useEffect(() => {
-    let modal = document.querySelector("#execute-graph-iri-modal");
-    modal?.addEventListener("tdsClose", handleModalClose);
-  }, []);
-
-  const handleModalClose = () => {
-    setExecuteGraphIriValue("");
   };
 
   const checkNameExists = async (name: string): Promise<boolean> => {
@@ -267,6 +259,7 @@ function App({
                 id="execute-graph-button"
                 size="sm"
                 variant="primary"
+                onClick={() => setIsExecuteGraphModalOpen(true)}
                 text={"Execute Graph"}
               >
                 <tds-icon size="16px" slot="icon" name="send"></tds-icon>
@@ -320,9 +313,10 @@ function App({
                 errorsExecuteGraph={errorsExecuteGraph}
                 registerExecuteGraph={registerExecuteGraph}
                 handleSubmitExecuteGraph={handleSubmitExecuteGraph}
+                isExecuteGraphModalOpen={isExecuteGraphModalOpen}
+                setIsExecuteGraphModalOpen={setIsExecuteGraphModalOpen}
                 handleExecute={handleExecute}
                 theme={theme}
-                handleModalClose={handleModalClose}
                 baseUrl={baseUrl}
               />
             </div>
