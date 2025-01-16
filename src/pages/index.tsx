@@ -17,7 +17,7 @@ import {
   TdsTextField,
   TdsTextarea,
 } from "@scania/tegel-react";
-import TaskSelection from "@/components/TaskSelection/TaskSelection";
+import TaskSelection from "@/components/TaskSelection";
 import { Task } from "@/utils/types";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 
