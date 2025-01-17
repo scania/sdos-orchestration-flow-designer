@@ -1,9 +1,8 @@
 
-import dynamic from "next/dynamic";
 import { useTheme } from "@/context/ThemeProvider";
 import React, { ReactNode } from "react";
 import Footer from "../Footer";
-const Header = dynamic(() => import("../Navigation/Header"), { ssr: false });
+import Header from "../Navigation/Header";
 import styles from "./Layout.module.scss";
 
 interface LayoutProps {
