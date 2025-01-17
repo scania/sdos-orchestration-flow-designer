@@ -17,6 +17,7 @@
         font-family: "Scania Sans Headline";
         display: flex;
         align-items: center;
+        height: 100%;
     }
 
     &__avatarDropdown{
@@ -99,10 +100,4 @@
    &__email{
     color: var(--tds-grey-700)
    }
-}
-
-
-.active{
-    color: red !important;
-    padding: 200px;
 }
