@@ -29,6 +29,7 @@ const Card = ({ data, deleteGraph }: any) => {
             ></tds-button>
             <Popover
               isOpen={isPopoverOpen}
+              reposition={false}
               onClickOutside={() => setIsPopoverOpen(false)}
               positions={["top", "bottom", "left", "right"]}
               content={
