@@ -1,0 +1,103 @@
+.header {
+    position: sticky;
+    top: 0;
+    height: 64px;
+    background-color: var(--tds-header-background);
+    color: #fff;
+    padding-left: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &__content{
+        display: flex;
+    }
+
+    &__title{
+        font-family: "Scania Sans Headline";
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    &__avatarDropdown{
+            width: 320px;
+            position: absolute;
+            top: 64px;
+            right: 0;
+            background-color: #fff;
+            color: #000;
+            box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15), 0 -1px 1px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+
+            &__item{
+                padding: 0px 16px;
+                height: 64px;
+                cursor: pointer;
+                border-bottom: 1px solid var(--tds-grey-300);
+                display: flex;
+                align-items: center;
+
+                &:hover{
+                    background-color: var(--tds-grey-100);
+                }
+            }
+    }
+
+    &__item{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 64px;
+        width: 64px;
+        border-left: 1px solid var(--tds-blue-700);
+        cursor: pointer;
+        box-sizing: border-box;
+
+        &:hover{
+            background-color: var(--tds-blue-700);
+        }
+
+        &__icon{
+            width: 32px;
+            height: 32px;
+        }
+
+        &__iconSm{
+            width: 22px;
+            height: 22px;
+        }
+
+        &__active{
+            background: var(--tds-blue-700);
+            box-shadow: inset 0 -4px 0 var(--tds-blue-400)
+        }
+
+        &__dropdown__active{
+            background: #fff;
+
+            &:hover{
+                background: #fff;
+            }
+        }
+    }
+
+}
+
+
+.user{
+   height: 84px;
+   display: flex;
+   justify-content: center;
+   flex-direction: column;
+   border-bottom: 1px solid var(--tds-nav-dropdown-item-border-color);
+   gap: 4px;
+   padding: 0px 16px;
+
+   &__name{
+   }
+
+   &__email{
+    color: var(--tds-grey-700)
+   }
+}
