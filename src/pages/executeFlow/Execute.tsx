@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import Panel from "@/components/Tabs/Panel";
@@ -21,7 +21,6 @@ interface Parameter {
 
 interface ExecuteProp {
   iri: string;
-  flowId?: string | null;
   baseUrl: string;
   initParameters: Parameter[];
   taskTemplate: ParameterTemplate[];
@@ -29,7 +28,6 @@ interface ExecuteProp {
 
 const ExecuteFlow: React.FC<ExecuteProp> = ({
   iri,
-  flowId = null,
   baseUrl,
   initParameters = [],
   taskTemplate = [],
@@ -193,7 +191,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   };
 
   const handleShowMore =
-    (executionIdHeader: string) => async (toast: ToastItem) => {
+    (executionIdHeader: string) => async () => {
       setExectionLogModalIsOpen(true);
       try {
         const response = await axios.get(
@@ -285,7 +283,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                   {/* Execution Method Selection */}
                   <div className={styles.contentContainer__parameterChoice}>
                     <tds-radio-button
-                      name="execution-method"
+                      name="select-parameter-method"
                       value="Create"
                       radio-id="create"
                       onClick={() => setSelectedExecutionMethod("Create")}
@@ -295,7 +293,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                     </tds-radio-button>
 
                     <tds-radio-button
-                      name="execution-method"
+                      name="select-parameter-method"
                       value="Existing"
                       radio-id="existing"
                       onClick={() =>

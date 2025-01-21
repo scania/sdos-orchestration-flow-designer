@@ -13,7 +13,6 @@ interface ExecuteGraphModalProps {
   setExecuteGraphIriValue: (value: string) => void;
   errorsExecuteGraph: any;
   registerExecuteGraph: any;
-  handleSubmitExecuteGraph: any;
   handleExecute: () => void;
   isExecuteGraphModalOpen: () => void;
   setIsExecuteGraphModalOpen: () => void;
