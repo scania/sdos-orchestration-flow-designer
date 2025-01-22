@@ -136,7 +136,12 @@ function App({
       description: string,
       timeout: number
     ) => {
-      const toastProperties: ToastItem = { variant, header, description, timeout };
+      const toastProperties: ToastItem = {
+        variant,
+        header,
+        description,
+        timeout,
+      };
       setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
     },
     []
@@ -173,7 +178,7 @@ function App({
     const { name, description } = data;
     clearErrors("name");
     // Internal whitespaces are replaced with -, while leading and trailing spaces are removed entirely
-    const trimmedGraphName = name.trim().replace(/\s+/g, "-")
+    const trimmedGraphName = name.trim().replace(/\s+/g, "-");
     if (trimmedGraphName.length === 0) {
       setError("name", {
         type: "manual",
@@ -193,11 +198,12 @@ function App({
       {
         pathname: `/ofd/new`,
         query: {
-          graphName: trimmedGraphName,
+          name: trimmedGraphName,
           description,
+          bypassCheck: "true",
         },
       },
-      `/ofd/new`
+      `/ofd/new?name=${trimmedGraphName}&description=${description}`
     );
   };
 

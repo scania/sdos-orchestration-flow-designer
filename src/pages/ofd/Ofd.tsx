@@ -9,13 +9,7 @@ import {
 import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
 import { useRouter } from "next/router";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
 import ReactFlow, {
@@ -58,7 +52,7 @@ interface ForceGraphProps {
   apiBaseUrl: string;
   author: Author;
   description?: string;
-  graphName?: string;
+  graphName: string;
   initEdges?: Edge[];
   initNodes?: Node[];
   isEditable?: boolean;
@@ -101,7 +95,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
   >(null);
-  const graphDescription = description || router.query.description || "";
+  const graphDescription = description;
   const [targetNodePosition, setTargetNodePosition] = useState<any>({
     x: 0,
     y: 0,
@@ -127,12 +121,17 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   );
 
-  const showToast = (variant: string, header: string, description: string, timeout: number) => {
+  const showToast = (
+    variant: string,
+    header: string,
+    description: string,
+    timeout?: number
+  ) => {
     const toastProperties = {
       variant,
       header,
       description,
-      timeout
+      timeout,
     };
     setListOfToasts([...listOfToasts, toastProperties]);
   };
@@ -245,6 +244,9 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     if (saveType === "draft") {
       isDraftSave = true;
     }
+    if (!graphName) {
+      showToast("error", "Validation Error", "Graph Name should be set");
+    }
     if (!isGraphValid(nodes, edges) && !isDraftSave) {
       showToast(
         "error",
@@ -256,9 +258,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     const payload = {
       nodes,
       edges,
-      graphName: `https://kg.scania.com/iris_orchestration/${
-        router.query?.graphName || graphName || "Private"
-      }`,
+      graphName: `https://kg.scania.com/iris_orchestration/${graphName}`,
       description: graphDescription,
       isDraft: isDraftSave,
     };
@@ -544,19 +544,23 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   return (
     <div className={styles.page}>
       <ActionToolbar
-        graph={{ name: graphName, description: description, isDraft: isDraft, author }}
+        graph={{
+          name: graphName,
+          description: description,
+          isDraft: isDraft,
+          author,
+        }}
         toolbar
         handleExecute={handleExecute}
         handleSaveClick={handleSaveClick}
         isEditable={isEditable}
       />
-
       <div className={styles.page__main}>
         <Sidebar
           showExtendedPanel={showExtendedPanel}
           setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
-          graphName={router.query.graphName || graphName || ""}
+          graphName={graphName || ""}
           graphDescription={graphDescription}
           searchString={searchString}
           setSearchString={setSearchString}
