@@ -2,6 +2,7 @@ import { env } from "@/lib/env";
 import { getSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import axios from "axios";
+import { initializeNodes } from "@/utils";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -65,6 +66,7 @@ export async function getServerSideProps(context: any) {
       apiBaseUrl: baseUrl,
       graphName: name,
       description: description || "",
+      initNodes: initializeNodes(),
     },
   };
 }

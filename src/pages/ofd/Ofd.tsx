@@ -1,7 +1,6 @@
 import { GraphBody } from "@/services/graphSchema";
 import {
   generateClassId,
-  initializeNodes,
   getPaths,
   isValidConnection,
   setEdgeProperties,
@@ -71,7 +70,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 }) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
-  const [nodes, setNodes, onNodesChange] = useNodesState(initializeNodes());
+  const [nodes, setNodes, onNodesChange] = useNodesState();
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
   const [searchString, setSearchString] = useState("");
