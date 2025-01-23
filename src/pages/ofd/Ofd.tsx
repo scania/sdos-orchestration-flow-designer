@@ -368,14 +368,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   );
 
   useEffect(() => {
-    // Initialize state from props if they are provided and not empty
-    if (
-      initNodes &&
-      initEdges &&
-      initNodes.length > 0 &&
-      initEdges.length > 0
-    ) {
+    if (initNodes && initNodes.length > 0) {
       setNodes(initNodes);
+    }
+    if (initEdges && initEdges.length >= 0) {
       setEdges(initEdges);
     }
   }, []);

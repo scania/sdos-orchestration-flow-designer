@@ -134,7 +134,7 @@ function App({
       variant: "success" | "error" | "information" | "warning",
       header: string,
       description: string,
-      timeout: number
+      timeout?: number
     ) => {
       const toastProperties: ToastItem = {
         variant,
