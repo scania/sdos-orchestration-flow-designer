@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Task } from "@/utils/types";
+import Modal from "../Modal/CustomModal";
 import {
   TdsDropdown,
   TdsDropdownOption,
-  TdsTextarea,
 } from "@scania/tegel-react";
 
 interface ExecuteGraphModalProps {
@@ -13,16 +13,16 @@ interface ExecuteGraphModalProps {
   setExecuteGraphIriValue: (value: string) => void;
   errorsExecuteGraph: any;
   registerExecuteGraph: any;
-  handleSubmitExecuteGraph: any;
   handleExecute: () => void;
+  isExecuteGraphModalOpen: () => void;
+  setIsExecuteGraphModalOpen: () => void;
   theme: string;
-  handleModalClose: () => void;
 }
 
 const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
-  handleSubmitExecuteGraph,
   handleExecute,
-  handleModalClose,
+  isExecuteGraphModalOpen,
+  setIsExecuteGraphModalOpen,
   baseUrl,
 }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -47,7 +47,7 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
         label-position="outside"
         placeholder="Select graph"
         size="lg"
-        multiselect={false}
+        filter
         onTdsChange={(e) => {
           const selectedTaskValue = e.detail.value;
           const selectedTask = tasks.find(
@@ -55,7 +55,6 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
           );
           setSelectedTask(selectedTask as Task);
         }}
-        filter
         open-direction="auto"
         normalizeText={true}
       >
@@ -79,16 +78,12 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
     );
   };
   return (
-    <tds-modal
-      id="execute-graph-iri-modal"
-      tds-close={() => handleModalClose()}
-      selector="#execute-graph-button"
-      size="md"
+    <Modal
+      isOpen={isExecuteGraphModalOpen}
+      onRequestClose={() => setIsExecuteGraphModalOpen(false)}
+      title="Execute Graph with IRI"
+      width={"lg"}
     >
-      <h5 className="tds-modal-headline" slot="header">
-        Execute Graph with IRI
-      </h5>
-      <span slot="body">
         <div>
           <div style={{ height: "250px" }}>
             {renderTaskSelector()}
@@ -104,8 +99,7 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
             />
           </span>
         </div>
-      </span>
-    </tds-modal>
+      </Modal>
   );
 };
 

@@ -1,5 +1,4 @@
 import styles from "./graphOptions.module.scss";
-import React from "react";
 
 const GraphOptions = ({ selector, graphDescription, graphName, author }) => {
   return (

@@ -1,22 +1,14 @@
 import { GraphBody } from "@/services/graphSchema";
 import {
   generateClassId,
-  initializeNodes,
   getPaths,
   isValidConnection,
   setEdgeProperties,
 } from "@/utils";
 import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
 import ReactFlow, {
@@ -35,7 +27,6 @@ import "reactflow/dist/style.css";
 import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
-import GraphOptions from "../../components/GraphOptions/GraphOptions";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
@@ -60,7 +51,7 @@ interface ForceGraphProps {
   apiBaseUrl: string;
   author: Author;
   description?: string;
-  graphName?: string;
+  graphName: string;
   initEdges?: Edge[];
   initNodes?: Node[];
   isEditable?: boolean;
@@ -79,7 +70,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 }) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
-  const [nodes, setNodes, onNodesChange] = useNodesState(initializeNodes());
+  const [nodes, setNodes, onNodesChange] = useNodesState();
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
   const [searchString, setSearchString] = useState("");
@@ -103,7 +94,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
   >(null);
-  const graphDescription = description || router.query.description || "";
+  const graphDescription = description;
   const [targetNodePosition, setTargetNodePosition] = useState<any>({
     x: 0,
     y: 0,
@@ -129,11 +120,17 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   );
 
-  const showToast = (variant: string, header: string, description: string) => {
+  const showToast = (
+    variant: string,
+    header: string,
+    description: string,
+    timeout?: number
+  ) => {
     const toastProperties = {
       variant,
       header,
       description,
+      timeout,
     };
     setListOfToasts([...listOfToasts, toastProperties]);
   };
@@ -246,6 +243,9 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     if (saveType === "draft") {
       isDraftSave = true;
     }
+    if (!graphName) {
+      showToast("error", "Validation Error", "Graph Name should be set");
+    }
     if (!isGraphValid(nodes, edges) && !isDraftSave) {
       showToast(
         "error",
@@ -257,9 +257,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     const payload = {
       nodes,
       edges,
-      graphName: `https://kg.scania.com/iris_orchestration/${
-        router.query?.graphName || graphName || "Private"
-      }`,
+      graphName: `https://kg.scania.com/iris_orchestration/${graphName}`,
       description: graphDescription,
       isDraft: isDraftSave,
     };
@@ -369,14 +367,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   );
 
   useEffect(() => {
-    // Initialize state from props if they are provided and not empty
-    if (
-      initNodes &&
-      initEdges &&
-      initNodes.length > 0 &&
-      initEdges.length > 0
-    ) {
+    if (initNodes && initNodes.length > 0) {
       setNodes(initNodes);
+    }
+    if (initEdges && initEdges.length >= 0) {
       setEdges(initEdges);
     }
   }, []);
@@ -545,19 +539,23 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   return (
     <div className={styles.page}>
       <ActionToolbar
-        graph={{ name: graphName, description: description, isDraft: isDraft }}
+        graph={{
+          name: graphName,
+          description: description,
+          isDraft: isDraft,
+          author,
+        }}
         toolbar
         handleExecute={handleExecute}
         handleSaveClick={handleSaveClick}
         isEditable={isEditable}
       />
-
       <div className={styles.page__main}>
         <Sidebar
           showExtendedPanel={showExtendedPanel}
           setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
-          graphName={router.query.graphName || graphName || ""}
+          graphName={graphName || ""}
           graphDescription={graphDescription}
           searchString={searchString}
           setSearchString={setSearchString}

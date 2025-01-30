@@ -12,7 +12,7 @@
       position: absolute;
       background: white;
       z-index: 1;
-      max-height: calc(-200px + 100vh);
+      max-height: calc(-240px + 100vh);
       box-shadow: 0px 3px 3px 0px #00000026;
 
       &__header {
@@ -35,7 +35,10 @@
       }
 
       &__description {
-        // color: #666;
+        overflow: hidden;
+        text-overflow: ellipsis;   
+        word-break: break-word;
+        max-height: 3.6rem;
         font-size: 16px;
       }
 

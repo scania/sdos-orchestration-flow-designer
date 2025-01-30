@@ -1,15 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Popover } from "react-tiny-popover";
 import HandleGraphMenu from "../ActionsMenu/HandleGraphMenu";
 import { useRouter } from "next/router";
 import styles from "./card.module.scss";
 import { convertToLocalTime } from "@/lib/frontend/helper";
-import axios from "axios";
 
 const Card = ({ data, deleteGraph }: any) => {
   const router = useRouter();
   const { id, name, description, isDraft, updatedAt, user } = data;
-  const dialogId = `dialog-${id}`;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -29,13 +27,12 @@ const Card = ({ data, deleteGraph }: any) => {
             ></tds-button>
             <Popover
               isOpen={isPopoverOpen}
+              reposition={false}
               onClickOutside={() => setIsPopoverOpen(false)}
               positions={["top", "bottom", "left", "right"]}
               content={
                 <HandleGraphMenu
-                  id={dialogId}
                   onDeleteClick={() => deleteGraph(id)}
-                  onExecuteClick={() => router.push(`/executeFlow/id/${id}`)}
                 />
               }
             >

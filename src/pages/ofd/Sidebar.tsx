@@ -155,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           ></tds-icon>
         </div>
         <h3 className={styles.sidebar__primaryHeading}>{graphName || ""}</h3>
-        <p className={styles.sidebar__description}>{graphDescription}</p>
+        <p title={graphDescription} className={styles.sidebar__description}>{graphDescription}</p>
       </div>
       {showExtendedPanel && !setupMode ? (
         <>

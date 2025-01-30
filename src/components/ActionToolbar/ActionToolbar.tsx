@@ -7,6 +7,7 @@ type Graph = {
   name?: string;
   description?: string;
   isDraft?: boolean;
+  author?: object
 };
 
 type AccordionProps = {
@@ -45,6 +46,7 @@ const router = useRouter();
             selector="#graph-options"
             graphDescription={graph?.description || ""}
             graphName={graph?.name || ""}
+            author={graph?.author}
           />
           <span id="graph-options" className="pointer">
             Options
