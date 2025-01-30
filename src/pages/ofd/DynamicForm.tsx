@@ -4,7 +4,7 @@ import styles from "./ofd.module.scss";
 import { TdsTextarea } from "@scania/tegel-react";
 import { DynamicFormProps, FormField, IFormInput } from "@/utils/types";
 import { replaceSpecialChars } from "@/helpers/helper";
-import FileConverter from "@/components/FileConverter/FileConverter";
+import FileConverter from "@/components/FileConverter";
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
   formData = { formFields: [] },

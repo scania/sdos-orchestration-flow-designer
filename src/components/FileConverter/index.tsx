@@ -1,7 +1,28 @@
+import { env } from "@/lib/env";
+import { getSession } from "next-auth/react";
 import { useState, ChangeEvent } from "react";
+import axios from "axios";
 import styles from "./fileConverter.module.scss";
 
-export default function FileConverter({onFileConverted }) {
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
+  if (!session?.user) {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  /* return {
+    props: {
+      apiBaseUrl: env.NEXTAUTH_URL
+    },
+  }; */
+}
+
+export default function FileConverter({onFileConverted, apiBaseUrl }) {
+  
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -13,28 +34,17 @@ export default function FileConverter({onFileConverted }) {
 
     setLoading(true);
 
-    try {
-      const response = await fetch("/api/convert-file", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to convert file.");
+    axios.post(`http://localhost:3000/api/generate-context`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
       }
-
-      // TODO - handle the real response
-      
-    } catch (error) {
-      console.log("Error");
-    } finally {
-        // placeholder to fake async call and sucessfull response, need it to handle the "loading" state and style it
-        setTimeout(function() {
-            const convertedResponse = 'Just writing something here in order to test it out'
-            onFileConverted(convertedResponse);
-            setLoading(false);
-        }, 2000);
-    }
+    })
+    .then(response => {
+      console.log(response.data); // Handle successful upload response
+    })
+    .catch(error => {
+      console.error(error); // Handle upload errors
+    });
   };
 
   return (
