@@ -21,6 +21,7 @@ type SidebarProps = {
   setHighlightedClassLabel: (className: string) => void;
   handleOnDrag: (e: React.DragEvent<HTMLDivElement>, className: string) => void;
   addToGraph: () => void;
+  isEditable: boolean;
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -39,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   setHighlightedClassLabel,
   handleOnDrag,
   addToGraph,
+  isEditable,
 }) => {
   const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
     useState("required");
@@ -155,7 +157,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           ></tds-icon>
         </div>
         <h3 className={styles.sidebar__primaryHeading}>{graphName || ""}</h3>
-        <p title={graphDescription} className={styles.sidebar__description}>{graphDescription}</p>
+        <p title={graphDescription} className={styles.sidebar__description}>
+          {graphDescription}
+        </p>
       </div>
       {showExtendedPanel && !setupMode ? (
         <>
@@ -209,11 +213,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               ]}
             >
               <Panel
-                title={`Required ${requiredClasses.length ? `(${requiredClasses.length})` : ''}`}
+                title={`Required ${
+                  requiredClasses.length ? `(${requiredClasses.length})` : ""
+                }`}
                 value="required"
               ></Panel>
               <Panel
-                title={`Optional ${optionalClasses.length ? `(${optionalClasses.length})` : ''}`}
+                title={`Optional ${
+                  optionalClasses.length ? `(${optionalClasses.length})` : ""
+                }`}
                 value="optional"
               ></Panel>
             </Tabs>
@@ -226,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 variant="primary"
                 size="sm"
                 text="Add to graph"
-                disabled={!highlightedClassLabel}
+                disabled={!highlightedClassLabel || !isEditable}
                 onClick={addToGraph}
               >
                 <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
