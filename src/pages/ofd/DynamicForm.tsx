@@ -62,7 +62,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   };
 
   const handleConvertedResponse = (data: string) => {
-    setConvertedData(data); // Save the converted response in state
+    setConvertedData(data);
   };
 
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {

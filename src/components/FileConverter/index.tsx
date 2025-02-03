@@ -14,16 +14,12 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
-  /* return {
-    props: {
-      apiBaseUrl: env.NEXTAUTH_URL
-    },
-  }; */
 }
 
-export default function FileConverter({onFileConverted, apiBaseUrl }) {
+export default function FileConverter() {
   
   const [loading, setLoading] = useState<boolean>(false);
+  const [convertedData, setConvertedData] = useState<String>('')
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,17 +30,16 @@ export default function FileConverter({onFileConverted, apiBaseUrl }) {
 
     setLoading(true);
 
-    axios.post(`http://localhost:3000/api/generate-context`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      }
-    })
-    .then(response => {
-      console.log(response.data); // Handle successful upload response
-    })
-    .catch(error => {
-      console.error(error); // Handle upload errors
-    });
+    try {
+      const response = await axios.post("/api/generate-context", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setConvertedData(JSON.stringify(response.data.data));
+    } catch (error) {
+      alert("Upload failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,6 +47,8 @@ export default function FileConverter({onFileConverted, apiBaseUrl }) {
       <label for="file-upload" className={styles.uploadContainer__uploadBtn}>
         {loading ? 'Loading' : 'Convert from file'}
       </label>
+      
+      <div style={{width: '200px', display: 'block'}}>Converted data: {convertedData}</div>
       <input
         id="file-upload"
         type="file"
