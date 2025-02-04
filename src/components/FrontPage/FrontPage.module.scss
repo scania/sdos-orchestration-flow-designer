@@ -16,16 +16,6 @@
       background-color: var(--tds-grey-900);
     }
 
-    &__link {
-      color: var(--grey-958, #0d0f13);
-      line-height: 20px;
-      letter-spacing: -0.14px;
-      text-decoration-line: underline;
-      :global(.tds-mode-dark) & {
-        color: var(--grey-50, #f9fafb);
-      }
-    }
-
     &__bottom {
       padding: 8px;
       display: flex;
@@ -35,7 +25,7 @@
   }
 
   &__spacer {
-    flex-grow: 1;
+   flex-grow: 1;
   }
 
   &__rightPane {
