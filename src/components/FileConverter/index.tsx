@@ -15,11 +15,12 @@ export async function getServerSideProps(context: any) {
     };
   }
 }
+interface FileConverterProps {
+  onFileConverted: (data: string) => void;
+}
 
-export default function FileConverter() {
-  
+export default function FileConverter({ onFileConverted }: FileConverterProps) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [convertedData, setConvertedData] = useState<String>('')
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,7 +35,7 @@ export default function FileConverter() {
       const response = await axios.post("/api/generate-context", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setConvertedData(JSON.stringify(response.data.data));
+      onFileConverted(JSON.stringify(response.data.data));
     } catch (error) {
       alert("Upload failed");
     } finally {
@@ -45,10 +46,8 @@ export default function FileConverter() {
   return (
     <div className={styles.uploadContainer}>
       <label for="file-upload" className={styles.uploadContainer__uploadBtn}>
-        {loading ? 'Loading' : 'Convert from file'}
+        {loading ? "Loading" : "Convert from file"}
       </label>
-      
-      <div style={{width: '200px', display: 'block'}}>Converted data: {convertedData}</div>
       <input
         id="file-upload"
         type="file"

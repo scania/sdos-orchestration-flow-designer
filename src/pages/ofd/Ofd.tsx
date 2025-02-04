@@ -627,11 +627,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
-                      classConfig={selectedNode.data?.classData}
                       formData={selectedNode.data?.formData}
                       onSubmit={handleFormSubmit}
                       onClose={exitSetupMode}
-                      label={selectedNode.data.label}
+                      className={selectedNode.data.label}
                       readOnly={!isEditable}
                     />
                   </div>

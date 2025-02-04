@@ -10,7 +10,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   formData = { formFields: [] },
   onSubmit,
   excludeKeys = ["http://www.w3.org/2000/01/rdf-schema#label"],
-  label,
+  className,
   onClose,
   readOnly,
 }) => {
@@ -36,7 +36,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const formValue = watch();
   const { errors } = formState;
   const [isLabelEditMode, setIsLabelEditMode] = useState(false);
-  const [convertedData, setConvertedData] = useState<string | null>(null);
   const labelValue = watch(
     replaceSpecialChars("http://www.w3.org/2000/01/rdf-schema#label")
   );
@@ -62,7 +61,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   };
 
   const handleConvertedResponse = (data: string) => {
-    setConvertedData(data);
+    setValue(
+      replaceSpecialChars(
+        "https://kg.scania.com/it/iris_orchestration/context"
+      ),
+      data,
+      { shouldDirty: true }
+    );
   };
 
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
@@ -192,7 +197,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     <>
       <div className={styles["form-header"]}>
         <div className={styles.description}>
-          <p className="tds-detail-06">{label}</p>
+          <p className="tds-detail-06">{className}</p>
           <div className={styles["description__label"]}>{renderLabel()}</div>
         </div>
       </div>
@@ -219,12 +224,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               .filter(({ name }) => !excludeKeys.includes(name))
               .map((field) => renderInputField(field))}
           </div>
-          {label === 'JsonLdContext' && <FileConverter onFileConverted={handleConvertedResponse}/>}
-          {convertedData && (
-            <div>
-              <h2>Converted Data:</h2>
-              <p>{convertedData}</p>
-            </div>
+          {className === "JsonLdContext" && (
+            <FileConverter onFileConverted={handleConvertedResponse} />
           )}
           <section className={styles["form__action-menu"]}>
             <tds-button
