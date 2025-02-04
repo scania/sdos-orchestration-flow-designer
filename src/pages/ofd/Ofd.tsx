@@ -310,15 +310,13 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   );
 
   const addToGraph = () => {
+    if (!isEditable) return;
     const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
-
     // Get the bounding box of the graph area
     const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
-
     const viewport = reactFlowInstance.getViewport();
     const { x, y, zoom } = viewport;
-
     const position = {
       x: randomizeValue((width / 2 - x) / zoom),
       y: randomizeValue((height / 2 - y) / zoom),
@@ -335,14 +333,19 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   };
 
   const onDragOver = useCallback((event: any) => {
+    if (!isEditable) {
+      return;
+    }
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
 
   const onDrop = useCallback(
     (event: any) => {
+      if (!isEditable) {
+        return;
+      }
       event.preventDefault();
-
       const type = event.dataTransfer.getData("application/reactflow");
       if (typeof type === "undefined" || !type) {
         return;
@@ -567,6 +570,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           setHighlightedClassLabel={setHighlightedClassLabel}
           handleOnDrag={handleClassOnDrag}
           addToGraph={addToGraph}
+          isEditable={isEditable}
         />
 
         <section className={styles.graph__canvas}>
