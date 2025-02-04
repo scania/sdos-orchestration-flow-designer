@@ -5,14 +5,14 @@ import logger from "../../../lib/logger";
 import { env } from "../../../lib/env";
 import { getToken } from "next-auth/jwt";
 import axios from "axios";
-import fs from "fs"; // Use 'fs' instead of 'fs/promises'
-import FormData from "form-data"; // Ensure form-data is imported
+import fs from "fs";
+import FormData from "form-data";
 import * as formidable from "formidable";
 import { getSDOSOBOToken } from "../../../lib/backend/sdosOBO";
 
 export const config = {
   api: {
-    bodyParser: false, // Disable the default body parser for multipart/form-data
+    bodyParser: false,
   },
 };
 
@@ -43,7 +43,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const form = new formidable.IncomingForm();
 
         // Await formidable parsing using a Promise
-        const { files } = await new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
+        const { files } = await new Promise<{
+          fields: formidable.Fields;
+          files: formidable.Files;
+        }>((resolve, reject) => {
           form.parse(req, (err, fields, files) => {
             if (err) reject(err);
             else resolve({ fields, files });
@@ -62,22 +65,24 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         try {
           const response = await axios.post(
-            `https://sdos.sdip.devtest.aws.scania.com/sdos/cg/getJsonldContext`, 
-            formData,  // Send the form data
+            `${env.SDOS_ENDPOINT}/sdos/cg/getJsonldContext`,
+            formData,
             {
               headers: {
-                ...formData.getHeaders(),  // Automatically adds correct headers for FormData
+                ...formData.getHeaders(), // Automatically adds correct headers for FormData
                 Authorization: `Bearer ${access_token}`,
               },
             }
           );
-          return res.status(200).json({ message: "File uploaded", data: response.data });
+          return res
+            .status(200)
+            .json({ message: "File uploaded", data: response.data });
         } catch (error) {
           logger.error("Error uploading to external API:", {
             message: error,
-            response: error.response?.data, // API response (if any)
-            status: error.response?.status, // HTTP status
-            stack: error.stack, // Stack trace
+            response: error.response?.data,
+            status: error.response?.status,
+            stack: error.stack,
           });
           return res.status(500).json({ error: "Upload failed" });
         }
@@ -89,6 +94,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
   } catch (error: any) {
     logger.error("An unexpected error occurred:", error);
-    return res.status(500).json({ error: error?.message || "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ error: error?.message || "Internal Server Error" });
   }
 };
