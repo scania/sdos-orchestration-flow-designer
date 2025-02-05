@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import { memo, useState } from "react";
 import { useReactFlow } from "reactflow";
 import { Popover } from "react-tiny-popover";
 import { Handle, Position } from "reactflow";
@@ -65,7 +65,7 @@ export default memo((node) => {
           positions={["top", "bottom", "left", "right"]} // preferred positions by priority
           content={<ActionsMenu onDeleteClick={() => deleteNode()} />}
         >
-          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
             <tds-icon name="meatballs" size="20px"></tds-icon>
           </div>
         </Popover>
@@ -73,25 +73,21 @@ export default memo((node) => {
       <div data-tooltip={data.label} className={styles.labelContainer}>
         {label ? label : <span className={"opaque-35"}>Label</span>}
       </div>
-      {type !== "input" ? (
+      {type !== "input" && (
         <Handle
           type="target"
           position={Position.Left}
           id="a"
           isConnectable={isConnectable}
         />
-      ) : (
-        <></>
       )}
-      {type !== "output" ? (
+      {type !== "output" && (
         <Handle
           type="source"
           position={Position.Right}
           id="a"
           isConnectable={isConnectable}
         />
-      ) : (
-        <></>
       )}
     </div>
   );

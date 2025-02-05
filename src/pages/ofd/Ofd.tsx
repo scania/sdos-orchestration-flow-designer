@@ -1,22 +1,14 @@
 import { GraphBody } from "@/services/graphSchema";
 import {
   generateClassId,
-  initializeNodes,
   getPaths,
   isValidConnection,
   setEdgeProperties,
 } from "@/utils";
 import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
 import ReactFlow, {
@@ -35,12 +27,13 @@ import "reactflow/dist/style.css";
 import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
-import GraphOptions from "../../components/GraphOptions/GraphOptions";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
 import { captureCursorPosition } from "../../lib/frontend/helper";
+import { randomizeValue } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
+import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 
 const nodeTypes = {
   input: CircularNode,
@@ -48,10 +41,17 @@ const nodeTypes = {
   default: CircularNode,
 };
 
+interface Author {
+  name: string;
+  id: string;
+  email: string;
+}
+
 interface ForceGraphProps {
   apiBaseUrl: string;
+  author: Author;
   description?: string;
-  graphName?: string;
+  graphName: string;
   initEdges?: Edge[];
   initNodes?: Node[];
   isEditable?: boolean;
@@ -61,6 +61,7 @@ interface ForceGraphProps {
 const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   apiBaseUrl,
   description,
+  author,
   graphName,
   initEdges,
   initNodes,
@@ -69,7 +70,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 }) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
-  const [nodes, setNodes, onNodesChange] = useNodesState(initializeNodes());
+  const [nodes, setNodes, onNodesChange] = useNodesState();
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
   const [searchString, setSearchString] = useState("");
@@ -86,13 +87,14 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
   const [setupMode, setSetupMode] = useState(false);
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
   >(null);
-  const graphDescription = description || router.query.description || "";
+  const graphDescription = description;
   const [targetNodePosition, setTargetNodePosition] = useState<any>({
     x: 0,
     y: 0,
@@ -118,11 +120,17 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   );
 
-  const showToast = (variant: string, header: string, description: string) => {
+  const showToast = (
+    variant: string,
+    header: string,
+    description: string,
+    timeout?: number
+  ) => {
     const toastProperties = {
       variant,
       header,
       description,
+      timeout,
     };
     setListOfToasts([...listOfToasts, toastProperties]);
   };
@@ -131,6 +139,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setConnectionParams(null);
     setEdgeSelections([]);
     setTargetNodePosition({ x: 0, y: 0 });
+    setIsPopoverOpen(false);
   };
 
   const isNodeDeletable = () => {
@@ -228,7 +237,15 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     return invalidTasks.length === 0;
   };
 
-  const handleSaveClick = (isDraftSave: boolean) => {
+  const handleSaveClick = (saveType: string) => {
+    let isDraftSave = false;
+
+    if (saveType === "draft") {
+      isDraftSave = true;
+    }
+    if (!graphName) {
+      showToast("error", "Validation Error", "Graph Name should be set");
+    }
     if (!isGraphValid(nodes, edges) && !isDraftSave) {
       showToast(
         "error",
@@ -240,9 +257,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     const payload = {
       nodes,
       edges,
-      graphName: `https://kg.scania.com/iris_orchestration/${
-        router.query?.graphName || graphName || "Private"
-      }`,
+      graphName: `https://kg.scania.com/iris_orchestration/${graphName}`,
       description: graphDescription,
       isDraft: isDraftSave,
     };
@@ -287,6 +302,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       }
       setConnectionParams(params);
       setEdgeSelections([...paths]);
+      setIsPopoverOpen(true);
       captureCursorPosition(setTargetNodePosition);
       return;
     },
@@ -297,10 +313,21 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
 
+    // Get the bounding box of the graph area
+    const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
+
+    const viewport = reactFlowInstance.getViewport();
+    const { x, y, zoom } = viewport;
+
+    const position = {
+      x: randomizeValue((width / 2 - x) / zoom),
+      y: randomizeValue((height / 2 - y) / zoom),
+    };
+
     // Store event-related data for later use
     setDropInfo({
       type: highlightedClassLabel,
-      position: { x: 10, y: 10 },
+      position: position,
     });
 
     setIsPendingClassDetailsAction(true);
@@ -340,14 +367,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   );
 
   useEffect(() => {
-    // Initialize state from props if they are provided and not empty
-    if (
-      initNodes &&
-      initEdges &&
-      initNodes.length > 0 &&
-      initEdges.length > 0
-    ) {
+    if (initNodes && initNodes.length > 0) {
       setNodes(initNodes);
+    }
+    if (initEdges && initEdges.length >= 0) {
       setEdges(initEdges);
     }
   }, []);
@@ -418,7 +441,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   draggable={isEditable}
                   key={index}
                   onClick={() => setHighlightedClassLabel(item.className)}
-                  onDragStart={(e: any) => handleOnDrag(e, item.className)}
+                  onDragStart={(e: any) => handleClassOnDrag(e, item.className)}
                   className={`${styles.classes__class} ${
                     highlightedClassLabel === item.className
                       ? styles.active__chip
@@ -459,13 +482,32 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     );
   };
 
-  function handleOnDrag(e: React.DragEvent, nodeType: any) {
+  function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
     e.dataTransfer.effectAllowed = "move";
   }
 
+  /* 
+    Set selected node on both click and drag start, same functionality
+    but split into two functions due to the fact that we might want to
+    have them behave differently after user-testing
+  */
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
+  };
+
+  const handleNodeDragStart = (event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+  };
+
+  const handlePaneClick = () => {
+    // If popover is open, close it when clicking outside popover
+    setIsPopoverOpen(false);
+
+    // De-select node when clicking outside a node, except when in setup-mode
+    if (!setupMode) {
+      setSelectedNode(null);
+    }
   };
 
   const handleExecute = () => {
@@ -496,56 +538,24 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 
   return (
     <div className={styles.page}>
-      <header className={styles.page__header + " tds-detail-02"}>
-        <div>
-          <Link href="/">
-            <span className={styles.page__header__back}>Back</span>
-            <tds-icon slot="icon" size="14px" name="back"></tds-icon>
-          </Link>
-        </div>
-        <div>
-          <GraphOptions
-            selector="#graph-options"
-            graphDescription={graphDescription}
-            graphName={router.query.graphName || graphName || ""}
-          />
-          <span id="graph-options" className={styles.page__header__action}>
-            Options
-          </span>
-          <span
-            id="execute-graph"
-            className={`${styles.page__header__action} ${
-              isDraft ? styles.disabled : ""
-            }`}
-            onClick={handleExecute}
-            style={{ cursor: isDraft ? "not-allowed" : "pointer" }}
-          >
-            Execute
-          </span>
-          {isEditable ? (
-            <>
-              <span
-                className={styles.page__header__action}
-                onClick={() => handleSaveClick(true)}
-              >
-                Save Draft
-              </span>
-              <span
-                className={styles.page__header__action}
-                onClick={() => handleSaveClick(false)}
-              >
-                Save
-              </span>
-            </>
-          ) : null}
-        </div>
-      </header>
-      <main className={styles.page__main}>
+      <ActionToolbar
+        graph={{
+          name: graphName,
+          description: description,
+          isDraft: isDraft,
+          author,
+        }}
+        toolbar
+        handleExecute={handleExecute}
+        handleSaveClick={handleSaveClick}
+        isEditable={isEditable}
+      />
+      <div className={styles.page__main}>
         <Sidebar
           showExtendedPanel={showExtendedPanel}
           setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
-          graphName={router.query.graphName || graphName || ""}
+          graphName={graphName || ""}
           graphDescription={graphDescription}
           searchString={searchString}
           setSearchString={setSearchString}
@@ -555,18 +565,19 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           secondaryProperties={secondaryProperties}
           highlightedClassLabel={highlightedClassLabel}
           setHighlightedClassLabel={setHighlightedClassLabel}
-          handleOnDrag={handleOnDrag}
+          handleOnDrag={handleClassOnDrag}
           addToGraph={addToGraph}
         />
 
         <section className={styles.graph__canvas}>
           <div>
             <Popover
-              isOpen={!!edgeSelections.length}
+              isOpen={isPopoverOpen}
               content={
                 <SelectionMenu
                   edges={edgeSelections}
                   onEdgeSelect={onEdgeSelect}
+                  onClose={() => setIsPopoverOpen(false)}
                 ></SelectionMenu>
               }
               containerStyle={{
@@ -588,6 +599,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                 }}
               >
                 <ReactFlow
+                  onPaneClick={handlePaneClick}
                   nodes={nodes}
                   edges={edges}
                   deleteKeyCode={isNodeDeletable() ? "Delete" : null}
@@ -601,6 +613,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   fitView
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
+                  onNodeDragStart={handleNodeDragStart}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}
                   nodesDraggable={isEditable}
@@ -653,7 +666,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
             </div>
           </div>
         </section>
-      </main>
+      </div>
       <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );

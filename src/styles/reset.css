@@ -64,4 +64,11 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* Tds-reset, should not be necessary to do this, but this is the quickest fix for now */
+.tds-mode-variant-primary,
+.tds-mode-variant-secondary{
+  border-radius: 4px;
+}
 /* END - CSS Reset */
+

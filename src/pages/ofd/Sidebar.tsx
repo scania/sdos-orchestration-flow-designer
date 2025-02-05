@@ -150,11 +150,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => setShowExtendedPanel(!showExtendedPanel)}
             slot="icon"
             size="20px"
+            class="pointer"
             name={showExtendedPanel ? "chevron_up" : "chevron_down"}
           ></tds-icon>
         </div>
         <h3 className={styles.sidebar__primaryHeading}>{graphName || ""}</h3>
-        <p className={styles.sidebar__description}>{graphDescription}</p>
+        <p title={graphDescription} className={styles.sidebar__description}>{graphDescription}</p>
       </div>
       {showExtendedPanel && !setupMode ? (
         <>
@@ -208,11 +209,11 @@ const Sidebar: React.FC<SidebarProps> = ({
               ]}
             >
               <Panel
-                title={`Required ${requiredClasses.length}`}
+                title={`Required ${requiredClasses.length ? `(${requiredClasses.length})` : ''}`}
                 value="required"
               ></Panel>
               <Panel
-                title={`Optional ${optionalClasses.length}`}
+                title={`Optional ${optionalClasses.length ? `(${optionalClasses.length})` : ''}`}
                 value="optional"
               ></Panel>
             </Tabs>

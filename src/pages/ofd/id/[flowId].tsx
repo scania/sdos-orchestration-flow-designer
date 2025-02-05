@@ -31,6 +31,7 @@ export async function getServerSideProps(context: any) {
       apiBaseUrl: env.NEXTAUTH_URL,
       initNodes: nodes,
       initEdges: edges,
+      author: user,
       graphName: name.split("/").pop(),
       description,
       isEditable: isCurrentUserAuthor(),

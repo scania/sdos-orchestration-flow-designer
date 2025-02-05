@@ -1,0 +1,22 @@
+.container {
+  position: fixed;
+  bottom: 32px;
+  right: 10px;
+  z-index: 1000;
+  width: 400px;
+}
+
+.toast {
+  margin-bottom: 16px;
+}
+
+.showMore {
+  cursor: pointer;
+  margin: 10px 0px;
+  color: #0070f3;
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
+}

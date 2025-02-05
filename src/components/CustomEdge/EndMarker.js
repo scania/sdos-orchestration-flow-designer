@@ -1,12 +1,11 @@
-import React from 'react';
- 
-const EndMarker = ({selected}) => {
+import styles from "./CustomEdge.module.scss";
+
+const EndMarker = () => {
  
   return (
         <svg style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
           <marker
-            className="react-flow__arrowhead"
             id="end-marker"
             markerWidth="40"
             markerHeight="40"
@@ -17,11 +16,7 @@ const EndMarker = ({selected}) => {
             refY="0"
           >
             <polyline
-              style={{
-                stroke: "#0d0f13",
-                fill: "#0d0f13",
-                strokeWidth: 1,
-              }}
+              class={styles.endMarker}
               strokeLinecap="round"
               strokeLinejoin="round"
               points="-5,-4 0,0 -5,4 -5,-4"

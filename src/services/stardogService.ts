@@ -5,7 +5,7 @@ import { QueryFactory } from "@/queryFactory";
 import { env } from "@/lib/env";
 
 const DB_NAME_READ = "metaphactory";
-const DB_NAME_WRITE = "testdborchestration";
+const DB_NAME_WRITE = env.STARDOG_DB_NAME_WRITE;
 
 export interface ClassEntity {
   uri: string;
@@ -71,7 +71,6 @@ export const getStardogInstance = ({
 
   const fetchClasses = async (token: string): Promise<ClassEntity[]> => {
     const response = await executeQuery(DB_NAME_READ, fetchClassesQuery, token);
-    console.log(response);
     return response.map((item: any) => ({
       uri: item.class.value,
       className: item.labelProps.value,

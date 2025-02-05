@@ -5,13 +5,11 @@ import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import Button from "@/components/Button";
 import Card from "@/components/Card/Card";
 import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
 import {
-  TdsIcon,
   TdsDivider,
   TdsModal,
   TdsButton,
@@ -76,6 +74,7 @@ function App({
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const [selectedTab, setSelectedTab] = useState<string>("My Work");
+  const [isExecuteGraphModalOpen, setIsExecuteGraphModalOpen] = useState(false);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [toBeDeletedId, setToBeDeletedId] = useState<string | null>(null);
@@ -89,7 +88,6 @@ function App({
   } = useForm();
   const {
     register: registerExecuteGraph,
-    handleSubmit: handleSubmitExecuteGraph,
     formState: { errors: errorsExecuteGraph },
   } = useForm();
 
@@ -106,7 +104,7 @@ function App({
   const heading = selectedTab;
   const description =
     selectedTab === "My Work"
-      ? "Open and edit your orchestration flow graph or create a new one. You can also view what graphs are available to you from others."
+      ? "Open and edit your orchestration flow graph, or create a new one. You can also view which graphs are available to you from other projects."
       : "View graphs available to you from other projects.";
 
   const onDeleteGraphClick = (id: string, ownerId: string) => {
@@ -135,9 +133,15 @@ function App({
     (
       variant: "success" | "error" | "information" | "warning",
       header: string,
-      description: string
+      description: string,
+      timeout?: number
     ) => {
-      const toastProperties: ToastItem = { variant, header, description };
+      const toastProperties: ToastItem = {
+        variant,
+        header,
+        description,
+        timeout,
+      };
       setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
     },
     []
@@ -151,15 +155,6 @@ function App({
     } catch (error) {
       console.error("Failed to fetch flows:", error);
     }
-  };
-
-  useEffect(() => {
-    let modal = document.querySelector("#execute-graph-iri-modal");
-    modal?.addEventListener("tdsClose", handleModalClose);
-  }, []);
-
-  const handleModalClose = () => {
-    setExecuteGraphIriValue("");
   };
 
   const checkNameExists = async (name: string): Promise<boolean> => {
@@ -182,7 +177,16 @@ function App({
   }) => {
     const { name, description } = data;
     clearErrors("name");
-    const nameExists = await checkNameExists(name.replace(/\s+/g, "-"));
+    // Internal whitespaces are replaced with -, while leading and trailing spaces are removed entirely
+    const trimmedGraphName = name.trim().replace(/\s+/g, "-");
+    if (trimmedGraphName.length === 0) {
+      setError("name", {
+        type: "manual",
+        message: "Graph name is required",
+      });
+      return;
+    }
+    const nameExists = await checkNameExists(trimmedGraphName);
     if (nameExists) {
       setError("name", {
         type: "manual",
@@ -194,11 +198,12 @@ function App({
       {
         pathname: `/ofd/new`,
         query: {
-          graphName: name.replace(/\s+/g, "-"),
+          name: trimmedGraphName,
           description,
+          bypassCheck: "true",
         },
       },
-      `/ofd/new`
+      `/ofd/new?name=${trimmedGraphName}&description=${description}`
     );
   };
 
@@ -232,7 +237,7 @@ function App({
           ></tds-button>
         </span>
       </tds-modal>
-      <main className={styles.main}>
+      <main>
         <div className={styles.tabs}>
           <Tabs selected={0} onParentClick={handleTabClick}>
             <Panel title="My Work" value="My Work"></Panel>
@@ -240,24 +245,29 @@ function App({
           </Tabs>
         </div>
         <div className={styles.content}>
-          <div className={styles["header__project-summary"]}>
-            <h2 className={styles["content__heading"]}>{heading}</h2>
-            {description}
+          <div className={styles["introduction"]}>
+            <h2 className={styles["introduction__heading"]}>{heading}</h2>
+            <p className={styles["introduction__description"]}>{description}</p>
           </div>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
-              <Button
+              <tds-button
                 id="create-new-graph-button"
-                type="button"
+                size="sm"
                 variant="primary"
+                text={"Create new graph"}
               >
-                <div className="tds-u-mr1">Create new graph</div>
-                <TdsIcon name="plus" size="16px"></TdsIcon>
-              </Button>
-              <Button id="execute-graph-button" type="button" variant="primary">
-                <div className="tds-u-mr1">Execute Graph</div>
-                <TdsIcon name="send" size="16px"></TdsIcon>
-              </Button>
+                <tds-icon size="16px" slot="icon" name="plus"></tds-icon>
+              </tds-button>
+              <tds-button
+                id="execute-graph-button"
+                size="sm"
+                variant="primary"
+                onClick={() => setIsExecuteGraphModalOpen(true)}
+                text={"Execute Graph"}
+              >
+                <tds-icon size="16px" slot="icon" name="send"></tds-icon>
+              </tds-button>
               <TdsModal selector="#create-new-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
                   Create new graph
@@ -306,10 +316,10 @@ function App({
                 setExecuteGraphIriValue={setExecuteGraphIriValue}
                 errorsExecuteGraph={errorsExecuteGraph}
                 registerExecuteGraph={registerExecuteGraph}
-                handleSubmitExecuteGraph={handleSubmitExecuteGraph}
+                isExecuteGraphModalOpen={isExecuteGraphModalOpen}
+                setIsExecuteGraphModalOpen={setIsExecuteGraphModalOpen}
                 handleExecute={handleExecute}
                 theme={theme}
-                handleModalClose={handleModalClose}
                 baseUrl={baseUrl}
               />
             </div>
