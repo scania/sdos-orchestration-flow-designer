@@ -1,14 +1,14 @@
+import React, { useState } from "react";
 import Accordion from "@/components/Accordion/Accordion";
 import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
 import { ObjectProperties } from "@/utils/types";
-import React, { useState } from "react";
+import useOfdStore from '@/store/ofdStore';
 import styles from "./ofd.module.scss";
 
 type SidebarProps = {
   showExtendedPanel: boolean;
   setShowExtendedPanel: (value: boolean) => void;
-  setupMode: boolean;
   graphName: any;
   graphDescription: string;
   setSearchString: (value: string) => void;
@@ -27,7 +27,6 @@ type SidebarProps = {
 const Sidebar: React.FC<SidebarProps> = ({
   showExtendedPanel,
   setShowExtendedPanel,
-  setupMode,
   graphName,
   graphDescription,
   setSearchString,
@@ -42,6 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   addToGraph,
   isEditable,
 }) => {
+  const setupMode = useOfdStore((state) => state.setupMode); 
   const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
     useState("required");
   const requiredClasses = secondaryProperties.filter(
