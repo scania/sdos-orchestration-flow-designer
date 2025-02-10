@@ -28,12 +28,13 @@ import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
-import Sidebar from "./Sidebar";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./ofd.module.scss";
 import { captureCursorPosition } from "../../lib/frontend/helper";
 import { randomizeValue } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
+import ClassChip from "@/components/Sidebar/ClassChip";
 
 const nodeTypes = {
   input: CircularNode,
@@ -74,7 +75,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
     useState("Action");
   const [searchString, setSearchString] = useState("");
-  const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -440,47 +440,15 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
               index: number
             ) => {
               return (
-                <div
-                  draggable={isEditable}
-                  key={index}
-                  onClick={() => setHighlightedClassLabel(item.className)}
-                  onDragStart={(e: any) => handleClassOnDrag(e, item.className)}
-                  className={`${styles.classes__class} ${
-                    highlightedClassLabel === item.className
-                      ? styles.active__chip
-                      : styles.inactive__chip
-                  }`}
-                >
-                  <div className={styles.classes__class__content}>
-                    <div
-                      className={`${styles.classes__class__content__icon} ${
-                        highlightedClassLabel === item.className
-                          ? styles.active__container
-                          : ""
-                      }`}
-                    >
-                      <tds-icon name="double_kebab" size="16px"></tds-icon>
-                    </div>
-                    <span className={styles.classes__class__content__label}>
-                      {item.className}
-                    </span>
-                  </div>
-                </div>
+                <ClassChip 
+                  highlightedClassLabel={highlightedClassLabel}
+                  setHighlightedClassLabel={setHighlightedClassLabel}
+                  className={item.className}
+                  handleOnDrag={handleClassOnDrag}
+                />
               );
             }
           )}
-        <div className={styles.classes__footer}>
-          <tds-button
-            type="button"
-            variant="primary"
-            size="sm"
-            text="Add to graph"
-            disabled={!highlightedClassLabel || !isEditable}
-            onClick={() => addToGraph()}
-          >
-            <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
-          </tds-button>
-        </div>
       </div>
     );
   };
@@ -555,8 +523,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       />
       <div className={styles.page__main}>
         <Sidebar
-          showExtendedPanel={showExtendedPanel}
-          setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
           graphName={graphName || ""}
           graphDescription={graphDescription}

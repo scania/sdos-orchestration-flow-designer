@@ -3,7 +3,8 @@ import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
 import { ObjectProperties } from "@/utils/types";
 import React, { useState } from "react";
-import styles from "./ofd.module.scss";
+import styles from "./Sidebar.module.scss";
+import ClassChip from "./ClassChip";
 
 type SidebarProps = {
   showExtendedPanel: boolean;
@@ -25,8 +26,6 @@ type SidebarProps = {
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
-  showExtendedPanel,
-  setShowExtendedPanel,
   setupMode,
   graphName,
   graphDescription,
@@ -44,6 +43,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
     useState("required");
+    
+  const [showExtendedPanel, setShowExtendedPanel] = useState(true);
+  
   const requiredClasses = secondaryProperties.filter(
     (item) => item.minCount > 0
   );
@@ -104,35 +106,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               numberOfElements={filteredClassNames.length}
             >
               <div className={styles.classes}>
-                {filteredClassNames.map((item) => {
+                {filteredClassNames.map((item, index) => {
                   const className = item.split("/").pop() || "";
                   return (
-                    <div
-                      draggable
-                      key={className}
-                      onClick={() => setHighlightedClassLabel(className)}
-                      onDragStart={(e) => handleOnDrag(e, className)}
-                      className={`${styles.classes__class} ${
-                        highlightedClassLabel === className
-                          ? styles.active__chip
-                          : styles.inactive__chip
-                      }`}
-                    >
-                      <div className={styles.classes__class__content}>
-                        <div
-                          className={`${styles.classes__class__content__icon} ${
-                            highlightedClassLabel === className
-                              ? styles.active__container
-                              : ""
-                          }`}
-                        >
-                          <tds-icon name="double_kebab" size="16px"></tds-icon>
-                        </div>
-                        <span className={styles.classes__class__content__label}>
-                          {className}
-                        </span>
-                      </div>
-                    </div>
+                    <ClassChip
+                      highlightedClassLabel={highlightedClassLabel}
+                      setHighlightedClassLabel={setHighlightedClassLabel}
+                      className={className}
+                      handleOnDrag={handleOnDrag}
+                    />
                   );
                 })}
               </div>
@@ -188,7 +170,21 @@ const Sidebar: React.FC<SidebarProps> = ({
               <Panel title="Scripts" value="Script"></Panel>
             </Tabs>
           </div>
-          <div className={styles.sidebar__chips}>{renderClasses()}</div>
+          <div className={styles.sidebar__chips}>
+            {renderClasses()}
+            <div className={styles.classes__footer}>
+              <tds-button
+                type="button"
+                variant="primary"
+                size="sm"
+                text="Add to graph"
+                disabled={!highlightedClassLabel || !isEditable}
+                onClick={addToGraph}
+              >
+                <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
+              </tds-button>
+            </div>
+          </div>
         </>
       ) : showExtendedPanel && setupMode ? (
         <>
