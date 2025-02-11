@@ -30,8 +30,7 @@ import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
-import { captureCursorPosition } from "../../lib/frontend/helper";
-import { randomizeValue } from "../../helpers/helper";
+import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 
