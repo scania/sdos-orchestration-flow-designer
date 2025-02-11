@@ -37,7 +37,8 @@ export default function FileConverter({ onFileConverted }: FileConverterProps) {
       });
       onFileConverted(JSON.stringify(response.data.data));
     } catch (error) {
-      alert("Upload failed");
+        const errorMessage = error.response?.data?.messages?.[0] || "An unexpected error occurred";
+        alert(`Error: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

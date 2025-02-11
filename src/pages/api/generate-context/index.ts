@@ -78,13 +78,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             .status(200)
             .json({ message: "File uploaded", data: response.data });
         } catch (error) {
-          logger.error("Error uploading to external API:", {
-            message: error,
-            response: error.response?.data,
-            status: error.response?.status,
-            stack: error.stack,
-          });
-          return res.status(500).json({ error: "Upload failed" });
+          const status = error.response?.status || 500;
+          const errorData = error.response?.data || "No response data";
+
+          return res.status(status).json({
+            message: error.message, // Axios error message
+            status,
+            sdipErrorCodes: errorData.sdipErrorCodes || [],
+            messages: errorData.messages || ["An unknown error occurred"],
+        });
         }
       }
 
