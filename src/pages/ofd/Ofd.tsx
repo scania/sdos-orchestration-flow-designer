@@ -34,7 +34,6 @@ import { captureCursorPosition } from "../../lib/frontend/helper";
 import { randomizeValue } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
-import ClassChip from "@/components/Sidebar/ClassChip";
 
 const nodeTypes = {
   input: CircularNode,
@@ -72,16 +71,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState();
-  const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
-    useState("Action");
-  const [searchString, setSearchString] = useState("");
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
-
   const [highlightedClassLabel, setHighlightedClassLabel] =
     useState<string>("");
   const router = useRouter();
@@ -100,6 +95,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     y: 0,
   });
   const [isDraft, setIsDraft] = useState<boolean>(isDraftInitial);
+
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -198,23 +194,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       showToast("error", "Error", "The graph could not be saved");
     },
   });
-
-  function filteredPrimaryClasses(classes: any) {
-    const filteredPrimaryClasses = classes.filter(
-      (item: any) =>
-        item.category && item.category.includes(selectedPrimaryCategory)
-    );
-
-    if (searchString.length) {
-      return filteredPrimaryClasses.filter(
-        (item: any) =>
-          item.className &&
-          item.className.toLowerCase().includes(searchString.toLowerCase())
-      );
-    }
-
-    return filteredPrimaryClasses;
-  }
 
   // TODO: more comprehensive shacl validation,
   // this only checks for at least one input Parameter,
@@ -406,6 +385,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
+  
   const { data: classes, isLoading } = useQuery(
     "classes",
     () =>
@@ -422,36 +402,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       staleTime: Infinity,
     }
   );
-
-  const renderClasses = () => {
-    if (isLoading) {
-      return <tds-spinner size="lg" variant="standard"></tds-spinner>;
-    }
-    return (
-      <div className={styles.classes}>
-        {classes &&
-          filteredPrimaryClasses(classes).map(
-            (
-              item: {
-                parentClassUri: string;
-                className: string;
-                category: string;
-              },
-              index: number
-            ) => {
-              return (
-                <ClassChip 
-                  highlightedClassLabel={highlightedClassLabel}
-                  setHighlightedClassLabel={setHighlightedClassLabel}
-                  className={item.className}
-                  handleOnDrag={handleClassOnDrag}
-                />
-              );
-            }
-          )}
-      </div>
-    );
-  };
+  
 
   function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
@@ -524,13 +475,11 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       <div className={styles.page__main}>
         <Sidebar
           setupMode={setupMode}
-          graphName={graphName || ""}
+          graphName={graphName}
+          isLoading={isLoading}
           graphDescription={graphDescription}
-          searchString={searchString}
-          setSearchString={setSearchString}
-          selectedPrimaryCategory={selectedPrimaryCategory}
-          setSelectedPrimaryCategory={setSelectedPrimaryCategory}
-          renderClasses={renderClasses}
+          selectedNode={selectedNode}
+          classes={classes}
           secondaryProperties={secondaryProperties}
           highlightedClassLabel={highlightedClassLabel}
           setHighlightedClassLabel={setHighlightedClassLabel}

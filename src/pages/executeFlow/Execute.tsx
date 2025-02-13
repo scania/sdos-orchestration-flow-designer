@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
-import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
+import Tab from "@/components/Tabs/Tab";
 import Modal from "@/components/Modal/CustomModal";
 import ExecutionLog from "@/components/ExecutionLog/ExecutionLog";
 import { isValidJson } from "@/helpers/helper";
@@ -32,7 +32,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   initParameters = [],
   taskTemplate = [],
 }) => {
-  const [selectedTab, setSelectedTab] = useState<string>("Execution");
+  const [selectedTab] = useState<string>("Execution");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [exectionLogModalIsOpen, setExectionLogModalIsOpen] = useState(false);
   const [executionResultModalIsOpen, setExecutionResultModalIsOpen] =
@@ -260,20 +260,13 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         </div>
 
         <div className={styles.tabs}>
-          <Tabs
-            selected={0}
-            onParentClick={(value: string) => setSelectedTab(value)}
-          >
-            {[
-              <Panel
-                title="Execution"
-                value="Execution"
-                key="execution"
-              ></Panel>,
-            ]}
-          </Tabs>
-
-          <div className={styles.outerContentContainer}>
+            <Tabs
+              activeTab={"execution"}
+            >
+              <Tab 
+                label={"Execution"} 
+                tabKey="execution">
+                  <div className={styles.outerContentContainer}>
             <div className={styles.contentContainer}>
               {selectedTab === "Execution" && (
                 <div>
@@ -466,6 +459,10 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
               )}
             </div>
           </div>
+              </Tab>
+            </Tabs>
+
+          
         </div>
       </div>
 

@@ -1,22 +1,22 @@
 import Accordion from "@/components/Accordion/Accordion";
-import Panel from "@/components/Tabs/Panel";
 import Tabs from "@/components/Tabs/Tabs";
+import Tab from "@/components/Tabs/Tab";
 import { ObjectProperties } from "@/utils/types";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Sidebar.module.scss";
 import ClassChip from "./ClassChip";
 
 type SidebarProps = {
   showExtendedPanel: boolean;
+  isLoading: boolean;
   setShowExtendedPanel: (value: boolean) => void;
   setupMode: boolean;
   graphName: any;
+  selectedNode: Node,
   graphDescription: string;
   setSearchString: (value: string) => void;
   searchString: string;
-  selectedPrimaryCategory: string;
-  setSelectedPrimaryCategory: (value: string) => void;
-  renderClasses: () => JSX.Element;
+  classes: any;
   secondaryProperties: ObjectProperties[];
   highlightedClassLabel: string;
   setHighlightedClassLabel: (className: string) => void;
@@ -27,13 +27,11 @@ type SidebarProps = {
 
 const Sidebar: React.FC<SidebarProps> = ({
   setupMode,
+  isLoading,
   graphName,
+  selectedNode,
   graphDescription,
-  setSearchString,
-  searchString,
-  selectedPrimaryCategory,
-  setSelectedPrimaryCategory,
-  renderClasses,
+  classes,
   secondaryProperties = [],
   highlightedClassLabel,
   setHighlightedClassLabel,
@@ -41,11 +39,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   addToGraph,
   isEditable,
 }) => {
-  const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
-    useState("required");
-    
   const [showExtendedPanel, setShowExtendedPanel] = useState(true);
-  
+  const [searchString, setSearchString] = useState("");
+  const [activeClassesTab, setActiveClassesTab] = useState<string>("Actions");
+  const [activeSecondaryClassesTab, setActiveSecondaryClassesTab] =
+    useState<string>("required");
+
   const requiredClasses = secondaryProperties.filter(
     (item) => item.minCount > 0
   );
@@ -53,9 +52,51 @@ const Sidebar: React.FC<SidebarProps> = ({
     (item) => item.minCount === 0
   );
 
+  const primaryClassTypes = [
+    {
+      label: 'Actions',
+      identifier: 'Action'
+    },
+    {
+      label: 'Parameters',
+      identifier: 'Parameter'
+    },
+    {
+      label: 'Scripts',
+      identifier: 'Script'
+    }
+  ]
+
+  function filteredPrimaryClasses(classes: any, category: string) {
+    const filteredPrimaryClasses = classes.filter(
+      (item: any) => item.category && item.category.includes(category)
+    );
+
+    if (searchString.length) {
+      return filteredPrimaryClasses.filter(
+        (item: any) =>
+          item.className &&
+          item.className.toLowerCase().includes(searchString.toLowerCase())
+      );
+    }
+
+    return filteredPrimaryClasses;
+  }
+
+  useEffect(() => {
+    // Set the active tab based on the length of the optional/required classes
+    if (optionalClasses.length && !requiredClasses.length) {
+      setActiveSecondaryClassesTab("optional");
+    } else {
+      setActiveSecondaryClassesTab("required");
+    }
+
+    setHighlightedClassLabel("")
+  }, [selectedNode]);
+
   const renderSecondaryClasses = () => {
     const classes =
-      selectedSecondaryCategory === "required"
+      activeSecondaryClassesTab === "required"
         ? requiredClasses
         : optionalClasses;
 
@@ -157,21 +198,35 @@ const Sidebar: React.FC<SidebarProps> = ({
               }
             />
           </div>
+        
+
           <div className={styles.sidebar__tabs}>
+          
             <Tabs
-              selected={0}
-              onParentClick={(value: string) => [
-                setSelectedPrimaryCategory(value),
-                setHighlightedClassLabel(""),
-              ]}
+              activeTab={activeClassesTab}
+              onTabChange={setActiveClassesTab}
             >
-              <Panel title="Actions" value="Action"></Panel>
-              <Panel title="Parameters" value="Parameter"></Panel>
-              <Panel title="Scripts" value="Script"></Panel>
+                {primaryClassTypes.map((tab, index) => (
+                <Tab label={tab.label} tabKey={tab.label}>
+                <div className={styles.sidebar__chips}>
+                  {classes &&
+                    filteredPrimaryClasses(classes, tab.identifier).map(
+                      (item, index) => (
+                        <ClassChip
+                          key={index}
+                          highlightedClassLabel={highlightedClassLabel}
+                          setHighlightedClassLabel={setHighlightedClassLabel}
+                          className={item.className}
+                          handleOnDrag={handleOnDrag}
+                        />
+                      )
+                    )}
+                </div>
+              </Tab>
+              ))}
             </Tabs>
           </div>
           <div className={styles.sidebar__chips}>
-            {renderClasses()}
             <div className={styles.classes__footer}>
               <tds-button
                 type="button"
@@ -189,6 +244,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       ) : showExtendedPanel && setupMode ? (
         <>
           <tds-divider orientation="horizontal"></tds-divider>
+          {(requiredClasses.length > 0 || optionalClasses.length > 0) && (
+          <>
           <div className={styles.sidebar__search}>
             <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
             <tds-text-field
@@ -200,30 +257,37 @@ const Sidebar: React.FC<SidebarProps> = ({
               }
             />
           </div>
+         
           <div className={styles.sidebar__tabs}>
             <Tabs
-              selected={0}
-              onParentClick={(value: string) => [
-                setSelectedSecondaryCategory(value),
-                setHighlightedClassLabel(""),
-              ]}
+              activeTab={activeSecondaryClassesTab}
+              onTabChange={setActiveSecondaryClassesTab}
             >
-              <Panel
-                title={`Required ${
+              <Tab
+                label={`Required ${
                   requiredClasses.length ? `(${requiredClasses.length})` : ""
                 }`}
-                value="required"
-              ></Panel>
-              <Panel
-                title={`Optional ${
+                tabKey="required"
+              >
+                <div className={styles.sidebar__chips}>
+                  {renderSecondaryClasses()}
+                </div>
+              </Tab>
+              <Tab
+                label={`Optional ${
                   optionalClasses.length ? `(${optionalClasses.length})` : ""
                 }`}
-                value="optional"
-              ></Panel>
+                tabKey="optional"
+              >
+                <div className={styles.sidebar__chips}>
+                  {renderSecondaryClasses()}
+                </div>
+              </Tab>
             </Tabs>
           </div>
+          </>
+           )}
           <div className={styles.sidebar__chips}>
-            {renderSecondaryClasses()}
             <div className={styles.classes__footer}>
               <tds-button
                 type="button"

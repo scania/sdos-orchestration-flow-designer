@@ -1,14 +1,14 @@
 import { env } from "@/lib/env";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import Card from "@/components/Card/Card";
-import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
+import Tab from "@/components/Tabs/Tab";
 import {
   TdsDivider,
   TdsModal,
@@ -19,6 +19,7 @@ import {
 import TaskSelection from "@/components/TaskSelection";
 import { Task } from "@/utils/types";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
+import Introduction from "@/components/homepage/IntroductionContent";
 
 // Server-side authentication check
 export async function getServerSideProps(context: any) {
@@ -73,7 +74,7 @@ function App({
 }) {
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
-  const [selectedTab, setSelectedTab] = useState<string>("My Work");
+  const [activeTab, setActiveTab] = useState<string>("My work");
   const [isExecuteGraphModalOpen, setIsExecuteGraphModalOpen] = useState(false);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
@@ -91,21 +92,9 @@ function App({
     formState: { errors: errorsExecuteGraph },
   } = useForm();
 
-  const handleTabClick = (value: string) => {
-    setSelectedTab(value);
-  };
-
   const displayedFlows = flows.filter((flow) =>
-    selectedTab === "My Work"
-      ? flow.user.id === userId
-      : flow.user.id !== userId
+    activeTab === "My work" ? flow.user.id === userId : flow.user.id !== userId
   );
-
-  const heading = selectedTab;
-  const description =
-    selectedTab === "My Work"
-      ? "Open and edit your orchestration flow graph, or create a new one. You can also view which graphs are available to you from other projects."
-      : "View graphs available to you from other projects.";
 
   const onDeleteGraphClick = (id: string, ownerId: string) => {
     const modal = document.querySelector(
@@ -239,16 +228,26 @@ function App({
       </tds-modal>
       <main>
         <div className={styles.tabs}>
-          <Tabs selected={0} onParentClick={handleTabClick}>
-            <Panel title="My Work" value="My Work"></Panel>
-            <Panel title="Other Flows" value="Other Flows"></Panel>
+          <Tabs activeTab={activeTab} onTabChange={setActiveTab}>
+            <Tab label="My work" tabKey="My work">
+              <Introduction
+                heading={"My work"}
+                description={
+                  "Open and edit your orchestration flow graph, or create a new one. You can also view which graphs are available to you from other projects."
+                }
+              />
+            </Tab>
+            <Tab label="Other flows" tabKey="Other flows">
+              <Introduction
+                  heading={"Other flows"}
+                  description={
+                    "View graphs available to you from other projects."
+                  }
+                />
+            </Tab>
           </Tabs>
         </div>
         <div className={styles.content}>
-          <div className={styles["introduction"]}>
-            <h2 className={styles["introduction__heading"]}>{heading}</h2>
-            <p className={styles["introduction__description"]}>{description}</p>
-          </div>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
               <tds-button
