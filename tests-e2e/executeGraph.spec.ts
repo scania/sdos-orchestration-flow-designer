@@ -31,9 +31,9 @@ test.describe('Execute orchestration graphs', () => {
         await page.getByRole('button', { name: paramName }).click();
         await page.getByRole('button', { name: 'Execute' }).click();
 
-        await expect(page.locator('#execution-result-modal')).toBeVisible();
+        await expect(page.getByLabel('Graph execution result')).toBeVisible();
         await expect(page.getByText('"@id":"http://kg.scania.com/it/Bussol..."')).toBeVisible();
-        await page.locator('#execution-result-modal').getByLabel('close').click();
+        await page.getByLabel('Graph execution result').getByRole('img', { name: 'icon cross' }).click();
         await page.getByRole('button', { name: 'Delete' }).click();
 
     });
