@@ -65,6 +65,33 @@ const handlePostRequest = async (
       return;
     }
 
+    // Check if a parameter with the same name already exists for the same flow/IRI
+    let existingParameter;
+    if (flowId) {
+      existingParameter = await prisma.parameter.findFirst({
+        where: {
+          name,
+          flowId,
+          userId,
+        },
+      });
+    } else if (iri) {
+      existingParameter = await prisma.parameter.findFirst({
+        where: {
+          name,
+          iri,
+          userId,
+        },
+      });
+    }
+
+    if (existingParameter) {
+      res.status(400).json({
+        error: "A parameter with that name already exists for this flow.",
+      });
+      return;
+    }
+
     logger.debug("Creating a new parameter with data:", {
       name,
       userId,
