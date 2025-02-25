@@ -1,7 +1,18 @@
 import styles from "./Sidebar.module.scss";
 
-const ClassChip = ({ highlightedClassLabel, className, setHighlightedClassLabel, handleOnDrag }: any) => {
+interface ClassChipProps {
+  highlightedClassLabel: string;
+  className: string;
+  setHighlightedClassLabel: (label: string) => void;
+  handleOnDrag: (event: React.DragEvent<HTMLDivElement>, className: string) => void;
+}
 
+const ClassChip: React.FC<ClassChipProps> = ({ 
+  highlightedClassLabel, 
+  className, 
+  setHighlightedClassLabel, 
+  handleOnDrag 
+}) => {
   return (
     <div
       draggable

@@ -28,7 +28,7 @@ import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
-import Sidebar from "../../components/Sidebar/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import styles from "./ofd.module.scss";
 import { captureCursorPosition } from "../../lib/frontend/helper";
 import { randomizeValue } from "../../helpers/helper";
