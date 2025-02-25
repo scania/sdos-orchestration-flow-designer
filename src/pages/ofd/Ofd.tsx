@@ -30,10 +30,10 @@ import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "./Sidebar";
 import styles from "./ofd.module.scss";
-import { captureCursorPosition } from "../../lib/frontend/helper";
-import { randomizeValue } from "../../helpers/helper";
+import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
+import useOfdStore from '@/store/ofdStore';
 
 const nodeTypes = {
   input: CircularNode,
@@ -89,7 +89,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [dropInfo, setDropInfo] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
-  const [setupMode, setSetupMode] = useState(false);
+  // Store
+  const setupMode = useOfdStore((state) => state.setupMode);
+  const setSetupMode = useOfdStore((state) => state.setSetupMode);
+
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
@@ -310,15 +313,13 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   );
 
   const addToGraph = () => {
+    if (!isEditable) return;
     const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
-
     // Get the bounding box of the graph area
     const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
-
     const viewport = reactFlowInstance.getViewport();
     const { x, y, zoom } = viewport;
-
     const position = {
       x: randomizeValue((width / 2 - x) / zoom),
       y: randomizeValue((height / 2 - y) / zoom),
@@ -335,14 +336,19 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   };
 
   const onDragOver = useCallback((event: any) => {
+    if (!isEditable) {
+      return;
+    }
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
 
   const onDrop = useCallback(
     (event: any) => {
+      if (!isEditable) {
+        return;
+      }
       event.preventDefault();
-
       const type = event.dataTransfer.getData("application/reactflow");
       if (typeof type === "undefined" || !type) {
         return;
@@ -466,7 +472,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
               );
             }
           )}
-        <div className={styles.classes__footer}>
+        <div className={styles.classes__footer}>            
           <tds-button
             type="button"
             variant="primary"
@@ -567,6 +573,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           setHighlightedClassLabel={setHighlightedClassLabel}
           handleOnDrag={handleClassOnDrag}
           addToGraph={addToGraph}
+          isEditable={isEditable}
         />
 
         <section className={styles.graph__canvas}>
@@ -627,11 +634,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
-                      classConfig={selectedNode.data?.classData}
                       formData={selectedNode.data?.formData}
                       onSubmit={handleFormSubmit}
                       onClose={exitSetupMode}
-                      label={selectedNode.data.label}
+                      className={selectedNode.data.label}
                       readOnly={!isEditable}
                     />
                   </div>

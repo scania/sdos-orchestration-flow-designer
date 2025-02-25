@@ -1,0 +1,22 @@
+
+  
+  .uploadContainer{
+    display: flex;
+    justify-content: end;
+    margin-top: 4px;
+
+    &__input{
+        display: none;
+      }
+
+    &__uploadBtn {
+        background: var(--tds-blue-600, #56657A);
+        color: white;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+      }
+
+      
+  }
+  

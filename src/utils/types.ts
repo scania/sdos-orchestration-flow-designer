@@ -99,11 +99,12 @@ export interface FormData {
 }
 
 export interface DynamicFormProps {
+  classConfig: any;
   formData: FormData;
   onSubmit: (data: IFormInput) => void;
   onClose: () => void;
-  excludeKeys: string[];
-  label: string;
+  excludeKeys?: string[];
+  className: string;
   readOnly: boolean;
 }
 

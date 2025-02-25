@@ -197,3 +197,7 @@ Content-Type: application/json
 ### Fetch execution logs 
 GET {{baseUrl}}/api/execute/logs/?executionId=http://result2024120213402236
 Content-Type: application/json
+
+### Context generation from file
+POST {{baseUrl}}/api/generate-context
+Content-Type: application/json

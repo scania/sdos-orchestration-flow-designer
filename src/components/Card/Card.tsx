@@ -3,7 +3,7 @@ import { Popover } from "react-tiny-popover";
 import HandleGraphMenu from "../ActionsMenu/HandleGraphMenu";
 import { useRouter } from "next/router";
 import styles from "./card.module.scss";
-import { convertToLocalTime } from "@/lib/frontend/helper";
+import { convertToLocalTime } from "../../helpers/helper";
 
 const Card = ({ data, deleteGraph }: any) => {
   const router = useRouter();

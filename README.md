@@ -1,22 +1,26 @@
-## Orchestration Flow Designer (OFD)
+# Orchestration Flow Designer (OFD)
 
-![Project Status: Under Development](https://img.shields.io/badge/Status-Under%20Development-orange)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+![Project Status: Under Development](https://img.shields.io/badge/Status-Under%20Development-orange) ![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 
-The Orchestration Flow Designer (OFD) is a graphical user interface application that enables knowledge graphs as a self-service tool. It assists users in creating project/domain-specific flow graphs, facilitating intuitive and efficient data orchestration.
+The **Orchestration Flow Designer (OFD)** is a graphical user interface application that leverages knowledge graphs as a self-service tool. It enables users to create project- or domain-specific flow graphs, simplifying and accelerating data orchestration.
 
-For more information and showcase video, see the [resources folder](https://github.com/scania/sdos/tree/main/doc/resources).
+For additional information and a demo video, please see the [resources folder](https://github.com/scania/sdos/tree/main/doc/resources).
 
-## Building and Running
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- Node >= 18.17 (for building and running the application)
-- Stardog >= 9.x (RDF db for saving the knowledge graph)
-- Github (to download the source code)
-- Azure AD (to support SSO)
+- **Node.js:** Version 20 or later is recommended.
+- **Stardog:** Version 9.x or later (used as the RDF database for storing knowledge graphs).
+- **SDOS:** SDOS service [SDOS repository](https://github.com/scania/sdos) and that it is configured for integration.
+- **OBO Flow:** Required to connect with both Stardog and SDOS. Make sure OBO Flow is properly configured.
+- **GitHub:** To clone or download the source code.
+- **Azure Active Directory:** For Single Sign-On (SSO) support.
+- Other tools such as Prisma and Storybook are used for database migrations and UI development respectively.
 
-Ensure you have Node.js and npm installed, version of node is 16.14 or later. You can check their versions by running
+You can verify your Node.js and npm versions by running:
 
 ```bash
 node -v
@@ -25,95 +29,173 @@ npm -v
 
 ### Installation
 
-First, navigate to the root directory of your Next.js project and install the necessary dependencies using:
+1.  **Clone the Repository:**
 
-```bash
-npm install
-```
+    ```
+    git clone https://github.com/your-organization/orchestration-flow-designer.git
+    cd orchestration-flow-designer
+    ```
 
-This will compile and bundle your code, and generate a .next directory containing the built application.
+2.  **Install Dependencies:**
 
-All the neccessary modules required to run the current next project will be install into local node modules.
+    ```
+    npm install
+    ```
 
-By default, npm install will install all modules listed as dependencies in package.json.
+    This command installs all necessary modules listed in `package.json` into your local `node_modules` directory.
 
-### Setting Up Environment Variables
+---
 
-To run this project, you will need to add the following environment variables to your `.env.local` file in the root of your project. Create the file if it doesn't already exist.
+## Environment Variables
+
+Before running the application, create a `.env.local` file in the root directory and define the following environment variables.
 
 ### Azure Active Directory Configuration
 
-- `AZURE_AD_CLIENT_ID` - Your Azure AD application (client) ID.
-- `AZURE_AD_CLIENT_SECRET` - Your Azure AD application secret.
-- `AZURE_AD_TENANT_ID` - Your Azure AD tenant ID.
+- **OFD_AZURE_AD_CLIENT_ID:** Your Azure AD application (client) ID.
+- **OFD_AZURE_AD_CLIENT_SECRET:** Your Azure AD application secret.
+- **OFD_AZURE_AD_TENANT_ID:** Your Azure AD tenant ID.
 
-These three env variables should be added as part of authenticating the user in the local. These variables must be added in .env.local file. for more information such adding call back URL visit https://next-auth.js.org/providers/azure-ad
+### SDOS Configuration
+
+- **SDOS_CLIENT_ID:** Your SDOS client ID.
+- **SDOS_ENDPOINT:** The endpoint URL for SDOS services.
 
 ### Stardog Database Configuration
 
-- `STARDOG_USERNAME` - Username for Stardog database access.
-- `STARDOG_PASSWORD` - Password for Stardog database access.
-- `STARDOG_ENDPOINT` - Endpoint URL for the Stardog database.
+- **STARDOG_CLIENT_ID:** Your Stardog client identifier.
+- **STARDOG_ENDPOINT:** The endpoint URL for the Stardog database.
+- **STARDOG_DB_NAME_WRITE:** The name of the writable Stardog database.
 
-### Next.js Configuration
+### NextAuth and Database Configuration
 
-- `NEXTAUTH_URL` - The URL of your Next.js application, used for authentication callbacks.
-- `NEXT_PUBLIC_API_BASE_URL` - The base URL of your API, accessible from the client side.
+- **NEXTAUTH_URL:** The URL of your Next.js application (used for authentication callbacks).
+- **NEXTAUTH_SECRET:** A secret (UUID) used by NextAuth for secure operations.
+- **DATABASE_URL:** The connection URL for your application’s database.
 
-### Application Logging and Environment Mode
+### Additional & Optional Settings
 
-- `LOG_LEVEL` - Optional. Sets the level of logging detail (e.g., `debug`, `info`, `warn`, `error`).
-- `NODE_ENV` - Optional. Explicitly Specifies the environment in which the application is running. Acceptable values are `development`, `test`, `production`.
+- **LOG_LEVEL:** _(Optional)_ Logging level (`debug`, `info`, `warn`, or `error`).
+- **NODE_ENV:** _(Optional)_ The environment mode (`development`, `test`, or `production`).
+- **TEST_BASE_URL:** _(Optional)_ Base URL for testing purposes.
+- **ADMIN_EMAILS:** _(Optional)_ A comma-separated list of administrator email addresses.
 
-Example `.env.local` file:
+#### Example `.env.local` File
 
-```env
-AZURE_AD_CLIENT_ID=your-azure-ad-client-id
-AZURE_AD_CLIENT_SECRET=your-azure-ad-client-secret
-AZURE_AD_TENANT_ID=your-azure-ad-tenant-id
-STARDOG_USERNAME=your-stardog-username
-STARDOG_PASSWORD=your-stardog-password
-STARDOG_ENDPOINT=your-stardog-endpoint
+```
+OFD_AZURE_AD_CLIENT_ID=your-azure-ad-client-id
+OFD_AZURE_AD_CLIENT_SECRET=your-azure-ad-client-secret
+OFD_AZURE_AD_TENANT_ID=your-azure-ad-tenant-id
+SDOS_CLIENT_ID=your-sdos-client-id
+SDOS_ENDPOINT=https://your-sdos-endpoint.com
+STARDOG_CLIENT_ID=your-stardog-client-id
+STARDOG_ENDPOINT=https://your-stardog-endpoint.com
+STARDOG_DB_NAME_WRITE=your-stardog-db-name
 NEXTAUTH_URL=http://localhost:3000
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret
+DATABASE_URL=your-database-connection-url
+LOG_LEVEL=debug
+NODE_ENV=development
+TEST_BASE_URL=http://localhost:3000
+ADMIN_EMAILS=admin@example.com
 ```
 
-### Getting started to run the development server
+**Note:** Environment variables are validated at runtime by the `validateEnv.js` script. During the build process, they are treated as optional, but they must conform to the defined schema when starting the application.
 
-To run the development server execute:
+---
 
-```bash
+## Available Scripts
+
+The project defines several npm scripts in `package.json`:
+
+- **`npm run dev`**: Validates environment variables (via `node validateEnv.js`) and starts the Next.js development server.
+- **`npm run build`**: Builds the application for production.
+- **`npm start`**: Runs the built application in production mode (the `prestart` script also validates the environment).
+- **`npm run test`**: Executes end-to-end tests using Playwright.
+- **`npm run test-unit`**: Runs unit tests via Jest.
+- **`npm run lint`**: Checks the code for linting errors.
+- **`npm run storybook`**: Starts the Storybook development server on port 6006.
+- **`npm run build-storybook`**: Builds a static version of the Storybook site.
+- **`npm run prismaMigrateLocal`**: Runs Prisma migrations in development mode.
+- **`npm run prismaReset`**: Resets your local Prisma migrations.
+- **`npm run check-licenses`**: Checks for license compatibility issues across dependencies.
+
+---
+
+## Running the Application
+
+### Development Mode
+
+To start the development server with environment validation:
+
+```
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Building the Application
+### Production Mode
 
-To create a production build of your Next.js application run:
+1.  **Build the Application:**
 
-```bash
-npm run build
-```
+    ```
+    npm run build
+    ```
 
-npm run build creates a build directory with a production build of your app.
+2.  **Start the Production Server:**
 
-Inside the build/static directory will be your JavaScript and CSS files.
+    ```
+    npm start
+    ```
 
-Each filename inside of build/static will contain a unique hash of the file contents. This hash in the file name enables long term caching techniques.
+    Your application will be accessible at the URL specified by `NEXTAUTH_URL` (e.g., [http://localhost:3000](http://localhost:3000)).
 
-When running a production build of freshly created Create React App application, there are a number of .js files (called chunks) that are generated and placed in the build/static/js directory:
+---
 
-### Starting the Application
+## Testing & Linting
 
-After building, you can start the application in production mode with:
+- **End-to-End Testing (Playwright):**
 
-```bash
-npm start
-```
+  ```
+  npm run test
+  ```
 
-Your application should now be running on http://localhost:3000/ or the port specified in your configuration.
+- **Unit Testing (Jest):**
+
+  ```
+  npm run test-unit
+  ```
+
+- **Linting:**
+
+  ```
+  npm run lint
+  ```
+
+---
+
+## Database Migrations
+
+- **Apply Migrations Locally:**
+
+  ```
+  npm run prismaMigrateLocal
+  ```
+
+- **Reset Prisma Migrations:**
+
+  ```
+  npm run prismaReset
+  ```
+
+---
+
+## License
+
+This project is licensed under the [AGPL-3.0 License](https://www.gnu.org/licenses/agpl-3.0).
+
+---
 
 ## Support
 
-If you encounter any issues, find any bugs, or have questions regarding the application, please visit our [Community Page](https://github.com/scania/sdos/discussions) for discussions and support from the OFD-SDOS development team.
+If you encounter issues, discover bugs, or have questions regarding the application, please visit our [Community Page](https://github.com/scania/sdos/discussions) for discussions and support from the OFD-SDOS development team.

@@ -96,6 +96,7 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
               size="md"
               text="Execute"
               modeVariant="primary"
+              disabled={!selectedTask}
             />
           </span>
         </div>
