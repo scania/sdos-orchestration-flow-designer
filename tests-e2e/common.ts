@@ -3,78 +3,112 @@ import fs from "fs";
 const userInfo = JSON.parse(fs.readFileSync("./tests-e2e/user.json", "utf-8"));
 
 export async function loginUser(
-  page: Page,
-  username: string = userInfo.OFD_USERNAME,
-  password: string = userInfo.OFD_PASSWORD
+    page: Page,
+    username: string = userInfo.OFD_USERNAME,
+    password: string = userInfo.OFD_PASSWORD
 ): Promise<void> {
-  await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "WELCOME TO OUR ORCHESTRATION" })
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.fill('input[type="email"]', username);
-  await page.getByRole("button", { name: "Next" }).click();
-  await page.fill('input[type="password"]', password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("heading", { name: "My Work" })).toBeVisible();
-}
+    await page.goto("/");
+    await expect(
+        page.getByRole("heading", { name: "WELCOME TO OUR ORCHESTRATION" })
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await page.fill('input[type="email"]', username);
+    await page.getByRole("button", { name: "Next" }).click();
+    await page.fill('input[type="password"]', password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByRole("heading", { name: "My Work" })).toBeVisible();
+};
+
 
 export async function saveDraftGraph(page: Page): Promise<void> {
-  // Save graph
-  await page.getByText("Save Draft", { exact: true }).click();
-  await expect(page.locator('tds-message[header="Success"]')).toBeVisible();
-  await expect(page.locator('tds-message[header="Success"]')).toContainText(
-    "Draft has been successfully saved"
-  );
-}
+    // Save graph
+    await page.getByText("Save Draft", { exact: true }).click();
+    await expect(page.locator('tds-message[header="Success"]')).toBeVisible();
+    await expect(page.locator('tds-message[header="Success"]')).toContainText(
+        "Draft has been successfully saved"
+    );
+};
+
 
 export async function createGraph(
-  page: Page,
-  graphName: string,
-  graphDesc: string = "AUTOTEST Description"
+    page: Page,
+    graphName: string,
+    graphDesc: string = "AUTOTEST Description"
 ): Promise<void> {
-  // Create graph
-  await page
-    .getByRole("button", { name: "Create new graph icon plus" })
-    .click();
-  await page.getByRole("textbox", { name: "Name" }).fill(graphName);
-  await page.getByRole("textbox", { name: "Description" }).fill(graphDesc);
-  await page.getByRole("button", { name: "Create", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: graphName.split(" ").join("-") })
-  ).toBeVisible();
-}
+    // Create graph
+    await page
+        .getByRole("button", { name: "Create new graph icon plus" })
+        .click();
+    await page.getByRole("textbox", { name: "Name" }).fill(graphName);
+    await page.getByRole("textbox", { name: "Description" }).fill(graphDesc);
+    await page.getByRole("button", { name: "Create", exact: true }).click();
+    await expect(
+        page.getByRole("heading", { name: graphName.split(" ").join("-") })
+    ).toBeVisible();
+};
+
+
+export async function navigateToGraph(
+    page: Page,
+    graphName: string
+): Promise<void> {
+    await page.getByRole('heading', { name: graphName }).locator('..')
+    .getByRole('button', { name: 'Open' }).click();
+};
+
+
+export async function addComponentTograph(
+    page: Page,
+    componentName: string,
+    xOffset: number,
+    yOffset: number
+): Promise<void> {
+    const taskNode = page.locator('.react-flow__node-input');
+    const componentNode =  page.getByText(componentName, { exact: true });
+
+    await componentNode.dragTo(
+        taskNode,
+        { targetPosition: { // Offset in pixels
+            x: xOffset, 
+            y: yOffset
+        }, 
+        force: true }
+    );
+};
+
 
 export async function saveGraphToStardog(page: Page): Promise<void> {
-  // Save graph
-  await page.getByText("Save", { exact: true }).click();
-  await expect(page.locator('tds-message[header="Success"]')).toBeVisible();
-  await expect(page.locator('tds-message[header="Success"]')).toContainText(
-    "Graph has been successfully saved"
-  );
-}
+    // Save graph
+    await page.getByText("Save", { exact: true }).click();
+    await expect(page.locator('tds-message[header="Success"]')).toBeVisible();
+    await expect(page.locator('tds-message[header="Success"]')).toContainText(
+        "Graph has been successfully saved"
+    );
+};
+
 
 export async function deleteGraph(
-  page: Page,
-  graphName: string
+    page: Page,
+    graphName: string
 ): Promise<void> {
-  const graphCard = page
-    .getByRole("heading", { name: graphName.split(" ").join("-") })
-    .locator("../..");
-  await graphCard.locator('tds-icon[name="meatballs"]').click();
-  await page.locator("#react-tiny-popover-container")
-  .getByText("Delete").click();
-  await page.locator('#delete-graph-modal')
-  .getByRole('button', { name: 'Delete' }).click();
-  await expect(graphCard).toHaveCount(0);
-}
+    const graphCard = page
+        .getByRole("heading", { name: graphName.split(" ").join("-") })
+        .locator("../..");
+    await graphCard.locator('tds-icon[name="meatballs"]').click();
+    await page.locator("#react-tiny-popover-container")
+        .getByText("Delete").click();
+    await page.locator('#delete-graph-modal')
+        .getByRole('button', { name: 'Delete' }).click();
+    await expect(graphCard).toHaveCount(0);
+};
+
 
 export async function openGraph(
-  page: Page,
-  graphName: string
+    page: Page,
+    graphName: string
 ): Promise<void> {
-  const graphCard = page
-  .getByRole("heading", { name: graphName.split(" ").join("-") })
-  .locator("../..");
-  await graphCard.getByRole('button', { name: 'Open'}).click();
-}
+    const graphCard = page
+        .getByRole("heading", { name: graphName.split(" ").join("-") })
+        .locator("../..");
+    await graphCard.getByRole('button', { name: 'Open' }).click();
+};

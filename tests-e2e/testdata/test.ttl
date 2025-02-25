@@ -1,0 +1,38 @@
+@prefix core: <http://kg.test.com/core/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://kg.test.com/it/company> a owl:Ontology;
+  owl:versionInfo "1.0";
+  dct:contributor "test.testsson@test.com";
+  <http://open-services.net/ns/core#modifiedBy> "test.testsson@test.com";
+  <http://www.metaphacts.com/ontologies/domain> <https://kg.test.com/vocabulary/core/domain/IT>;
+  dct:title "Company";
+  rdfs:label "Company";
+  <http://www.linkedmodel.org/1.2/schema/vaem#namespace> <https://kg.test.com/it/company/>;
+  core:hasGraphInformation <https://kg.test.com/it/company/graph>;
+  <http://purl.org/ontology/bibo/status> <http://purl.org/spar/pso/published>;
+  dct:modified "2023-11-27T14:12:42.465Z"^^xsd:dateTime .
+
+<https://kg.test.com/it/company/Company> a owl:Class;
+  dct:creator "test.testsson@test.com";
+  dct:contributor "test.testsson@test.com";
+  <http://open-services.net/ns/core#modifiedBy> "test.testsson@test.com";
+  rdfs:label "Company"@en;
+  rdfs:isDefinedBy <https://kg.test.com/it/company>;
+  dct:created "2023-11-27T14:12:42.465Z"^^xsd:dateTime;
+  dct:modified "2023-11-27T14:12:42.465Z"^^xsd:dateTime .
+
+<https://kg.test.com/it/company/CompanyShape> a sh:NodeShape;
+  sh:property [
+      sh:path rdfs:comment;
+      sh:datatype xsd:string
+    ], [
+      sh:path rdfs:label;
+      sh:datatype xsd:string
+    ];
+  sh:targetClass <https://kg.test.com/it/company/Company> .
