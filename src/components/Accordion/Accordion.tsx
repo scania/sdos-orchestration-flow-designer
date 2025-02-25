@@ -60,7 +60,7 @@ const Accordion: React.FC<AccordionProps> = ({
           </tds-button>
         )}
       </div>
-      {opened && <div>{children}</div>}
+      {opened && <div className={styles.children}>{children}</div>}
     </div>
   );
 };

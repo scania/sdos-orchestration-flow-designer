@@ -28,7 +28,7 @@ import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
-import Sidebar from "./Sidebar";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
@@ -71,17 +71,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState();
-  const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
-    useState("Action");
-  const [searchString, setSearchString] = useState("");
-  const [showExtendedPanel, setShowExtendedPanel] = useState(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
-
   const [highlightedClassLabel, setHighlightedClassLabel] =
     useState<string>("");
   const router = useRouter();
@@ -103,6 +98,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     y: 0,
   });
   const [isDraft, setIsDraft] = useState<boolean>(isDraftInitial);
+
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -201,23 +197,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       showToast("error", "Error", "The graph could not be saved");
     },
   });
-
-  function filteredPrimaryClasses(classes: any) {
-    const filteredPrimaryClasses = classes.filter(
-      (item: any) =>
-        item.category && item.category.includes(selectedPrimaryCategory)
-    );
-
-    if (searchString.length) {
-      return filteredPrimaryClasses.filter(
-        (item: any) =>
-          item.className &&
-          item.className.toLowerCase().includes(searchString.toLowerCase())
-      );
-    }
-
-    return filteredPrimaryClasses;
-  }
 
   // TODO: more comprehensive shacl validation,
   // this only checks for at least one input Parameter,
@@ -409,6 +388,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
+  
   const { data: classes, isLoading } = useQuery(
     "classes",
     () =>
@@ -425,68 +405,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       staleTime: Infinity,
     }
   );
-
-  const renderClasses = () => {
-    if (isLoading) {
-      return <tds-spinner size="lg" variant="standard"></tds-spinner>;
-    }
-    return (
-      <div className={styles.classes}>
-        {classes &&
-          filteredPrimaryClasses(classes).map(
-            (
-              item: {
-                parentClassUri: string;
-                className: string;
-                category: string;
-              },
-              index: number
-            ) => {
-              return (
-                <div
-                  draggable={isEditable}
-                  key={index}
-                  onClick={() => setHighlightedClassLabel(item.className)}
-                  onDragStart={(e: any) => handleClassOnDrag(e, item.className)}
-                  className={`${styles.classes__class} ${
-                    highlightedClassLabel === item.className
-                      ? styles.active__chip
-                      : styles.inactive__chip
-                  }`}
-                >
-                  <div className={styles.classes__class__content}>
-                    <div
-                      className={`${styles.classes__class__content__icon} ${
-                        highlightedClassLabel === item.className
-                          ? styles.active__container
-                          : ""
-                      }`}
-                    >
-                      <tds-icon name="double_kebab" size="16px"></tds-icon>
-                    </div>
-                    <span className={styles.classes__class__content__label}>
-                      {item.className}
-                    </span>
-                  </div>
-                </div>
-              );
-            }
-          )}
-        <div className={styles.classes__footer}>            
-          <tds-button
-            type="button"
-            variant="primary"
-            size="sm"
-            text="Add to graph"
-            disabled={!highlightedClassLabel || !isEditable}
-            onClick={() => addToGraph()}
-          >
-            <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
-          </tds-button>
-        </div>
-      </div>
-    );
-  };
+  
 
   function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
@@ -558,16 +477,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       />
       <div className={styles.page__main}>
         <Sidebar
-          showExtendedPanel={showExtendedPanel}
-          setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
-          graphName={graphName || ""}
+          graphName={graphName}
+          isLoading={isLoading}
           graphDescription={graphDescription}
-          searchString={searchString}
-          setSearchString={setSearchString}
-          selectedPrimaryCategory={selectedPrimaryCategory}
-          setSelectedPrimaryCategory={setSelectedPrimaryCategory}
-          renderClasses={renderClasses}
+          selectedNode={selectedNode}
+          classes={classes}
           secondaryProperties={secondaryProperties}
           highlightedClassLabel={highlightedClassLabel}
           setHighlightedClassLabel={setHighlightedClassLabel}
