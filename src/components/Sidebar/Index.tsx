@@ -5,12 +5,12 @@ import { ObjectProperties } from "@/utils/types";
 import React, { useState, useEffect } from "react";
 import styles from "./Sidebar.module.scss";
 import ClassChip from "./ClassChip";
+import useOfdStore from '@/store/ofdStore';
 
 type SidebarProps = {
   showExtendedPanel: boolean;
   isLoading: boolean;
   setShowExtendedPanel: (value: boolean) => void;
-  setupMode: boolean;
   graphName: any;
   selectedNode: Node,
   graphDescription: string;
@@ -26,7 +26,6 @@ type SidebarProps = {
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
-  setupMode,
   isLoading,
   graphName,
   selectedNode,
@@ -45,6 +44,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [activeSecondaryClassesTab, setActiveSecondaryClassesTab] =
     useState<string>("required");
 
+  const setupMode = useOfdStore((state) => state.setupMode); 
+  /*const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
+    useState("required"); */
   const requiredClasses = secondaryProperties.filter(
     (item) => item.minCount > 0
   );

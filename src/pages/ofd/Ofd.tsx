@@ -30,10 +30,10 @@ import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
 import Sidebar from "../../components/Sidebar";
 import styles from "./ofd.module.scss";
-import { captureCursorPosition } from "../../lib/frontend/helper";
-import { randomizeValue } from "../../helpers/helper";
+import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
+import useOfdStore from '@/store/ofdStore';
 
 const nodeTypes = {
   input: CircularNode,
@@ -84,7 +84,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [dropInfo, setDropInfo] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
-  const [setupMode, setSetupMode] = useState(false);
+  // Store
+  const setupMode = useOfdStore((state) => state.setupMode);
+  const setSetupMode = useOfdStore((state) => state.setSetupMode);
+
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
