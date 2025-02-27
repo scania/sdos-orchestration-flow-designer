@@ -40,8 +40,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     switch (req.method) {
       case "POST": {
-        const form = new formidable.IncomingForm();
-
+        const form = new formidable.IncomingForm({
+          // Allow empty files to have the BE handle the error
+          allowEmptyFiles: true,
+          minFileSize: 0
+        });
         // Await formidable parsing using a Promise
         const { files } = await new Promise<{
           fields: formidable.Fields;
