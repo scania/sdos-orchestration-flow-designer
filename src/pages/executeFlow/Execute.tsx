@@ -122,7 +122,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         iri,
       });
       await fetchParameters();
-      showToast("success", "Success", "Parameter saved successfully.");
+      showToast("success", "Success", "Parameter saved successfully.", 2000);
       reset({
         name: "",
         value: JSON.stringify(taskTemplate, null, 2),
@@ -130,7 +130,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || "The parameter set could not be saved.";
-      showToast("error", "Error", errorMessage);
+      showToast("error", "Error", errorMessage, 2000);
     }
   };
 
@@ -168,20 +168,35 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         await axios.delete(`/api/parameter`, {
           params: { id: selectedParameter.id },
         });
-        await fetchParameters();
+        const updatedParameters = await fetchParameters();
         setSelectedParameter(null);
         setDropdownKey((prev) => prev + 1); // update key to force re-render due to tds uncontrolled component
         reset({
           name: "",
           value: JSON.stringify(taskTemplate, null, 2),
         });
-        showToast("success", "Success", "Parameter deleted successfully.");
+        showToast(
+          "success",
+          "Success",
+          "Parameter deleted successfully.",
+          2000
+        );
+        // If there are no saved parameters, switch to "Create" mode.
+        if (!updatedParameters.length) {
+          setSelectedExecutionMethod("Create");
+          setSelectedParameter(null);
+          reset({
+            name: "",
+            value: JSON.stringify(taskTemplate, null, 2),
+          });
+        }
       }
     } catch {
       showToast(
         "error",
         "Error",
-        "An error occurred while deleting the parameter."
+        "An error occurred while deleting the parameter.",
+        2000
       );
     }
   };
@@ -248,7 +263,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         );
         return;
       }
-      showToast("error", "Error", errorMessage);
+      showToast("error", "Error", errorMessage, 2000);
     }
   };
 
