@@ -1,9 +1,26 @@
 import styles from "./CustomEdge.module.scss";
-import { getBezierPath, EdgeLabelRenderer, BaseEdge } from "reactflow";
+
+import { getBezierPath, EdgeLabelRenderer, BaseEdge, useReactFlow } from "reactflow";
 import EndMarker from "./EndMarker";
 
 const CustomEdge = ({ id, data, ...props }) => {
   const [edgePath, labelX, labelY] = getBezierPath(props);
+  const { deleteElements } = useReactFlow();
+
+
+  function DisconnectLine() {
+    return (
+      <div
+        onClick={() => deleteElements({ edges: [{ id }] })}
+        className={`${styles.disconnect} nodrag nopan`}
+        style={{
+          transform: `translate(-50%, -50%) translate(${labelX}px,${labelY +20}px)`
+        }}
+      >
+        <tds-icon size="20px" name={"cross"}/>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -15,8 +32,11 @@ const CustomEdge = ({ id, data, ...props }) => {
           }}
           className={`${styles.edgeLabel} nodrag nopan`}
         >
-          {props.label}
+          {props.label} 
         </div>
+        {props.selected &&
+          <DisconnectLine/>
+        } 
         <EndMarker />
       </EdgeLabelRenderer>
     </>
@@ -24,3 +44,4 @@ const CustomEdge = ({ id, data, ...props }) => {
 };
 
 export default CustomEdge;
+

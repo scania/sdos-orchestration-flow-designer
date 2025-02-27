@@ -17,6 +17,7 @@ import ReactFlow, {
   Connection,
   Controls,
   Edge,
+  getConnectedEdges,
   Node,
   ReactFlowProvider,
   useEdgesState,
@@ -87,6 +88,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   // Store
   const setupMode = useOfdStore((state) => state.setupMode);
   const setSetupMode = useOfdStore((state) => state.setSetupMode);
+  const addConnectedEdges = useOfdStore((state) => state.addConnectedEdges);
+  const clearConnectedEdges = useOfdStore((state) => state.clearConnectedEdges);
 
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
@@ -98,7 +101,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     y: 0,
   });
   const [isDraft, setIsDraft] = useState<boolean>(isDraftInitial);
-
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -418,7 +420,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     have them behave differently after user-testing
   */
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
+    clearConnectedEdges();
     setSelectedNode(node);
+    const x = getConnectedEdges([node], edges)
+    addConnectedEdges(x);
   };
 
   const handleNodeDragStart = (event: React.MouseEvent, node: Node) => {
