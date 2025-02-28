@@ -8,6 +8,7 @@ import { convertToLocalTime } from "../../helpers/helper";
 const Card = ({ data, deleteGraph }: any) => {
   const router = useRouter();
   const { id, name, description, isDraft, updatedAt, user } = data;
+  const { date, time } = convertToLocalTime(updatedAt);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -50,7 +51,11 @@ const Card = ({ data, deleteGraph }: any) => {
           <dt className={styles.card__data__key}>State</dt>
           <dd>{isDraft ? "Draft" : "Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>
-          <dd>{convertToLocalTime(updatedAt)}</dd>
+          <dd>
+            <span>{date}</span> 
+            <span className={styles.card__data__key__separator}>-</span>
+            <span>{time}</span>
+          </dd>
           <dt className={styles.card__data__key}>Author</dt>
           <dd>{user?.email || user?.name}</dd>
         </dl>
