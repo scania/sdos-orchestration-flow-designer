@@ -1,5 +1,6 @@
 .container {
   background: var(--tds-white);
+  border-radius: 4px;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15), 0 -1px 1px rgba(0, 0, 0, 0.1);
 
   &__close{
@@ -20,6 +21,10 @@
     &__item {
       padding: 10px 16px;
       cursor: pointer;
+
+      &__icon{
+        margin-right: 10px;
+      }
 
       &:hover {
         background: var(--tds-popover-menu-background-hover);
