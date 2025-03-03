@@ -149,7 +149,12 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         if (updatedParameter) {
           setSelectedParameter(updatedParameter);
         }
-        showToast("success", "Success", `Parameter updated successfully.`);
+        showToast(
+          "success",
+          "Success",
+          `Parameter updated successfully.`,
+          2000
+        );
         setSelectedExecutionMethod("Existing");
       }
     } catch (error) {
@@ -157,7 +162,8 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       showToast(
         "error",
         "Error",
-        "An error occurred while editing the parameter."
+        "An error occurred while editing the parameter.",
+        2000
       );
     }
   };
