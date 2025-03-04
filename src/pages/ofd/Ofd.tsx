@@ -34,6 +34,7 @@ import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
+import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
 import useOfdStore from '@/store/ofdStore';
 
 const nodeTypes = {
@@ -532,6 +533,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   deleteKeyCode={isNodeDeletable() ? "Delete" : null}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
+                  connectionLineComponent={ConnectionLine}
                   isValidConnection={isValidConnection(nodes)}
                   onConnect={onConnect}
                   onInit={setReactFlowInstance}
