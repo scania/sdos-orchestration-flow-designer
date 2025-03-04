@@ -26,18 +26,22 @@ export const captureCursorPosition = (
   window.addEventListener("mousemove", handleMouseMove);
 };
 
-export const convertToLocalTime = (gmtTimestamp: string): string => {
+export const convertToLocalTime = (gmtTimestamp: string): { date: string; time: string } => {
   const gmtDate = new Date(gmtTimestamp);
 
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  const day = gmtDate.getDate().toString().padStart(2, "0");
+  const month = (gmtDate.getMonth() + 1).toString().padStart(2, "0");
+  const year = gmtDate.getFullYear();
+
+  const localDate = `${day}/${month}/${year}`;
+
+  const timeOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "numeric",
-    second: "numeric",
-    hour12: true,
   };
-  const localTime = gmtDate.toLocaleString(undefined, options);
-  return localTime;
+
+  const localTime = gmtDate.toLocaleTimeString(undefined, timeOptions);
+
+  return { date: localDate, time: localTime };
 };
+

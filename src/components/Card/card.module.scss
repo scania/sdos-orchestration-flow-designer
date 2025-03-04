@@ -41,6 +41,10 @@
       &__key{
         font-weight: bold;
         margin-top: 16px;
+
+        &__separator{
+          margin: 0px 5px;
+        }
       }
     }
 }
