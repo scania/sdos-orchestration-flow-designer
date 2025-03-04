@@ -46,6 +46,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     null
   );
   const [parameters, setParameters] = useState<Parameter[]>(initParameters);
+  const [dropdownKey, setDropdownKey] = useState(0);
 
   const {
     register,
@@ -121,13 +122,15 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         iri,
       });
       await fetchParameters();
-      showToast("success", "Success", `Parameter saved successfully.`);
+      showToast("success", "Success", "Parameter saved successfully.", 2000);
       reset({
         name: "",
         value: JSON.stringify(taskTemplate, null, 2),
       });
-    } catch {
-      showToast("error", "Error", "The parameter set could not be saved.");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.error || "The parameter set could not be saved.";
+      showToast("error", "Error", errorMessage, 2000);
     }
   };
 
@@ -146,7 +149,12 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         if (updatedParameter) {
           setSelectedParameter(updatedParameter);
         }
-        showToast("success", "Success", `Parameter updated successfully.`);
+        showToast(
+          "success",
+          "Success",
+          `Parameter updated successfully.`,
+          2000
+        );
         setSelectedExecutionMethod("Existing");
       }
     } catch (error) {
@@ -154,7 +162,8 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       showToast(
         "error",
         "Error",
-        "An error occurred while editing the parameter."
+        "An error occurred while editing the parameter.",
+        2000
       );
     }
   };
@@ -165,14 +174,35 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         await axios.delete(`/api/parameter`, {
           params: { id: selectedParameter.id },
         });
-        await fetchParameters();
-        showToast("success", "Success", "Parameter deleted successfully.");
+        const updatedParameters = await fetchParameters();
+        setSelectedParameter(null);
+        setDropdownKey((prev) => prev + 1); // update key to force re-render due to tds uncontrolled component
+        reset({
+          name: "",
+          value: JSON.stringify(taskTemplate, null, 2),
+        });
+        showToast(
+          "success",
+          "Success",
+          "Parameter deleted successfully.",
+          2000
+        );
+        // If there are no saved parameters, switch to "Create" mode.
+        if (!updatedParameters.length) {
+          setSelectedExecutionMethod("Create");
+          setSelectedParameter(null);
+          reset({
+            name: "",
+            value: JSON.stringify(taskTemplate, null, 2),
+          });
+        }
       }
     } catch {
       showToast(
         "error",
         "Error",
-        "An error occurred while deleting the parameter."
+        "An error occurred while deleting the parameter.",
+        2000
       );
     }
   };
@@ -190,22 +220,21 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     }
   };
 
-  const handleShowMore =
-    (executionIdHeader: string) => async () => {
-      setExectionLogModalIsOpen(true);
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/execute/logs?executionId=${encodeURI(
-            executionIdHeader
-          )}`
-        );
-        setExecutionLog(response.data);
-        // Remove toasts when the user has clicked "Show more"
-        setListOfToasts([]);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const handleShowMore = (executionIdHeader: string) => async () => {
+    setExectionLogModalIsOpen(true);
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/execute/logs?executionId=${encodeURI(
+          executionIdHeader
+        )}`
+      );
+      setExecutionLog(response.data);
+      // Remove toasts when the user has clicked "Show more"
+      setListOfToasts([]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const executeGraph = async () => {
     try {
@@ -240,7 +269,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         );
         return;
       }
-      showToast("error", "Error", errorMessage);
+      showToast("error", "Error", errorMessage, 2000);
     }
   };
 
@@ -374,6 +403,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                       >
                         <TdsDropdown
                           name="dropdown"
+                          key={dropdownKey}
                           label="Select Parameter Set"
                           label-position="outside"
                           placeholder="Select parameter set"
