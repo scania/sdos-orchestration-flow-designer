@@ -1,5 +1,4 @@
 .page {
-
   &__main {
     display: flex;
     position: relative;
@@ -8,7 +7,6 @@
       flex-grow: 1;
     }
   }
-
 }
 .setup-button {
   position: absolute;
@@ -45,6 +43,7 @@
   max-height: calc(100vh - 200px);
   border-radius: 4px;
   box-shadow: 0px 3px 3px 0px #00000026;
+  z-index: 2;
 
   &-header {
     background-color: var(--tds-grey-200);
@@ -111,7 +110,7 @@
     background-color: var(--tds-grey-958);
   }
 
-  &__action-menu{
+  &__action-menu {
     display: flex;
     gap: 16px;
     margin-top: 34px;
