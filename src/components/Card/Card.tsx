@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import styles from "./card.module.scss";
 import { convertToLocalTime } from "../../helpers/helper";
 
-const Card = ({ data, deleteGraph }: any) => {
+const Card = ({ data, deleteGraph, currentUserIsAuthor }: any) => {
   const router = useRouter();
   const { id, name, description, isDraft, updatedAt, user } = data;
   const { date, time } = convertToLocalTime(updatedAt);
@@ -26,21 +26,24 @@ const Card = ({ data, deleteGraph }: any) => {
                 router.push(`/ofd/id/${id}`);
               }}
             ></tds-button>
-            <Popover
-              isOpen={isPopoverOpen}
-              reposition={false}
-              onClickOutside={() => setIsPopoverOpen(false)}
-              positions={["top", "bottom", "left", "right"]}
-              content={
-                <HandleGraphMenu
-                  onDeleteClick={() => deleteGraph(id)}
-                />
-              }
-            >
-              <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
-                <tds-icon name="meatballs" size="20px"></tds-icon>
-              </div>
-            </Popover>
+            {currentUserIsAuthor &&
+              <Popover
+                isOpen={isPopoverOpen}
+                padding={5}
+                reposition={false}
+                onClickOutside={() => setIsPopoverOpen(false)}
+                positions={["top", "bottom", "left", "right"]}
+                content={
+                  <HandleGraphMenu
+                    onDeleteClick={() => deleteGraph(id)}
+                  />
+                }
+              >
+                <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
+                  <tds-icon name="meatballs" size="20px"></tds-icon>
+                </div>
+              </Popover>
+            }
           </div>
         </div>
         <h3 className={styles.card__top__name}>{name.split("/").pop()}</h3>

@@ -5,7 +5,10 @@ const HandleGraphMenu = ({ onDeleteClick }) => {
     <div className={styles.container}>
       <ul className={styles.container__list}>
         <li onClick={onDeleteClick} className={styles.container__list__item}>
-          Delete
+          <span className={styles.container__list__item__icon}>
+            <tds-icon slot="icon" size="14" name="trash"></tds-icon>
+          </span>
+          <span>Delete</span>
         </li>
       </ul>
     </div>

@@ -327,6 +327,7 @@ function App({
               {displayedFlows && displayedFlows.length ? (
                 displayedFlows.map((flow) => (
                   <Card
+                    currentUserIsAuthor={flow.user.id === userId ? true : false}
                     key={flow.id}
                     data={flow}
                     deleteGraph={onDeleteGraphClick}
