@@ -12,6 +12,7 @@ import Toast, { ToastItem } from "@/components/Toast/Toast";
 import { useForm } from "react-hook-form";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 import ExecutionResult from "@/components/ExecutionResult/ExecutionResult";
+import ExecutionResults from "./ExecutionResults";
 
 interface Parameter {
   id?: string;
@@ -32,20 +33,21 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   initParameters = [],
   taskTemplate = [],
 }) => {
-  const selectedTab = "Execution";
+  const [activeTab, setActiveTab] = useState<string>("execution");
+  const [executionType, setExecutionType] = useState<string>("sync");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [exectionLogModalIsOpen, setExectionLogModalIsOpen] = useState(false);
+  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
   const [executionResultModalIsOpen, setExecutionResultModalIsOpen] =
     useState(false);
-  const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
+    const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
     "Create" | "Existing" | "Editing"
-  >("Create");
-  const [executionResult, setExecutionResult] = useState("");
-  const [executionLog, setExecutionLog] = useState([]);
+  >(() => (parameters.length > 0 ? "Existing" : "Create"));
   const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
     null
   );
-  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
+  const [executionResult, setExecutionResult] = useState("");
+  const [executionLog, setExecutionLog] = useState([]);
   const [dropdownKey, setDropdownKey] = useState(0);
 
   const {
@@ -116,17 +118,20 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 
   const saveParameter = async (data: Parameter) => {
     try {
-      await axios.post("/api/parameter", {
+      const response = await axios.post("/api/parameter", {
         name: data.name,
         value: data.value,
         iri,
       });
+      const savedParameter = response.data; 
       await fetchParameters();
       showToast("success", "Success", "Parameter saved successfully.", 2000);
       reset({
         name: "",
         value: JSON.stringify(taskTemplate, null, 2),
       });
+      setSelectedExecutionMethod('Existing');
+      setSelectedParameter(savedParameter)
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || "The parameter set could not be saved.";
@@ -237,39 +242,44 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   };
 
   const executeGraph = async () => {
-    try {
-      const response = await axios.post(
-        `${baseUrl}/api/execute/sync`,
-        {
-          subjectIri: iri,
-          parameters: JSON.parse(selectedParameter?.value || "{}"),
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
+    if (executionType === 'sync'){
+      try {
+        const response = await axios.post(
+          `${baseUrl}/api/execute/sync`,
+          {
+            subjectIri: iri,
+            parameters: JSON.parse(selectedParameter?.value || "{}"),
           },
-        }
-      );
-      setExecutionResultModalIsOpen(true);
-      setExecutionResult(response.data);
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.error ||
-        error.message ||
-        "Could not execute graph";
-      let executionIdHeader: string | null = null;
-      if (error.response?.headers?.["execution-id"]) {
-        executionIdHeader = error.response.headers["execution-id"];
-        showToast(
-          "error",
-          "Error",
-          errorMessage,
-          10000,
-          handleShowMore(executionIdHeader!)
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
-        return;
+        setExecutionResultModalIsOpen(true);
+        setExecutionResult(response.data);
+      } catch (error: any) {
+        const errorMessage =
+          error.response?.data?.error ||
+          error.message ||
+          "Could not execute graph";
+        let executionIdHeader: string | null = null;
+        if (error.response?.headers?.["execution-id"]) {
+          executionIdHeader = error.response.headers["execution-id"];
+          showToast(
+            "error",
+            "Error",
+            errorMessage,
+            3500,
+            handleShowMore(executionIdHeader!)
+          );
+          return;
+        }
+        showToast("error", "Error", errorMessage, 2000);
       }
-      showToast("error", "Error", errorMessage, 2000);
+    }
+    else {
+      alert("Async functionality goes here for now")
     }
   };
 
@@ -290,14 +300,14 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 
         <div className={styles.tabs}>
             <Tabs
-              activeTab={"execution"}
+              onTabChange={setActiveTab}
+              activeTab={activeTab}
             >
               <Tab 
                 label={"Execution"} 
                 tabKey="execution">
                   <div className={styles.outerContentContainer}>
             <div className={styles.contentContainer}>
-              {selectedTab === "Execution" && (
                 <div>
                   <h6 className="tds-headline-06">Execute parameter</h6>
                   <hr className="divider" />
@@ -311,7 +321,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                       onClick={() => setSelectedExecutionMethod("Create")}
                       checked={selectedExecutionMethod === "Create"}
                     >
-                      <div slot="label">Create new parameter</div>
+                      <div slot="label">Create new parameter set</div>
                     </tds-radio-button>
 
                     <tds-radio-button
@@ -328,11 +338,11 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                         selectedExecutionMethod === "Editing"
                       }
                     >
-                      <div slot="label">Saved parameters</div>
+                      <div slot="label">Saved parameter sets</div>
                     </tds-radio-button>
                   </div>
 
-                  {/* Create New Parameter */}
+                  {/* Create New Parameter set */}
                   {selectedExecutionMethod === "Create" && (
                     <form onSubmit={handleSubmit(saveParameter)}>
                       <div
@@ -367,6 +377,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                           }
                         >
                           <tds-button
+                            disabled={!watch("name") || !watch("value")}
                             type="submit"
                             text="Save"
                             size="sm"
@@ -387,7 +398,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                           )
                         }
                         {...register("value", {
-                          required: "Parameter value is required",
+                          required: "Parameter set value is required",
                           validate: (value) =>
                             isValidJson(value) ? true : "Invalid JSON",
                         })}
@@ -466,7 +477,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                         }
                         {...(selectedExecutionMethod === "Editing"
                           ? register("value", {
-                              required: "Parameter value is required",
+                              required: "Parameter set value is required",
                               validate: (value) =>
                                 isValidJson(value) ? true : "Invalid JSON",
                             })
@@ -476,9 +487,31 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                   )}
 
                   {/* Execute Button */}
+                  
                   {selectedParameter &&
                     selectedExecutionMethod === "Existing" && (
                       <div className={styles.footerContainer}>
+                        <tds-radio-button
+                      name="select-execute-type"
+                      value="Synchronous"
+                      radio-id="sync"
+                      onClick={() => setExecutionType("sync")}
+                      checked
+                    >
+                      <div slot="label">Synchronous</div>
+                    </tds-radio-button>
+
+                    <tds-radio-button
+                      name="select-execute-type"
+                      value="Asynchronous"
+                      radio-id="async"
+                      onClick={() =>
+                        setExecutionType("async")
+                      }
+                      disabled={!parameters.length}
+                    >
+                      <div slot="label">Asynchronous</div>
+                    </tds-radio-button>
                         <tds-button
                           text="Execute"
                           onClick={executeGraph}
@@ -486,9 +519,13 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                       </div>
                     )}
                 </div>
-              )}
             </div>
           </div>
+              </Tab>
+              <Tab label={"Results"} 
+                tabKey="results">
+                <ExecutionResults />
+
               </Tab>
             </Tabs>
 

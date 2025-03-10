@@ -64,5 +64,37 @@
 .footerContainer {
   display: flex;
   justify-content: flex-end;
+  gap: 16px;
+  align-items: center;
   padding: 24px 0px;
+}
+
+.table{
+  width: 100%;
+  border-collapse: collapse;
+  
+
+  &__header{
+    background-color: var(--tds-grey-300);
+    color: #0D0F13;
+    text-align: left;
+
+    & th{
+      padding: 16px;
+      border-right: 1px solid var(--tds-grey-400, #CDD1DB);
+      border-bottom: 1px solid var(--tds-grey-400, #CDD1DB);
+    }
+  }
+
+  &__body{
+    background-color: var(--tds-grey-50);
+    color: #0D0F13;
+    text-align: left;
+
+    & td{
+      padding: 16px;
+      border-right: 1px solid var(--tds-grey-400, #CDD1DB);
+      border-bottom: 1px solid var(--tds-grey-400, #CDD1DB);
+    }
+  }
 }

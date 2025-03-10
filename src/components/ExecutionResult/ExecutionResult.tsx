@@ -1,7 +1,13 @@
 import JsonView from "@uiw/react-json-view";
+import styles from "./ExecutionResult.module.scss";
 import { isValidJson } from "@/helpers/helper";
 
 const ExecutionResult = ({ executionResult }: any) => {
+
+  const saveResult = () => {
+    alert("Saving result")
+  }
+
   const renderJsonView = (executionResult: any) => (
     <JsonView
       value={executionResult}
@@ -14,17 +20,22 @@ const ExecutionResult = ({ executionResult }: any) => {
   );
 
   return (
-    <span>
-      {executionResult ? (
-        typeof executionResult === "object" ? (
-          renderJsonView(executionResult)
-        ) : isValidJson(executionResult) ? (
-          renderJsonView(executionResult)
-        ) : (
-          <p>{executionResult}</p>
-        )
-      ) : null}
-    </span>
+    <div>
+      <div>
+        {executionResult ? (
+          typeof executionResult === "object" ? (
+            renderJsonView(executionResult)
+          ) : isValidJson(executionResult) ? (
+            renderJsonView(executionResult)
+          ) : (
+            <p>{executionResult}</p>
+          )
+        ) : null}
+      </div>
+      <div className={styles.executionFooter}>
+        <tds-button onClick={() => saveResult()} type="submit" text="Save result" size="sm"></tds-button>
+      </div>
+    </div>
   );
 };
 
