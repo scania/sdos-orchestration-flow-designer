@@ -1,26 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Popover } from "react-tiny-popover";
 import HandleGraphMenu from "../ActionsMenu/HandleGraphMenu";
 import { useRouter } from "next/router";
 import styles from "./card.module.scss";
-import { convertToLocalTime } from "@/lib/frontend/helper";
-import axios from "axios";
+import { convertToLocalTime } from "../../helpers/helper";
 
-const Card = ({ data, baseUrl, fetchFlows }: any) => {
+const Card = ({ data, deleteGraph, currentUserIsAuthor }: any) => {
   const router = useRouter();
-  const { id, name, description, isDraft, updatedAt } = data;
-  const dialogId = `dialog-${id}`;
+  const { id, name, description, isDraft, updatedAt, user } = data;
+  const { date, time } = convertToLocalTime(updatedAt);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
-  const deleteGraph = async (id: string) => {
-    try {
-      await axios.delete(`${baseUrl}/api/flow/${data.id}`);
-      await fetchFlows();
-    } catch (error) {
-      console.error("Failed to delete graph:", error);
-    }
-  };
 
   return (
     <div className={styles.card}>
@@ -36,22 +26,24 @@ const Card = ({ data, baseUrl, fetchFlows }: any) => {
                 router.push(`/ofd/id/${id}`);
               }}
             ></tds-button>
-            <Popover
-              isOpen={isPopoverOpen}
-              onClickOutside={() => setIsPopoverOpen(false)}
-              positions={["top", "bottom", "left", "right"]}
-              content={
-                <HandleGraphMenu
-                  id={dialogId}
-                  onDeleteClick={() => deleteGraph(id)}
-                  onExecuteClick={() => router.push(`/executeFlow/id/${id}`)}
-                />
-              }
-            >
-              <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
-                <tds-icon name="meatballs" size="20px"></tds-icon>
-              </div>
-            </Popover>
+            {currentUserIsAuthor &&
+              <Popover
+                isOpen={isPopoverOpen}
+                padding={5}
+                reposition={false}
+                onClickOutside={() => setIsPopoverOpen(false)}
+                positions={["top", "bottom", "left", "right"]}
+                content={
+                  <HandleGraphMenu
+                    onDeleteClick={() => deleteGraph(id)}
+                  />
+                }
+              >
+                <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
+                  <tds-icon name="meatballs" size="20px"></tds-icon>
+                </div>
+              </Popover>
+            }
           </div>
         </div>
         <h3 className={styles.card__top__name}>{name.split("/").pop()}</h3>
@@ -62,7 +54,13 @@ const Card = ({ data, baseUrl, fetchFlows }: any) => {
           <dt className={styles.card__data__key}>State</dt>
           <dd>{isDraft ? "Draft" : "Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>
-          <dd>{convertToLocalTime(updatedAt)}</dd>
+          <dd>
+            <span>{date}</span> 
+            <span className={styles.card__data__key__separator}>-</span>
+            <span>{time}</span>
+          </dd>
+          <dt className={styles.card__data__key}>Author</dt>
+          <dd>{user?.email || user?.name}</dd>
         </dl>
       </div>
     </div>

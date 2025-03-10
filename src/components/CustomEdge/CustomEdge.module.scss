@@ -1,0 +1,23 @@
+.edgeLabel{
+    position: absolute;
+    background: #fff;
+    padding: 10;
+    border-radius: 5;
+    font-size: 12;
+    font-weight: 700;
+}
+
+.endMarker{
+    stroke: #0d0f13;
+    fill: #0d0f13;
+    stroke-width: 1;
+}
+
+.disconnect {
+    position: absolute;
+    padding: 5px;
+    cursor: pointer;
+    pointer-events: all;
+    color: var(--tds-negative);
+    background: white;
+}

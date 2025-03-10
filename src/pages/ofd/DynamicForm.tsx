@@ -4,13 +4,15 @@ import styles from "./ofd.module.scss";
 import { TdsTextarea } from "@scania/tegel-react";
 import { DynamicFormProps, FormField, IFormInput } from "@/utils/types";
 import { replaceSpecialChars } from "@/helpers/helper";
+import FileConverter from "@/components/FileConverter";
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
   formData = { formFields: [] },
   onSubmit,
   excludeKeys = ["http://www.w3.org/2000/01/rdf-schema#label"],
-  label,
+  className,
   onClose,
+  readOnly,
 }) => {
   const { formFields } = formData;
   const formInitialValues = useMemo(() => {
@@ -18,7 +20,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       acc[replaceSpecialChars(field.name)] = field.value || ""; // Use field.value or "" if undefined
       return acc;
     }, {});
-  }, [formFields]); // Dependency array ensures this only recalculates when formFields changes
+  }, [formFields]);
 
   const {
     register,
@@ -53,7 +55,23 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     }
   }, [isLabelEditMode]);
 
+  const toggleEditMode = () => {
+    if (readOnly) return;
+    setIsLabelEditMode(!isLabelEditMode);
+  };
+
+  const handleConvertedResponse = (data: string) => {
+    setValue(
+      replaceSpecialChars(
+        "https://kg.scania.com/it/iris_orchestration/context"
+      ),
+      data,
+      { shouldDirty: true }
+    );
+  };
+
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
+    if (readOnly) return;
     const filledData = formFields.map((field: FormField) => {
       const { name } = field;
       if (data[replaceSpecialChars(name)]) {
@@ -66,11 +84,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     reset(formValue);
   };
 
-  const toggleEditMode = () => {
-    setIsLabelEditMode(!isLabelEditMode);
-  };
-
   const renderLabel = () => {
+    if (readOnly) {
+      return (
+        <h5 className="tds-headline-05" style={{ display: "inline" }}>
+          {labelValue || "No Name"}
+        </h5>
+      );
+    }
+
     if (!labelValue && !isLabelEditMode) {
       return (
         <div onClick={toggleEditMode} style={{ cursor: "pointer" }}>
@@ -133,6 +155,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       </>
     );
   };
+
   const renderInputField = (field: FormField) => {
     const { name, label, validation } = field;
     const fieldName = name.split("/");
@@ -158,11 +181,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           helper={errors[nameWoSpecialChars]?.message}
           placeholder={label}
           onInput={(e: any) => {
+            if (readOnly) return;
             setValue(nameWoSpecialChars, e.target.value, {
               shouldDirty: true,
             });
           }}
           value={value}
+          disabled={readOnly}
         ></TdsTextarea>
       </section>
     );
@@ -172,7 +197,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     <>
       <div className={styles["form-header"]}>
         <div className={styles.description}>
-          <p className="tds-detail-06">{label}</p>
+          <p className="tds-detail-06">{className}</p>
           <div className={styles["description__label"]}>{renderLabel()}</div>
         </div>
       </div>
@@ -191,13 +216,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 <tds-badge size="sm"></tds-badge>
               )}
             </div>
-
-            <tds-button
-              type="button"
-              variant="ghost"
-              size="xs"
-              text="Copy IRI Address"
-            ></tds-button>
           </div>
         )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -206,12 +224,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               .filter(({ name }) => !excludeKeys.includes(name))
               .map((field) => renderInputField(field))}
           </div>
+          {className === "JsonLdContext" && (
+            <FileConverter onFileConverted={handleConvertedResponse} />
+          )}
           <section className={styles["form__action-menu"]}>
             <tds-button
               type="submit"
               size="sm"
               text="Save"
-              disabled={formState.isDirty ? false : true}
+              disabled={readOnly || !labelValue || !formState.isDirty}
             ></tds-button>
             <tds-button
               type="button"

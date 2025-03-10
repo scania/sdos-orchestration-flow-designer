@@ -24,6 +24,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       logger.error("Flow ID not provided.");
       return res.status(400).json({ error: "Flow ID not provided" });
     }
+
     const flow = await prisma.flow.findUnique({
       where: { id: id as string },
       select: {
@@ -35,6 +36,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         updatedAt: true,
         userId: true,
         isDraft: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -43,37 +51,45 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(404).json({ error: "Flow not found" });
     }
 
-    if (flow.userId !== user.id) {
-      logger.error("Unauthorized access to flow.");
-      return res.status(403).json({ error: "Forbidden" });
-    }
     logger.info("Flow retrieved successfully.");
+
     const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
     const { access_token } = await getOBOToken(token!);
     if (!access_token) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
+      return res.status(403).json({ error: "Forbidden" });
     }
+
     const stardog = getStardogInstance({ token: access_token });
+
     switch (req.method) {
       case "GET":
         return res.status(200).json(flow);
 
       case "DELETE":
+        const adminEmails =
+          env.ADMIN_EMAILS?.split(",").map((email: string) => email.trim()) ||
+          [];
+        const isAdmin = adminEmails.includes(user.email); // Check if user is an admin
+        if (flow.userId !== user.id && !isAdmin) {
+          logger.error("User not authorized to delete this flow.");
+          return res.status(403).json({ error: "Forbidden" });
+        }
+
         if (!flow.isDraft) {
           await stardog.deleteGraph(flow.name);
         }
 
-        const deleteFlow = await prisma.flow.delete({
+        const deletedFlow = await prisma.flow.delete({
           where: {
             id: id as string,
           },
         });
-        return res.status(200).json(deleteFlow);
+
+        logger.info("Flow deleted successfully.");
+        return res.status(200).json(deletedFlow);
 
       default:
         logger.error("Method not allowed.");
-
         return res.status(405).json({ error: "Method not allowed" });
     }
   } catch (error) {

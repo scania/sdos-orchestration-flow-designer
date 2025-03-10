@@ -1,6 +1,6 @@
 import styles from "./actionsMenu.module.scss";
 
-const EdgeSelectionMenu = ({ edges, onEdgeSelect }: any) => {
+const EdgeSelectionMenu = ({ edges, onEdgeSelect, onClose }: any) => {
   return (
     <div className={styles.container}>
       <ul className={styles.container__list}>
@@ -17,6 +17,9 @@ const EdgeSelectionMenu = ({ edges, onEdgeSelect }: any) => {
           );
         })}
       </ul>
+      <div onClick={() => onClose()} className={styles.container__close}>
+        <tds-icon name={"cross"}/>
+      </div>
     </div>
   );
 };

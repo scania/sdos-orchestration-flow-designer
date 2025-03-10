@@ -8,12 +8,14 @@ const envSchema = z.object({
   SDOS_ENDPOINT: z.string().url().min(1),
   STARDOG_CLIENT_ID: z.string().uuid().min(1),
   STARDOG_ENDPOINT: z.string().url().min(1),
+  STARDOG_DB_NAME_WRITE: z.string().min(1),
   NEXTAUTH_URL: z.string().url().min(1),
   NEXTAUTH_SECRET: z.string().uuid().min(1),
   DATABASE_URL: z.string().url().min(1),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
   TEST_BASE_URL: z.string().url().optional(),
+  ADMIN_EMAILS: z.string().optional(),
 });
 
 //This will make all env vars optional

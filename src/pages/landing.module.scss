@@ -1,64 +1,7 @@
-.main {
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  &__project {
-    &-heading {
-    }
-
-    &-summary {
-      padding-top: 16px;
-      padding-left: 40px;
-      font-size: 16px;
-      background-color: var(--tds-white);
-      :global(.tds-mode-dark) & {
-        background-color: var(--tds-grey-900);
-      }
-    }
-  }
-
-  &__info {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    &__user {
-      &-name,
-      &-role {
-        color: var(--tds-grey-900);
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 16px;
-        letter-spacing: 0.96px;
-        text-transform: uppercase;
-      }
-      &-role {
-        float: right;
-      }
-    }
-
-    &-help {
-      float: right;
-      color: var(--tds-blue-900);
-
-      :global(.tds-mode-dark) & {
-        color: var(--tds-blue-300);
-      }
-    }
-  }
-}
-
 .content {
   background-color: var(--tds-grey-50);
   :global(.tds-mode-dark) & {
     background-color: var(--tds-black);
-  }
-  &__heading {
-    margin-top: 16px;
-    padding-bottom: 16px;
-    font-size: 32px;
   }
 
   &__headingContent {

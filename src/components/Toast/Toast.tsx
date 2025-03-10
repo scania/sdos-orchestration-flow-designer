@@ -1,43 +1,86 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import { TdsMessage } from "@scania/tegel-react";
+import styles from "./toast.module.scss";
 
 export interface ToastItem {
-  variant: undefined | "success" | "error" | "information" | "warning";
+  variant: "success" | "error" | "information" | "warning";
   header: string;
   description: string;
+  timeout?: number;
+  onShowMore?: (toast: ToastItem) => void;
 }
 
 interface ToastProps {
   listOfToasts: ToastItem[];
   setListOfToasts: React.Dispatch<React.SetStateAction<ToastItem[]>>;
-  timeout?: number;
 }
 
-const Toast: React.FC<ToastProps> = ({
-  listOfToasts,
-  setListOfToasts,
-  timeout,
-}) => {
+const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
+  const timersRef = useRef<(NodeJS.Timeout | null)[]>([]);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (listOfToasts.length) {
-        setListOfToasts([]);
-      }
-    }, timeout || 5000);
+    timersRef.current.forEach((timer) => {
+      if (timer) clearTimeout(timer);
+    });
+
+    timersRef.current = listOfToasts.map((toast, index) => {
+      const toastTimeout = toast.timeout ?? 5000;
+      return setTimeout(() => {
+        removeToast(index);
+      }, toastTimeout);
+    });
 
     return () => {
-      clearInterval(interval);
+      timersRef.current.forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
     };
-  }, [listOfToasts, setListOfToasts, timeout]);
+  }, [listOfToasts, setListOfToasts]);
+
+  const removeToast = (index: number) => {
+    setListOfToasts((prevToasts) => prevToasts.filter((_, i) => i !== index));
+  };
+
+  const handleMouseEnter = (index: number) => {
+    if (timersRef.current[index]) {
+      clearTimeout(timersRef.current[index]!);
+      timersRef.current[index] = null;
+    }
+  };
+
+  const handleMouseLeave = (index: number) => {
+    const toast = listOfToasts[index];
+    if (!toast) return;
+    const toastTimeout = toast.timeout ?? 5000;
+    timersRef.current[index] = setTimeout(() => {
+      removeToast(index);
+    }, toastTimeout);
+  };
 
   return (
-    <div style={{ position: "fixed", bottom: "32px", right: "10px" }}>
+    <div className={styles.container}>
       {listOfToasts.map((toast, i) => (
-        <tds-toast
+        <TdsMessage
           key={i}
-          variant={toast.variant}
+          class={styles.toast}
+          variant={toast.variant || "information"}
           header={toast.header}
-          subheader={toast.description}
-        />
+          minimal={false}
+          mode-variant="primary"
+          no-icon={false}
+          onMouseEnter={() => handleMouseEnter(i)}
+          onMouseLeave={() => handleMouseLeave(i)}
+        >
+          <div>{toast.description}</div>
+          {toast.onShowMore && (
+            <div
+              className={styles.showMore}
+              onClick={() => toast.onShowMore?.(toast)}
+            >
+              Show more
+            </div>
+          )}
+        </TdsMessage>
       ))}
     </div>
   );

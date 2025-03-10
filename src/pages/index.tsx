@@ -1,19 +1,27 @@
 import { env } from "@/lib/env";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import Button from "@/components/Button";
 import Card from "@/components/Card/Card";
-import Panel from "@/components/Tabs/Panel";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
+import Tab from "@/components/Tabs/Tab";
+import {
+  TdsDivider,
+  TdsModal,
+  TdsButton,
+  TdsTextField,
+  TdsTextarea,
+} from "@scania/tegel-react";
 import TaskSelection from "@/components/TaskSelection";
 import { Task } from "@/utils/types";
+import Toast, { ToastItem } from "@/components/Toast/Toast";
+import Introduction from "@/components/homepage/IntroductionContent";
 
-// server side auth check
+// Server-side authentication check
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
   if (!session?.user) {
@@ -36,6 +44,7 @@ export async function getServerSideProps(context: any) {
     props: {
       baseUrl,
       initialFlows,
+      userId: session.user.id,
     },
   };
 }
@@ -47,18 +56,29 @@ interface Flow {
   createdAt: Date;
   updatedAt: Date;
   isDraft: Boolean;
+  user: {
+    email: string;
+    id: string;
+    name: string;
+  };
 }
 
 function App({
   initialFlows,
   baseUrl,
+  userId,
 }: {
   initialFlows: Flow[];
   baseUrl: string;
+  userId: string;
 }) {
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
+  const [activeTab, setActiveTab] = useState<string>("My work");
+  const [isExecuteGraphModalOpen, setIsExecuteGraphModalOpen] = useState(false);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
+  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+  const [toBeDeletedId, setToBeDeletedId] = useState<string | null>(null);
   const router = useRouter();
   const {
     register,
@@ -69,30 +89,61 @@ function App({
   } = useForm();
   const {
     register: registerExecuteGraph,
-    handleSubmit: handleSubmitExecuteGraph,
     formState: { errors: errorsExecuteGraph },
   } = useForm();
+
+  const displayedFlows = flows.filter((flow) =>
+    activeTab === "My work" ? flow.user.id === userId : flow.user.id !== userId
+  );
+
+  const onDeleteGraphClick = (id: string, ownerId: string) => {
+    const modal = document.querySelector(
+      '[selector="delete-graph-modal"]'
+    ) as HTMLTdsModalElement | null;
+    if (modal) {
+      setToBeDeletedId(id);
+      modal.showModal();
+    }
+  };
+
+  const onGraphDelete = async () => {
+    try {
+      await axios.delete(`${baseUrl}/api/flow/${toBeDeletedId}`);
+      await fetchFlows();
+      showToast("success", "Success", "Graph has been deleted");
+      setToBeDeletedId(null);
+    } catch (error) {
+      showToast("error", "Error", "Graph cannot be deleted");
+      setToBeDeletedId(null);
+    }
+  };
+
+  const showToast = useCallback(
+    (
+      variant: "success" | "error" | "information" | "warning",
+      header: string,
+      description: string,
+      timeout?: number
+    ) => {
+      const toastProperties: ToastItem = {
+        variant,
+        header,
+        description,
+        timeout,
+      };
+      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
+    },
+    []
+  );
 
   const fetchFlows = async () => {
     try {
       const response = await axios.get(`${baseUrl}/api/flows`);
-      setFlows(response.data);
+      const flows = response.data;
+      setFlows(flows);
     } catch (error) {
       console.error("Failed to fetch flows:", error);
     }
-  };
-
-  // TODO - Used to add event listener to modal, can probably be resolved with tegel/react
-  useEffect(() => {
-    let modal = document.querySelector("#execute-graph-iri-modal");
-    modal.addEventListener("tdsClose", (event) => {
-      handleModalClose();
-    });
-  }, []);
-
-  // TODO - Add same functionality for all modals on the page
-  const handleModalClose = () => {
-    setExecuteGraphIriValue("");
   };
 
   const checkNameExists = async (name: string): Promise<boolean> => {
@@ -115,11 +166,20 @@ function App({
   }) => {
     const { name, description } = data;
     clearErrors("name");
-    const nameExists = await checkNameExists(name);
+    // Internal whitespaces are replaced with -, while leading and trailing spaces are removed entirely
+    const trimmedGraphName = name.trim().replace(/\s+/g, "-");
+    if (trimmedGraphName.length === 0) {
+      setError("name", {
+        type: "manual",
+        message: "Graph name is required",
+      });
+      return;
+    }
+    const nameExists = await checkNameExists(trimmedGraphName);
     if (nameExists) {
       setError("name", {
         type: "manual",
-        message: "graph name already exists",
+        message: "Graph name already exists",
       });
       return;
     }
@@ -127,11 +187,12 @@ function App({
       {
         pathname: `/ofd/new`,
         query: {
-          graphName: name.replace(/\s+/g, "-"),
+          name: trimmedGraphName,
           description,
+          bypassCheck: "true",
         },
       },
-      `/ofd/new`
+      `/ofd/new?name=${trimmedGraphName}&description=${description}`
     );
   };
 
@@ -140,44 +201,79 @@ function App({
       pathname: `/executeFlow/iri/${encodeURIComponent(task.subjectIri)}`,
     });
   };
+
   return (
     <div className={`App`}>
-      <main className={styles.main}>
+      <tds-modal
+        id="delete-graph-modal"
+        selector="delete-graph-modal"
+        size="sm"
+      >
+        <h5 className="tds-modal-headline" slot="header">
+          Are you sure?
+        </h5>
+        <span slot="body">This action once performed, cannot be reverted</span>
+        <span
+          slot="actions"
+          style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}
+        >
+          <tds-button
+            data-dismiss-modal
+            size="md"
+            text="Delete"
+            variant="danger"
+            onClick={onGraphDelete}
+          ></tds-button>
+        </span>
+      </tds-modal>
+      <main>
         <div className={styles.tabs}>
-          <Tabs>
-            {/* Manually create array in this in order to be able to map thru children in tabs component */}
-            {[<Panel title="Graphs"></Panel>]}
+          <Tabs activeTab={activeTab} onTabChange={setActiveTab}>
+            <Tab label="My work" tabKey="My work">
+              <Introduction
+                heading={"My work"}
+                description={
+                  "Open and edit your orchestration flow graph, or create a new one. You can also view which graphs are available to you from other projects."
+                }
+              />
+            </Tab>
+            <Tab label="Other flows" tabKey="Other flows">
+              <Introduction
+                  heading={"Other flows"}
+                  description={
+                    "View graphs available to you from other projects."
+                  }
+                />
+            </Tab>
           </Tabs>
         </div>
         <div className={styles.content}>
-          <div className={styles["header__project-summary"]}>
-            <h2 className={styles["content__heading"]}>My Work</h2>
-            Open and edit your orchestration flow graph or create a new one.
-            <br />
-            You can also view what graph are available to you from other
-            <br /> projects
-          </div>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
-              <Button
+              <tds-button
                 id="create-new-graph-button"
-                type="button"
+                size="sm"
                 variant="primary"
+                text={"Create new graph"}
               >
-                <div className="tds-u-mr1">Create new graph</div>
-                <tds-icon name="plus" size="16px"></tds-icon>
-              </Button>
-              <Button id="execute-graph-button" type="button" variant="primary">
-                <div className="tds-u-mr1">Execute Graph</div>
-                <tds-icon name="send" size="16px"></tds-icon>
-              </Button>
-              <tds-modal selector="#create-new-graph-button" size="xs">
+                <tds-icon size="16px" slot="icon" name="plus"></tds-icon>
+              </tds-button>
+              <tds-button
+                id="execute-graph-button"
+                size="sm"
+                variant="primary"
+                onClick={() => setIsExecuteGraphModalOpen(true)}
+                text={"Execute Graph"}
+              >
+                <tds-icon size="16px" slot="icon" name="send"></tds-icon>
+              </tds-button>
+              <TdsModal selector="#create-new-graph-button" size="xs">
                 <h5 className="tds-modal-headline" slot="header">
                   Create new graph
                 </h5>
                 <span slot="body">
                   <form onSubmit={handleSubmit(createNewGraph)}>
-                    <tds-text-field
+                    <TdsTextField
                       id="modal-name-field"
                       placeholder="Name"
                       size="sm"
@@ -185,16 +281,16 @@ function App({
                       helper={errors.name ? errors.name.message : ""}
                       state={errors.name ? "error" : "default"}
                       {...register("name", {
-                        required: "graph name is required",
+                        required: "Graph name is required",
                         pattern: {
                           value: /^[a-zA-Z0-9\s]+$/,
                           message:
-                            "graph name cannot contain special characters",
+                            "Graph name cannot contain special characters",
                         },
                       })}
                     />
                     <div style={{ marginTop: "28px" }} />
-                    <tds-textarea
+                    <TdsTextarea
                       id="modal-description-area"
                       placeholder="Description"
                       rows={4}
@@ -203,7 +299,7 @@ function App({
                     />
                     <div style={{ marginTop: "28px" }} />
                     <span slot="actions">
-                      <tds-button
+                      <TdsButton
                         size="md"
                         text="Create"
                         type="submit"
@@ -212,44 +308,41 @@ function App({
                     </span>
                   </form>
                 </span>
-              </tds-modal>
+              </TdsModal>
               {/* Execute Graph Modal */}
               <TaskSelection
                 executeGraphIriValue={executeGraphIriValue}
                 setExecuteGraphIriValue={setExecuteGraphIriValue}
                 errorsExecuteGraph={errorsExecuteGraph}
                 registerExecuteGraph={registerExecuteGraph}
-                handleSubmitExecuteGraph={handleSubmitExecuteGraph}
+                isExecuteGraphModalOpen={isExecuteGraphModalOpen}
+                setIsExecuteGraphModalOpen={setIsExecuteGraphModalOpen}
                 handleExecute={handleExecute}
                 theme={theme}
-                handleModalClose={handleModalClose}
                 baseUrl={baseUrl}
               />
             </div>
-
             <h2 className={styles["content__headingContent"]}>Graphs</h2>
-
             <div className={styles["content__main__cards"]}>
-              {flows && !!flows.length ? (
-                <>
-                  {flows.map((flow) => (
-                    <Card
-                      key={flow.id}
-                      data={flow}
-                      baseUrl={baseUrl}
-                      fetchFlows={fetchFlows}
-                    />
-                  ))}
-                </>
+              {displayedFlows && displayedFlows.length ? (
+                displayedFlows.map((flow) => (
+                  <Card
+                    currentUserIsAuthor={flow.user.id === userId ? true : false}
+                    key={flow.id}
+                    data={flow}
+                    deleteGraph={onDeleteGraphClick}
+                  />
+                ))
               ) : (
-                <h5>No saved graphs found</h5>
+                <h5>No graphs available</h5>
               )}
             </div>
             <div className={styles["content__main__line"]}>
-              <tds-divider orientation="horizontal"></tds-divider>
+              <TdsDivider orientation="horizontal"></TdsDivider>
             </div>
           </div>
         </div>
+        <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
       </main>
     </div>
   );

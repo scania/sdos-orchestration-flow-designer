@@ -155,6 +155,10 @@ export const getPaths = ({
 export const isValidConnection = (nodes: Node[]) => (conn: Connection) => {
   const sourceNode = nodes.find((node) => node.id === conn.source);
   const targetNode = nodes.find((node) => node.id === conn.target);
+  // Prevent self-connection
+  if(sourceNode === targetNode){
+    return;
+  }
   const paths = getPaths({ sourceNode, targetNode });
   return paths.length > 0;
 };
@@ -242,7 +246,7 @@ export const initializeNodes = () => [
             name: "http://www.w3.org/2000/01/rdf-schema#label",
             type: "text",
             label: "Label",
-            value: "",
+            value: "Task",
             validation: {
               required: true,
               minLength: 1,

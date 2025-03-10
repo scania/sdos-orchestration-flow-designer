@@ -51,13 +51,11 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
   });
 
   const findShapeUriForClass = (className: string): string | undefined => {
-    console.log("class Name is:", className);
     const quads =
       predicateIndex.get("http://www.w3.org/ns/shacl#targetClass") || [];
     const result = quads.find((quad) =>
       quad.object.endsWith(className)
     )?.subject;
-    console.log(result, "result");
     return result;
   };
 

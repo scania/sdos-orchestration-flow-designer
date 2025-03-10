@@ -1,22 +1,14 @@
 import { GraphBody } from "@/services/graphSchema";
 import {
   generateClassId,
-  initializeNodes,
   getPaths,
   isValidConnection,
   setEdgeProperties,
 } from "@/utils";
 import { ObjectProperties } from "@/utils/types.js";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { Popover } from "react-tiny-popover";
 import ReactFlow, {
@@ -25,6 +17,7 @@ import ReactFlow, {
   Connection,
   Controls,
   Edge,
+  getConnectedEdges,
   Node,
   ReactFlowProvider,
   useEdgesState,
@@ -35,57 +28,80 @@ import "reactflow/dist/style.css";
 import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
-import GraphOptions from "../../components/GraphOptions/GraphOptions";
 import DynamicForm from "./DynamicForm";
-import Sidebar from "./Sidebar";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./ofd.module.scss";
-import { captureCursorPosition } from "../../lib/frontend/helper";
+import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
+import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
+import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
+import useOfdStore from '@/store/ofdStore';
 
-const initialNodes = initializeNodes();
 const nodeTypes = {
   input: CircularNode,
   output: CircularNode,
   default: CircularNode,
 };
 
-const ForceGraphComponent: React.FC = ({
+interface Author {
+  name: string;
+  id: string;
+  email: string;
+}
+
+interface ForceGraphProps {
+  apiBaseUrl: string;
+  author: Author;
+  description?: string;
+  graphName: string;
+  initEdges?: Edge[];
+  initNodes?: Node[];
+  isEditable?: boolean;
+  isDraftInitial?: boolean;
+}
+
+const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   apiBaseUrl,
   description,
+  author,
   graphName,
   initEdges,
   initNodes,
-}: any) => {
+  isEditable = true,
+  isDraftInitial = true,
+}) => {
   const reactFlowWrapper = useRef(null);
   //@ts-ignore
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [selectedPrimaryCategory, setSelectedPrimaryCategory] =
-    useState("Action");
-  const [searchString, setSearchString] = useState("");
-  const [showExtendedPanel, setShowExtendedPanel] = useState(true);
+  const [nodes, setNodes, onNodesChange] = useNodesState();
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
-
   const [highlightedClassLabel, setHighlightedClassLabel] =
     useState<string>("");
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
-  const [setupMode, setSetupMode] = useState(false);
+  // Store
+  const setupMode = useOfdStore((state) => state.setupMode);
+  const setSetupMode = useOfdStore((state) => state.setSetupMode);
+  const addConnectedEdges = useOfdStore((state) => state.addConnectedEdges);
+  const clearConnectedEdges = useOfdStore((state) => state.clearConnectedEdges);
+
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
     Edge<any> | Connection | null
   >(null);
-  const graphDescription = description || router.query.description || "";
+  const graphDescription = description;
   const [targetNodePosition, setTargetNodePosition] = useState<any>({
     x: 0,
     y: 0,
   });
+  const [isDraft, setIsDraft] = useState<boolean>(isDraftInitial);
   const {
     data: classDetails,
     isLoading: isClassDetailsLoading,
@@ -106,11 +122,17 @@ const ForceGraphComponent: React.FC = ({
     }
   );
 
-  const showToast = (variant, header, description) => {
+  const showToast = (
+    variant: string,
+    header: string,
+    description: string,
+    timeout?: number
+  ) => {
     const toastProperties = {
       variant,
       header,
       description,
+      timeout,
     };
     setListOfToasts([...listOfToasts, toastProperties]);
   };
@@ -119,12 +141,13 @@ const ForceGraphComponent: React.FC = ({
     setConnectionParams(null);
     setEdgeSelections([]);
     setTargetNodePosition({ x: 0, y: 0 });
+    setIsPopoverOpen(false);
   };
 
   const isNodeDeletable = () => {
-    if (selectedNode?.data?.label !== "Task") {
-      return true;
-    }
+    if (!isEditable) return false;
+    if (selectedNode?.data?.label === "Task") return false;
+    return true;
   };
 
   const onEdgeSelect = (path: string) => {
@@ -162,38 +185,64 @@ const ForceGraphComponent: React.FC = ({
   };
 
   const mutation = useMutation(saveData, {
-    onSuccess: () => {
-      showToast("success", "Success", "Graph has been successfully saved");
+    onSuccess: (data, variables) => {
+      const { isDraft: savedAsDraft } = variables;
+      showToast(
+        "success",
+        "Success",
+        savedAsDraft
+          ? "Draft has been successfully saved"
+          : "Graph has been successfully saved"
+      );
+      setIsDraft(savedAsDraft);
     },
     onError: (error) => {
       showToast("error", "Error", "The graph could not be saved");
     },
   });
 
-  function filteredPrimaryClasses(classes: any) {
-    const filteredPrimaryClasses = classes.filter(
-      (item: any) =>
-        item.category && item.category.includes(selectedPrimaryCategory)
-    );
-
-    if (searchString.length) {
-      return filteredPrimaryClasses.filter(
-        (item: any) =>
-          item.className &&
-          item.className.toLowerCase().includes(searchString.toLowerCase())
+  // TODO: more comprehensive shacl validation,
+  // this only checks for at least one input Parameter,
+  // without which leads to sdos error
+  const isGraphValid = (nodes: Node[], edges: Edge[]) => {
+    const taskNodes = nodes.filter((node) => node.data.label === "Task");
+    const invalidTasks = taskNodes.filter((task) => {
+      const taskEdges = edges.filter(
+        (edge) => edge.source === task.id || edge.target === task.id
       );
+      // Check if any edge has the required label for inputParameter
+      return !taskEdges.some(
+        (edge) =>
+          edge.data &&
+          edge.data[
+            "https://kg.scania.com/it/iris_orchestration/inputParameter"
+          ]
+      );
+    });
+    return invalidTasks.length === 0;
+  };
+
+  const handleSaveClick = (saveType: string) => {
+    let isDraftSave = false;
+
+    if (saveType === "draft") {
+      isDraftSave = true;
     }
-
-    return filteredPrimaryClasses;
-  }
-
-  const handleSaveClick = (isDraftSave) => {
+    if (!graphName) {
+      showToast("error", "Validation Error", "Graph Name should be set");
+    }
+    if (!isGraphValid(nodes, edges) && !isDraftSave) {
+      showToast(
+        "error",
+        "Validation Error",
+        "Task node must be connected to at least one input Parameter."
+      );
+      return;
+    }
     const payload = {
       nodes,
       edges,
-      graphName: `https://kg.scania.com/iris_orchestration/${
-        router.query?.graphName || graphName || "Private"
-      }`,
+      graphName: `https://kg.scania.com/iris_orchestration/${graphName}`,
       description: graphDescription,
       isDraft: isDraftSave,
     };
@@ -238,6 +287,7 @@ const ForceGraphComponent: React.FC = ({
       }
       setConnectionParams(params);
       setEdgeSelections([...paths]);
+      setIsPopoverOpen(true);
       captureCursorPosition(setTargetNodePosition);
       return;
     },
@@ -245,13 +295,22 @@ const ForceGraphComponent: React.FC = ({
   );
 
   const addToGraph = () => {
+    if (!isEditable) return;
     const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
+    // Get the bounding box of the graph area
+    const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
+    const viewport = reactFlowInstance.getViewport();
+    const { x, y, zoom } = viewport;
+    const position = {
+      x: randomizeValue((width / 2 - x) / zoom),
+      y: randomizeValue((height / 2 - y) / zoom),
+    };
 
     // Store event-related data for later use
     setDropInfo({
       type: highlightedClassLabel,
-      position: { x: 10, y: 10 },
+      position: position,
     });
 
     setIsPendingClassDetailsAction(true);
@@ -259,13 +318,19 @@ const ForceGraphComponent: React.FC = ({
   };
 
   const onDragOver = useCallback((event: any) => {
+    if (!isEditable) {
+      return;
+    }
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
+
   const onDrop = useCallback(
     (event: any) => {
+      if (!isEditable) {
+        return;
+      }
       event.preventDefault();
-
       const type = event.dataTransfer.getData("application/reactflow");
       if (typeof type === "undefined" || !type) {
         return;
@@ -288,15 +353,12 @@ const ForceGraphComponent: React.FC = ({
     },
     [reactFlowInstance]
   );
+
   useEffect(() => {
-    // Initialize state from props if they are provided and not empty
-    if (
-      initNodes &&
-      initEdges &&
-      initNodes.length > 0 &&
-      initEdges.length > 0
-    ) {
+    if (initNodes && initNodes.length > 0) {
       setNodes(initNodes);
+    }
+    if (initEdges && initEdges.length >= 0) {
       setEdges(initEdges);
     }
   }, []);
@@ -329,6 +391,7 @@ const ForceGraphComponent: React.FC = ({
     }
   }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
+  
   const { data: classes, isLoading } = useQuery(
     "classes",
     () =>
@@ -345,152 +408,104 @@ const ForceGraphComponent: React.FC = ({
       staleTime: Infinity,
     }
   );
+  
 
-  const renderClasses = () => {
-    if (isLoading) {
-      return <tds-spinner size="lg" variant="standard"></tds-spinner>;
-    }
-    return (
-      <div className={styles.classes}>
-        {classes &&
-          filteredPrimaryClasses(classes).map(
-            (
-              item: {
-                parentClassUri: string;
-                className: string;
-                category: string;
-              },
-              index: number
-            ) => {
-              return (
-                <div
-                  draggable
-                  key={index}
-                  onClick={() => setHighlightedClassLabel(item.className)}
-                  onDragStart={(e: any) => handleOnDrag(e, item.className)}
-                  className={`${styles.classes__class} ${
-                    highlightedClassLabel === item.className
-                      ? styles.active__chip
-                      : styles.inactive__chip
-                  }`}
-                >
-                  <div className={styles.classes__class__content}>
-                    <div
-                      className={`${styles.classes__class__content__icon} ${
-                        highlightedClassLabel === item.className
-                          ? styles.active__container
-                          : ""
-                      }`}
-                    >
-                      <tds-icon name="double_kebab" size="16px"></tds-icon>
-                    </div>
-                    <span className={styles.classes__class__content__label}>
-                      {item.className}
-                    </span>
-                  </div>
-                </div>
-              );
-            }
-          )}
-        <div className={styles.classes__footer}>
-          <tds-button
-            type="button"
-            variant="primary"
-            size="sm"
-            text="Add to graph"
-            disabled={!highlightedClassLabel}
-            onClick={() => addToGraph()}
-          >
-            <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
-          </tds-button>
-        </div>
-      </div>
-    );
-  };
-
-  function handleOnDrag(e: React.DragEvent, nodeType: any) {
+  function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
     e.dataTransfer.effectAllowed = "move";
   }
 
+  /* 
+    Set selected node on both click and drag start, same functionality
+    but split into two functions due to the fact that we might want to
+    have them behave differently after user-testing
+  */
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
+    clearConnectedEdges();
     setSelectedNode(node);
+    const x = getConnectedEdges([node], edges)
+    addConnectedEdges(x);
+  };
+
+  const handleNodeDragStart = (event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+  };
+
+  const handlePaneClick = () => {
+    // If popover is open, close it when clicking outside popover
+    setIsPopoverOpen(false);
+
+    // De-select node when clicking outside a node, except when in setup-mode
+    if (!setupMode) {
+      setSelectedNode(null);
+    }
+  };
+
+  const handleExecute = () => {
+    if (isDraft) {
+      showToast(
+        "warning",
+        "Cannot Execute",
+        "Cannot execute a draft. Must be saved to execute"
+      );
+    } else {
+      if (nodes.length === 0) {
+        showToast(
+          "error",
+          "No Nodes",
+          "Cannot execute an empty flow. Please add nodes to the graph."
+        );
+        return;
+      }
+
+      const firstNodeId = nodes[0].id;
+      const iri = `https://kg.scania.com/it/iris_orchestration/${firstNodeId
+        .split(":")
+        .pop()}`;
+
+      router.push(`/executeFlow/iri/${encodeURIComponent(iri)}`);
+    }
   };
 
   return (
     <div className={styles.page}>
-      <header className={styles.page__header + " tds-detail-02"}>
-        <div>
-          <Link href="/">
-            <span className={styles.page__header__back}>Back</span>
-            <tds-icon slot="icon" size="14px" name="back"></tds-icon>
-          </Link>
-        </div>
-        <div>
-          <GraphOptions
-            selector="#graph-options"
-            graphDescription={graphDescription}
-            graphName={router.query.graphName || graphName || ""}
-          />
-          <span id="graph-options" className={styles.page__header__action}>
-            Options
-          </span>
-          <span
-            id="execute-graph"
-            className={styles.page__header__action}
-            onClick={() =>
-              router.push(
-                `/executeFlow/iri/${encodeURIComponent(
-                  `https://kg.scania.com/it/iris_orchestration/${nodes[0].id
-                    .split(":")
-                    .pop()}`
-                )}`
-              )
-            }
-          >
-            Execute
-          </span>
-          <span
-            className={styles.page__header__action}
-            onClick={() => handleSaveClick(true)}
-          >
-            Save Draft
-          </span>
-          <span
-            className={styles.page__header__action}
-            onClick={() => handleSaveClick(false)}
-          >
-            Save
-          </span>
-        </div>
-      </header>
-      <main className={styles.page__main}>
+      <ActionToolbar
+        graph={{
+          name: graphName,
+          description: description,
+          isDraft: isDraft,
+          author,
+        }}
+        toolbar
+        handleExecute={handleExecute}
+        handleSaveClick={handleSaveClick}
+        isEditable={isEditable}
+      />
+      <div className={styles.page__main}>
         <Sidebar
-          showExtendedPanel={showExtendedPanel}
-          setShowExtendedPanel={setShowExtendedPanel}
           setupMode={setupMode}
-          graphName={router.query.graphName || graphName || ""}
+          graphName={graphName}
+          isLoading={isLoading}
           graphDescription={graphDescription}
-          searchString={searchString}
-          setSearchString={setSearchString}
-          selectedPrimaryCategory={selectedPrimaryCategory}
-          setSelectedPrimaryCategory={setSelectedPrimaryCategory}
-          renderClasses={renderClasses}
+          selectedNode={selectedNode}
+          classes={classes}
           secondaryProperties={secondaryProperties}
           highlightedClassLabel={highlightedClassLabel}
           setHighlightedClassLabel={setHighlightedClassLabel}
-          handleOnDrag={handleOnDrag}
+          handleOnDrag={handleClassOnDrag}
           addToGraph={addToGraph}
+          isEditable={isEditable}
         />
 
         <section className={styles.graph__canvas}>
           <div>
             <Popover
-              isOpen={!!edgeSelections.length}
+              isOpen={isPopoverOpen}
               content={
                 <SelectionMenu
                   edges={edgeSelections}
                   onEdgeSelect={onEdgeSelect}
+                  onClose={() => setIsPopoverOpen(false)}
                 ></SelectionMenu>
               }
               containerStyle={{
@@ -512,11 +527,13 @@ const ForceGraphComponent: React.FC = ({
                 }}
               >
                 <ReactFlow
+                  onPaneClick={handlePaneClick}
                   nodes={nodes}
                   edges={edges}
                   deleteKeyCode={isNodeDeletable() ? "Delete" : null}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
+                  connectionLineComponent={ConnectionLine}
                   isValidConnection={isValidConnection(nodes)}
                   onConnect={onConnect}
                   onInit={setReactFlowInstance}
@@ -525,22 +542,25 @@ const ForceGraphComponent: React.FC = ({
                   fitView
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
+                  onNodeDragStart={handleNodeDragStart}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}
+                  nodesDraggable={isEditable}
+                  nodesConnectable={isEditable}
                 >
                   <Controls style={{ display: "flex" }} position="top-center" />
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
-                {setupMode && (
+                {setupMode && selectedNode && (
                   <div className={styles.form}>
                     <DynamicForm
                       key={selectedNode.id}
-                      classConfig={selectedNode.data?.classData}
                       formData={selectedNode.data?.formData}
                       onSubmit={handleFormSubmit}
                       onClose={exitSetupMode}
-                      label={selectedNode.data.label}
+                      className={selectedNode.data.label}
+                      readOnly={!isEditable}
                     />
                   </div>
                 )}
@@ -555,12 +575,11 @@ const ForceGraphComponent: React.FC = ({
                   text="Enter Setup"
                   mode-variant="primary"
                   onClick={() => {
-                    [setSetupMode(true), setHighlightedClassLabel("")];
+                    setSetupMode(true);
+                    setHighlightedClassLabel("");
                   }}
                 ></tds-button>
-              ) : (
-                <></>
-              )}
+              ) : null}
 
               {setupMode ? (
                 <tds-button
@@ -569,17 +588,13 @@ const ForceGraphComponent: React.FC = ({
                   size="md"
                   text="Leave setup"
                   mode-variant="secondary"
-                  onClick={() => {
-                    exitSetupMode();
-                  }}
+                  onClick={exitSetupMode}
                 ></tds-button>
-              ) : (
-                <></>
-              )}
+              ) : null}
             </div>
           </div>
         </section>
-      </main>
+      </div>
       <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );

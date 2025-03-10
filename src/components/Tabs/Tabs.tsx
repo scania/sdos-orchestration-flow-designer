@@ -1,41 +1,33 @@
-import React, { useState, ReactElement } from "react";
+import React, { Children, ReactNode } from "react";
 import styles from "./Tabs.module.scss";
 
 interface TabsProps {
-  children: ReactElement[];
-  onParentClick: Function,
-  selected?: number;
+  activeTab: string;
+  onTabChange?: (tabKey: string) => void;
+  children: ReactNode;
 }
 
-const Tabs: React.FC<TabsProps> = ({ children, selected, onParentClick }) => {
-  const [selectedIndex, setSelectedIndex] = useState(selected ? selected : 0);
-
-  const handleChange = (index: number, title: string, value: string) => {
-    setSelectedIndex(index);
-    // If we want to do more than just change index, proceed with "onParentClick" and recieve title
-    if(onParentClick){
-      onParentClick(value);
-    }
-  };
-
+const Tabs: React.FC<TabsProps> = ({ activeTab, onTabChange, children }) => {
   return (
-    <>
-      <ul className={styles["inline"]}>
-        {children.map((elem, index) => {
-          let style = index === selectedIndex ? styles["selected"] : "";
-          return (
-            <li
-              key={index}
-              className={style}
-              onClick={() => handleChange(index, elem.props.title, elem.props.value)}
-            >
-              {elem.props.title}
-            </li>
-          );
-        })}
-      </ul>
-      <div className={styles["tab"]}>{children[selectedIndex]}</div>
-    </>
+    <div className={styles.tabsContainer}>
+      <div className={styles.tabs}>
+        {Children.map(children, (child: any) => (
+          <div
+            key={child.props.tabKey}
+            className={`${styles.tab} ${activeTab === child.props.tabKey ? styles.active : ""}`}
+            onClick={() => onTabChange?.(child.props.tabKey)}
+          >
+            {child.props.label}
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.tabContent}>
+        {Children.map(children, (child: any) =>
+          child.props.tabKey === activeTab ? child.props.children : null
+        )}
+      </div>
+    </div>
   );
 };
 

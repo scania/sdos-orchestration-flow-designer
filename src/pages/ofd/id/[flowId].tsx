@@ -19,15 +19,23 @@ export async function getServerSideProps(context: any) {
       cookie: context.req.headers.cookie, // Forward the session cookie
     },
   });
-  const { state, name, description } = data;
+  const { state, name, description, user, isDraft } = data;
+
+  const isCurrentUserAuthor = () => {
+    if (user?.id === session?.user?.id) return true;
+    return false;
+  };
   const { nodes, edges } = JSON.parse(state);
   return {
     props: {
       apiBaseUrl: env.NEXTAUTH_URL,
       initNodes: nodes,
       initEdges: edges,
+      author: user,
       graphName: name.split("/").pop(),
       description,
+      isEditable: isCurrentUserAuthor(),
+      isDraftInitial: isDraft,
     },
   };
 }

@@ -3,7 +3,7 @@
   It could either be focused on that, or refactored to be a bit more generic for the future.
 */
 import styles from "./accordion.module.scss";
-import React, { useState } from "react";
+import { useState } from "react";
 
 type AccordionProps = {
   label?: string;
@@ -60,7 +60,7 @@ const Accordion: React.FC<AccordionProps> = ({
           </tds-button>
         )}
       </div>
-      {opened && <div>{children}</div>}
+      {opened && <div className={styles.children}>{children}</div>}
     </div>
   );
 };
