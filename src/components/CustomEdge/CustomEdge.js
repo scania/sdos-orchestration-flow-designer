@@ -1,11 +1,36 @@
 import styles from "./CustomEdge.module.scss";
+import userPreferencesStore from "../../store/userPreferencesStore"; // Import the store
 
-import { getBezierPath, EdgeLabelRenderer, BaseEdge, useReactFlow } from "reactflow";
+import { getBezierPath, getStraightPath, getSmoothStepPath, EdgeLabelRenderer, BaseEdge, useReactFlow } from "reactflow";
 import EndMarker from "./EndMarker";
 
+
+
 const CustomEdge = ({ id, data, ...props }) => {
-  const [edgePath, labelX, labelY] = getBezierPath(props);
+  const {
+    connectionType,
+  } = userPreferencesStore();
+  
+  const getEdgeType = () => {
+    switch (connectionType) {
+      case 'steps':
+        return getSmoothStepPath(props);
+      case 'straight':
+        return getStraightPath(props);
+      case 'bezier':
+        return getBezierPath(props);
+      default:
+        return getBezierPath(props);
+    }
+  }
+
+  const [edgePath, labelX, labelY] = getEdgeType(props);
   const { deleteElements } = useReactFlow();
+
+  
+
+  
+  
 
 
   function DisconnectLine() {
@@ -32,7 +57,7 @@ const CustomEdge = ({ id, data, ...props }) => {
           }}
           className={`${styles.edgeLabel} nodrag nopan`}
         >
-          {props.label} 
+          {props.label}
         </div>
         {props.selected &&
           <DisconnectLine/>
