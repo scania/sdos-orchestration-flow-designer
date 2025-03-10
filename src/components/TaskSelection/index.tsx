@@ -39,6 +39,12 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
 
     fetchTasks();
   }, [baseUrl]);
+
+  const closeExecutionModal = () => {
+    setIsExecuteGraphModalOpen(false);
+    setSelectedTask(null);
+  }
+
   const renderTaskSelector = () => {
     return (
       <TdsDropdown
@@ -80,7 +86,7 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
   return (
     <Modal
       isOpen={isExecuteGraphModalOpen}
-      onRequestClose={() => setIsExecuteGraphModalOpen(false)}
+      onRequestClose={() => closeExecutionModal()}
       title="Execute Graph with IRI"
       width={"lg"}
     >
