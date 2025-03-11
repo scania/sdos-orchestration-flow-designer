@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Spinner from "../Spinner/Spinner";
 import styles from "./ExecutionLog.module.scss";
 
 interface LogItem {
@@ -54,7 +55,7 @@ const ExecutionLog: React.FC<ExecutionLogProps> = ({ executionLog }) => {
   return (
     <div className={styles.executionLogContainer}>
       {loading ? (
-        <div className={styles.stateMessageContainer}>Loading...</div> // Show loading message when executionLog is empty or null
+        <Spinner />
       ) : (
         executionLog?.map((logItem, index) => {
           // Safely get style values from styleMapping or provide defaults
