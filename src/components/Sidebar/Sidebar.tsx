@@ -18,8 +18,8 @@ type SidebarProps = {
   searchString: string;
   classes: any;
   secondaryProperties: ObjectProperties[];
-  highlightedClassLabel: string;
-  setHighlightedClassLabel: (className: string) => void;
+  highlightedClass: { label: string; type: string };
+  setHighlightedClass: (highlightedClass: { label: string; type: string }) => void;
   handleOnDrag: (e: React.DragEvent<HTMLDivElement>, className: string) => void;
   addToGraph: () => void;
   isEditable: boolean;
@@ -32,8 +32,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   graphDescription,
   classes,
   secondaryProperties = [],
-  highlightedClassLabel,
-  setHighlightedClassLabel,
+  highlightedClass,
+  setHighlightedClass,
   handleOnDrag,
   addToGraph,
   isEditable,
@@ -45,8 +45,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     useState<string>("required");
 
   const setupMode = useOfdStore((state) => state.setupMode); 
-  /*const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
-    useState("required"); */
   const requiredClasses = secondaryProperties.filter(
     (item) => item.minCount > 0
   );
@@ -93,7 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       setActiveSecondaryClassesTab("required");
     }
 
-    setHighlightedClassLabel("")
+    setHighlightedClass({})
   }, [selectedNode]);
 
   const renderSecondaryClasses = () => {
@@ -153,8 +151,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                   const className = item.split("/").pop() || "";
                   return (
                     <ClassChip
-                      highlightedClassLabel={highlightedClassLabel}
-                      setHighlightedClassLabel={setHighlightedClassLabel}
+                      highlightedClass={highlightedClass}
+                      setHighlightedClass={setHighlightedClass}
+                      connectorType={connectorType.split("/").pop() || ""}
                       className={className}
                       handleOnDrag={handleOnDrag}
                     />
@@ -216,8 +215,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                       (item, index) => (
                         <ClassChip
                           key={index}
-                          highlightedClassLabel={highlightedClassLabel}
-                          setHighlightedClassLabel={setHighlightedClassLabel}
+                          highlightedClass={highlightedClass}
+                          setHighlightedClass={setHighlightedClass}
                           className={item.className}
                           handleOnDrag={handleOnDrag}
                         />
@@ -235,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 variant="primary"
                 size="sm"
                 text="Add to graph"
-                disabled={!highlightedClassLabel || !isEditable}
+                disabled={!highlightedClass.label || !isEditable}
                 onClick={addToGraph}
               >
                 <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
@@ -296,7 +295,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 variant="primary"
                 size="sm"
                 text="Add to graph"
-                disabled={!highlightedClassLabel || !isEditable}
+                disabled={!highlightedClass.label || !isEditable}
                 onClick={addToGraph}
               >
                 <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
