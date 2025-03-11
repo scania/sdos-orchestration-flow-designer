@@ -182,7 +182,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           placeholder={label}
           onInput={(e: any) => {
             if (readOnly) return;
-            setValue(nameWoSpecialChars, e.target.value, {
+            setValue(nameWoSpecialChars, e.target.value.trim(), {
               shouldDirty: true,
             });
           }}
