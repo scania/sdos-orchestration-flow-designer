@@ -33,6 +33,7 @@ export default async function handler(
           select: { name: true },
         },
       },
+      orderBy: { createdAt: "desc" },
     });
 
     return res.status(200).json(executionResults);
