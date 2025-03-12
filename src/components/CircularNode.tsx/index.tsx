@@ -78,7 +78,7 @@ export default memo((node) => {
             <ActionsMenu onDeleteClick={() => deleteNode()} onDisconnectClick={() => disconnectNode()}/>
           }
         >
-          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
+          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className={styles.headingContainer__popover}>
             <tds-icon name="meatballs" size="20px"></tds-icon>
           </div>
         </Popover>
