@@ -36,6 +36,7 @@ import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
 import useOfdStore from '@/store/ofdStore';
+import userPreferencesStore from "@/store/userPreferencesStore"; // Import the Zustand store
 
 const nodeTypes = {
   input: CircularNode,
@@ -93,6 +94,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const setSetupMode = useOfdStore((state) => state.setSetupMode);
   const addConnectedEdges = useOfdStore((state) => state.addConnectedEdges);
   const clearConnectedEdges = useOfdStore((state) => state.clearConnectedEdges);
+  const doubleClickToEnterSetupMode = userPreferencesStore((state) => state.doubleClickToEnterSetupMode);
 
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
@@ -425,8 +427,15 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
     clearConnectedEdges();
     setSelectedNode(node);
-    const x = getConnectedEdges([node], edges)
-    addConnectedEdges(x);
+    const connectedEdges = getConnectedEdges([node], edges)
+    addConnectedEdges(connectedEdges);
+  };
+
+  const handleNodeDoubleClick = (event: React.MouseEvent, node: Node) => {
+    clearConnectedEdges();
+    setSelectedNode(node);
+    const connectedEdges = getConnectedEdges([node], edges)
+    addConnectedEdges(connectedEdges);
   };
 
   const handleNodeDragStart = (event: React.MouseEvent, node: Node) => {
@@ -544,6 +553,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   fitView
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
+                  onDoubleClick={doubleClickToEnterSetupMode ? () => setSetupMode(true) : null}
                   onNodeDragStart={handleNodeDragStart}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}

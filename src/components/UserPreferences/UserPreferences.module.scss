@@ -1,0 +1,12 @@
+.optionsContainer{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 320px;
+}
+
+.optionContainer{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
