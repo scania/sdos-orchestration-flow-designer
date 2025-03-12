@@ -568,7 +568,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
               </div>
             </Tab>
             <Tab label={"Results"} tabKey="results">
-              <ExecutionResults />
+              <ExecutionResults iri={iri} />
             </Tab>
           </Tabs>
         </div>
