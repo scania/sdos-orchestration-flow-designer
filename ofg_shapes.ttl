@@ -577,7 +577,7 @@
 :tokenShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "token Shape"@en ;
-    rdfs:comment "token should be a string and empty"@en ;
+    rdfs:comment "token should be a string"@en ;
     sh:path :token ;
     sh:datatype xsd:string ;
     sh:hasValue "" ;
