@@ -72,7 +72,6 @@ model Flow {
   state       String
   isDraft     Boolean
   parameters  Parameter[]
-  executionResults ExecutionResult[]
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 }
@@ -92,13 +91,12 @@ model Parameter {
 
 model ExecutionResult {
   id                  String   @id @default(uuid())
-  flowId              String
+  iri                 String
   userId              String
   resultGraphURI      String
   executionParameters Json
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  flow Flow @relation(fields: [flowId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
