@@ -1,26 +1,28 @@
 import styles from "./Sidebar.module.scss";
 
 interface ClassChipProps {
-  highlightedClassLabel: string;
+  highlightedClass: { label: string; type: string };
   className: string;
-  setHighlightedClassLabel: (label: string) => void;
+  connectorType: string;
+  setHighlightedClass: (highlightedClass: { label: string; type: string }) => void;
   handleOnDrag: (event: React.DragEvent<HTMLDivElement>, className: string) => void;
 }
 
 const ClassChip: React.FC<ClassChipProps> = ({ 
-  highlightedClassLabel, 
+  highlightedClass, 
   className, 
-  setHighlightedClassLabel, 
+  connectorType,
+  setHighlightedClass, 
   handleOnDrag 
 }) => {
   return (
     <div
       draggable
       key={className}
-      onClick={() => setHighlightedClassLabel(className)}
+      onClick={() => setHighlightedClass({label: className, type: connectorType})}
       onDragStart={(e) => handleOnDrag(e, className)}
       className={`${styles.classes__class} ${
-        highlightedClassLabel === className
+        highlightedClass.label === className && highlightedClass.type === connectorType
           ? styles.active__chip
           : styles.inactive__chip
       }`}
@@ -28,7 +30,7 @@ const ClassChip: React.FC<ClassChipProps> = ({
       <div className={styles.classes__class__content}>
         <div
           className={`${styles.classes__class__content__icon} ${
-            highlightedClassLabel === className ? styles.active__container : ""
+            highlightedClass.label === className && highlightedClass.type === connectorType ? styles.active__container : ""
           }`}
         >
           <tds-icon name="double_kebab" size="16px"></tds-icon>

@@ -79,8 +79,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
-  const [highlightedClassLabel, setHighlightedClassLabel] =
-    useState<string>("");
+    const [highlightedClass, setHighlightedClass] = useState<{ label: string; type: string }>({
+      label: "",
+      type: "",
+    });
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
@@ -266,7 +268,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const exitSetupMode = useCallback(() => {
     setSelectedNode(null);
     setSetupMode(false);
-    setHighlightedClassLabel("");
+    setHighlightedClass({ label: "", type: "" });
   }, [setSelectedNode, setSetupMode]);
 
   const edgeTypes = {
@@ -296,7 +298,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 
   const addToGraph = () => {
     if (!isEditable) return;
-    const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
+    const cleanedType = highlightedClass.label.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
     // Get the bounding box of the graph area
     const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
@@ -309,12 +311,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 
     // Store event-related data for later use
     setDropInfo({
-      type: highlightedClassLabel,
+      type: highlightedClass.label,
       position: position,
     });
 
     setIsPendingClassDetailsAction(true);
-    setHighlightedClassLabel("");
+    setHighlightedClass({ label: "", type: "" });
   };
 
   const onDragOver = useCallback((event: any) => {
@@ -490,8 +492,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           selectedNode={selectedNode}
           classes={classes}
           secondaryProperties={secondaryProperties}
-          highlightedClassLabel={highlightedClassLabel}
-          setHighlightedClassLabel={setHighlightedClassLabel}
+          highlightedClass={highlightedClass}
+          setHighlightedClass={setHighlightedClass}
           handleOnDrag={handleClassOnDrag}
           addToGraph={addToGraph}
           isEditable={isEditable}
@@ -576,7 +578,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   mode-variant="primary"
                   onClick={() => {
                     setSetupMode(true);
-                    setHighlightedClassLabel("");
+                    setHighlightedClass({ label: "", type: "" })
                   }}
                 ></tds-button>
               ) : null}
