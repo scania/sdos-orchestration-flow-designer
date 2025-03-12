@@ -26,6 +26,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import CustomEdge from "../../components/CustomEdge/CustomEdge";
+import OnNavigationModal from "@/components/OnNavigationModal/OnNavigationModal";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
 import DynamicForm from "./DynamicForm";
@@ -34,8 +35,9 @@ import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
-import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
-import useOfdStore from '@/store/ofdStore';
+import { useConfirmNavigation } from "@/hooks/useConfirmNavigation";
+import ConnectionLine from "@/components/ConnectionLine/ConnectionLine";
+import useOfdStore from "@/store/ofdStore";
 
 const nodeTypes = {
   input: CircularNode,
@@ -74,6 +76,10 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState();
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [trackingEnabled, setTrackingEnabled] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const { showModal, confirmLeave, cancelLeave } =
+    useConfirmNavigation(hasUnsavedChanges);
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -195,6 +201,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           : "Graph has been successfully saved"
       );
       setIsDraft(savedAsDraft);
+      setHasUnsavedChanges(false);
     },
     onError: (error) => {
       showToast("error", "Error", "The graph could not be saved");
@@ -391,7 +398,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
-  
   const { data: classes, isLoading } = useQuery(
     "classes",
     () =>
@@ -408,7 +414,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       staleTime: Infinity,
     }
   );
-  
 
   function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
@@ -423,7 +428,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
     clearConnectedEdges();
     setSelectedNode(node);
-    const x = getConnectedEdges([node], edges)
+    const x = getConnectedEdges([node], edges);
     addConnectedEdges(x);
   };
 
@@ -467,8 +472,24 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => setTrackingEnabled(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (trackingEnabled) {
+      setHasUnsavedChanges(true);
+    }
+  }, [nodes, edges]);
+
   return (
     <div className={styles.page}>
+      <OnNavigationModal
+        show={showModal}
+        onConfirm={confirmLeave}
+        onCancel={cancelLeave}
+      />
       <ActionToolbar
         graph={{
           name: graphName,
