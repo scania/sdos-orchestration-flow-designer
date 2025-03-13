@@ -1,0 +1,44 @@
+.wrapper{
+  display: inline-block;
+  position: relative;
+
+  &__tooltip{
+    position: absolute;
+    border-radius: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px;
+    color: var(--tds-tooltip-color);
+    max-width: 192px;
+    min-width: 120px;
+    background: var(--tds-tooltip-background);
+    z-index: 999;
+    font-size: 12px;
+
+    &__left{
+        left: auto;
+        right: calc(100% + 5px);
+        top: 50%;
+        transform: translateX(0) translateY(-50%);      
+    }
+
+    &__right{
+      left: calc(100% + 5px);
+      right: auto;
+      top: 50%;
+      transform: translateX(0%) translateY(-50%);      
+  }
+
+    &__top{
+      top: -5px;
+      transform: translateX(-50%) translateY(-100%);   
+    }
+
+    &__bottom{
+      bottom: -5px;
+      transform: translateX(-100%) translateY(100%);   
+    }
+  }
+}
+
+
