@@ -1,13 +1,13 @@
-
 import styles from "./ActionToolbar.module.scss";
 import { useRouter } from "next/router";
 import GraphOptions from "../GraphOptions/GraphOptions";
+import Tooltip from "../Tooltip/Tooltip";
 
 type Graph = {
   name?: string;
   description?: string;
   isDraft?: boolean;
-  author?: object
+  author?: object;
 };
 
 type AccordionProps = {
@@ -26,8 +26,7 @@ const ActionToolbar: React.FC<AccordionProps> = ({
   handleExecute,
   isEditable = false,
 }) => {
-
-const router = useRouter();
+  const router = useRouter();
 
   return (
     <div className={styles.container}>
@@ -40,8 +39,8 @@ const router = useRouter();
           name="back"
         ></tds-icon>
       </div>
-      {toolbar && 
-      <div className={styles.container__actionsContainer}>
+      {toolbar && (
+        <div className={styles.container__actionsContainer}>
           <GraphOptions
             selector="#graph-options"
             graphDescription={graph?.description || ""}
@@ -53,30 +52,42 @@ const router = useRouter();
           </span>
           <span
             id="execute-graph"
-            className={`${graph?.isDraft ? styles.container__actionsContainer__disabled : "pointer"}`}
-              onClick={() => handleExecute?.()}
-            >
+            className={`${
+              graph?.isDraft
+                ? styles.container__actionsContainer__disabled
+                : "pointer"
+            }`}
+            onClick={() => handleExecute?.()}
+          >
             Execute
           </span>
           {isEditable ? (
             <>
-              <span
-                className="pointer"
-                onClick={() => handleSaveClick?.("draft")}
-              >
-                Save Draft
-              </span>
+              <Tooltip 
+                content={"Save a draft of your graph without fullfilling all requirments. You can edit and finalize it later."} 
+                direction="bottom">
+                <span
+                  className="pointer"
+                  onClick={() => handleSaveClick?.("draft")}
+                >
+                  Save Draft
+                </span>
+              </Tooltip>
+              <Tooltip 
+                content={"Save your graph. Ensures all validations are met before saving."} 
+                direction="bottom">
               <span
                 className="pointer"
                 onClick={() => handleSaveClick?.("save")}
               >
                 Save
               </span>
+              </Tooltip>
             </>
           ) : null}
-        </div> 
-        }
-  </div>
+        </div>
+      )}
+    </div>
   );
 };
 
