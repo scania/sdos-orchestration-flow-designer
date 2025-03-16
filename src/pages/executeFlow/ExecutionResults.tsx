@@ -1,21 +1,38 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
+import Modal from "@/components/Modal/CustomModal";
+import JsonView from "@uiw/react-json-view";
+interface ExecutionResult {
+  id: string;
+  username: string;
+  timeStamp: string;
+  resultGraph: string;
+  status: string;
+  parameters?: any;
+}
 
-const ExecutionResults = ({ iri }) => {
-  const [tableData, setTableData] = useState([]);
+interface ExecutionResultsProps {
+  iri: string;
+}
+
+const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
+  const [tableData, setTableData] = useState<ExecutionResult[]>([]);
+  const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
+  const [selectedParameters, setSelectedParameters] = useState<any>(null);
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
         `/api/execute/results?iri=${encodeURIComponent(iri)}`
       );
-      const mappedData = response.data.map((item) => ({
+      const mappedData = response.data.map((item: any) => ({
         id: item.id,
         username: item.user?.name || "Unknown",
         timeStamp: new Date(item.createdAt).toLocaleString(),
         resultGraph: item.resultGraphURI,
         status: item.resultGraphURI ? "Result" : "Executing...",
+        parameters: item.executionParameters,
       }));
       setTableData(mappedData);
     } catch (error) {
@@ -31,6 +48,17 @@ const ExecutionResults = ({ iri }) => {
     alert(`Showing result for: ${graphName}`);
   };
 
+  const openParametersModal = (params: any) => {
+    const safeParams = params && typeof params === "object" ? params : {};
+    setSelectedParameters(safeParams);
+    setIsParamsModalOpen(true);
+  };
+
+  const closeParamsModal = () => {
+    setIsParamsModalOpen(false);
+    setSelectedParameters(null);
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <table className={styles.table}>
@@ -39,6 +67,7 @@ const ExecutionResults = ({ iri }) => {
             <th>User Name</th>
             <th>Time</th>
             <th>Result Graph URI</th>
+            <th>Parameters</th>
             <th>Result</th>
           </tr>
         </thead>
@@ -48,6 +77,17 @@ const ExecutionResults = ({ iri }) => {
               <td>{row.username}</td>
               <td>{row.timeStamp}</td>
               <td>{row.resultGraph}</td>
+              <td>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openParametersModal(row.parameters);
+                  }}
+                >
+                  View Parameters
+                </a>
+              </td>
               <td
                 onClick={() => showResult(row.resultGraph)}
                 style={{ cursor: "pointer" }}
@@ -58,6 +98,27 @@ const ExecutionResults = ({ iri }) => {
           ))}
         </tbody>
       </table>
+      <Modal
+        isOpen={isParamsModalOpen}
+        onRequestClose={closeParamsModal}
+        title="Execution Parameters"
+        width="md"
+      >
+        <div>
+          {selectedParameters && Object.keys(selectedParameters).length > 0 ? (
+            <JsonView
+              value={selectedParameters}
+              indentWidth={4}
+              displayDataTypes={false}
+              collapsed={false}
+              displayObjectSize={true}
+              enableClipboard={true}
+            />
+          ) : (
+            <p>No parameters available.</p>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };
