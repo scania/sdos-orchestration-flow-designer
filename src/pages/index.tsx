@@ -6,6 +6,7 @@ import { useTheme } from "@/context/ThemeProvider";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import Card from "@/components/Card/Card";
+import Modal from "@/components/Modal/CustomModal";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
 import Tab from "@/components/Tabs/Tab";
@@ -75,6 +76,7 @@ function App({
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const [activeTab, setActiveTab] = useState<string>("My work");
+  const [isCreateGraphModalOpen, setIsCreateGraphModalOpen] = useState(false);
   const [isExecuteGraphModalOpen, setIsExecuteGraphModalOpen] = useState(false);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
@@ -85,6 +87,8 @@ function App({
     handleSubmit,
     setError,
     clearErrors,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm();
   const {
@@ -254,6 +258,7 @@ function App({
                 id="create-new-graph-button"
                 size="sm"
                 variant="primary"
+                onClick={() => setIsCreateGraphModalOpen(true)}
                 text={"Create new graph"}
               >
                 <tds-icon size="16px" slot="icon" name="plus"></tds-icon>
@@ -267,18 +272,23 @@ function App({
               >
                 <tds-icon size="16px" slot="icon" name="send"></tds-icon>
               </tds-button>
-              <TdsModal selector="#create-new-graph-button" size="xs">
-                <h5 className="tds-modal-headline" slot="header">
-                  Create new graph
-                </h5>
-                <span slot="body">
-                  <form onSubmit={handleSubmit(createNewGraph)}>
+              <Modal
+              isOpen={isCreateGraphModalOpen}
+              onRequestClose={() => {
+                setValue("name", "");
+                setValue("description", "");
+                setIsCreateGraphModalOpen(false); 
+                clearErrors("name")}}
+              title="Create graph"
+              width={"md"}>
+                <form onSubmit={handleSubmit(createNewGraph)}>
                     <TdsTextField
                       id="modal-name-field"
                       placeholder="Name"
                       size="sm"
                       mode-variant={theme === "light" ? "primary" : "secondary"}
                       helper={errors.name ? errors.name.message : ""}
+                      value={watch("name") || ""}
                       state={errors.name ? "error" : "default"}
                       {...register("name", {
                         required: "Graph name is required",
@@ -294,6 +304,7 @@ function App({
                       id="modal-description-area"
                       placeholder="Description"
                       rows={4}
+                      value={watch("description") || ""}
                       mode-variant={theme === "light" ? "primary" : "secondary"}
                       {...register("description")}
                     />
@@ -307,8 +318,7 @@ function App({
                       />
                     </span>
                   </form>
-                </span>
-              </TdsModal>
+              </Modal>
               {/* Execute Graph Modal */}
               <TaskSelection
                 executeGraphIriValue={executeGraphIriValue}
