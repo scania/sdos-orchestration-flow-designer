@@ -64,7 +64,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         // Create a FormData instance and append the file
         const formData = new FormData();
-        formData.append("file", fs.createReadStream(file.filepath));
+        formData.append("file", fs.createReadStream(file.filepath), file.originalFilename);
 
         try {
           const response = await axios.post(
