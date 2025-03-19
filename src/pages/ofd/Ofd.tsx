@@ -34,8 +34,8 @@ import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
-import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
-import useOfdStore from '@/store/ofdStore';
+import ConnectionLine from "@/components/ConnectionLine/ConnectionLine";
+import useOfdStore from "@/store/ofdStore";
 
 const nodeTypes = {
   input: CircularNode,
@@ -79,10 +79,13 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
-    const [highlightedClass, setHighlightedClass] = useState<{ label: string; type: string }>({
-      label: "",
-      type: "",
-    });
+  const [highlightedClass, setHighlightedClass] = useState<{
+    label: string;
+    type: string;
+  }>({
+    label: "",
+    type: "",
+  });
   const router = useRouter();
   const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
@@ -393,7 +396,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
-  
   const { data: classes, isLoading } = useQuery(
     "classes",
     () =>
@@ -410,7 +412,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       staleTime: Infinity,
     }
   );
-  
 
   function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
@@ -425,7 +426,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
     clearConnectedEdges();
     setSelectedNode(node);
-    const x = getConnectedEdges([node], edges)
+    const x = getConnectedEdges([node], edges);
     addConnectedEdges(x);
   };
 
@@ -524,7 +525,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                 className="reactflow-wrapper"
                 ref={reactFlowWrapper}
                 style={{
-                  height: "calc(100vh - 200px)",
+                  height: "calc(100vh - 116px)",
                   position: "relative",
                 }}
               >
@@ -578,7 +579,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   mode-variant="primary"
                   onClick={() => {
                     setSetupMode(true);
-                    setHighlightedClass({ label: "", type: "" })
+                    setHighlightedClass({ label: "", type: "" });
                   }}
                 ></tds-button>
               ) : null}
