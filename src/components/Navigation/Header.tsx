@@ -28,7 +28,7 @@ const Header = () => {
   return (
     <div className={styles.header}>
       <Link href="/" className={styles.header__title}>
-        {`ORCHESTRATION FLOW GRAPH DESIGNER BETA ${
+        {`SARAGRAPH ${
           process.env.NEXT_PUBLIC_VERSION || ""
         }`}
       </Link>
