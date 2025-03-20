@@ -1,5 +1,4 @@
 import JsonView from "@uiw/react-json-view";
-import styles from "./ExecutionResult.module.scss";
 import { isValidJson } from "@/helpers/helper";
 
 const ExecutionResult = ({ executionResult }: any) => {
