@@ -14,17 +14,19 @@ const ExecutionResult = ({ executionResult }: any) => {
   );
 
   return (
-    <span>
-      {executionResult ? (
-        typeof executionResult === "object" ? (
-          renderJsonView(executionResult)
-        ) : isValidJson(executionResult) ? (
-          renderJsonView(executionResult)
-        ) : (
-          <p>{executionResult}</p>
-        )
-      ) : null}
-    </span>
+    <div>
+      <div>
+        {executionResult ? (
+          typeof executionResult === "object" ? (
+            renderJsonView(executionResult)
+          ) : isValidJson(executionResult) ? (
+            renderJsonView(executionResult)
+          ) : (
+            <p>{executionResult}</p>
+          )
+        ) : null}
+      </div>
+    </div>
   );
 };
 
