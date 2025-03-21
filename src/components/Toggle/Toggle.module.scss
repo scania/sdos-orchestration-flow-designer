@@ -1,0 +1,30 @@
+.toggle {
+  width: 60px;
+  height: 30px;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--tds-toggle-off-slider);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  position: relative;
+}
+
+.toggle__on {
+  background-color: var(--tds-toggle-on-slider);
+}
+
+.toggle__thumb {
+  width: 26px;
+  height: 26px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease-in-out;
+  transform: translateX(2px);
+}
+
+.toggle__thumb__on {
+  transform: translateX(28px);
+}
