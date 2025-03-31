@@ -38,6 +38,10 @@ import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
 import useOfdStore from '@/store/ofdStore';
 import userPreferencesStore from "@/store/userPreferencesStore"; // Import the Zustand store
 
+const edgeTypes = {
+  "custom-edge": CustomEdge,
+};
+
 const nodeTypes = {
   input: CircularNode,
   output: CircularNode,
@@ -275,10 +279,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setSetupMode(false);
     setHighlightedClass({ label: "", type: "" });
   }, [setSelectedNode, setSetupMode]);
-
-  const edgeTypes = {
-    "custom-edge": CustomEdge,
-  };
 
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
