@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
 import Modal from "@/components/Modal/CustomModal";
@@ -6,6 +6,8 @@ import { convertToLocalTime } from "@/helpers/helper";
 import JsonView from "@uiw/react-json-view";
 import Tooltip from "@/components/Tooltip/Tooltip";
 import { TdsIcon, TdsButton } from "@scania/tegel-react";
+import Toast, { ToastItem } from "@/components/Toast/Toast";
+
 interface ExecutionResult {
   id: string;
   username: string;
@@ -26,6 +28,25 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [resultGraphData, setResultGraphData] = useState<any>(null);
   const [resultGraphLoading, setResultGraphLoading] = useState(false);
+  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+
+  const showToast = useCallback(
+    (
+      variant: "success" | "error" | "information" | "warning",
+      header: string,
+      description: string,
+      timeout?: number
+    ) => {
+      const toastProperties: ToastItem = {
+        variant,
+        header,
+        description,
+        timeout,
+      };
+      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
+    },
+    []
+  );
 
   const getStatusIcon = (status: string): any => {
     switch (status) {
@@ -34,6 +55,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
       case "FAILED":
         return <TdsIcon name="cross" size="24px"></TdsIcon>;
       case "INCOMPLETE":
+        return <TdsIcon name="clock" size="24px"></TdsIcon>;
       default:
         return <TdsIcon name="error" size="24px"></TdsIcon>;
     }
@@ -107,9 +129,16 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
       await axios.delete(
         `/api/execute/result?resultGraph=${encodeURIComponent(id)}`
       );
+      showToast(
+        "success",
+        "Success",
+        "Execution result deleted successfully",
+        3000
+      );
       fetchData();
     } catch (error) {
       console.error("Error deleting execution result:", error);
+      showToast("error", "Error", "Failed to delete execution result", 3000);
     }
   };
 
@@ -182,7 +211,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                     type="primary"
                     variant="danger"
                     size="sm"
-                    tds-aria-label="A button component"
+                    tds-aria-label="Delete result graph"
                   >
                     <TdsIcon slot="icon" size="20px" name="trash"></TdsIcon>
                   </TdsButton>
@@ -240,6 +269,8 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
           )}
         </div>
       </Modal>
+
+      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };
