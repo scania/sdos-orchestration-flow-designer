@@ -4,6 +4,8 @@ import styles from "./ExecuteFlow.module.scss";
 import Modal from "@/components/Modal/CustomModal";
 import { convertToLocalTime } from "@/helpers/helper";
 import JsonView from "@uiw/react-json-view";
+import Tooltip from "@/components/Tooltip/Tooltip";
+import { TdsIcon, TdsButton } from "@scania/tegel-react";
 interface ExecutionResult {
   id: string;
   username: string;
@@ -21,6 +23,21 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   const [tableData, setTableData] = useState<ExecutionResult[]>([]);
   const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
   const [selectedParameters, setSelectedParameters] = useState<any>(null);
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [resultGraphData, setResultGraphData] = useState<any>(null);
+  const [resultGraphLoading, setResultGraphLoading] = useState(false);
+
+  const getStatusIcon = (status: string): any => {
+    switch (status) {
+      case "COMPLETE":
+        return <TdsIcon name="tick" size="24px"></TdsIcon>;
+      case "FAILED":
+        return <TdsIcon name="cross" size="24px"></TdsIcon>;
+      case "INCOMPLETE":
+      default:
+        return <TdsIcon name="error" size="24px"></TdsIcon>;
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -34,7 +51,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
           username: item.user?.name || "Unknown",
           timeStamp: `${date} ${time}`,
           resultGraph: item.resultGraphURI,
-          status: item.resultGraphURI ? "Result" : "Executing...",
+          status: item.status,
           parameters: item.executionParameters,
         };
       });
@@ -59,6 +76,43 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     setSelectedParameters(null);
   };
 
+  const openResultModal = async (resultGraph: string) => {
+    try {
+      setResultGraphLoading(true);
+      const response = await axios.get(
+        `/api/execute/result?resultGraph=${encodeURIComponent(resultGraph)}`
+      );
+      setResultGraphData(response.data);
+      setIsResultModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching result graph:", error);
+      setResultGraphData({ error: "Failed to load result graph." });
+      setIsResultModalOpen(true);
+    } finally {
+      setResultGraphLoading(false);
+    }
+  };
+
+  const closeResultModal = () => {
+    setIsResultModalOpen(false);
+    setResultGraphData(null);
+  };
+
+  const handleRefreshStatus = async () => {
+    await fetchData();
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(
+        `/api/execute/result?resultGraph=${encodeURIComponent(id)}`
+      );
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting execution result:", error);
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <table className={styles.table}>
@@ -68,7 +122,17 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
             <th>Started At</th>
             <th>Result Graph URI</th>
             <th>Parameters</th>
-            <th>Result</th>
+            <th>
+              Status{" "}
+              <span
+                onClick={handleRefreshStatus}
+                style={{ cursor: "pointer" }}
+                title="Refresh Status"
+              >
+                <TdsIcon name="refresh" size="24px"></TdsIcon>
+              </span>
+            </th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody className={styles.table__body}>
@@ -88,11 +152,48 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                   View Parameters
                 </a>
               </td>
-              <td style={{ cursor: "pointer" }}>{row.status}</td>
+              <td>
+                {getStatusIcon(row.status)} {row.status}
+                {row.status === "COMPLETE" && (
+                  <span
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openResultModal(row.resultGraph);
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      color: "blue",
+                      textDecoration: "underline",
+                      marginLeft: "8px",
+                    }}
+                    title="View Result"
+                  >
+                    View
+                  </span>
+                )}
+              </td>
+              <td>
+                <Tooltip content={"Delete Result Graph"} direction="bottom">
+                  <TdsButton
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete(row.resultGraph);
+                    }}
+                    type="primary"
+                    variant="danger"
+                    size="sm"
+                    tds-aria-label="A button component"
+                  >
+                    <TdsIcon slot="icon" size="20px" name="trash"></TdsIcon>
+                  </TdsButton>
+                </Tooltip>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Modal for viewing execution parameters */}
       <Modal
         isOpen={isParamsModalOpen}
         onRequestClose={closeParamsModal}
@@ -111,6 +212,31 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
             />
           ) : (
             <p>No parameters available.</p>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal for viewing result graph */}
+      <Modal
+        isOpen={isResultModalOpen}
+        onRequestClose={closeResultModal}
+        title="Result Graph"
+        width="lg"
+      >
+        <div>
+          {resultGraphLoading ? (
+            <p>Loading...</p>
+          ) : resultGraphData ? (
+            <JsonView
+              value={resultGraphData}
+              indentWidth={4}
+              displayDataTypes={false}
+              collapsed={false}
+              displayObjectSize={true}
+              enableClipboard={true}
+            />
+          ) : (
+            <p>No result data available.</p>
           )}
         </div>
       </Modal>

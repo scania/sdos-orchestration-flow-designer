@@ -6,6 +6,7 @@ import { env } from "@/lib/env";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = env.STARDOG_DB_NAME_WRITE;
+const DB_NAME_RESULT_GRAPH = env.STARDOG_DB_RESULT_GRAPH;
 
 export interface ClassEntity {
   uri: string;
@@ -43,25 +44,39 @@ async function convertJsonLdToNQuads(jsonLdData: JsonLdDocument) {
     console.error("Error converting JSON-LD to N-Quads:", error);
   }
 }
+
 export const getStardogInstance = ({
   token,
   endpoint,
+  accept,
 }: {
   token: string;
   endpoint?: string;
+  accept?: any;
 }) => {
   const executeQuery = async (dbName: string, testQuery: string) => {
     try {
       const conn = new Connection({
         username: "",
-        endpoint: env.STARDOG_ENDPOINT,
+        endpoint: endpoint || env.STARDOG_ENDPOINT,
         token: token,
       });
-      const results = await query.execute(conn, dbName, testQuery);
+      // Use the provided accept value or default to SPARQL JSON results.
+      const results = await query.execute(
+        conn,
+        dbName,
+        testQuery,
+        accept || "application/sparql-results+json"
+      );
       const { body, status } = results;
       if (!body && status === 200) {
         return;
       }
+      // If the accept header is for JSON-LD, return the body directly.
+      if (accept === "application/ld+json") {
+        return body;
+      }
+      // Otherwise, return the bindings from a typical SPARQL SELECT query.
       return body.results.bindings;
     } catch (error) {
       console.error("Query execution failed:", error);
@@ -69,8 +84,8 @@ export const getStardogInstance = ({
     }
   };
 
-  const fetchClasses = async (token: string): Promise<ClassEntity[]> => {
-    const response = await executeQuery(DB_NAME_READ, fetchClassesQuery, token);
+  const fetchClasses = async (): Promise<ClassEntity[]> => {
+    const response = await executeQuery(DB_NAME_READ, fetchClassesQuery);
     return response.map((item: any) => ({
       uri: item.class.value,
       className: item.labelProps.value,
@@ -88,7 +103,6 @@ export const getStardogInstance = ({
     );
     const dropGraph = QueryFactory.dropGraph(graphName);
     await executeQuery(DB_NAME_WRITE, dropGraph);
-
     return await executeQuery(
       DB_NAME_WRITE,
       QueryFactory.insertData(graphName, graphDataNQuad!)
@@ -100,5 +114,27 @@ export const getStardogInstance = ({
     return await executeQuery(DB_NAME_WRITE, dropGraph);
   };
 
-  return { fetchClasses, updateGraph, deleteGraph };
+  const fetchResultGraphStatus = async (resultGraphs: string[]) => {
+    const fetchStatusQuery = QueryFactory.resultGraphStatusQuery(resultGraphs);
+    return await executeQuery(DB_NAME_RESULT_GRAPH, fetchStatusQuery);
+  };
+
+  const fetchResultGraph = async (resultGraph: string) => {
+    const resultGraphQuery = QueryFactory.resultGraphQuery(resultGraph);
+    return await executeQuery(DB_NAME_RESULT_GRAPH, resultGraphQuery);
+  };
+
+  const deleteResultGraph = async (resultGraph: string) => {
+    const deleteResultGraphQuery =
+      QueryFactory.deleteResultGraphQuery(resultGraph);
+    return await executeQuery(DB_NAME_RESULT_GRAPH, deleteResultGraphQuery);
+  };
+  return {
+    fetchClasses,
+    updateGraph,
+    deleteGraph,
+    fetchResultGraphStatus,
+    fetchResultGraph,
+    deleteResultGraph,
+  };
 };
