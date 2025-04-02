@@ -19,6 +19,7 @@ const allowedLicenses = [
   "(MIT AND CC-BY-3.0)",
   "(MIT OR CC0-1.0)",
   "MIT*",
+  "LGPL-3.0-or-later",
 ];
 
 licenseChecker.init({ start: ".", json: true }, (err, packages) => {
