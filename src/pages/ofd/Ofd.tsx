@@ -21,7 +21,6 @@ import ReactFlow, {
   Node,
   ReactFlowProvider,
   useEdgesState,
-  useKeyPress,
   useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
@@ -93,7 +92,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     type: "",
   });
   const router = useRouter();
-  const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
@@ -103,6 +101,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const addConnectedEdges = useOfdStore((state) => state.addConnectedEdges);
   const clearConnectedEdges = useOfdStore((state) => state.clearConnectedEdges);
   const doubleClickToEnterSetupMode = userPreferencesStore((state) => state.doubleClickToEnterSetupMode);
+  const isGraphEditable = useOfdStore((state) => state.isGraphEditable);
+  const setIsGraphEditable = useOfdStore((state) => state.setIsGraphEditable);
 
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
@@ -156,11 +156,9 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setIsPopoverOpen(false);
   };
 
-  const isNodeDeletable = () => {
-    if (!isEditable) return false;
-    if (selectedNode?.data?.label === "Task") return false;
-    return true;
-  };
+  useEffect(() => {
+    setIsGraphEditable(isEditable);
+  }, [isEditable]);
 
   const onEdgeSelect = (path: string) => {
     setEdges((eds) => {
@@ -185,11 +183,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
     return [];
   }, [selectedNode, setupMode]);
-
-  useEffect(() => {
-    exitSetupMode();
-    setSelectedNode(null);
-  }, [deletePressed]);
 
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
@@ -536,7 +529,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   onPaneClick={handlePaneClick}
                   nodes={nodes}
                   edges={edges}
-                  deleteKeyCode={isNodeDeletable() ? "Delete" : null}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   connectionLineComponent={ConnectionLine}

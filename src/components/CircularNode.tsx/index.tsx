@@ -1,6 +1,6 @@
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import { Popover } from "react-tiny-popover";
-import { Handle, Position, useReactFlow } from "reactflow";
+import { Handle, Position, useReactFlow, useKeyPress } from "reactflow";
 import styles from "./CircularNode.module.scss";
 import ActionsMenu from "../ActionsMenu/ActionsMenu";
 import useOfdStore from '@/store/ofdStore';
@@ -23,6 +23,8 @@ const isParameter = (label) => {
 
 export default memo((node) => {
   //@ts-ignore
+  const deletePressed = useKeyPress(["Delete"]);
+  const isGraphEditable = useOfdStore((state) => state.isGraphEditable);
   const { data, isConnectable, type, id } = node;
   const label = data?.formData.formFields[0]?.value;
   const { deleteElements } = useReactFlow();
@@ -34,14 +36,19 @@ export default memo((node) => {
   const connectedEdgesFromNode = useOfdStore((state) => state.connectedEdgesFromNode);
 
 
-  const deleteNode = () => {
-    if (node.data.label !== 'Task') {
-      // Delete the node if it is not of type "Task" which should not be deletable
-      deleteElements({ nodes: [{ id }] });
+  useEffect(() => {
+    if (deletePressed && node.id === selectedNode?.id) {
+      deleteNode();
     }
-    setSetupMode(false)
+  }, [deletePressed]);
+
+  const deleteNode = () => {
+    if (node.data.label !== 'Task' && isGraphEditable) {
+      deleteElements({ nodes: [{ id }] });
+      setSelectedNode(null);
+      setSetupMode(false)
+    }
     setIsPopoverOpen(false)
-    setSelectedNode(null);
   };
 
   const disconnectNode = () => {
