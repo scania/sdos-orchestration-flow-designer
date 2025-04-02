@@ -24,6 +24,7 @@ interface ExecutionResultsProps {
 
 const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   const [tableData, setTableData] = useState<ExecutionResult[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
   const [selectedParameters, setSelectedParameters] = useState<any>(null);
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
@@ -59,6 +60,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   };
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         `/api/execute/results?iri=${encodeURIComponent(iri)}`
@@ -77,6 +79,8 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
       setTableData(mappedData);
     } catch (error) {
       console.error("Error fetching execution results:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,78 +145,84 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <table className={styles.table}>
-        <thead className={styles.table__header}>
-          <tr>
-            <th>User Name</th>
-            <th>Started At</th>
-            <th>Result Graph URI</th>
-            <th>Parameters</th>
-            <th>
-              Status{" "}
-              <span
-                onClick={handleRefreshStatus}
-                className="pointer"
-                title="Refresh Status"
-              >
-                <TdsIcon name="refresh" size="24px"></TdsIcon>
-              </span>
-            </th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody className={styles.table__body}>
-          {tableData.map((row) => (
-            <tr key={row.id}>
-              <td>{row.username}</td>
-              <td>{row.timeStamp}</td>
-              <td>{row.resultGraph}</td>
-              <td>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    openParametersModal(row.parameters);
-                  }}
+      {loading ? (
+        <div style={{ textAlign: "center", margin: "20px 0" }}>
+          <Spinner />
+        </div>
+      ) : (
+        <table className={styles.table}>
+          <thead className={styles.table__header}>
+            <tr>
+              <th>User Name</th>
+              <th>Started At</th>
+              <th>Result Graph URI</th>
+              <th>Parameters</th>
+              <th>
+                Status{" "}
+                <span
+                  onClick={handleRefreshStatus}
+                  className="pointer"
+                  title="Refresh Status"
                 >
-                  View Parameters
-                </a>
-              </td>
-              <td>
-                {getStatusIcon(row.status)} {row.status}
-                {row.status === "COMPLETE" && (
-                  <span
-                    onClick={(e) => {
-                      e.preventDefault();
-                      fetchResultGraph(row.resultGraph);
-                    }}
-                    title="View Result"
-                    className="pointer"
-                  >
-                    {` (View)`}
-                  </span>
-                )}
-              </td>
-              <td>
-                <Tooltip content={"Delete Result Graph"} direction="bottom">
-                  <TdsButton
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDelete(row.resultGraph);
-                    }}
-                    type="primary"
-                    variant="danger"
-                    size="sm"
-                    tds-aria-label="Delete result graph"
-                  >
-                    <TdsIcon slot="icon" size="20px" name="trash"></TdsIcon>
-                  </TdsButton>
-                </Tooltip>
-              </td>
+                  <TdsIcon name="refresh" size="24px"></TdsIcon>
+                </span>
+              </th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className={styles.table__body}>
+            {tableData.map((row) => (
+              <tr key={row.id}>
+                <td>{row.username}</td>
+                <td>{row.timeStamp}</td>
+                <td>{row.resultGraph}</td>
+                <td>
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openParametersModal(row.parameters);
+                    }}
+                  >
+                    View Parameters
+                  </a>
+                </td>
+                <td>
+                  {getStatusIcon(row.status)} {row.status}
+                  {row.status === "COMPLETE" && (
+                    <span
+                      onClick={(e) => {
+                        e.preventDefault();
+                        fetchResultGraph(row.resultGraph);
+                      }}
+                      title="View Result"
+                      className="pointer"
+                    >
+                      {` (View)`}
+                    </span>
+                  )}
+                </td>
+                <td>
+                  <Tooltip content={"Delete Result Graph"} direction="bottom">
+                    <TdsButton
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDelete(row.resultGraph);
+                      }}
+                      type="primary"
+                      variant="danger"
+                      size="sm"
+                      tds-aria-label="Delete result graph"
+                    >
+                      <TdsIcon slot="icon" size="20px" name="trash"></TdsIcon>
+                    </TdsButton>
+                  </Tooltip>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       {/* Modal for viewing execution parameters */}
       <Modal
