@@ -540,20 +540,20 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                         <div className={styles.footerContainer}>
                           <tds-radio-button
                             name="select-execute-type"
-                            value="Synchronous"
+                            value="sync"
                             radio-id="sync"
                             onClick={() => setExecutionType("sync")}
-                            checked
+                            checked={executionType === "sync"}
                           >
                             <div slot="label">Synchronous</div>
                           </tds-radio-button>
 
                           <tds-radio-button
                             name="select-execute-type"
-                            value="Asynchronous"
+                            value="async"
                             radio-id="async"
                             onClick={() => setExecutionType("async")}
-                            disabled={!parameters.length}
+                            checked={executionType === "async"}
                           >
                             <div slot="label">Asynchronous</div>
                           </tds-radio-button>
