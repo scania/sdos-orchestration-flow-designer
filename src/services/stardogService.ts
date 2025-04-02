@@ -48,13 +48,13 @@ async function convertJsonLdToNQuads(jsonLdData: JsonLdDocument) {
 export const getStardogInstance = ({
   token,
   endpoint,
-  accept,
+  acceptHeader,
 }: {
   token: string;
   endpoint?: string;
-  accept?: any;
+  acceptHeader?: any;
 }) => {
-  const executeQuery = async (dbName: string, testQuery: string) => {
+  const executeQuery = async (dbName: string, finalQuery: string) => {
     try {
       const conn = new Connection({
         username: "",
@@ -65,15 +65,15 @@ export const getStardogInstance = ({
       const results = await query.execute(
         conn,
         dbName,
-        testQuery,
-        accept || "application/sparql-results+json"
+        finalQuery,
+        acceptHeader || "application/sparql-results+json"
       );
       const { body, status } = results;
       if (!body && status === 200) {
         return;
       }
       // If the accept header is for JSON-LD, return the body directly.
-      if (accept === "application/ld+json") {
+      if (acceptHeader === "application/ld+json") {
         return body;
       }
       // Otherwise, return the bindings from a typical SPARQL SELECT query.

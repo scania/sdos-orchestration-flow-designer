@@ -38,7 +38,7 @@ export default async function handler(
         }
         const stardog = getStardogInstance({
           token: access_token,
-          accept: "application/ld+json",
+          acceptHeader: "application/ld+json",
         });
         const graphResult = await stardog.fetchResultGraph(resultGraph);
         return res.status(200).json(graphResult);

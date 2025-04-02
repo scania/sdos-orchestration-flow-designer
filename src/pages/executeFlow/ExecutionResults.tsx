@@ -7,6 +7,7 @@ import JsonView from "@uiw/react-json-view";
 import Tooltip from "@/components/Tooltip/Tooltip";
 import { TdsIcon, TdsButton } from "@scania/tegel-react";
 import Toast, { ToastItem } from "@/components/Toast/Toast";
+import Spinner from "@/components/Spinner/Spinner";
 
 interface ExecutionResult {
   id: string;
@@ -49,16 +50,12 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   );
 
   const getStatusIcon = (status: string): any => {
-    switch (status) {
-      case "COMPLETE":
-        return <TdsIcon name="tick" size="24px"></TdsIcon>;
-      case "FAILED":
-        return <TdsIcon name="cross" size="24px"></TdsIcon>;
-      case "INCOMPLETE":
-        return <TdsIcon name="clock" size="24px"></TdsIcon>;
-      default:
-        return <TdsIcon name="error" size="24px"></TdsIcon>;
-    }
+    const iconMap: Record<string, any> = {
+      COMPLETE: "tick",
+      FAILED: "cross",
+      INCOMPLETE: "clock",
+    };
+    return <TdsIcon name={iconMap[status] || "error"} size="24px" />;
   };
 
   const fetchData = async () => {
@@ -98,7 +95,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     setSelectedParameters(null);
   };
 
-  const openResultModal = async (resultGraph: string) => {
+  const fetchResultGraph = async (resultGraph: string) => {
     try {
       setResultGraphLoading(true);
       const response = await axios.get(
@@ -155,7 +152,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
               Status{" "}
               <span
                 onClick={handleRefreshStatus}
-                style={{ cursor: "pointer" }}
+                className="pointer"
                 title="Refresh Status"
               >
                 <TdsIcon name="refresh" size="24px"></TdsIcon>
@@ -187,17 +184,12 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                   <span
                     onClick={(e) => {
                       e.preventDefault();
-                      openResultModal(row.resultGraph);
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "blue",
-                      textDecoration: "underline",
-                      marginLeft: "8px",
+                      fetchResultGraph(row.resultGraph);
                     }}
                     title="View Result"
+                    className="pointer"
                   >
-                    View
+                    {` (View)`}
                   </span>
                 )}
               </td>
@@ -254,7 +246,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
       >
         <div>
           {resultGraphLoading ? (
-            <p>Loading...</p>
+            <Spinner />
           ) : resultGraphData ? (
             <JsonView
               value={resultGraphData}

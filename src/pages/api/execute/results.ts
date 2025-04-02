@@ -67,7 +67,7 @@ export default async function handler(
     const statusMap: Record<string, "COMPLETE" | "FAILED" | "INCOMPLETE"> = {};
     if (statusResponse) {
       statusResponse.forEach((item: any) => {
-        if (item.graph && item.graph.value && item.state && item.state.value) {
+        if (item.graph?.value && item.state?.value) {
           statusMap[item.graph.value] = item.state.value;
         }
       });
