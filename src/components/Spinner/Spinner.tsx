@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./Spinner.module.scss";
+import { TdsSpinner } from "@scania/tegel-react";
 
 interface SpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -8,7 +9,7 @@ interface SpinnerProps {
 const Spinner: React.FC<SpinnerProps> = ({ size = "lg" }) => {
   return (
     <div className={styles.spinnerContainer}>
-      <tds-spinner size={size}></tds-spinner>
+      <TdsSpinner size={size}></TdsSpinner>
     </div>
   );
 };

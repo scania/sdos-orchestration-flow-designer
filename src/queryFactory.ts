@@ -60,4 +60,36 @@ export class QueryFactory {
       }}
   `;
   }
+  public static resultGraphStatusQuery(resultGraphs: string[]): string {
+    const valuesClause = resultGraphs.map((g) => `<${g}>`).join(" ");
+    return `
+    PREFIX : <https://kg.scania.com/it/iris_orchestration/>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    SELECT * WHERE {
+      VALUES ?graph { ${valuesClause} }
+      GRAPH ?graph {
+          ?s rdf:type :ResultMetaData ;
+             :state ?state .
+      }
+    }
+  `;
+  }
+
+  public static resultGraphQuery(resultGraph: string): string {
+    return `
+   PREFIX : <https://kg.scania.com/it/iris_orchestration/>
+CONSTRUCT { ?s ?p ?o }
+WHERE {
+  GRAPH <${resultGraph}> {
+    ?s ?p ?o .
+  }
+}
+  `;
+  }
+
+  public static deleteResultGraphQuery(resultGraph: string): string {
+    return `
+  CLEAR GRAPH <${resultGraph}>
+  `;
+  }
 }
