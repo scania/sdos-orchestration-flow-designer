@@ -20,10 +20,11 @@
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #2058A8 !important; 
+  stroke: #2058A8 !important;
 }
 
-.react-flow__edge-path{
+
+.react-flow__edge-path {
   stroke: #37414F !important;
 }
 
@@ -41,6 +42,21 @@
 
 .react-flow__handle-left {
   left: -6px !important;
+}
+
+.react-flow__node-default.selectable.selected,
+.react-flow__node-default.selectable:focus,
+.react-flow__node-default.selectable:focus-visible,
+.react-flow__node-input.selectable.selected,
+.react-flow__node-input.selectable:focus,
+.react-flow__node-input.selectable:focus-visible,
+.react-flow__node-output.selectable.selected,
+.react-flow__node-output.selectable:focus,
+.react-flow__node-output.selectable:focus-visible,
+.react-flow__node-group.selectable.selected,
+.react-flow__node-group.selectable:focus,
+.react-flow__node-group.selectable:focus-visible {
+  box-shadow: none !important;
 }
 
 /* React flow offers custom edges(https://reactflow.dev/examples/edges/custom-edges)

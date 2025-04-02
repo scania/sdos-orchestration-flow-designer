@@ -81,7 +81,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const selectedNode = useOfdStore((state) => state.selectedNode);
+  const setSelectedNode = useOfdStore((state) => state.setSelectedNode);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
   const [highlightedClass, setHighlightedClass] = useState<{

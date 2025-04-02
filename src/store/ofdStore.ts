@@ -4,6 +4,11 @@ interface Edge {
   id: string;
 }
 
+interface Node {
+  id: string;
+  type: string;
+}
+
 // Define the store type for typescript linting
 interface OfdStore {
   setupMode: boolean;
@@ -11,6 +16,8 @@ interface OfdStore {
   connectedEdgesFromNode: Edge[];
   addConnectedEdges: (edges: Edge | Edge[]) => void;
   clearConnectedEdges: () => void;
+  selectedNode: Node | null;
+  setSelectedNode: (node: Node | null) => void;
 }
 
 const useOfdStore = create<OfdStore>((set) => ({
@@ -26,6 +33,8 @@ const useOfdStore = create<OfdStore>((set) => ({
       ],
     })),
   clearConnectedEdges: () => set({ connectedEdgesFromNode: [] }),
+  selectedNode: null,
+  setSelectedNode: (node) => set({ selectedNode: node })
 }));
 
 export default useOfdStore;

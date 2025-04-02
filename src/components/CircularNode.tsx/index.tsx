@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import { Popover } from "react-tiny-popover";
-import { Handle, Position, useReactFlow} from "reactflow";
+import { Handle, Position, useReactFlow } from "reactflow";
 import styles from "./CircularNode.module.scss";
 import ActionsMenu from "../ActionsMenu/ActionsMenu";
 import useOfdStore from '@/store/ofdStore';
@@ -28,45 +28,49 @@ export default memo((node) => {
   const { deleteElements } = useReactFlow();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   // Store
+  const selectedNode = useOfdStore((state) => state.selectedNode);
+  const setSelectedNode = useOfdStore((state) => state.setSelectedNode);
   const setSetupMode = useOfdStore((state) => state.setSetupMode);
   const connectedEdgesFromNode = useOfdStore((state) => state.connectedEdgesFromNode);
 
 
   const deleteNode = () => {
-    if(node.data.label !== 'Task'){
+    if (node.data.label !== 'Task') {
       // Delete the node if it is not of type "Task" which should not be deletable
       deleteElements({ nodes: [{ id }] });
     }
     setSetupMode(false)
     setIsPopoverOpen(false)
+    setSelectedNode(null);
   };
 
   const disconnectNode = () => {
-    deleteElements({ edges: [ ...connectedEdgesFromNode ] });
+    deleteElements({ edges: [...connectedEdgesFromNode] });
     setIsPopoverOpen(false)
   };
 
 
   return (
     <div
-      className={`${node.selected ? styles.selected : ""} ${styles.container} ${
-        data.label === "Task"
+      className={
+        `${node.id === selectedNode?.id ? styles.selected : ""} 
+        ${styles.container} ${data.label === "Task"
           ? styles.container__task
           : isParameter(data.label)
-          ? styles.container__secondary
-          : styles.container__primary
-      }`}
+            ? styles.container__secondary
+            : styles.container__primary
+        }`
+      }
     >
       <div className={styles.headingContainer}>
         <div
           data-tooltip={label}
-          className={`${styles.chip} ${
-            data.label === "Task"
+          className={`${styles.chip} ${data.label === "Task"
               ? styles.chip__task
               : isParameter(data.label)
-              ? styles.chip__secondary
-              : styles.chip__primary
-          }`}
+                ? styles.chip__secondary
+                : styles.chip__primary
+            }`}
         >
           {data.label}
         </div>
@@ -75,7 +79,7 @@ export default memo((node) => {
           onClickOutside={() => setIsPopoverOpen(false)}
           positions={["top", "bottom", "left", "right"]} // preferred positions by priority
           content={
-            <ActionsMenu onDeleteClick={() => deleteNode()} onDisconnectClick={() => disconnectNode()}/>
+            <ActionsMenu onDeleteClick={() => deleteNode()} onDisconnectClick={() => disconnectNode()} />
           }
         >
           <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className={styles.headingContainer__popover}>
