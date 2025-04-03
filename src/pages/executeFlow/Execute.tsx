@@ -8,7 +8,7 @@ import ExecutionLog from "@/components/ExecutionLog/ExecutionLog";
 import { isValidJson } from "@/helpers/helper";
 import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
 import { Parameter as ParameterTemplate } from "@/utils/types";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
 import { useForm } from "react-hook-form";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 import ExecutionResult from "@/components/ExecutionResult/ExecutionResult";
@@ -35,7 +35,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>("execution");
   const [executionType, setExecutionType] = useState<string>("sync");
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [exectionLogModalIsOpen, setExectionLogModalIsOpen] = useState(false);
   const [parameters, setParameters] = useState<Parameter[]>(initParameters);
   const [executionResultModalIsOpen, setExecutionResultModalIsOpen] =
@@ -49,6 +48,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   const [executionResult, setExecutionResult] = useState("");
   const [executionLog, setExecutionLog] = useState([]);
   const [dropdownKey, setDropdownKey] = useState(0);
+  const { showToast, clearToasts } = useToast();
 
   const {
     register,
@@ -64,26 +64,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     },
   });
 
-  const showToast = useCallback(
-    (
-      variant: "success" | "error" | "information" | "warning",
-      header: string,
-      description: string,
-      timeout?: number,
-      onShowMore?: Function
-    ) => {
-      const toastProperties: ToastItem = {
-        variant,
-        header,
-        description,
-        timeout,
-        onShowMore,
-      };
-      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
-    },
-    []
-  );
-
   const fetchParameters = useCallback(async () => {
     try {
       const response = await axios.get<Parameter[]>(`/api/parameters`, {
@@ -95,7 +75,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       showToast("error", "Error", "Failed to fetch parameters.");
       return [];
     }
-  }, [iri, showToast]);
+  }, [iri]);
 
   useEffect(() => {
     fetchParameters();
@@ -226,6 +206,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   };
 
   const handleShowMore = (executionIdHeader: string) => async () => {
+    clearToasts();
     setExectionLogModalIsOpen(true);
     try {
       const response = await axios.get(
@@ -234,8 +215,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         )}`
       );
       setExecutionLog(response.data);
-      // Remove toasts when the user has clicked "Show more"
-      setListOfToasts([]);
     } catch (error) {
       console.error(error);
     }
@@ -590,7 +569,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         <ExecutionLog executionLog={executionLog} />
       </Modal>
 
-      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { convertToLocalTime } from "@/helpers/helper";
 import JsonView from "@uiw/react-json-view";
 import Tooltip from "@/components/Tooltip/Tooltip";
 import { TdsIcon, TdsButton } from "@scania/tegel-react";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
 import Spinner from "@/components/Spinner/Spinner";
 
 interface ExecutionResult {
@@ -30,25 +30,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [resultGraphData, setResultGraphData] = useState<any>(null);
   const [resultGraphLoading, setResultGraphLoading] = useState(false);
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
-
-  const showToast = useCallback(
-    (
-      variant: "success" | "error" | "information" | "warning",
-      header: string,
-      description: string,
-      timeout?: number
-    ) => {
-      const toastProperties: ToastItem = {
-        variant,
-        header,
-        description,
-        timeout,
-      };
-      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
-    },
-    []
-  );
+  const { showToast } = useToast();
 
   const getStatusIcon = (status: string): any => {
     const iconMap: Record<string, any> = {
@@ -271,8 +253,6 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
           )}
         </div>
       </Modal>
-
-      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };
