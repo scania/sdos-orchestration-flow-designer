@@ -32,7 +32,7 @@ import DynamicForm from "./DynamicForm";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
 import useOfdStore from '@/store/ofdStore';
@@ -79,7 +79,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState();
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+  const { showToast } = useToast();
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const selectedNode = useOfdStore((state) => state.selectedNode);
   const setSelectedNode = useOfdStore((state) => state.setSelectedNode);
@@ -133,21 +133,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       cacheTime: 1000 * 60 * 30, // 30 minutes
     }
   );
-
-  const showToast = (
-    variant: string,
-    header: string,
-    description: string,
-    timeout?: number
-  ) => {
-    const toastProperties = {
-      variant,
-      header,
-      description,
-      timeout,
-    };
-    setListOfToasts([...listOfToasts, toastProperties]);
-  };
 
   const resetEdgeSelection = () => {
     setConnectionParams(null);
@@ -603,7 +588,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           </div>
         </section>
       </div>
-      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };

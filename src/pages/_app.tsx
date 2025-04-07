@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import ThemeProvider from "@/context/ThemeProvider";
 import "@/styles/globals.css";
+import Toast from "@/components/Toast/Toast";
 import type { AppProps } from "next/app";
 import "../stencil-components";
 import { SessionProvider } from "next-auth/react";
@@ -18,6 +19,7 @@ export default function App({
         <SessionProvider session={session}>
           <Layout>
             <Component {...pageProps} />
+            <Toast />
           </Layout>
         </SessionProvider>
       </ThemeProvider>

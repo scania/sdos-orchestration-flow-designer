@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react";
 import { useState, useCallback, ChangeEvent } from "react";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
 import axios from "axios";
 import styles from "./fileConverter.module.scss";
 
@@ -21,26 +21,7 @@ interface FileConverterProps {
 
 export default function FileConverter({ onFileConverted }: FileConverterProps) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
-
-  const showToast = useCallback(
-      (
-        variant: "success" | "error" | "information" | "warning",
-        header: string,
-        description: string,
-        timeout?: number
-      ) => {
-        const toastProperties: ToastItem = {
-          variant,
-          header,
-          description,
-          timeout,
-        };
-        setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
-      },
-      []
-    );
-
+  const { showToast } = useToast();
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,7 +59,6 @@ export default function FileConverter({ onFileConverted }: FileConverterProps) {
         onChange={handleFileChange}
         disabled={loading}
       />
-      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 }

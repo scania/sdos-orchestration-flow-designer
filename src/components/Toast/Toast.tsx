@@ -1,5 +1,8 @@
+// components/Toast/Toast.tsx
+
 import React, { useEffect, useRef } from "react";
 import { TdsMessage } from "@scania/tegel-react";
+import useGlobalUIStore  from "@/store/globalUIStore";
 import styles from "./toast.module.scss";
 
 export interface ToastItem {
@@ -10,12 +13,9 @@ export interface ToastItem {
   onShowMore?: (toast: ToastItem) => void;
 }
 
-interface ToastProps {
-  listOfToasts: ToastItem[];
-  setListOfToasts: React.Dispatch<React.SetStateAction<ToastItem[]>>;
-}
-
-const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
+const Toast: React.FC = () => {
+  const listOfToasts = useGlobalUIStore ((state) => state.toasts);
+  const removeToast = useGlobalUIStore ((state) => state.removeToast);
   const timersRef = useRef<(NodeJS.Timeout | null)[]>([]);
 
   useEffect(() => {
@@ -24,10 +24,8 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
     });
 
     timersRef.current = listOfToasts.map((toast, index) => {
-      const toastTimeout = toast.timeout ?? 5000;
-      return setTimeout(() => {
-        removeToast(index);
-      }, toastTimeout);
+      const timeout = toast.timeout ?? 5000;
+      return setTimeout(() => removeToast(index), timeout);
     });
 
     return () => {
@@ -35,11 +33,7 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
         if (timer) clearTimeout(timer);
       });
     };
-  }, [listOfToasts, setListOfToasts]);
-
-  const removeToast = (index: number) => {
-    setListOfToasts((prevToasts) => prevToasts.filter((_, i) => i !== index));
-  };
+  }, [listOfToasts]);
 
   const handleMouseEnter = (index: number) => {
     if (timersRef.current[index]) {
@@ -51,10 +45,10 @@ const Toast: React.FC<ToastProps> = ({ listOfToasts, setListOfToasts }) => {
   const handleMouseLeave = (index: number) => {
     const toast = listOfToasts[index];
     if (!toast) return;
-    const toastTimeout = toast.timeout ?? 5000;
+    const timeout = toast.timeout ?? 5000;
     timersRef.current[index] = setTimeout(() => {
       removeToast(index);
-    }, toastTimeout);
+    }, timeout);
   };
 
   return (

@@ -1,8 +1,9 @@
 import { env } from "@/lib/env";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
+import { useToast } from "@/hooks/useToast";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import Card from "@/components/Card/Card";
@@ -12,14 +13,12 @@ import Tabs from "@/components/Tabs/Tabs";
 import Tab from "@/components/Tabs/Tab";
 import {
   TdsDivider,
-  TdsModal,
   TdsButton,
   TdsTextField,
   TdsTextarea,
 } from "@scania/tegel-react";
 import TaskSelection from "@/components/TaskSelection";
 import { Task } from "@/utils/types";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
 import Introduction from "@/components/homepage/IntroductionContent";
 
 // Server-side authentication check
@@ -79,7 +78,6 @@ function App({
   const [isCreateGraphModalOpen, setIsCreateGraphModalOpen] = useState(false);
   const [isExecuteGraphModalOpen, setIsExecuteGraphModalOpen] = useState(false);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [toBeDeletedId, setToBeDeletedId] = useState<string | null>(null);
   const router = useRouter();
   const {
@@ -95,6 +93,8 @@ function App({
     register: registerExecuteGraph,
     formState: { errors: errorsExecuteGraph },
   } = useForm();
+
+  const { showToast } = useToast();
 
   const displayedFlows = flows.filter((flow) =>
     activeTab === "My work" ? flow.user.id === userId : flow.user.id !== userId
@@ -121,24 +121,6 @@ function App({
       setToBeDeletedId(null);
     }
   };
-
-  const showToast = useCallback(
-    (
-      variant: "success" | "error" | "information" | "warning",
-      header: string,
-      description: string,
-      timeout?: number
-    ) => {
-      const toastProperties: ToastItem = {
-        variant,
-        header,
-        description,
-        timeout,
-      };
-      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
-    },
-    []
-  );
 
   const fetchFlows = async () => {
     try {
@@ -352,7 +334,6 @@ function App({
             </div>
           </div>
         </div>
-        <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
       </main>
     </div>
   );
