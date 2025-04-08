@@ -275,8 +275,8 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
           );
 
           showToast(
-            "success",
-            "Execution Successful",
+            "information",
+            "Execution Started",
             `Result Graph: ${response.data.resultGraphURI}`,
             3500
           );
