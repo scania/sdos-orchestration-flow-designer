@@ -541,8 +541,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   nodesDraggable={isEditable}
                   nodesConnectable={isEditable}
                 >
-                  <Controls style={{ display: "flex" }} position="top-center" />
-                  {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
                 {setupMode && selectedNode && (
