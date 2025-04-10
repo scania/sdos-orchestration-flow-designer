@@ -24,6 +24,8 @@ interface Parameter {
 interface ExecuteProp {
   iri: string;
   baseUrl: string;
+  explorerUrl: string;
+  resultGraphDB: string;
   initParameters: Parameter[];
   taskTemplate: ParameterTemplate[];
 }
@@ -31,6 +33,8 @@ interface ExecuteProp {
 const ExecuteFlow: React.FC<ExecuteProp> = ({
   iri,
   baseUrl,
+  explorerUrl,
+  resultGraphDB,
   initParameters = [],
   taskTemplate = [],
 }) => {
@@ -432,86 +436,86 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                     {/* Existing Parameters */}
                     {(selectedExecutionMethod === "Existing" ||
                       selectedExecutionMethod === "Editing") && (
-                        <>
-                          <div
-                            className={
-                              styles.contentContainer__parameterContainer
-                            }
-                          >
-                            <TdsDropdown
-                              name="dropdown"
-                              key={dropdownKey}
-                              label="Select Parameter Set"
-                              label-position="outside"
-                              placeholder="Select parameter set"
-                              size="sm"
-                              multiselect={false}
-                              onTdsChange={(e) => selectParameter(e.detail.value)}
-                              open-direction="auto"
-                              normalizeText={true}
-                              defaultValue={selectedParameter?.id}
-                            >
-                              {parameters.map((parameter) => (
-                                <TdsDropdownOption
-                                  value={parameter.id}
-                                  key={parameter.id}
-                                >
-                                  {parameter.name}
-                                </TdsDropdownOption>
-                              ))}
-                            </TdsDropdown>
-                            {selectedParameter && (
-                              <>
-                                <tds-button
-                                  text={
-                                    selectedExecutionMethod === "Editing"
-                                      ? "Save"
-                                      : "Edit"
-                                  }
-                                  size="sm"
-                                  onClick={
-                                    selectedExecutionMethod === "Editing"
-                                      ? handleSubmit(saveEditedParameter)
-                                      : () =>
-                                        setSelectedExecutionMethod("Editing")
-                                  }
-                                ></tds-button>
-
-                                <tds-button
-                                  text="Delete"
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={deleteParameter}
-                                ></tds-button>
-                              </>
-                            )}
-                          </div>
-
-                          <tds-textarea
-                            label="JSON"
-                            rows={12}
+                      <>
+                        <div
+                          className={
+                            styles.contentContainer__parameterContainer
+                          }
+                        >
+                          <TdsDropdown
+                            name="dropdown"
+                            key={dropdownKey}
+                            label="Select Parameter Set"
                             label-position="outside"
-                            disabled={selectedExecutionMethod !== "Editing"}
-                            helper={errors.value?.message || ""}
-                            state={errors.value ? "error" : "default"}
-                            value={watch("value")}
-                            onInput={(e) =>
-                              selectedExecutionMethod === "Editing" &&
-                              setValue(
-                                "value",
-                                (e.target as HTMLTextAreaElement).value
-                              )
-                            }
-                            {...(selectedExecutionMethod === "Editing"
-                              ? register("value", {
+                            placeholder="Select parameter set"
+                            size="sm"
+                            multiselect={false}
+                            onTdsChange={(e) => selectParameter(e.detail.value)}
+                            open-direction="auto"
+                            normalizeText={true}
+                            defaultValue={selectedParameter?.id}
+                          >
+                            {parameters.map((parameter) => (
+                              <TdsDropdownOption
+                                value={parameter.id}
+                                key={parameter.id}
+                              >
+                                {parameter.name}
+                              </TdsDropdownOption>
+                            ))}
+                          </TdsDropdown>
+                          {selectedParameter && (
+                            <>
+                              <tds-button
+                                text={
+                                  selectedExecutionMethod === "Editing"
+                                    ? "Save"
+                                    : "Edit"
+                                }
+                                size="sm"
+                                onClick={
+                                  selectedExecutionMethod === "Editing"
+                                    ? handleSubmit(saveEditedParameter)
+                                    : () =>
+                                        setSelectedExecutionMethod("Editing")
+                                }
+                              ></tds-button>
+
+                              <tds-button
+                                text="Delete"
+                                size="sm"
+                                variant="secondary"
+                                onClick={deleteParameter}
+                              ></tds-button>
+                            </>
+                          )}
+                        </div>
+
+                        <tds-textarea
+                          label="JSON"
+                          rows={12}
+                          label-position="outside"
+                          disabled={selectedExecutionMethod !== "Editing"}
+                          helper={errors.value?.message || ""}
+                          state={errors.value ? "error" : "default"}
+                          value={watch("value")}
+                          onInput={(e) =>
+                            selectedExecutionMethod === "Editing" &&
+                            setValue(
+                              "value",
+                              (e.target as HTMLTextAreaElement).value
+                            )
+                          }
+                          {...(selectedExecutionMethod === "Editing"
+                            ? register("value", {
                                 required: "Parameter set value is required",
                                 validate: (value) =>
                                   isValidJson(value) ? true : "Invalid JSON",
                               })
-                              : {})}
-                          ></tds-textarea>
-                        </>
-                      )}
+                            : {})}
+                        ></tds-textarea>
+                      </>
+                    )}
 
                     {/* Execute Button */}
 
@@ -557,7 +561,11 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
               </div>
             </Tab>
             <Tab label={"Results"} tabKey="results">
-              <ExecutionResults iri={iri} />
+              <ExecutionResults
+                iri={iri}
+                explorerUrl={explorerUrl}
+                resultGraphDB={resultGraphDB}
+              />
             </Tab>
           </Tabs>
         </div>
@@ -578,7 +586,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       >
         <ExecutionLog executionLog={executionLog} />
       </Modal>
-
     </div>
   );
 };

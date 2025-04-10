@@ -20,9 +20,15 @@ interface ExecutionResult {
 
 interface ExecutionResultsProps {
   iri: string;
+  explorerUrl: string;
+  resultGraphDB: string;
 }
 
-const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
+const ExecutionResults: React.FC<ExecutionResultsProps> = ({
+  iri,
+  explorerUrl,
+  resultGraphDB,
+}) => {
   const [tableData, setTableData] = useState<ExecutionResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
@@ -172,16 +178,39 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                 <td>
                   {getStatusIcon(row.status)} {row.status}
                   {row.status === "COMPLETE" && (
-                    <span
-                      onClick={(e) => {
-                        e.preventDefault();
-                        fetchResultGraph(row.resultGraph);
-                      }}
-                      title="View Result"
-                      className="pointer"
-                    >
-                      {` (View)`}
-                    </span>
+                    <>
+                      <span
+                        onClick={(e) => {
+                          e.preventDefault();
+                          fetchResultGraph(row.resultGraph);
+                        }}
+                        title="View Result"
+                        className="pointer"
+                        style={{
+                          marginLeft: "8px",
+                          color: "blue",
+                          textDecoration: "underline",
+                        }}
+                      >
+                        (View)
+                      </span>
+                      <Tooltip
+                        content={"Open in Stardog Explorer"}
+                        direction="bottom"
+                      >
+                        <a
+                          href={`${explorerUrl}/u/0/explorer/#/graph?db=${resultGraphDB}&graph=${encodeURIComponent(
+                            row.resultGraph
+                          )}&reasoning`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Open in Stardog Explorer"
+                          style={{ marginLeft: "8px", verticalAlign: "middle" }}
+                        >
+                          <TdsIcon name="redirect" size="24px" />
+                        </a>
+                      </Tooltip>
+                    </>
                   )}
                 </td>
                 <td>

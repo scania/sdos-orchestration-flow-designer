@@ -10,6 +10,7 @@ const envSchema = z.object({
   STARDOG_ENDPOINT: z.string().url().min(1),
   STARDOG_DB_NAME_WRITE: z.string().min(1),
   STARDOG_DB_RESULT_GRAPH: z.string().min(1),
+  STARDOG_LAUNCHPAD: z.string().url().min(1),
   NEXTAUTH_URL: z.string().url().min(1),
   NEXTAUTH_SECRET: z.string().uuid().min(1),
   DATABASE_URL: z.string().url().min(1),

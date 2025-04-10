@@ -44,6 +44,8 @@ export async function getServerSideProps(context: any) {
       props: {
         iri,
         baseUrl: env.NEXTAUTH_URL,
+        explorerUrl: env.STARDOG_LAUNCHPAD,
+        resultGraphDB: env.STARDOG_DB_RESULT_GRAPH,
         initParameters,
         taskTemplate,
       },
