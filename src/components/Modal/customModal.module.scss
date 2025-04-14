@@ -1,4 +1,4 @@
-.header{
+.header {
   margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
@@ -27,6 +27,9 @@
   min-width: 360px;
   max-width: 1200px;
   position: relative;
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-900);
+  }
 
   /* Media query for mobile */
   @media (max-width: 768px) {
@@ -35,4 +38,3 @@
     max-width: 90%;
   }
 }
-

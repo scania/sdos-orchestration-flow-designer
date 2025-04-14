@@ -5,12 +5,19 @@
     border-radius: 5;
     font-size: 12;
     font-weight: 700;
+    :global(.tds-mode-dark) & {
+        background-color: var(--tds-grey-900);
+        color: #fff;
+    }
 }
 
 .endMarker{
     stroke: #0d0f13;
     fill: #0d0f13;
     stroke-width: 1;
+    :global(.tds-mode-dark) & {
+        stroke: white;
+    }    
 }
 
 .disconnect {
@@ -20,4 +27,7 @@
     pointer-events: all;
     color: var(--tds-negative);
     background: white;
+    :global(.tds-mode-dark) & {
+        background-color: var(--tds-grey-900);
+    }
 }

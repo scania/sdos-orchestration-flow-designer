@@ -27,12 +27,6 @@ const CustomEdge = ({ id, data, ...props }) => {
   const [edgePath, labelX, labelY] = getEdgeType(props);
   const { deleteElements } = useReactFlow();
 
-  
-
-  
-  
-
-
   function DisconnectLine() {
     return (
       <div
