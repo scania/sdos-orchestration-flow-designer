@@ -6,22 +6,32 @@
   margin: 20px;
   border-radius: 4px;
   position: absolute;
-  background: white;
+  background-color: #fff;
   z-index: 1;
   max-height: calc(-240px + 100vh);
   box-shadow: 0px 3px 3px 0px #00000026;
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-900);
+    box-shadow: 0px 3px 3px 0px #000000;
+  }
 
   .active__container {
-    background: var(--tds-blue-400);
+    background-color: var(--tds-blue-400);
     color: white;
   }
   
   .active__chip {
-    background: var(--tds-blue-50);
+    background-color: var(--tds-blue-50);
+    :global(.tds-mode-dark) & {
+      background-color: var(--tds-grey-958);
+    }
   }
   
   .inactive__chip {
-    background: var(--tds-grey-50);
+    background-color: var(--tds-grey-50);
+    :global(.tds-mode-dark) & {
+      background-color: var(--tds-grey-700);
+    }
   }
 
   &__header {
@@ -71,6 +81,9 @@
       width: 100%;
       position: sticky;
       bottom: 0px;
+      :global(.tds-mode-dark) & {
+        background-color: var(--tds-grey-950);
+      }
     }
 
     &__class {
@@ -84,6 +97,9 @@
 
       &:hover {
         background: var(--tds-grey-100);
+        :global(.tds-mode-dark) & {
+          background-color: var(--tds-grey-800);
+        }
       }
 
       &__content {

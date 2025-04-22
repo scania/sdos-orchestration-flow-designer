@@ -2,7 +2,10 @@
   display: flex;
   justify-content: flex-start;
   border-bottom: 1px solid #ddd;
-
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-900);
+    border-bottom: 1px solid var(--tds-divider-background);
+  }
 }
 
 .tab {
@@ -14,6 +17,9 @@
   padding: 16px;
   margin-left: 8px;
   line-height: 16px;
+  :global(.tds-mode-dark) & {
+    color: var(--tds-grey-50);
+  }
 }
 
 .active {

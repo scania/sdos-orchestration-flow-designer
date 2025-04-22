@@ -27,25 +27,23 @@ interface ThemeProviderProps {
 
 const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<string>("light");
-  const [initialized, setInitialized] = useState<Boolean>(false);
-  // Default value
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    // Try to read theme from local storage or set based on system preference
-    const initTheme = () => {
-      const theme = localStorage.getItem("theme") ?? 'light';
-      setTheme(theme);
-      setInitialized(true);
-    };
+    const storedTheme = localStorage.getItem("theme");
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const resolvedTheme = storedTheme ?? (systemPrefersDark ? "dark" : "light");
 
-    initTheme();
+    setTheme(resolvedTheme);
+    setInitialized(true);
   }, []);
 
   useEffect(() => {
-    if (initialized) {
-      localStorage.setItem("theme", theme);
-    }
-  }, [theme]);
+    if (!initialized) return;
+
+    document.body.classList.toggle("tds-mode-dark", theme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme, initialized]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
@@ -57,5 +55,6 @@ const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     </ThemeContext.Provider>
   );
 };
+
 
 export default ThemeProvider;

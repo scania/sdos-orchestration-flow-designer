@@ -12,7 +12,6 @@ import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
 import Tab from "@/components/Tabs/Tab";
 import {
-  TdsDivider,
   TdsButton,
   TdsTextField,
   TdsTextarea,
@@ -328,9 +327,6 @@ function App({
               ) : (
                 <h5>No graphs available</h5>
               )}
-            </div>
-            <div className={styles["content__main__line"]}>
-              <TdsDivider orientation="horizontal"></TdsDivider>
             </div>
           </div>
         </div>

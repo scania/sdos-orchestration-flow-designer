@@ -18,6 +18,9 @@
 
 .headerContainer {
   padding: 16px 24px;
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-900);
+  }
 
   &__detailsContainer {
     display: flex;
@@ -29,11 +32,17 @@
 .outerContentContainer {
   padding: 24px;
   background: #f9fafb;
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-958);
+  }
 }
 
 .contentContainer {
   padding: 32px;
   background: white;
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-900);
+  }
 
   & hr {
     border: none;
@@ -78,6 +87,10 @@
     background-color: var(--tds-grey-300);
     color: #0D0F13;
     text-align: left;
+    :global(.tds-mode-dark) & {
+      background-color: var(--tds-grey-900);
+      color: #fff;
+    }
 
     & th{
       padding: 16px;
@@ -90,6 +103,10 @@
     background-color: var(--tds-grey-50);
     color: #0D0F13;
     text-align: left;
+    :global(.tds-mode-dark) & {
+      background-color: var(--tds-grey-958);
+      color: #fff;
+    }
 
     & td{
       padding: 16px;
