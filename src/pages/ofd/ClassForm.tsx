@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import styles from "./ofd.module.scss";
 import { TdsTextarea } from "@scania/tegel-react";
-import { DynamicFormProps, FormField, IFormInput } from "@/utils/types";
+import { ClassFormProps, FormField, IFormInput } from "@/utils/types";
 import { replaceSpecialChars } from "@/helpers/helper";
 import FileConverter from "@/components/FileConverter";
 
-const DynamicForm: React.FC<DynamicFormProps> = ({
+const ClassForm: React.FC<ClassFormProps> = ({
   formData = { formFields: [] },
   onSubmit,
   excludeKeys = ["http://www.w3.org/2000/01/rdf-schema#label"],
@@ -248,4 +248,4 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   );
 };
 
-export default React.memo(DynamicForm);
+export default React.memo(ClassForm);

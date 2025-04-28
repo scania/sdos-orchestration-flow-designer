@@ -1,6 +1,6 @@
 // Import necessary types
 import {
-  DynamicFormField,
+  ClassFormField,
   FormFieldType,
   ObjectProperties,
   PropertyWithDataType,
@@ -170,9 +170,9 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     );
   };
 
-  const convertToDynamicFormArray = (
+  const convertToClassFormArray = (
     shapes: SHACLPropertyShape[]
-  ): DynamicFormField[] => {
+  ): ClassFormField[] => {
     return shapes.map((shape) => {
       const label = shape["http://www.w3.org/2000/01/rdf-schema#label"];
       const pattern = shape["http://www.w3.org/ns/shacl#pattern"];
@@ -222,7 +222,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
           break;
       }
 
-      const field: DynamicFormField = {
+      const field: ClassFormField = {
         name: path || "",
         type: type,
         label: comment,
@@ -262,6 +262,6 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     getPropertyDetails,
     generatePropertyDetailsForClass,
     getSubclassOf,
-    convertToDynamicFormArray,
+    convertToClassFormArray,
   };
 };

@@ -44,7 +44,7 @@ export interface FormFieldValidation {
   message?: string;
 }
 
-export interface DynamicFormField {
+export interface ClassFormField {
   name: string;
   type: FormFieldType;
   label: string;
@@ -98,7 +98,7 @@ export interface FormData {
   formFields: FormField[];
 }
 
-export interface DynamicFormProps {
+export interface ClassFormProps {
   classConfig: any;
   formData: FormData;
   onSubmit: (data: IFormInput) => void;

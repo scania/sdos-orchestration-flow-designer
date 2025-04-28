@@ -27,7 +27,7 @@ import "reactflow/dist/style.css";
 import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
-import DynamicForm from "./DynamicForm";
+import ClassForm from "./ClassForm";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
@@ -539,7 +539,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                 </ReactFlow>
                 {setupMode && selectedNode && (
                   <div className={styles.form}>
-                    <DynamicForm
+                    <ClassForm
                       key={selectedNode.id}
                       formData={selectedNode.data?.formData}
                       onSubmit={handleFormSubmit}
