@@ -14,7 +14,7 @@ const coreField = {
     message: "Label must be a string with 1 to 50 characters",
   },
 };
-async function generateDynamicFormData(className: string) {
+async function generateClassFormData(className: string) {
   const filePath1 = "ofg_shapes.ttl";
   const filePath2 = "orchestration_ontology.ttl";
   const quads1 = await parseTTLFile(filePath1);
@@ -26,10 +26,10 @@ async function generateDynamicFormData(className: string) {
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
-  const { generatePropertyDetailsForClass, convertToDynamicFormArray } =
+  const { generatePropertyDetailsForClass, convertToClassFormArray } =
     SHACLProcessor;
   const propertyDetailsForClass = generatePropertyDetailsForClass(className);
-  const formFields = convertToDynamicFormArray(propertyDetailsForClass as any);
+  const formFields = convertToClassFormArray(propertyDetailsForClass as any);
   const subClassOf = SHACLProcessor.getSubclassOf(className);
   const objectProperties = SHACLProcessor.getObjectPropertyDetails(shapeUri);
   return {
@@ -47,7 +47,7 @@ export default async function handler(
   try {
     const className = (req.query.className as string) || "HTTPAction";
 
-    const formData = await generateDynamicFormData(className);
+    const formData = await generateClassFormData(className);
     const allFields = [
       { ...coreField, value: className },
       ...formData.formFields,

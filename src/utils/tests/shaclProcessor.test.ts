@@ -1,4 +1,4 @@
-import { SHACLPropertyShape, DynamicFormField, FormFieldType } from "../types";
+import { SHACLPropertyShape, ClassFormField, FormFieldType } from "../types";
 import { createSHACLProcessor } from "../shaclProcessor";
 import { parseTTLFile, convertQuadsToJson } from "../shaclUtils";
 
@@ -173,7 +173,7 @@ describe("createSHACLProcessor", () => {
     });
   });
 
-  describe("convertToDynamicFormArray", () => {
+  describe("convertToClassFormArray", () => {
     test("correctly maps shapes to form fields", () => {
       const shapes: SHACLPropertyShape[] = [
         {
@@ -185,7 +185,7 @@ describe("createSHACLProcessor", () => {
           "http://www.w3.org/ns/shacl#minCount": "1",
         },
       ];
-      const result = processor.convertToDynamicFormArray(shapes);
+      const result = processor.convertToClassFormArray(shapes);
       expect(result).toEqual([
         {
           name: ":username",
@@ -206,7 +206,7 @@ describe("createSHACLProcessor", () => {
             "http://example.org/CustomDataType",
         },
       ];
-      const result = processor.convertToDynamicFormArray(shapes);
+      const result = processor.convertToClassFormArray(shapes);
       expect(result[0].type).toBe(FormFieldType.Unknown);
     });
 
@@ -219,7 +219,7 @@ describe("createSHACLProcessor", () => {
             "http://www.w3.org/2001/XMLSchema#integer",
         },
       ];
-      const result = processor.convertToDynamicFormArray(shapes);
+      const result = processor.convertToClassFormArray(shapes);
       expect(result[0]).not.toHaveProperty("validation");
     });
   });
