@@ -1,38 +1,19 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]";
-import { getToken } from "next-auth/jwt";
+import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
-import { env } from "../../../lib/env";
-import logger from "../../../lib/logger";
-import { getSDOSOBOToken } from "../../../lib/backend/sdosOBO";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
+import { env } from "@/lib/env";
+import logger from "@/lib/logger";
+import { getSDOSOBOToken } from "@/lib/backend/sdosOBO";
 import prisma from "@/lib/prisma";
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  ctx: AuthContext
 ) {
   try {
     logger.info("Async orchestration request received.");
     logger.debug("Request details:", { method: req.method, url: req.url });
-
-    // Check the user session
-    const session = await getServerSession(req, res, authOptions);
-    if (!session && env.NODE_ENV === "production") {
-      logger.error("Unauthorized request.");
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    // Retrieve the OBO token
-    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    if (!token) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-    const { access_token } = await getSDOSOBOToken(token);
-    if (!access_token) {
-      logger.error("OBO token missing.");
-      return res.status(403).json({ error: "Forbidden" });
-    }
 
     if (req.method === "POST") {
       logger.debug("POST request received for async orchestration.");
@@ -45,7 +26,6 @@ export default async function handler(
       }
 
       try {
-        // Call the asynchronous orchestration endpoint
         logger.info(
           "Sending POST request to asynchronous orchestration endpoint."
         );
@@ -54,7 +34,7 @@ export default async function handler(
           { subjectIri, parameters },
           {
             headers: {
-              Authorization: `Bearer ${access_token}`,
+              Authorization: `Bearer ${ctx.tokens.sdosOBO}`,
               "Content-Type": "application/json",
               Accept: "application/ld+json",
             },
@@ -64,19 +44,16 @@ export default async function handler(
         logger.info("Async orchestration initiated successfully.");
         logger.debug("API response data:", response.data);
 
-        // Extract the result graph IRI from the response
-        const resultGraphIRI = response.data.resultgraph;
         const executionId = response.headers["executionid"] || null;
         if (executionId) {
           res.setHeader("Execution-Id", executionId);
         }
 
-        // Save the result in the database
         const newExecutionResult = await prisma.executionResult.create({
           data: {
             iri: subjectIri,
-            userId: session.user.id,
-            resultGraphURI: resultGraphIRI,
+            userId: ctx.session!.user.id,
+            resultGraphURI: response.data.resultgraph,
             executionParameters: parameters,
           },
         });
@@ -87,13 +64,16 @@ export default async function handler(
           "Error executing asynchronous orchestration:",
           error?.message
         );
+
         if (error?.response?.headers?.["executionid"]) {
           res.setHeader("Execution-Id", error.response.headers["executionid"]);
         }
+
         if (error.response) {
           const statusCode = error.response.status || 500;
           let errorMessage = "Failed to execute asynchronous orchestration";
           const errorData = error.response.data;
+
           if (errorData && typeof errorData === "object") {
             if (
               Array.isArray(errorData.messages) &&
@@ -106,6 +86,7 @@ export default async function handler(
           } else if (typeof errorData === "string") {
             errorMessage = errorData;
           }
+
           return res.status(statusCode).json({ error: errorMessage });
         } else if (error.request) {
           return res
@@ -123,3 +104,5 @@ export default async function handler(
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+export default withAuth({ sdosOBO: getSDOSOBOToken })(handler);

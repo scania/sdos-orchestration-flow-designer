@@ -1,12 +1,19 @@
-import { handleError, validateSession } from "@/lib/backend/helper";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
+import { handleError } from "@/lib/backend/helper";
 import logger from "@/lib/logger";
 import prisma from "@/lib/prisma";
-import { NextApiRequest, NextApiResponse } from "next";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  ctx: AuthContext
+) {
   try {
-    const session = await validateSession(req, res);
-    if (!session || !session.user || !session.user.id) return;
+    const session = ctx.session;
+    if (!session?.user?.id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
     const { name } = req.query;
     if (!name) {
@@ -15,21 +22,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     switch (req.method) {
-      case "GET":
+      case "GET": {
         const flow = await prisma.flow.findFirst({
           where: { name: name as string },
         });
-        if (flow) {
-          return res.status(200).json(true);
-        }
-        return res.status(200).json(false);
+        return res.status(200).json(!!flow);
+      }
 
       default:
         logger.error("Method not allowed.");
-
         return res.status(405).json({ error: "Method not allowed" });
     }
-  } catch (error) {
+  } catch (error: any) {
     handleError(error, res);
   }
-};
+}
+
+export default withAuth({})(handler);

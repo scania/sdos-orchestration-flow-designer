@@ -1,69 +1,50 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
 import prisma from "@/lib/prisma";
-import logger from "../../../lib/logger";
-import { getOBOToken as getStardogOBOToken } from "../../../lib/backend/stardogOBO";
+import logger from "@/lib/logger";
+import { getOBOToken as getStardogOBOToken } from "@/lib/backend/stardogOBO";
 import { getStardogInstance } from "@/services/stardogService";
-import { getToken } from "next-auth/jwt";
-import { env } from "../../../lib/env";
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  ctx: AuthContext
 ) {
   try {
     logger.info("Fetching execution results by IRI.");
-    const session = await getServerSession(req, res, authOptions);
-    if (!session || !session.user || !session.user.id) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
 
     if (req.method !== "GET") {
+      logger.error("Method not allowed.");
       return res.status(405).json({ error: "Method not allowed" });
-    }
-
-    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    if (!token) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
-    const { access_token } = await getStardogOBOToken(token);
-
-    if (!access_token) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
     }
 
     const { iri } = req.query;
     if (!iri || typeof iri !== "string") {
+      logger.error("Missing or invalid 'iri' parameter.");
       return res
         .status(400)
         .json({ error: "Missing or invalid 'iri' parameter." });
     }
 
+    // Load from database
     const executionResults = await prisma.executionResult.findMany({
       where: { iri },
-      include: {
-        user: {
-          select: { name: true },
-        },
-      },
+      include: { user: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
     });
 
-    // Extract all resultGraphURIs from the execution results.
+    // Fetch statuses from Stardog
     const resultGraphURIs = executionResults.map((item) => item.resultGraphURI);
-    const stardog = getStardogInstance({ token: access_token });
-
+    const stardog = getStardogInstance({ token: ctx.tokens.stardogOBOToken });
     let statusResponse: any = null;
+
     try {
       statusResponse = await stardog.fetchResultGraphStatus(resultGraphURIs);
     } catch (err) {
-      logger.error("Error fetching stardog result graph status");
-      statusResponse = null;
+      logger.error("Error fetching stardog result graph status", err);
     }
-    // Build a lookup of status keyed by graph URI.
+
+    // Build status map
     const statusMap: Record<string, "COMPLETE" | "FAILED" | "INCOMPLETE"> = {};
     if (statusResponse) {
       statusResponse.forEach((item: any) => {
@@ -72,14 +53,18 @@ export default async function handler(
         }
       });
     }
-    // Map the status from Stardog into the execution results.
+
+    // Combine with DB results
     const mappedResults = executionResults.map((result) => ({
       ...result,
       status: statusMap[result.resultGraphURI] || "NOT FOUND",
     }));
+
     return res.status(200).json(mappedResults);
   } catch (error: any) {
-    logger.error("Error fetching execution results", { error });
+    logger.error("Error fetching execution results", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+export default withAuth({ stardogOBOToken: getStardogOBOToken })(handler);
