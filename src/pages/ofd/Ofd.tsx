@@ -525,6 +525,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   fitView
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
+                  deleteKeyCode={null}
                   // Doubleclick triggers single click aswell, so we only need to enter setup-mode
                   onDoubleClick={doubleClickToEnterSetupMode ? () => setSetupMode(true) : null}
                   onNodeDragStart={handleNodeDragStart}
