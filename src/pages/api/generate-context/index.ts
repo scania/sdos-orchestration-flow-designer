@@ -1,13 +1,12 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]";
-import logger from "../../../lib/logger";
-import { env } from "../../../lib/env";
-import { getToken } from "next-auth/jwt";
+import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import fs from "fs";
 import FormData from "form-data";
 import * as formidable from "formidable";
+
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
+import { env } from "../../../lib/env";
+import logger from "../../../lib/logger";
 import { getSDOSOBOToken } from "../../../lib/backend/sdosOBO";
 
 export const config = {
@@ -16,36 +15,20 @@ export const config = {
   },
 };
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  ctx: AuthContext
+) {
   try {
-    // Check the user session
-    const session = await getServerSession(req, res, authOptions);
-    if (!session && env.NODE_ENV === "production") {
-      logger.error("Unauthorized request.");
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    // Fetch the OBO token from the session
-    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    if (!token) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-    const { access_token } = await getSDOSOBOToken(token);
-
-    logger.debug("Obtained SDOS OBO token:");
-    if (!access_token) {
-      logger.error("OBO token missing.");
-      return res.status(403).json({ error: "Forbidden" });
-    }
+    const access_token = ctx.tokens.sdosOBO;
 
     switch (req.method) {
       case "POST": {
         const form = new formidable.IncomingForm({
-          // Allow empty files to have the BE handle the error
           allowEmptyFiles: true,
-          minFileSize: 0
+          minFileSize: 0,
         });
-        // Await formidable parsing using a Promise
         const { files } = await new Promise<{
           fields: formidable.Fields;
           files: formidable.Files;
@@ -57,14 +40,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         });
 
         const file = Array.isArray(files.file) ? files.file[0] : files.file;
-
         if (!file || !file.filepath) {
           return res.status(400).json({ error: "Invalid file upload" });
         }
 
-        // Create a FormData instance and append the file
         const formData = new FormData();
-        formData.append("file", fs.createReadStream(file.filepath), file.originalFilename);
+        formData.append(
+          "file",
+          fs.createReadStream(file.filepath),
+          file.originalFilename
+        );
 
         try {
           const response = await axios.post(
@@ -72,7 +57,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             formData,
             {
               headers: {
-                ...formData.getHeaders(), // Automatically adds correct headers for FormData
+                ...formData.getHeaders(),
                 Authorization: `Bearer ${access_token}`,
               },
             }
@@ -80,16 +65,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           return res
             .status(200)
             .json({ message: "File uploaded", data: response.data });
-        } catch (error) {
+        } catch (error: any) {
           const status = error.response?.status || 500;
-          const errorData = error.response?.data || "No response data";
-
+          const errorData = error.response?.data || {};
           return res.status(status).json({
-            message: error.message, // Axios error message
+            message: error.message,
             status,
             sdipErrorCodes: errorData.sdipErrorCodes || [],
             messages: errorData.messages || ["An unknown error occurred"],
-        });
+          });
         }
       }
 
@@ -103,4 +87,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       .status(500)
       .json({ error: error?.message || "Internal Server Error" });
   }
-};
+}
+
+export default withAuth({ sdosOBO: getSDOSOBOToken })(handler);

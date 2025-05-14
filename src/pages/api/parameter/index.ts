@@ -1,11 +1,14 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]";
-import logger from "../../../lib/logger";
-import { env } from "../../../lib/env";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
+import logger from "@/lib/logger";
+import { env } from "@/lib/env";
 import prisma from "@/lib/prisma";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  ctx: AuthContext
+) {
   try {
     logger.info("Parameter request received.");
     logger.debug("Request details:", {
@@ -14,18 +17,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       headers: req.headers,
     });
 
-    const session = await getServerSession(req, res, authOptions);
-    logger.debug("Session details:", { session });
-
+    const session = ctx.session;
     if (!session || !session.user || !session.user.id) {
       logger.warn("Unauthorized request attempted.", {
         ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
       });
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const userId = session.user?.id;
+    const userId = session.user.id;
     logger.debug("Session userId:", { userId });
 
     switch (req.method) {
@@ -50,7 +50,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     logger.error("An unexpected error occurred.", { error });
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+}
 
 const handlePostRequest = async (
   req: NextApiRequest,
@@ -75,7 +75,7 @@ const handlePostRequest = async (
           userId,
         },
       });
-    } else if (iri) {
+    } else {
       existingParameter = await prisma.parameter.findFirst({
         where: {
           name,
@@ -104,8 +104,8 @@ const handlePostRequest = async (
       data: {
         name,
         userId,
-        flowId: flowId || null, // If flowId is not provided, set it to null
-        iri: iri || null, // If iri is not provided, set it to null
+        flowId: flowId || null,
+        iri: iri || null,
         value,
       },
     });
@@ -156,7 +156,7 @@ const handlePutRequest = async (
   try {
     const { id } = req.query;
     const { value } = req.body;
-    logger.debug("Updating parameter with data");
+    logger.debug("Updating parameter with data", { id, value });
 
     const existingParameter = await prisma.parameter.findUnique({
       where: { id: id as string },
@@ -173,9 +173,7 @@ const handlePutRequest = async (
 
     const updatedParameter = await prisma.parameter.update({
       where: { id: id as string },
-      data: {
-        value,
-      },
+      data: { value },
     });
 
     logger.info("Parameter updated successfully.", { id: updatedParameter.id });
@@ -219,3 +217,5 @@ const handleDeleteRequest = async (
     res.status(500).json({ error: "Failed to delete parameter" });
   }
 };
+
+export default withAuth({})(handler);

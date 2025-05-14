@@ -1,6 +1,7 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
 import { convertQuadsToJson, parseTTLFile } from "@/utils/shaclUtils";
 import { createSHACLProcessor } from "@/utils/shaclProcessor";
-import type { NextApiRequest, NextApiResponse } from "next";
 
 const coreField = {
   name: "http://www.w3.org/2000/01/rdf-schema#label",
@@ -14,6 +15,7 @@ const coreField = {
     message: "Label must be a string with 1 to 50 characters",
   },
 };
+
 async function generateClassFormData(className: string) {
   const filePath1 = "ofg_shapes.ttl";
   const filePath2 = "orchestration_ontology.ttl";
@@ -40,21 +42,22 @@ async function generateClassFormData(className: string) {
   };
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  ctx: AuthContext
 ) {
   try {
     const className = (req.query.className as string) || "HTTPAction";
-
     const formData = await generateClassFormData(className);
     const allFields = [
       { ...coreField, value: className },
       ...formData.formFields,
     ];
-
     res.status(200).json({ ...formData, formFields: allFields });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 }
+
+export default withAuth({})(handler);

@@ -1,55 +1,34 @@
-import {
-  findUserById,
-  handleError,
-  validateSession,
-} from "@/lib/backend/helper";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
+import { findUserById, handleError } from "@/lib/backend/helper";
 import { GraphBody, graphSave } from "@/services/graphSchema";
 import { getStardogInstance } from "@/services/stardogService";
 import { generateJsonLdFromState } from "@/utils";
-import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../lib/prisma";
+import prisma from "@/lib/prisma";
 import logger from "@/lib/logger";
-import { getToken } from "next-auth/jwt";
-import { env } from "@/lib/env";
-import { getOBOToken } from "@/lib/backend/stardogOBO";
+import { getOBOToken as getStardogOBOToken } from "@/lib/backend/stardogOBO";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  ctx: AuthContext
+) {
   try {
     logger.debug("Received request", { method: req.method, url: req.url });
 
-    const session = await validateSession(req, res);
-    logger.debug("Session validated", { session });
-
-    if (!session || !session.user || !session.user.id) {
+    const session = ctx.session;
+    if (!session?.user?.id) {
       logger.warn("Invalid session or user ID missing");
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     const user = await findUserById(session.user.id, res);
-    logger.debug("User fetched", { userId: user?.id });
-
     if (!user) {
       logger.warn("User not found", { userId: session.user.id });
       return res.status(404).json({ error: "User not found" });
     }
 
-    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    logger.debug("Token retrieved from session", { tokenExists: !!token });
-
-    if (!token) {
-      logger.warn("Token retrieval failed");
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    const { access_token } = await getOBOToken(token);
-    logger.debug("OBO token retrieved", { accessTokenExists: !!access_token });
-
-    if (!access_token) {
-      logger.warn("Access token not obtained");
-      return res.status(403).json({ error: "Forbidden" });
-    }
-
-    const stardog = getStardogInstance({ token: access_token });
+    const stardog = getStardogInstance({ token: ctx.tokens.stardogOBOToken });
     logger.debug("Stardog instance initialized");
 
     switch (req.method) {
@@ -79,6 +58,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             .status(400)
             .json({ error: "Nodes and edges are required" });
         }
+
         const metadata = { email: user.email || "" };
         const graphData = generateJsonLdFromState({ nodes, edges, metadata });
 
@@ -151,8 +131,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         logger.warn("Unsupported HTTP method", { method: req.method });
         return res.status(405).json({ error: "Method not allowed" });
     }
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Unhandled exception", { error });
-    handleError(error, res);
+    return handleError(error, res);
   }
-};
+}
+
+export default withAuth({ stardogOBOToken: getStardogOBOToken })(handler);

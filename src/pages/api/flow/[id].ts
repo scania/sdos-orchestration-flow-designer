@@ -1,32 +1,30 @@
-import {
-  findUserById,
-  handleError,
-  validateSession,
-} from "@/lib/backend/helper";
-import { getOBOToken } from "@/lib/backend/stardogOBO";
-import { env } from "@/lib/env";
-import logger from "@/lib/logger";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
+import { findUserById, handleError } from "@/lib/backend/helper";
 import prisma from "@/lib/prisma";
+import logger from "@/lib/logger";
+import { getOBOToken as getStardogOBOToken } from "@/lib/backend/stardogOBO";
 import { getStardogInstance } from "@/services/stardogService";
-import { NextApiRequest, NextApiResponse } from "next";
-import { getToken } from "next-auth/jwt";
+import { env } from "@/lib/env";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  ctx: AuthContext
+) {
   try {
-    const session = await validateSession(req, res);
-    if (!session || !session.user || !session.user.id) return;
-
+    const session = ctx.session!;
     const user = await findUserById(session.user.id, res);
     if (!user) return;
 
-    const { id } = req.query;
-    if (!id) {
+    const flowId = req.query.id as string | undefined;
+    if (!flowId) {
       logger.error("Flow ID not provided.");
       return res.status(400).json({ error: "Flow ID not provided" });
     }
 
     const flow = await prisma.flow.findUnique({
-      where: { id: id as string },
+      where: { id: flowId },
       select: {
         id: true,
         name: true,
@@ -53,23 +51,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     logger.info("Flow retrieved successfully.");
 
-    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
-    const { access_token } = await getOBOToken(token!);
-    if (!access_token) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-
-    const stardog = getStardogInstance({ token: access_token });
+    const accessToken = ctx.tokens.stardogOBOToken;
+    const stardog = getStardogInstance({ token: accessToken });
 
     switch (req.method) {
       case "GET":
         return res.status(200).json(flow);
 
-      case "DELETE":
+      case "DELETE": {
         const adminEmails =
-          env.ADMIN_EMAILS?.split(",").map((email: string) => email.trim()) ||
-          [];
-        const isAdmin = adminEmails.includes(user.email); // Check if user is an admin
+          env.ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
+        const isAdmin = adminEmails.includes(user.email);
         if (flow.userId !== user.id && !isAdmin) {
           logger.error("User not authorized to delete this flow.");
           return res.status(403).json({ error: "Forbidden" });
@@ -80,19 +72,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         const deletedFlow = await prisma.flow.delete({
-          where: {
-            id: id as string,
-          },
+          where: { id: flowId },
         });
 
         logger.info("Flow deleted successfully.");
         return res.status(200).json(deletedFlow);
+      }
 
       default:
         logger.error("Method not allowed.");
         return res.status(405).json({ error: "Method not allowed" });
     }
-  } catch (error) {
-    handleError(error, res);
+  } catch (error: any) {
+    return handleError(error, res);
   }
-};
+}
+
+export default withAuth({ stardogOBOToken: getStardogOBOToken })(handler);
