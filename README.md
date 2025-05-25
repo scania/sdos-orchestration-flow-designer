@@ -111,7 +111,6 @@ The project defines several npm scripts in `package.json`:
 - **`npm run dev`**: Validates environment variables (via `node validateEnv.js`) and starts the Next.js development server.
 - **`npm run build`**: Builds the application for production.
 - **`npm start`**: Runs the built application in production mode (the `prestart` script also validates the environment).
-- **`npm run test`**: Executes end-to-end tests using Playwright.
 - **`npm run test-unit`**: Runs unit tests via Jest.
 - **`npm run lint`**: Checks the code for linting errors.
 - **`npm run storybook`**: Starts the Storybook development server on port 6006.
@@ -153,12 +152,6 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 ---
 
 ## Testing & Linting
-
-- **End-to-End Testing (Playwright):**
-
-  ```
-  npm run test
-  ```
 
 - **Unit Testing (Jest):**
 
