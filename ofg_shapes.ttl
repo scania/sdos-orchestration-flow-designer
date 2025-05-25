@@ -581,7 +581,7 @@
     sh:path :token ;
     sh:datatype xsd:string ;
     sh:hasValue "" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :wsdlFileShape a sh:PropertyShape ;
@@ -600,8 +600,7 @@
     rdfs:comment "Enter Username "@en ;
     sh:path :username ;
     sh:datatype xsd:string ;
-    sh:minLength 50;  
-    sh:minCount 1;
+    sh:minCount 0;
     sh:maxCount 1 .
 
     # Adding properties 
@@ -611,7 +610,5 @@
     rdfs:comment "Enter Password "@en ;
     sh:path :password ;
     sh:datatype xsd:string ;
-    sh:pattern "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,}$";
-    sh:minLength 50;  
-    sh:minCount 1;
-    sh:maxCount 1 .
+    sh:minCount 0;
+    sh:maxCount 1.
