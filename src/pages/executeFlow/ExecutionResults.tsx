@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import styles from "./ExecuteFlow.module.scss";
+import { darkTheme } from "@uiw/react-json-view/dark";
 import Modal from "@/components/Modal/CustomModal";
 import { convertToLocalTime } from "@/helpers/helper";
 import JsonView from "@uiw/react-json-view";
@@ -30,6 +31,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [resultGraphData, setResultGraphData] = useState<any>(null);
   const [resultGraphLoading, setResultGraphLoading] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
   const { showToast } = useToast();
 
   const getStatusIcon = (status: string): any => {
@@ -69,6 +71,11 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   useEffect(() => {
     fetchData();
   }, [iri]);
+
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    setIsDarkTheme(theme === "dark");
+  }, []);
 
   const openParametersModal = (params: any) => {
     const safeParams = params && typeof params === "object" ? params : {};
@@ -218,6 +225,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
             <JsonView
               value={selectedParameters}
               indentWidth={4}
+              style={isDarkTheme ? darkTheme : undefined}
               displayDataTypes={false}
               collapsed={false}
               displayObjectSize={true}
@@ -243,6 +251,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
             <JsonView
               value={resultGraphData}
               indentWidth={4}
+              style={isDarkTheme ? darkTheme : undefined}
               displayDataTypes={false}
               collapsed={false}
               displayObjectSize={true}
