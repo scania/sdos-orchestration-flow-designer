@@ -467,7 +467,7 @@
     sh:path :baseUrl ;
     sh:datatype xsd:string ;
     sh:pattern "^http" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :bindingNameShape a sh:PropertyShape ;
@@ -476,7 +476,7 @@
     rdfs:comment "Binding name of a SOAP Action should be a string"@en ;
     sh:path :bindingName ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :contextShape a sh:PropertyShape ;
@@ -488,7 +488,7 @@
     sh:minLength 30 ; # is minimum "{\"@context\":{\"x\":\"y\"}}", even though that context doesn't make much sense...
     # sh:pattern "^{" ,
     #            "}$" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :endpointShape a sh:PropertyShape ;
@@ -498,7 +498,7 @@
     sh:path :endpoint ;
     sh:datatype xsd:string ;
     sh:pattern "^/" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :httpBodyShape a sh:PropertyShape ;
@@ -534,7 +534,7 @@
     rdfs:comment "paramName should be string and be defined exactly once for a Standard Parameter."@en ;
     sh:path :paramName ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :queryShape a sh:PropertyShape ;
@@ -554,7 +554,7 @@
     sh:path :script ;
     sh:datatype xsd:string ;
     sh:minLength 200;  # Any (groovy) script would at least be 200chars due to imports and parsing of input/outputParameter and context
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :soapOperationShape a sh:PropertyShape ;
@@ -563,7 +563,7 @@
     rdfs:comment "A SOAP operation is a string for the KeyName for the SOAP Action"@en ;
     sh:path :soapOperation ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :stateShape a sh:PropertyShape ;
@@ -590,7 +590,7 @@
     rdfs:comment "WSDL File for a SOAP connector should be a string"@en ;
     sh:path :wsdlFile ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
     # Adding properties 
