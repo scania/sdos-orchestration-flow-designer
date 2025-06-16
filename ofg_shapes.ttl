@@ -30,6 +30,26 @@
                 :endpointShape ;
     sh:targetClass :HTTPAction .
 
+
+:KafkaActionShape a sh:NodeShape ;
+    core:timestamp "2025-06-12T08:43:00"^^xsd:dateTime ;
+    rdfs:label "KafkaAction Shape"@en ;
+    rdfs:comment "Shape for validation of KafkaAction."@en ;
+    sh:property :hasNextActionShape ,
+                :inputParameterShape_optional ,
+                :outputParameterShape_optional ,
+                :hasSystemShape ,
+				:valueDeserializerShape,
+				:consumerTopicShape,
+				:keyDeserializerShape,
+				:enableAutoCommitShape,
+				:consumerPollDurationShape,
+				:consumerGroupIdShape,
+				:autoOffsetResetShape,
+				:maxPollRecordShape,
+                :hasConnectorShape ;
+    sh:targetClass :KafkaAction .
+
 :ResultActionShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "ResultAction Shape"@en ;
@@ -65,6 +85,7 @@
                 :soapOperationShape ;
     sh:targetClass :SOAPAction .
 
+
 :SparqlConvertActionShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "SparqlConvertAction Shape"@en ;
@@ -97,12 +118,12 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :hasScriptShape , 
+                :hasScriptShape ,
                 :scriptShape ;
     sh:targetClass :PythonScript .
 
 
- :GroovyScriptShape a sh:NodeShape ;
+:GroovyScriptShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "GroovyAction Shape"@en ;
     rdfs:comment "Shape for validation of GroovyAction."@en ;
@@ -111,9 +132,9 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :hasScriptShape,  
+                :hasScriptShape,
                 :scriptShape ;
-    sh:targetClass :GroovyScript .   
+    sh:targetClass :GroovyScript .
 
 
 # AUTHENTICATION METHOD
@@ -166,10 +187,13 @@
     sh:targetClass :HTTPConnector .
 
 :KafkaConnectorShape a sh:NodeShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
     rdfs:label "KafkaConnector Shape"@en ;
     rdfs:comment "Shape for validation of KafkaConnectors."@en ;
-    sh:property :baseUrlShape ;
+    sh:property :bootStrapServerShape ,
+	            :oauthTokenEndpointShape,
+                :hasAuthenticationMethodHTTPBearerTokenAuthenticationMethodShape,
+                :hasAuthenticationMethodHTTPBasicAuthenticationMethodShape;
     sh:targetClass :KafkaConnector .
 
 :SOAPConnectorShape a sh:NodeShape ;
@@ -595,7 +619,7 @@
     sh:minCount 0 ;
     sh:maxCount 1 .
 
-    # Adding properties 
+    # Adding properties
     :usernameShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "username Shape"@en ;
@@ -605,7 +629,7 @@
     sh:minCount 0;
     sh:maxCount 1 .
 
-    # Adding properties 
+    # Adding properties
     :passwordShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "Enter a password with at least 8 characters, including uppercase, lowercase, numbers, and special characters (!@#$%^&*)"@en ;
@@ -614,6 +638,99 @@
     sh:datatype xsd:string ;
     sh:minCount 0;
     sh:maxCount 1.
+
+:valueDeserializerShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "value Deserializer Shape"@en ;
+    rdfs:comment "value to deserialize the Kafka message value"@en ;
+    sh:path :valueDeserializer ;
+    sh:datatype xsd:string ;
+	sh:in ( "string" "json"  ) ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:consumerTopicShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "consumer Topic Shape"@en ;
+    rdfs:comment "topic to subscribe for consuming Kafka messages"@en ;
+    sh:path :consumerTopic ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:keyDeserializerShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "key Deserializer Shape"@en ;
+    rdfs:comment "value to deserialize the Kafka message key"@en ;
+    sh:path :keyDeserializer ;
+    sh:datatype xsd:string ;
+	sh:in ( "string" "json"  ) ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:enableAutoCommitShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "enable AutoCommit Shape"@en ;
+    rdfs:comment "value to controll autocommit behaviour"@en ;
+    sh:path :enableAutoCommit ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:consumerPollDurationShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "consumerPollDuration Shape"@en ;
+    rdfs:comment "value to define the consumer poll duration"@en ;
+    sh:path :consumerPollDuration ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:consumerGroupIdShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "consumer Group Id Shape"@en ;
+    rdfs:comment "value to define the consumer group id for kafka connection"@en ;
+    sh:path :consumerGroupId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:autoOffsetResetShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "autoOffset Reset Shape"@en ;
+    rdfs:comment "value which controll offsetRest behaviour for kafka message consumption"@en ;
+    sh:path :autoOffsetReset ;
+    sh:datatype xsd:string ;
+	sh:in ( "earliest" "latest" "none" ) ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:maxPollRecordShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "maxPoll Record Shape"@en ;
+    rdfs:comment "value to define the maximum record size to poll from Kafka partition"@en ;
+    sh:path :maxPollRecord ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:bootStrapServerShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "bootStrap ServerShape"@en ;
+    rdfs:comment "endpoint value to connect to Kafka Streaming"@en ;
+    sh:path :bootStrapServer ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:oauthTokenEndpointShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "oauthToken Endpoint Shape"@en ;
+    rdfs:comment "endpoint for authentication to connect to Kafka Streaming"@en ;
+    sh:path :oauthTokenEndpoint ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
 
 :databaseShape a sh:PropertyShape ;
     core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
