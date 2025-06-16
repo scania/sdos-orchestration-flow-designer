@@ -24,7 +24,7 @@ jobs:
         id: fetch_tag
         run: |
           git fetch --tags
-          LATEST_TAG=$(git for-each-ref --format="%(refname:short)" "refs/tags/*" | tail -1)
+          LATEST_TAG=$(git tag --sort=-v:refname | head -1)
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
       - name: Calculate next version
@@ -32,29 +32,24 @@ jobs:
         run: |
           # Branch is main => main release
           if [ "$GITHUB_REF_NAME" == "main" ]; then
-            # If no tags exist, default to v1.0.0
-            if [ -z "$LATEST_TAG" ]; then
-              NEXT_TAG="v1.0.0"
+            VERSION=$LATEST_TAG
+            # If latest tag is an RC, strip -RC part
+            if [[ "$VERSION" =~ ^(v[0-9]+\.[0-9]+\.[0-9]+)-RC[0-9]+$ ]]; then
+              BASE_VERSION=$(echo $VERSION | sed -E 's/^(v[0-9]+\.[0-9]+\.[0-9]+)-RC[0-9]+$/\1/')
+              NEXT_TAG="$BASE_VERSION"
             else
-              VERSION=$LATEST_TAG
-              # If latest tag is an RC, strip -RC part
-              if [[ "$VERSION" =~ ^(v[0-9]+\.[0-9]+\.[0-9]+)-RC[0-9]+$ ]]; then
-                BASE_VERSION=$(echo $VERSION | sed -E 's/^(v[0-9]+\.[0-9]+\.[0-9]+)-RC[0-9]+$/\1/')
-                NEXT_TAG="$BASE_VERSION"
-              else
-                # Step patch
-                BASE=$(echo $VERSION | sed -E 's/^v([0-9]+)\.([0-9]+)\.([0-9]+)$/\1 \2 \3/')
-                read MAJOR MINOR PATCH <<< "$BASE"
-                PATCH=$((PATCH + 1))
-                NEXT_TAG="v$MAJOR.$MINOR.$PATCH"
-              fi
+              # Step patch
+              BASE=$(echo $VERSION | sed -E 's/^v([0-9]+)\.([0-9]+)\.([0-9]+)$/\1 \2 \3/')
+              read MAJOR MINOR PATCH <<< "$BASE"
+              PATCH=$((PATCH + 1))
+              NEXT_TAG="v$MAJOR.$MINOR.$PATCH"
             fi
             
           # Branch is develop (not main) => RC release
           else
-            # If no tags exist, default to v1.0.0
+            # If no tags exist, default to v1.0.0-RC1
             if [ -z "$LATEST_TAG" ]; then
-              NEXT_TAG="v1.0.0"
+              NEXT_TAG="v1.0.0-RC1"
             else
               VERSION=$LATEST_TAG
               # If latest tag is an RC, increment the RC number
@@ -95,3 +90,4 @@ jobs:
           body: |
             Automated release created by GitHub Actions.
           prerelease: ${{ github.ref_name != 'main' }}
+          generate_release_notes: true
