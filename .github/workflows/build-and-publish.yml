@@ -56,3 +56,11 @@ jobs:
 
       - name: Verify Docker image
         run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ github.ref_name }} echo "Docker image verification successful"
+
+      - name: Trigger deployment
+        run: |
+          curl -X POST \
+            -F token=DEPLOYMENT_TRIGGER_TOKEN \
+            -F ref=develop \
+            -F variables[TAG_NAME]=${{ github.ref_name }} \
+            ${{ secrets.DEPLOYMENT_REPOSITORY_URL }}
