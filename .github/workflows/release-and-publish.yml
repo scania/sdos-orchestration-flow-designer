@@ -130,7 +130,7 @@ jobs:
       - name: Trigger deployment
         run: |
           curl -X POST \
-            -F token=DEPLOYMENT_TRIGGER_TOKEN \
+            -F token=${{ secrets.DEPLOYMENT_TRIGGER_TOKEN }} \
             -F ref=develop \
             -F variables[TAG_NAME]=${{ github.ref_name }} \
             ${{ secrets.DEPLOYMENT_REPOSITORY_URL }}
