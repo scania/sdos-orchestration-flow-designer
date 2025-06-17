@@ -9,16 +9,17 @@ on:
       - closed
 
 jobs:
-
   create_release_version:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
+    outputs:
+      next_tag: ${{ steps.calculate_version.outputs.next_tag }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for accurate tagging
+          fetch-depth: 0 # Fetch all history for accurate tagging
 
       - name: Fetch latest version tag
         id: fetch_tag
@@ -73,6 +74,7 @@ jobs:
             fi
           fi
           echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
+          echo "next_tag=$NEXT_TAG" >> $GITHUB_OUTPUT
 
       - name: Create a new tag
         id: create_tag
@@ -92,11 +94,12 @@ jobs:
           prerelease: ${{ github.ref_name != 'main' }}
           generate_release_notes: true
 
-
-
   build-and-publish:
     runs-on: ubuntu-latest
     needs: create_release_version
+    env:
+      NEXT_TAG: ${{ needs.create_release_version.outputs.next_tag }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -116,11 +119,10 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ github.ref_name }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ env.NEXT_TAG }}  
             ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest
           build-args: |
-            NEXT_PUBLIC_VERSION=${{ github.ref_name }}
+            NEXT_PUBLIC_VERSION=${{ env.NEXT_TAG }}
 
       - name: Verify Docker image
-        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ github.ref_name }} echo "Docker image verification successful"
-
+        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ env.NEXT_TAG }} echo "Docker image verification successful"
