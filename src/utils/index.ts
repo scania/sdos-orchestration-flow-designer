@@ -155,8 +155,10 @@ export const getPaths = ({
 export const isValidConnection = (nodes: Node[]) => (conn: Connection) => {
   const sourceNode = nodes.find((node) => node.id === conn.source);
   const targetNode = nodes.find((node) => node.id === conn.target);
+  console.log("sourceNodes", sourceNode);
+  console.log("targetNOde", targetNode);
   // Prevent self-connection
-  if(sourceNode === targetNode){
+  if (sourceNode === targetNode) {
     return;
   }
   const paths = getPaths({ sourceNode, targetNode });
@@ -208,6 +210,7 @@ export const initializeNodes = () => [
               "https://kg.scania.com/it/iris_orchestration/ScriptAction",
               "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
               "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
+              "https://kg.scania.com/it/iris_orchestration/KafkaAction",
             ],
           },
           {

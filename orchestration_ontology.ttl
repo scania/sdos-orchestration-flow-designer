@@ -623,6 +623,13 @@ dct:title rdf:type owl:AnnotationProperty .
               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
               rdfs:label "Script Action"@en .
 
+###  https://kg.scania.com/it/iris_orchestration/ScriptAction
+:KafkaAction rdf:type owl:Class ;
+              rdfs:subClassOf :Action ;
+              core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+              rdfs:comment "Action that connects and fetches the kafka streaming message"@en ;
+              rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+              rdfs:label "Kafka Action"@en .
 
 ###  https://kg.scania.com/it/iris_orchestration/SparqlConvertAction
 :SparqlConvertAction rdf:type owl:Class ;
