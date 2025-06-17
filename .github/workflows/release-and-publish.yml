@@ -8,10 +8,6 @@ on:
     types:
       - closed
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
 
   create_release_version:
