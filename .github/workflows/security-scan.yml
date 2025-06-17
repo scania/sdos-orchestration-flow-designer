@@ -18,6 +18,24 @@ permissions:
   pull-requests: write
 
 jobs:
+
+  license-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run license compatibility check
+        run: npm run check-licenses
+  
   TruffleHog:
     runs-on: ubuntu-latest
     steps:

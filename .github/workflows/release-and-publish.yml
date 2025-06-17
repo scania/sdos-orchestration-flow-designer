@@ -1,4 +1,4 @@
-name: Create Release Version
+name: Create Release and Publish Docker Image
 
 on:
   pull_request:
@@ -7,6 +7,10 @@ on:
       - main
     types:
       - closed
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
 
@@ -91,3 +95,42 @@ jobs:
             Automated release created by GitHub Actions.
           prerelease: ${{ github.ref_name != 'main' }}
           generate_release_notes: true
+
+
+
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ github.ref_name }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest
+          build-args: |
+            NEXT_PUBLIC_VERSION=${{ github.ref_name }}
+
+      - name: Verify Docker image
+        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ github.ref_name }} echo "Docker image verification successful"
+
+      - name: Trigger deployment
+        run: |
+          curl -X POST \
+            -F token=DEPLOYMENT_TRIGGER_TOKEN \
+            -F ref=develop \
+            -F variables[TAG_NAME]=${{ github.ref_name }} \
+            ${{ secrets.DEPLOYMENT_REPOSITORY_URL }}
