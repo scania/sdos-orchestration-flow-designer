@@ -155,8 +155,6 @@ export const getPaths = ({
 export const isValidConnection = (nodes: Node[]) => (conn: Connection) => {
   const sourceNode = nodes.find((node) => node.id === conn.source);
   const targetNode = nodes.find((node) => node.id === conn.target);
-  console.log("sourceNodes", sourceNode);
-  console.log("targetNOde", targetNode);
   // Prevent self-connection
   if (sourceNode === targetNode) {
     return;
