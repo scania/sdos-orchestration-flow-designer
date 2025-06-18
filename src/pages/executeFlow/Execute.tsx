@@ -476,13 +476,21 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                                         setSelectedExecutionMethod("Editing")
                                   }
                                 ></tds-button>
-
-                                <tds-button
-                                  text="Delete"
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={deleteParameter}
-                                ></tds-button>
+                                {selectedExecutionMethod === 'Editing' ?
+                                  <tds-button
+                                    text="Cancel"
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() => setSelectedExecutionMethod('Existing')}
+                                  />
+                                  :
+                                  <tds-button
+                                    text="Delete"
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={deleteParameter}
+                                  />
+                                } 
                               </>
                             )}
                           </div>
