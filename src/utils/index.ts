@@ -208,6 +208,7 @@ export const initializeNodes = () => [
               "https://kg.scania.com/it/iris_orchestration/ScriptAction",
               "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
               "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
+              "https://kg.scania.com/it/iris_orchestration/KafkaAction",
             ],
           },
           {
