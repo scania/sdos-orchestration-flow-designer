@@ -255,6 +255,24 @@ export const initializeNodes = () => [
               message: "Label must be a string with 1 to 50 characters",
             },
           },
+          {
+            name: "https://kg.scania.com/it/iris_orchestration/database",
+            type: "text",
+            label: "Task database for ResultAction if connector is defined.",
+            value: "",
+            validation: {
+              max: 1,
+            },
+          },
+          {
+            name: "https://kg.scania.com/it/iris_orchestration/namedgraph",
+            type: "text",
+            label: "Task namedgraph for ResultAction if connector is defined.",
+            value: "",
+            validation: {
+              max: 1,
+            },
+          },
         ],
       },
     },

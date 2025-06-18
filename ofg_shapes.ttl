@@ -294,7 +294,9 @@
     sh:property :hasActionShape ,
                 :inputParameterShape_optional ,
                 :hasMetadataShape ,
-                :hasContextShape ;
+                :hasContextShape ,
+                :databaseShape ,
+                :namedgraphShape ;
     sh:targetClass :Task .
 
 
@@ -728,4 +730,22 @@
     sh:path :oauthTokenEndpoint ;
     sh:datatype xsd:string ;
     sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:databaseShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "database Shape"@en ;
+    rdfs:comment "Task database for ResultAction if connector is defined."@en ;
+    sh:path :database ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    sh:maxCount 1 .
+
+:namedgraphShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "namedgraph Shape"@en ;
+    rdfs:comment "Task namedgraph for ResultAction if connector is defined."@en ;
+    sh:path :namedgraph ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
