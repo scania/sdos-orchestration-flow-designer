@@ -156,7 +156,7 @@ export const isValidConnection = (nodes: Node[]) => (conn: Connection) => {
   const sourceNode = nodes.find((node) => node.id === conn.source);
   const targetNode = nodes.find((node) => node.id === conn.target);
   // Prevent self-connection
-  if(sourceNode === targetNode){
+  if (sourceNode === targetNode) {
     return;
   }
   const paths = getPaths({ sourceNode, targetNode });
@@ -252,6 +252,24 @@ export const initializeNodes = () => [
               minLength: 1,
               maxLength: 50,
               message: "Label must be a string with 1 to 50 characters",
+            },
+          },
+          {
+            name: "https://kg.scania.com/it/iris_orchestration/database",
+            type: "text",
+            label: "Task database for ResultAction if connector is defined.",
+            value: "",
+            validation: {
+              max: 1,
+            },
+          },
+          {
+            name: "https://kg.scania.com/it/iris_orchestration/namedgraph",
+            type: "text",
+            label: "Task namedgraph for ResultAction if connector is defined.",
+            value: "",
+            validation: {
+              max: 1,
             },
           },
         ],
