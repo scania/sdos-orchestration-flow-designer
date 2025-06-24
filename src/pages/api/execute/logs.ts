@@ -4,6 +4,7 @@ import { withAuth, AuthContext } from "@/lib/backend/withAuth";
 import { env } from "@/lib/env";
 import logger from "@/lib/logger";
 import { getSDOSOBOToken } from "@/lib/backend/sdosOBO";
+import { respondApiError } from "@/lib/backend/httpError";
 
 async function handler(
   req: NextApiRequest,
@@ -54,38 +55,11 @@ async function handler(
 
           return res.status(200).json(response.data);
         } catch (error: any) {
-          logger.error("Error retrieving execution logs:", error?.message);
-          logger.debug("Error details:", error);
-
-          if (error.response) {
-            const statusCode = error.response.status || 500;
-            const errorData = error.response.data;
-            logger.error("API Error Response:", errorData);
-
-            let errorMessage = "Failed to retrieve execution logs";
-            if (errorData && typeof errorData === "object") {
-              if (
-                Array.isArray(errorData.messages) &&
-                errorData.messages.length > 0
-              ) {
-                errorMessage = errorData.messages.join(" ");
-              } else if (errorData.error || errorData.message) {
-                errorMessage = errorData.error || errorData.message;
-              }
-            } else if (typeof errorData === "string") {
-              errorMessage = errorData;
-            }
-
-            return res.status(statusCode).json({ error: errorMessage });
-          } else if (error.request) {
-            logger.error("No response received from the API.");
-            return res
-              .status(503)
-              .json({ error: "No response received from the API." });
-          } else {
-            logger.error("Error setting up the request:", error.message);
-            return res.status(500).json({ error: error.message });
-          }
+          return respondApiError(
+            error,
+            res,
+            "Failed to retrieve execution logs"
+          );
         }
       }
 

@@ -5,6 +5,7 @@ import { env } from "@/lib/env";
 import logger from "@/lib/logger";
 import { getSDOSOBOToken } from "@/lib/backend/sdosOBO";
 import prisma from "@/lib/prisma";
+import { respondApiError } from "@/lib/backend/httpError";
 
 async function handler(
   req: NextApiRequest,
@@ -60,41 +61,7 @@ async function handler(
 
         return res.status(200).json(newExecutionResult);
       } catch (error: any) {
-        logger.error(
-          "Error executing asynchronous orchestration:",
-          error?.message
-        );
-
-        if (error?.response?.headers?.["executionid"]) {
-          res.setHeader("Execution-Id", error.response.headers["executionid"]);
-        }
-
-        if (error.response) {
-          const statusCode = error.response.status || 500;
-          let errorMessage = "Failed to execute asynchronous orchestration";
-          const errorData = error.response.data;
-
-          if (errorData && typeof errorData === "object") {
-            if (
-              Array.isArray(errorData.messages) &&
-              errorData.messages.length > 0
-            ) {
-              errorMessage = errorData.messages.join(" ");
-            } else if (errorData.error || errorData.message) {
-              errorMessage = errorData.error || errorData.message;
-            }
-          } else if (typeof errorData === "string") {
-            errorMessage = errorData;
-          }
-
-          return res.status(statusCode).json({ error: errorMessage });
-        } else if (error.request) {
-          return res
-            .status(503)
-            .json({ error: "No response received from the API." });
-        } else {
-          return res.status(500).json({ error: error.message });
-        }
+        return respondApiError(error, res, "Failed to execute orchestration");
       }
     } else {
       return res.status(405).json({ error: "Method not allowed." });
