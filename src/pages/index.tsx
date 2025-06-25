@@ -218,7 +218,7 @@ function App({
               <Introduction
                 heading={"My work"}
                 description={
-                  "Open and edit your orchestration flow graph, or create a new one. You can also view which graphs are available to you from other projects."
+                  "View and manage your own orchestration graphs. Create, edit, run, or continue working on flows you’ve created."
                 }
               />
             </Tab>
@@ -226,7 +226,7 @@ function App({
               <Introduction
                   heading={"Other flows"}
                   description={
-                    "View graphs available to you from other projects."
+                    "Explore orchestration graphs shared with you from other teams. View flows from external projects or collaborators."
                   }
                 />
             </Tab>
