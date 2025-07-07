@@ -748,4 +748,5 @@
     sh:path :namedgraph ;
     sh:datatype xsd:string ;
     sh:minCount 0 ;
-    sh:maxCount 1 .
+    sh:maxCount 1 ;
+    sh:pattern "^([a-zA-Z][a-zA-Z0-9+.-]*:[^\\s<>\\\"]+)$" .
