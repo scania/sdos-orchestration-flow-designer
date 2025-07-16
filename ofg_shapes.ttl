@@ -260,7 +260,7 @@
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "ResultMetaData Shape"@en ;
     rdfs:comment "Shape for validation of ResultMetaData."@en ;
-    sh:property :stateShape,
+    sh:property :stateShape, :persistsShape ,
                 core_shapes:MetadataNodeShape ; # should contain all core:Metadata as well
     sh:targetClass :ResultMetaData .
 
@@ -598,6 +598,14 @@
     rdfs:comment "state of the result graph."@en ;
     sh:path :state ;
     sh:datatype xsd:string ;
+    sh:maxCount 1 .
+
+:persistsShape a sh:PropertyShape ;
+    core:timestamp "2025-07-16T14:01:00"^^xsd:dateTime ;
+    rdfs:label "persists Shape"@en ;
+    rdfs:comment "persistence of the result graph."@en ;
+    sh:path :persists ;
+    sh:datatype xsd:boolean ;
     sh:maxCount 1 .
 
 :tokenShape a sh:PropertyShape ;
