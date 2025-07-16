@@ -367,7 +367,7 @@ dct:title rdf:type owl:AnnotationProperty .
 
 ###  https://kg.scania.com/it/iris_orchestration/persists
 :persists rdf:type owl:DatatypeProperty ;
-       rdfs:domain :ResultMetadata ;
+       rdfs:domain :ResultMetaData ;
        rdfs:range xsd:boolean ;
        core:timestamp "2025-07-16T11:38:00"^^xsd:dateTime ;
        rdfs:comment "Indicates whether the result graph should persist."@en ;
