@@ -563,10 +563,17 @@ dct:title rdf:type owl:AnnotationProperty .
               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
               rdfs:label "Result Action"@en .
 
+###  https://kg.scania.com/it/iris_orchestration/MetaData
+:MetaData rdf:type owl:Class ;
+                rdfs:subClassOf core:Metadata ;
+                core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
+                rdfs:comment "This class contains specific information about the specific OFG."@en ;
+                rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                rdfs:label "MetaData"@en .
 
 ###  https://kg.scania.com/it/iris_orchestration/ResultMetaData
 :ResultMetaData rdf:type owl:Class ;
-                rdfs:subClassOf core:Metadata ;
+                rdfs:subClassOf :MetaData ;
                 core:timestamp "2023-01-31T15:00:00"^^xsd:dateTime ;
                 rdfs:comment "Metadata for the result graph"@en ;
                 rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
