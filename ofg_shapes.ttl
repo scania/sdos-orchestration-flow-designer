@@ -254,6 +254,17 @@
     sh:targetClass :TokenCredentialsParameter .
 
 
+# METADATA
+#----------------
+:MetaDataShape a sh:NodeShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "MetaData Shape"@en ;
+    rdfs:comment "Shape for validation of MetaData."@en ;
+    sh:property :descriptionShape, :ooVersionShape, :titleShape ;
+    sh:node core_shapes:MetadataNodeShape ; # should inherit all constraints defined for core:Metadata
+    sh:targetClass :MetaData .
+
+
 # RESULTMETADATA
 #----------------
 :ResultMetaDataShape a sh:NodeShape ;
@@ -261,7 +272,7 @@
     rdfs:label "ResultMetaData Shape"@en ;
     rdfs:comment "Shape for validation of ResultMetaData."@en ;
     sh:property :stateShape, :persistsShape ;
-    sh:node core_shapes:MetadataNodeShape ; # should inherit all constraints defined for core:Metadata
+    sh:node :MetaDataShape ; # should inherit all constraints defined for :MetaData
     sh:targetClass :ResultMetaData .
 
 
@@ -526,6 +537,14 @@
     sh:minCount 0 ;
     sh:maxCount 1 .
 
+:descriptionShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "description Shape"@en ;
+    rdfs:comment "description of the result metadata"@en ;
+    sh:path :description ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 .
+
 :endpointShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "endpoint Shape"@en ;
@@ -560,6 +579,14 @@
     rdfs:label "httpParameter Shape"@en ;
     rdfs:comment "HTTP Parameter should be a string"@en ;
     sh:path :httpQueryParameter ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 .
+
+:ooVersionShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "ooVersion Shape"@en ;
+    rdfs:comment "version of the orchestration ontology."@en ;
+    sh:path :ooVersion ;
     sh:datatype xsd:string ;
     sh:maxCount 1 .
 
@@ -615,6 +642,14 @@
     rdfs:comment "persistence of the result graph."@en ;
     sh:path :persists ;
     sh:datatype xsd:boolean ;
+    sh:maxCount 1 .
+
+:titleShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "title Shape"@en ;
+    rdfs:comment "title of the result metadata."@en ;
+    sh:path :title ;
+    sh:datatype xsd:string ;
     sh:maxCount 1 .
 
 :tokenShape a sh:PropertyShape ;
