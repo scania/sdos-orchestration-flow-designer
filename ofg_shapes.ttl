@@ -293,7 +293,7 @@
     rdfs:comment "Shape for validation of Tasks."@en ;
     sh:property :hasActionShape ,
                 :inputParameterShape_optional ,
-                :hasMetadataShape ,
+                :hasResultMetaDataShape ,
                 :hasContextShape ,
                 :databaseShape ,
                 :namedgraphShape ;
@@ -365,6 +365,15 @@
     rdfs:comment "ScriptAction, SparqlConvertAction and Task need to have a JsonLdContext."@en ;
     sh:path :hasContext ;
     sh:class :JsonLdContext ;
+    sh:maxCount 1 .
+
+:hasResultMetaDataShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:15:00"^^xsd:dateTime ;
+    rdfs:label "hasResultMetaData Shape"@en ;
+    rdfs:comment "Task need to have a ResultMetaData."@en ;
+    sh:path :hasResultMetaData ;
+    sh:class :ResultMetaData ;
+    sh:minCount 1 ;
     sh:maxCount 1 .
 
 :hasNextActionShape a sh:PropertyShape ;
