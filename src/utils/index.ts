@@ -271,6 +271,7 @@ export const initializeNodes = () => [
             value: "",
             validation: {
               max: 1,
+              pattern: '^([a-zA-Z][a-zA-Z0-9+.-]*:[^\\s<>\\"]+)$',
             },
           },
         ],
