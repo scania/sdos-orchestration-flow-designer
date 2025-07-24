@@ -9,7 +9,6 @@
 @prefix core: <http://kg.scania.com/core/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @base <https://kg.scania.com/it/iris_orchestration> .
-@prefix core: <http://kg.scania.com/core/> .
 
 <https://kg.scania.com/it/iris_orchestration> rdf:type owl:Ontology ;
                                                dct:title "IRIS Orchestration"@en ;
