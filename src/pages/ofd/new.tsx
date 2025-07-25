@@ -28,6 +28,16 @@ export async function getServerSideProps(context: any) {
     };
   }
 
+  const initialNodeClass = "Task";
+  const initialNodeResp = await axios.get(
+    `${baseUrl}/api/parse-ttl?className=${initialNodeClass}`,
+    {
+      headers: {
+        cookie: context.req.headers.cookie ?? "",
+      },
+    }
+  );
+  const initialNodeFromData = initialNodeResp.data;
   if (bypassCheck !== "true") {
     try {
       const encodedName = encodeURIComponent(
@@ -66,7 +76,7 @@ export async function getServerSideProps(context: any) {
       apiBaseUrl: baseUrl,
       graphName: name,
       description: description || "",
-      initNodes: initializeNodes(),
+      initNodes: initializeNodes(initialNodeClass, initialNodeFromData),
     },
   };
 }
