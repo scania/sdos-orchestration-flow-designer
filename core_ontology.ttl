@@ -1,4 +1,4 @@
-@prefix core: <https://kg.scania.com/core/> .
+@prefix core: <http://kg.scania.com/core/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -8,4 +8,43 @@ core:Metadata
   rdf:type owl:Class ;
   rdfs:comment "Metadata of a knowledge graph or any other object."@en ;
   rdfs:label "Metadata"@en ;
+  core:timestamp "2023-11-27T15:25:00"^^xsd:dateTime .
+
+core:contributor
+  rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Contributor to the ontology. Refers to the e-mail of contributor using the mailto-schema as of RFC 2368."@en ;
+  rdfs:domain core:Metadata ;
+  rdfs:label "contributor"@en ;
+  rdfs:range xsd:string ;
+  core:timestamp "2023-11-27T15:25:00"^^xsd:dateTime .
+
+core:creator
+  rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Creator of the ontology. Refers to the e-mail of creator using the mailto-schema as of RFC 2368."@en ;
+  rdfs:domain core:Metadata ;
+  rdfs:label "creator"@en ;
+  rdfs:range xsd:string ;
+  core:timestamp "2023-11-27T15:25:00"^^xsd:dateTime .
+
+core:graphType
+  rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Graph type of the ontology. Refers to either SEMIPUBLIC, PUBLIC or PRIVATE string value."@en ;
+  rdfs:domain core:Metadata ;
+  rdfs:label "graph type"@en ;
+  rdfs:range [
+      rdf:type rdfs:Datatype ;
+      owl:oneOf (
+          "SEMIPUBLIC"
+          "PRIVATE"
+          "PUBLIC"
+        ) ;
+    ] ;
+  core:timestamp "2023-11-27T15:25:00"^^xsd:dateTime .
+
+core:informationResponsible
+  rdf:type owl:DatatypeProperty ;
+  rdfs:comment "Information responsible of the ontology is in charge of approving the ontology (being reviewed) from a business point of view. Refers to the e-mail of information responsible using the mailto-schema as of RFC 2368."@en ;
+  rdfs:domain core:Metadata ;
+  rdfs:label "information responsible"@en ;
+  rdfs:range xsd:string ;
   core:timestamp "2023-11-27T15:25:00"^^xsd:dateTime .
