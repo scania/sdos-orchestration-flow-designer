@@ -17,24 +17,48 @@ const coreField = {
 };
 
 async function generateClassFormData(className: string) {
-  const filePath1 = "ofg_shapes.ttl";
-  const filePath2 = "orchestration_ontology.ttl";
-  const quads1 = await parseTTLFile(filePath1);
-  const quads2 = await parseTTLFile(filePath2);
-  const combinedQuads = quads1.concat(quads2);
+  const ofg_shapes = "ofg_shapes.ttl";
+  const orchestration_ontology = "orchestration_ontology.ttl";
+  const core_shapes = "core_shapes.ttl"
+  const quads_ofg = await parseTTLFile(ofg_shapes);
+  const quads_oo = await parseTTLFile(orchestration_ontology);
+  const quads_core = await parseTTLFile(core_shapes)
+  const combinedQuads = quads_ofg.concat(quads_oo).concat(quads_core);
   const jsonData = convertQuadsToJson(combinedQuads);
   const SHACLProcessor = createSHACLProcessor(jsonData);
   const shapeUri = SHACLProcessor.findShapeUriForClass(className);
+  //console.log("className : ", className);
+  //console.log("shapeUri : ", shapeUri);
+
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
-  const { generatePropertyDetailsForClass, convertToClassFormArray } =
+  const { getAllSuperClassesOf, findShapeUrisForClasses, generatePropertyDetailsForClass, 
+    convertToClassFormArray, getSuperClassOf, getObjectPropertyDetails
+   } =
     SHACLProcessor;
+  
+  const allSuperClasses = getAllSuperClassesOf(className);
+  const allSuperShapes = findShapeUrisForClasses(allSuperClasses);
+  //console.log("allSuperClasses : ", allSuperClasses)
+  //console.log("allSuperShapes", allSuperShapes);
+
+  const propertyDetailsForAllSuperClasses = allSuperShapes.map((shape) =>
+    generatePropertyDetailsForClass(shape)
+  ).flat();
   const propertyDetailsForClass = generatePropertyDetailsForClass(shapeUri);
-  const formFields = convertToClassFormArray(propertyDetailsForClass as any);
-  const subClassOf = SHACLProcessor.getSuperClassOf(className);
-  const allSuperClasses = SHACLProcessor.getAllSuperClassesOf(className);
-  const objectProperties = SHACLProcessor.getObjectPropertyDetails(shapeUri);
+  const allPropertyDetails = [
+    ...propertyDetailsForClass,
+    ...propertyDetailsForAllSuperClasses,
+  ];
+
+  //const formFields = convertToClassFormArray(propertyDetailsForClass as any);
+  const formFields = convertToClassFormArray(allPropertyDetails as any);
+  const subClassOf = getSuperClassOf(className);
+  const objectProperties = getObjectPropertyDetails(shapeUri);
+  //console.log("formFields : ", formFields);
+  //console.log("objectProperties : ", objectProperties);
+  
   return {
     className,
     subClassOf,
