@@ -112,7 +112,6 @@ describe("createSHACLProcessor", () => {
         "https://kg.scania.com/it/iris_orchestration/endpointShape"
       );
       expect(result).toEqual({
-        "http://www.w3.org/2000/01/rdf-schema#label": "Endpoint",
         "http://kg.scania.com/core/timestamp": "2023-04-14T08:43:00",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type":
           "http://www.w3.org/ns/shacl#PropertyShape",
@@ -121,7 +120,6 @@ describe("createSHACLProcessor", () => {
         "http://www.w3.org/2000/01/rdf-schema#label": "endpoint Shape",
         "http://www.w3.org/ns/shacl#datatype":
           "http://www.w3.org/2001/XMLSchema#string",
-        "http://www.w3.org/ns/shacl#path": ":endpoint",
         "http://www.w3.org/ns/shacl#maxCount": "1",
         "http://www.w3.org/ns/shacl#minCount": "1",
         "http://www.w3.org/ns/shacl#path":
