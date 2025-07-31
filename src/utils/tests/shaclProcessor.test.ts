@@ -7,11 +7,13 @@ describe("createSHACLProcessor", () => {
   let processor: ReturnType<typeof createSHACLProcessor>;
 
   beforeAll(async () => {
-    const filePath1 = "ofg_shapes.ttl";
-    const filePath2 = "orchestration_ontology.ttl";
-    const quads1 = await parseTTLFile(filePath1);
-    const quads2 = await parseTTLFile(filePath2);
-    rdfData = quads1.concat(quads2);
+    const ofg_shapes = "ofg_shapes.ttl";
+    const orchestration_ontology = "orchestration_ontology.ttl";
+    const core_shapes = "core_shapes.ttl"
+    const quads_ofg = await parseTTLFile(ofg_shapes);
+    const quads_oo = await parseTTLFile(orchestration_ontology);
+    const quads_core = await parseTTLFile(core_shapes)
+    rdfData = quads_ofg.concat(quads_oo).concat(quads_core);
     const jsonData = convertQuadsToJson(rdfData);
     processor = createSHACLProcessor(jsonData);
   });
