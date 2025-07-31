@@ -161,14 +161,14 @@ describe("createSHACLProcessor", () => {
     });
   });
 
-  describe("getSubclassOf", () => {
+  describe("getSuperClassOf", () => {
     test("returns superclass of class", () => {
-      const result = processor.getSubclassOf("HTTPAction");
+      const result = processor.getSuperClassOf("HTTPAction");
       expect(result).toBe("https://kg.scania.com/it/iris_orchestration/Action");
     });
 
     test('returns "undefined" when no superclass', () => {
-      const result = processor.getSubclassOf("StandaloneClass");
+      const result = processor.getSuperClassOf("StandaloneClass");
       expect(result).toBe("undefined");
     });
   });
