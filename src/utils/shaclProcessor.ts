@@ -59,6 +59,17 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     return result;
   };
 
+  const findShapeUrisForClasses = (classUris: string[]): string[] => {
+    const quads =
+      predicateIndex.get("http://www.w3.org/ns/shacl#targetClass") || [];
+
+    const results = quads
+      .filter((quad) => classUris.includes(quad.object))
+      .map((quad) => quad.subject);
+    
+    return results;
+};
+
   const getSuperClassOf = (className: string): string => {
     const quads =
       predicateIndex.get("http://www.w3.org/2000/01/rdf-schema#subClassOf") ||
@@ -285,6 +296,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     generatePropertyDetailsForClass,
     getSuperClassOf,
     getAllSuperClassesOf,
+    findShapeUrisForClasses,
     convertToClassFormArray,
   };
 };
