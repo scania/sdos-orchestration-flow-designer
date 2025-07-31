@@ -30,9 +30,10 @@ async function generateClassFormData(className: string) {
   }
   const { generatePropertyDetailsForClass, convertToClassFormArray } =
     SHACLProcessor;
-  const propertyDetailsForClass = generatePropertyDetailsForClass(className);
+  const propertyDetailsForClass = generatePropertyDetailsForClass(shapeUri);
   const formFields = convertToClassFormArray(propertyDetailsForClass as any);
-  const subClassOf = SHACLProcessor.getSubclassOf(className);
+  const subClassOf = SHACLProcessor.getSuperClassOf(className);
+  const allSuperClasses = SHACLProcessor.getAllSuperClassesOf(className);
   const objectProperties = SHACLProcessor.getObjectPropertyDetails(shapeUri);
   return {
     className,
