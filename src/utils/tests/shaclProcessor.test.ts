@@ -138,7 +138,7 @@ describe("createSHACLProcessor", () => {
 
   describe("generatePropertyDetailsForClass", () => {
     test("returns properties for class", () => {
-      const result = processor.generatePropertyDetailsForClass("HTTPAction");
+      const result = processor.generatePropertyDetailsForClass("https://kg.scania.com/it/iris_orchestration/HTTPAction");
       expect(result.length).toBeGreaterThan(0);
       expect(result[0]).toEqual({
         "http://kg.scania.com/core/timestamp": "2023-04-14T08:43:00",
