@@ -49,6 +49,9 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   const [executionResult, setExecutionResult] = useState("");
   const [executionLog, setExecutionLog] = useState([]);
   const [dropdownKey, setDropdownKey] = useState(0);
+  const [currentExecutionId, setCurrentExecutionId] = useState<string | null>(
+    null
+  );
   const { showToast, clearToasts } = useToast();
 
   const {
@@ -206,105 +209,83 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     }
   };
 
-  const handleShowMore = (executionIdHeader: string) => async () => {
+  const fetchLogs = useCallback(
+    async (execId: string): Promise<void> => {
+      setCurrentExecutionId(execId);
+      try {
+        const { data } = await axios.get(`${baseUrl}/api/execute/logs`, {
+          params: { executionId: execId },
+        });
+        setExecutionLog(data);
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [baseUrl]
+  );
+
+  const refreshLogs = useCallback(() => {
+    if (currentExecutionId) fetchLogs(currentExecutionId);
+  }, [currentExecutionId, fetchLogs]);
+
+  const handleShowMore = (execIdHeader: string) => async () => {
     clearToasts();
     setExectionLogModalIsOpen(true);
-    try {
-      const response = await axios.get(
-        `${baseUrl}/api/execute/logs?executionId=${encodeURI(
-          executionIdHeader
-        )}`
-      );
-      setExecutionLog(response.data);
-    } catch (error) {
-      console.error(error);
-    }
+    setExecutionLog([]); // clear old entries right away
+    await fetchLogs(execIdHeader);
   };
 
-  const executeGraph = async () => {
-    switch (executionType) {
-      case "sync": {
-        try {
-          const response = await axios.post(
-            `${baseUrl}/api/execute/sync`,
-            {
-              subjectIri: iri,
-              parameters: JSON.parse(selectedParameter?.value || "{}"),
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          setExecutionResultModalIsOpen(true);
-          setExecutionResult(response.data);
-        } catch (error: any) {
-          const errorMessage =
-            error.response?.data?.error ||
-            error.message ||
-            "Could not execute graph";
-          let executionIdHeader: string | null = null;
-          if (error.response?.headers?.["execution-id"]) {
-            executionIdHeader = error.response.headers["execution-id"];
-            showToast(
-              "error",
-              "Error",
-              errorMessage,
-              3500,
-              handleShowMore(executionIdHeader)
-            );
-            return;
-          }
-          showToast("error", "Error", errorMessage, 2000);
-        }
-        break;
-      }
-      case "async": {
-        try {
-          const response = await axios.post(
-            `${baseUrl}/api/execute/async`,
-            {
-              subjectIri: iri,
-              parameters: JSON.parse(selectedParameter?.value || "{}"),
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+  const executeGraph = async (): Promise<void> => {
+    setCurrentExecutionId(null);
+    setExecutionLog([]);
 
-          showToast(
-            "information",
-            "Execution Started",
-            `Result Graph: ${response.data.resultGraphURI}`,
-            3500
-          );
-        } catch (error) {
-          const errorMessage =
-            error.response?.data?.error ||
-            error.message ||
-            "Could not execute graph asynchronously";
-          let executionIdHeader = null;
-          if (error.response?.headers?.["execution-id"]) {
-            executionIdHeader = error.response.headers["execution-id"];
-            showToast(
-              "error",
-              "Error",
-              errorMessage,
-              3500,
-              handleShowMore(executionIdHeader)
-            );
-            return;
-          }
-          showToast("error", "Error", errorMessage, 2000);
-        }
-        break;
+    const payload = {
+      subjectIri: iri,
+      parameters: JSON.parse(selectedParameter?.value || "{}"),
+    };
+
+    try {
+      if (executionType === "sync") {
+        const { data, headers } = await axios.post(
+          `${baseUrl}/api/execute/sync`,
+          payload,
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        const execId = headers["execution-id"];
+        if (execId) setCurrentExecutionId(execId);
+
+        setExecutionResult(data);
+        setExecutionResultModalIsOpen(true);
+      } else {
+        const { data, headers } = await axios.post(
+          `${baseUrl}/api/execute/async`,
+          payload,
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        const execId = headers["execution-id"];
+        if (execId) setCurrentExecutionId(execId);
+
+        showToast(
+          "information",
+          "Execution Started",
+          `Result Graph: ${data.resultGraphURI}`,
+          3500
+        );
       }
-      default: {
-        console.warn("Unknown execution type");
-        break;
+    } catch (error: any) {
+      const errMsg =
+        error.response?.data?.error ||
+        error.message ||
+        "Could not execute graph";
+      const execId = error.response?.headers?.["execution-id"] || null;
+
+      if (execId) {
+        setCurrentExecutionId(execId);
+        showToast("error", "Error", errMsg, 3500, handleShowMore(execId));
+      } else {
+        showToast("error", "Error", errMsg, 2000);
       }
     }
   };
@@ -432,94 +413,96 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                     {/* Existing Parameters */}
                     {(selectedExecutionMethod === "Existing" ||
                       selectedExecutionMethod === "Editing") && (
-                        <>
-                          <div
-                            className={
-                              styles.contentContainer__parameterContainer
-                            }
-                          >
-                            <TdsDropdown
-                              name="dropdown"
-                              key={dropdownKey}
-                              label="Select Parameter Set"
-                              label-position="outside"
-                              placeholder="Select parameter set"
-                              size="sm"
-                              multiselect={false}
-                              onTdsChange={(e) => selectParameter(e.detail.value)}
-                              open-direction="auto"
-                              normalizeText={true}
-                              defaultValue={selectedParameter?.id}
-                            >
-                              {parameters.map((parameter) => (
-                                <TdsDropdownOption
-                                  value={parameter.id}
-                                  key={parameter.id}
-                                >
-                                  {parameter.name}
-                                </TdsDropdownOption>
-                              ))}
-                            </TdsDropdown>
-                            {selectedParameter && (
-                              <>
-                                <tds-button
-                                  text={
-                                    selectedExecutionMethod === "Editing"
-                                      ? "Save"
-                                      : "Edit"
-                                  }
-                                  size="sm"
-                                  onClick={
-                                    selectedExecutionMethod === "Editing"
-                                      ? handleSubmit(saveEditedParameter)
-                                      : () =>
-                                        setSelectedExecutionMethod("Editing")
-                                  }
-                                ></tds-button>
-                                {selectedExecutionMethod === 'Editing' ?
-                                  <tds-button
-                                    text="Cancel"
-                                    size="sm"
-                                    variant="secondary"
-                                    onClick={() => setSelectedExecutionMethod('Existing')}
-                                  />
-                                  :
-                                  <tds-button
-                                    text="Delete"
-                                    size="sm"
-                                    variant="secondary"
-                                    onClick={deleteParameter}
-                                  />
-                                } 
-                              </>
-                            )}
-                          </div>
-
-                          <tds-textarea
-                            label="JSON"
-                            rows={12}
+                      <>
+                        <div
+                          className={
+                            styles.contentContainer__parameterContainer
+                          }
+                        >
+                          <TdsDropdown
+                            name="dropdown"
+                            key={dropdownKey}
+                            label="Select Parameter Set"
                             label-position="outside"
-                            disabled={selectedExecutionMethod !== "Editing"}
-                            helper={errors.value?.message || ""}
-                            state={errors.value ? "error" : "default"}
-                            value={watch("value")}
-                            onInput={(e) =>
-                              selectedExecutionMethod === "Editing" &&
-                              setValue(
-                                "value",
-                                (e.target as HTMLTextAreaElement).value
-                              )
-                            }
-                            {...(selectedExecutionMethod === "Editing"
-                              ? register("value", {
+                            placeholder="Select parameter set"
+                            size="sm"
+                            multiselect={false}
+                            onTdsChange={(e) => selectParameter(e.detail.value)}
+                            open-direction="auto"
+                            normalizeText={true}
+                            defaultValue={selectedParameter?.id}
+                          >
+                            {parameters.map((parameter) => (
+                              <TdsDropdownOption
+                                value={parameter.id}
+                                key={parameter.id}
+                              >
+                                {parameter.name}
+                              </TdsDropdownOption>
+                            ))}
+                          </TdsDropdown>
+                          {selectedParameter && (
+                            <>
+                              <tds-button
+                                text={
+                                  selectedExecutionMethod === "Editing"
+                                    ? "Save"
+                                    : "Edit"
+                                }
+                                size="sm"
+                                onClick={
+                                  selectedExecutionMethod === "Editing"
+                                    ? handleSubmit(saveEditedParameter)
+                                    : () =>
+                                        setSelectedExecutionMethod("Editing")
+                                }
+                              ></tds-button>
+                              {selectedExecutionMethod === "Editing" ? (
+                                <tds-button
+                                  text="Cancel"
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() =>
+                                    setSelectedExecutionMethod("Existing")
+                                  }
+                                />
+                              ) : (
+                                <tds-button
+                                  text="Delete"
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={deleteParameter}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        <tds-textarea
+                          label="JSON"
+                          rows={12}
+                          label-position="outside"
+                          disabled={selectedExecutionMethod !== "Editing"}
+                          helper={errors.value?.message || ""}
+                          state={errors.value ? "error" : "default"}
+                          value={watch("value")}
+                          onInput={(e) =>
+                            selectedExecutionMethod === "Editing" &&
+                            setValue(
+                              "value",
+                              (e.target as HTMLTextAreaElement).value
+                            )
+                          }
+                          {...(selectedExecutionMethod === "Editing"
+                            ? register("value", {
                                 required: "Parameter set value is required",
                                 validate: (value) =>
                                   isValidJson(value) ? true : "Invalid JSON",
                               })
-                              : {})}
-                          ></tds-textarea>
-                        </>
-                      )}
+                            : {})}
+                        ></tds-textarea>
+                      </>
+                    )}
 
                     {/* Execute Button */}
 
@@ -584,9 +567,8 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         onRequestClose={() => setExectionLogModalIsOpen(false)}
         title="Graph execution log"
       >
-        <ExecutionLog executionLog={executionLog} />
+        <ExecutionLog executionLog={executionLog} onRefresh={refreshLogs} />
       </Modal>
-
     </div>
   );
 };
