@@ -166,12 +166,12 @@ describe("createSHACLProcessor", () => {
 
   describe("getSuperClassOf", () => {
     test("returns superclass of class", () => {
-      const result = processor.getSuperClassOf("HTTPAction");
+      const result = processor.getSuperClass("https://kg.scania.com/it/iris_orchestration/HTTPAction");
       expect(result).toBe("https://kg.scania.com/it/iris_orchestration/Action");
     });
 
     test('returns "undefined" when no superclass', () => {
-      const result = processor.getSuperClassOf("StandaloneClass");
+      const result = processor.getSuperClass("https://kg.scania.com/it/iris_orchestration/JsonLdContext");
       expect(result).toBe("undefined");
     });
   });

@@ -44,7 +44,7 @@ async function generateClassFormData(className: string) {
   }
 
   const { getAllSuperClassesOf, findShapeUriForClass, generatePropertyDetailsForClass, 
-    convertToClassFormArray, getSuperClassOf, getObjectPropertyDetails
+    convertToClassFormArray, getSuperClass, getObjectPropertyDetails
    } =
     SHACLProcessor;
   
@@ -64,16 +64,16 @@ async function generateClassFormData(className: string) {
     ...propertyDetailsForAllSuperClasses,
   ];
 
-  //const formFields = convertToClassFormArray(propertyDetailsForClass as any);
   const formFields = convertToClassFormArray(allPropertyDetails as any);
-  const subClassOf = getSuperClassOf(className);
+  const superClass = getSuperClass(classUri);
   const objectProperties = getObjectPropertyDetails(shapeUri);
   //console.log("formFields : ", formFields);
+  //console.log("superClass : ", superClass);
   //console.log("objectProperties : ", objectProperties);
   
   return {
     className,
-    subClassOf,
+    superClass,
     objectProperties,
     formFields,
   };
