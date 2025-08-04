@@ -22,7 +22,7 @@ describe("createSHACLProcessor", () => {
 
   describe("findShapeUriForClass", () => {
     test("returns correct shape URI for valid class", () => {
-      const result = processor.findShapeUriForClass("HTTPAction");
+      const result = processor.findShapeUriForClass("https://kg.scania.com/it/iris_orchestration/HTTPAction");
       expect(result).toBe(
         "https://kg.scania.com/it/iris_orchestration/HTTPActionShape"
       );

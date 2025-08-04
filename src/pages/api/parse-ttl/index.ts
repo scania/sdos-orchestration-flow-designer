@@ -17,6 +17,7 @@ const coreField = {
 };
 
 async function generateClassFormData(className: string) {
+  // parsing TTL files
   const ofg_shapes = "ofg_shapes.ttl";
   const orchestration_ontology = "orchestration_ontology.ttl";
   const core_shapes = "core_shapes.ttl";
@@ -25,23 +26,32 @@ async function generateClassFormData(className: string) {
   const quads_oo = await parseTTLFile(orchestration_ontology);
   const quads_core = await parseTTLFile(core_shapes);
   const quads_co = await parseTTLFile(core_ontology);
+
+  // combining quads
   const combinedQuads = quads_ofg.concat(quads_oo).concat(quads_core).concat(quads_co);
   const jsonData = convertQuadsToJson(combinedQuads);
   const SHACLProcessor = createSHACLProcessor(jsonData);
-  const shapeUri = SHACLProcessor.findShapeUriForClass(className);
+
+  // finding classUri and shapeUri based on className
+  const classUri = SHACLProcessor.findClassUri(className);
+  const shapeUri = SHACLProcessor.findShapeUriForClass(classUri);
   //console.log("className : ", className);
+  //console.log("classUri : ", classUri);
   //console.log("shapeUri : ", shapeUri);
 
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
-  const { getAllSuperClassesOf, findShapeUrisForClasses, generatePropertyDetailsForClass, 
+
+  const { getAllSuperClassesOf, findShapeUriForClass, generatePropertyDetailsForClass, 
     convertToClassFormArray, getSuperClassOf, getObjectPropertyDetails
    } =
     SHACLProcessor;
   
-  const allSuperClasses = getAllSuperClassesOf(className);
-  const allSuperShapes = findShapeUrisForClasses(allSuperClasses);
+  const allSuperClasses = getAllSuperClassesOf(classUri);
+  const allSuperShapes = allSuperClasses
+    .map(findShapeUriForClass)
+    .filter((shape): shape is string => shape !== undefined);
   //console.log("allSuperClasses : ", allSuperClasses)
   //console.log("allSuperShapes", allSuperShapes);
 

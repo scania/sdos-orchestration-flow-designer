@@ -50,25 +50,21 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     predicateMap.get(quad.predicate)!.push(quad);
   });
 
-  const findShapeUriForClass = (className: string): string | undefined => {
+  const findClassUri = (className: string): string => {
+    const quads =
+      objectIndex.get("http://www.w3.org/2002/07/owl#Class") || [];
+    const result = quads.filter((q) => 
+      q.predicate === "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" &&
+      q.subject.endsWith("/" + className));
+    return result[0].subject;
+  }
+
+  const findShapeUriForClass = (classUri: string): string | undefined => {
     const quads =
       predicateIndex.get("http://www.w3.org/ns/shacl#targetClass") || [];
-    const result = quads.find((quad) =>
-      quad.object.endsWith("/" + className)
-    )?.subject;
+    const result = quads.find((quad) => quad.object === classUri)?.subject;
     return result;
   };
-
-  const findShapeUrisForClasses = (classUris: string[]): string[] => {
-    const quads =
-      predicateIndex.get("http://www.w3.org/ns/shacl#targetClass") || [];
-
-    const results = quads
-      .filter((quad) => classUris.includes(quad.object))
-      .map((quad) => quad.subject);
-    
-    return results;
-};
 
   const getSuperClassOf = (className: string): string => {
     const quads =
@@ -102,22 +98,20 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     });
   };
 
-  const getAllSuperClassesOf = (className: string): string[] => {
+  const getAllSuperClassesOf = (classUri: string): string[] => {
     const quads =
       predicateIndex.get("http://www.w3.org/2000/01/rdf-schema#subClassOf") ||
       [];
 
     const directSuperClasses = quads
-      .filter((q) => q.subject.endsWith("/" + className))
+      .filter((q) => q.subject === classUri)
       .map((q) => q.object);
 
     const allSuperClasses: string[] = [];
 
     for (const superClass of directSuperClasses) {
       allSuperClasses.push(superClass);
-      const parts = superClass.split("/");
-      const superClassName = parts[parts.length - 1];
-      const transitiveSuperClasses = getAllSuperClassesOf(superClassName);
+      const transitiveSuperClasses = getAllSuperClassesOf(superClass);
       allSuperClasses.push(...transitiveSuperClasses);
     }
 
@@ -288,6 +282,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
   };
 
   return {
+    findClassUri,
     findShapeUriForClass,
     getAllProperties,
     getObjectPropertyDetails,
@@ -296,7 +291,6 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     generatePropertyDetailsForClass,
     getSuperClassOf,
     getAllSuperClassesOf,
-    findShapeUrisForClasses,
     convertToClassFormArray,
   };
 };
