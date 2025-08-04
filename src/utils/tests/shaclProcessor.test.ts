@@ -9,11 +9,13 @@ describe("createSHACLProcessor", () => {
   beforeAll(async () => {
     const ofg_shapes = "ofg_shapes.ttl";
     const orchestration_ontology = "orchestration_ontology.ttl";
-    const core_shapes = "core_shapes.ttl"
+    const core_shapes = "core_shapes.ttl";
+    const core_ontology = "core_ontology.ttl";
     const quads_ofg = await parseTTLFile(ofg_shapes);
     const quads_oo = await parseTTLFile(orchestration_ontology);
-    const quads_core = await parseTTLFile(core_shapes)
-    rdfData = quads_ofg.concat(quads_oo).concat(quads_core);
+    const quads_core = await parseTTLFile(core_shapes);
+    const quads_co = await parseTTLFile(core_ontology);
+    rdfData = quads_ofg.concat(quads_oo).concat(quads_core).concat(quads_co);
     const jsonData = convertQuadsToJson(rdfData);
     processor = createSHACLProcessor(jsonData);
   });
@@ -68,6 +70,7 @@ describe("createSHACLProcessor", () => {
               "https://kg.scania.com/it/iris_orchestration/ResultAction",
               "https://kg.scania.com/it/iris_orchestration/SOAPAction",
               "https://kg.scania.com/it/iris_orchestration/ScriptAction",
+              "https://kg.scania.com/it/iris_orchestration/KafkaAction",
               "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
               "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
             ],
@@ -123,7 +126,7 @@ describe("createSHACLProcessor", () => {
         "http://www.w3.org/ns/shacl#datatype":
           "http://www.w3.org/2001/XMLSchema#string",
         "http://www.w3.org/ns/shacl#maxCount": "1",
-        "http://www.w3.org/ns/shacl#minCount": "1",
+        "http://www.w3.org/ns/shacl#minCount": "0",
         "http://www.w3.org/ns/shacl#path":
           "https://kg.scania.com/it/iris_orchestration/endpoint",
         "http://www.w3.org/ns/shacl#pattern": "^/",
@@ -138,7 +141,7 @@ describe("createSHACLProcessor", () => {
 
   describe("generatePropertyDetailsForClass", () => {
     test("returns properties for class", () => {
-      const result = processor.generatePropertyDetailsForClass("https://kg.scania.com/it/iris_orchestration/HTTPAction");
+      const result = processor.generatePropertyDetailsForClass("https://kg.scania.com/it/iris_orchestration/HTTPActionShape");
       expect(result.length).toBeGreaterThan(0);
       expect(result[0]).toEqual({
         "http://kg.scania.com/core/timestamp": "2023-04-14T08:43:00",

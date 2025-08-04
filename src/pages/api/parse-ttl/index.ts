@@ -19,11 +19,13 @@ const coreField = {
 async function generateClassFormData(className: string) {
   const ofg_shapes = "ofg_shapes.ttl";
   const orchestration_ontology = "orchestration_ontology.ttl";
-  const core_shapes = "core_shapes.ttl"
+  const core_shapes = "core_shapes.ttl";
+  const core_ontology = "core_ontology.ttl";
   const quads_ofg = await parseTTLFile(ofg_shapes);
   const quads_oo = await parseTTLFile(orchestration_ontology);
-  const quads_core = await parseTTLFile(core_shapes)
-  const combinedQuads = quads_ofg.concat(quads_oo).concat(quads_core);
+  const quads_core = await parseTTLFile(core_shapes);
+  const quads_co = await parseTTLFile(core_ontology);
+  const combinedQuads = quads_ofg.concat(quads_oo).concat(quads_core).concat(quads_co);
   const jsonData = convertQuadsToJson(combinedQuads);
   const SHACLProcessor = createSHACLProcessor(jsonData);
   const shapeUri = SHACLProcessor.findShapeUriForClass(className);
