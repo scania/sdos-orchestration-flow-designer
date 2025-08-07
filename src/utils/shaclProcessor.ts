@@ -51,13 +51,14 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
   });
 
   const findClassUri = (className: string): string => {
-    const quads =
-      objectIndex.get("http://www.w3.org/2002/07/owl#Class") || [];
-    const result = quads.filter((q) => 
-      q.predicate === "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" &&
-      q.subject.endsWith("/" + className));
+    const quads = objectIndex.get("http://www.w3.org/2002/07/owl#Class") || [];
+    const result = quads.filter(
+      (q) =>
+        q.predicate === "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" &&
+        q.subject.endsWith("/" + className)
+    );
     return result[0].subject;
-  }
+  };
 
   const findShapeUriForClass = (classUri: string): string | undefined => {
     const quads =
@@ -214,6 +215,8 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
       const xsdDataType = shape["http://www.w3.org/ns/shacl#datatype"];
       const path = shape["http://www.w3.org/ns/shacl#path"];
       let type: FormFieldType;
+      let value: Boolean | String;
+      value = "";
       const schemaContext = "http://www.w3.org/2001/XMLSchema#";
       switch (xsdDataType) {
         case `${schemaContext}string`:
@@ -228,6 +231,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
           break;
         case `${schemaContext}boolean`:
           type = FormFieldType.Checkbox;
+          value = false;
           break;
         case `${schemaContext}date`:
           type = FormFieldType.Date;
@@ -253,7 +257,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
         name: path || "",
         type: type,
         label: comment,
-        value: "",
+        value: value,
         validation: {},
       };
 

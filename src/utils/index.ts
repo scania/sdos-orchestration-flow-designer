@@ -54,40 +54,11 @@ export const generateJsonLdFromState = ({
     return obj;
   };
 
-  // Array to hold extra nodes (e.g., ResultMetaData nodes)
-  const extraNodes: any[] = [];
-
   const constructNodeData = (nodeId: string) => {
     const formData = findNodeFormFields(nodeId);
     if (!formData) return null;
 
     const nodeData = convertFromFieldsToNodeData(formData);
-
-    if (formData.className === "Task") {
-      const resultMetaDataNodeId = generateClassId();
-
-      const resultMetaDataNode = {
-        "@id": resultMetaDataNodeId,
-        "@type": ["owl:NamedIndividual", "iris:ResultMetaData"],
-        "rdfs:label": { "@value": "Result Metadata" },
-        "iris:description": {
-          "@value":
-            "This instance details will be used as Metadata in resultgraph which will be used for NamedGraph security. This description details will be copied to all the ResultGraph",
-        },
-        "iris:title": { "@value": "" },
-        "core:contributor": { "@value": metadata.email },
-        "core:graphType": { "@value": "private" },
-        "core:informationResponsible": {
-          "@value": metadata.email,
-        },
-      };
-
-      extraNodes.push(resultMetaDataNode);
-
-      nodeData["iris:hasResultMetaData"] = {
-        "@id": resultMetaDataNodeId,
-      };
-    }
 
     const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
 
@@ -118,7 +89,6 @@ export const generateJsonLdFromState = ({
     })
     .filter((item): item is IClassConfig => item !== null);
 
-  graphData.push(...extraNodes);
   return {
     "@context": JSON_LD_CONTEXT,
     "@graph": graphData,

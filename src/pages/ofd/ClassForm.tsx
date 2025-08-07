@@ -78,9 +78,12 @@ const ClassForm: React.FC<ClassFormProps> = ({
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
     if (readOnly) return;
     const filledData = formFields.map((field: FormField) => {
-      const { name } = field;
+      const { name, type } = field;
       if (data[replaceSpecialChars(name)]) {
         return { ...field, value: data[replaceSpecialChars(name)] };
+      }
+      if (type === FormFieldType.Checkbox) {
+        return { ...field, value: false };
       }
       return { ...field, value: "" };
     });
