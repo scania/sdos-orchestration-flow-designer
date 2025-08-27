@@ -17,26 +17,63 @@ const coreField = {
 };
 
 async function generateClassFormData(className: string) {
-  const filePath1 = "ofg_shapes.ttl";
-  const filePath2 = "orchestration_ontology.ttl";
-  const quads1 = await parseTTLFile(filePath1);
-  const quads2 = await parseTTLFile(filePath2);
-  const combinedQuads = quads1.concat(quads2);
+  // parsing TTL files
+  const ofg_shapes = "ofg_shapes.ttl";
+  const orchestration_ontology = "orchestration_ontology.ttl";
+  const core_shapes = "core_shapes.ttl";
+  const core_ontology = "core_ontology.ttl";
+  const quads_ofg = await parseTTLFile(ofg_shapes);
+  const quads_oo = await parseTTLFile(orchestration_ontology);
+  const quads_core = await parseTTLFile(core_shapes);
+  const quads_co = await parseTTLFile(core_ontology);
+
+  // combining quads
+  const combinedQuads = quads_ofg.concat(quads_oo).concat(quads_core).concat(quads_co);
   const jsonData = convertQuadsToJson(combinedQuads);
   const SHACLProcessor = createSHACLProcessor(jsonData);
-  const shapeUri = SHACLProcessor.findShapeUriForClass(className);
+
+  // finding classUri and shapeUri based on className
+  const classUri = SHACLProcessor.findClassUri(className);
+  const shapeUri = SHACLProcessor.findShapeUriForClass(classUri);
+  //console.log("className : ", className);
+  //console.log("classUri : ", classUri);
+  //console.log("shapeUri : ", shapeUri);
+
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
-  const { generatePropertyDetailsForClass, convertToClassFormArray } =
+
+  const { getAllSuperClassesOf, findShapeUriForClass, generatePropertyDetailsForClass, 
+    convertToClassFormArray, getSuperClass, getObjectPropertyDetails
+   } =
     SHACLProcessor;
-  const propertyDetailsForClass = generatePropertyDetailsForClass(className);
-  const formFields = convertToClassFormArray(propertyDetailsForClass as any);
-  const subClassOf = SHACLProcessor.getSubclassOf(className);
-  const objectProperties = SHACLProcessor.getObjectPropertyDetails(shapeUri);
+  
+  const allSuperClasses = getAllSuperClassesOf(classUri);
+  const allSuperShapes = allSuperClasses
+    .map(findShapeUriForClass)
+    .filter((shape): shape is string => shape !== undefined);
+  //console.log("allSuperClasses : ", allSuperClasses)
+  //console.log("allSuperShapes", allSuperShapes);
+
+  const propertyDetailsForAllSuperClasses = allSuperShapes.map((shape) =>
+    generatePropertyDetailsForClass(shape)
+  ).flat();
+  const propertyDetailsForClass = generatePropertyDetailsForClass(shapeUri);
+  const allPropertyDetails = [
+    ...propertyDetailsForClass,
+    ...propertyDetailsForAllSuperClasses,
+  ];
+
+  const formFields = convertToClassFormArray(allPropertyDetails as any);
+  const superClass = getSuperClass(classUri);
+  const objectProperties = getObjectPropertyDetails(shapeUri);
+  //console.log("formFields : ", formFields);
+  //console.log("superClass : ", superClass);
+  //console.log("objectProperties : ", objectProperties);
+  
   return {
     className,
-    subClassOf,
+    superClass,
     objectProperties,
     formFields,
   };

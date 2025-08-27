@@ -1,10 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import styles from "./ofd.module.scss";
-import { TdsTextarea } from "@scania/tegel-react";
-import { ClassFormProps, FormField, IFormInput } from "@/utils/types";
-import { replaceSpecialChars } from "@/helpers/helper";
 import FileConverter from "@/components/FileConverter";
+import { replaceSpecialChars } from "@/helpers/helper";
+import {
+  ClassFormProps,
+  FormField,
+  FormFieldType,
+  IFormInput,
+} from "@/utils/types";
+import { TdsTextarea, TdsToggle } from "@scania/tegel-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import styles from "./ofd.module.scss";
 
 const ClassForm: React.FC<ClassFormProps> = ({
   formData = { formFields: [] },
@@ -73,9 +78,12 @@ const ClassForm: React.FC<ClassFormProps> = ({
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
     if (readOnly) return;
     const filledData = formFields.map((field: FormField) => {
-      const { name } = field;
+      const { name, type } = field;
       if (data[replaceSpecialChars(name)]) {
         return { ...field, value: data[replaceSpecialChars(name)] };
+      }
+      if (type === FormFieldType.Checkbox) {
+        return { ...field, value: false };
       }
       return { ...field, value: "" };
     });
@@ -157,38 +165,75 @@ const ClassForm: React.FC<ClassFormProps> = ({
   };
 
   const renderInputField = (field: FormField) => {
-    const { name, label, validation } = field;
-    const fieldName = name.split("/");
+    const { name, label, validation, type } = field;
+
+    const nameParts = name.split("/");
+    const displayLabel = nameParts[nameParts.length - 1];
+    const nameWoSpecialChars = replaceSpecialChars(name);
+
     const validationRules = {
-      required: validation.required ? "This field is required" : false,
-      pattern: validation.pattern
+      required: validation?.required ? "This field is required" : false,
+      pattern: validation?.pattern
         ? {
             value: new RegExp(validation.pattern),
-            message: validation.message || "Pattern does not match",
+            message:
+              validation.message ||
+              `Pattern does not match ${validation.pattern}`,
           }
         : undefined,
     };
-    const nameWoSpecialChars = replaceSpecialChars(name);
+
     register(nameWoSpecialChars, validationRules);
     const value = watch(nameWoSpecialChars);
+
+    const commonFieldProps = {
+      disabled: readOnly,
+      state: errors[nameWoSpecialChars] ? "error" : ("default" as const),
+      helper: errors[nameWoSpecialChars]?.message,
+    };
+
+    let inputElement: JSX.Element;
+
+    switch (type) {
+      case FormFieldType.Checkbox:
+        inputElement = (
+          <TdsToggle
+            {...commonFieldProps}
+            headline={displayLabel}
+            label-position="outside"
+            checked={Boolean(value)}
+            onTdsToggle={(e: any) => {
+              if (readOnly) return;
+              setValue(nameWoSpecialChars, e.detail.checked, {
+                shouldDirty: true,
+              });
+            }}
+          />
+        );
+        break;
+
+      // can be extended for other FormFieldType
+      default: // falls back to textarea
+        inputElement = (
+          <TdsTextarea
+            {...commonFieldProps}
+            label={displayLabel}
+            label-position="outside"
+            placeholder={label}
+            value={value}
+            onInput={(e: any) => {
+              if (readOnly) return;
+              setValue(nameWoSpecialChars, e.target.value.trim(), {
+                shouldDirty: true,
+              });
+            }}
+          />
+        );
+    }
+
     return (
       <section key={name} className="form-section">
-        <TdsTextarea
-          className="tds-text-field"
-          label={fieldName[fieldName.length - 1]}
-          label-position="outside"
-          state={errors[nameWoSpecialChars] ? "error" : "default"}
-          helper={errors[nameWoSpecialChars]?.message}
-          placeholder={label}
-          onInput={(e: any) => {
-            if (readOnly) return;
-            setValue(nameWoSpecialChars, e.target.value.trim(), {
-              shouldDirty: true,
-            });
-          }}
-          value={value}
-          disabled={readOnly}
-        ></TdsTextarea>
+        {inputElement}
       </section>
     );
   };

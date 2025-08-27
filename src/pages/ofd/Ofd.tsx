@@ -33,8 +33,8 @@ import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
 import { useToast } from "@/hooks/useToast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
-import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
-import useOfdStore from '@/store/ofdStore';
+import ConnectionLine from "@/components/ConnectionLine/ConnectionLine";
+import useOfdStore from "@/store/ofdStore";
 import userPreferencesStore from "@/store/userPreferencesStore"; // Import the Zustand store
 
 const edgeTypes = {
@@ -100,7 +100,9 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const setSetupMode = useOfdStore((state) => state.setSetupMode);
   const addConnectedEdges = useOfdStore((state) => state.addConnectedEdges);
   const clearConnectedEdges = useOfdStore((state) => state.clearConnectedEdges);
-  const doubleClickToEnterSetupMode = userPreferencesStore((state) => state.doubleClickToEnterSetupMode);
+  const doubleClickToEnterSetupMode = userPreferencesStore(
+    (state) => state.doubleClickToEnterSetupMode
+  );
   const isGraphEditable = useOfdStore((state) => state.isGraphEditable);
   const setIsGraphEditable = useOfdStore((state) => state.setIsGraphEditable);
 
@@ -191,6 +193,31 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     },
   });
 
+  type EdgePredicate = {
+    label: string;
+    iri: string;
+  };
+
+  const REQUIRED_EDGES: EdgePredicate[] = [
+    {
+      label: "input Parameter",
+      iri: "https://kg.scania.com/it/iris_orchestration/inputParameter",
+    },
+    {
+      label: "result Metadata",
+      iri: "https://kg.scania.com/it/iris_orchestration/hasResultMetaData",
+    },
+  ];
+
+  const getMissingForTask = (task: Node, edges: Edge[]): string[] => {
+    const taskEdges = edges.filter(
+      (e) => e.source === task.id || e.target === task.id
+    );
+
+    return REQUIRED_EDGES.filter(
+      ({ iri }) => !taskEdges.some((e) => e.data && e.data[iri])
+    ).map(({ label }) => label);
+  };
   // TODO: more comprehensive shacl validation,
   // this only checks for at least one input Parameter,
   // without which leads to sdos error
@@ -211,6 +238,15 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     });
     return invalidTasks.length === 0;
   };
+  const validateGraph = (nodes: Node[], edges: Edge[]) => {
+    const taskNodes = nodes.filter((n) => n.data.label === "Task");
+
+    const invalid = taskNodes
+      .map((task) => ({ id: task.id, missing: getMissingForTask(task, edges) }))
+      .filter(({ missing }) => missing.length);
+
+    return invalid; // empty array ⇒ graph is valid
+  };
 
   const handleSaveClick = (saveType: string) => {
     let isDraftSave = false;
@@ -221,12 +257,13 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     if (!graphName) {
       showToast("error", "Validation Error", "Graph Name should be set");
     }
-    if (!isGraphValid(nodes, edges) && !isDraftSave) {
-      showToast(
-        "error",
-        "Validation Error",
-        "Task node must be connected to at least one input Parameter."
-      );
+    const invalid = validateGraph(nodes, edges);
+    if (invalid.length && !isDraftSave) {
+      const message = invalid
+        .map(({ missing }) => `Task is missing: ${missing.join(", ")}.`)
+        .join("\n");
+
+      showToast("error", "Validation Error", message);
       return;
     }
     const payload = {
@@ -407,7 +444,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
     clearConnectedEdges();
     setSelectedNode(node);
-    const connectedEdges = getConnectedEdges([node], edges)
+    const connectedEdges = getConnectedEdges([node], edges);
     addConnectedEdges(connectedEdges);
   };
 
@@ -527,14 +564,22 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   onNodeClick={handleNodeClick}
                   deleteKeyCode={null}
                   // Doubleclick triggers single click aswell, so we only need to enter setup-mode
-                  onDoubleClick={doubleClickToEnterSetupMode ? () => setSetupMode(true) : null}
+                  onDoubleClick={
+                    doubleClickToEnterSetupMode
+                      ? () => setSetupMode(true)
+                      : null
+                  }
                   onNodeDragStart={handleNodeDragStart}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}
                   nodesDraggable={isEditable}
                   nodesConnectable={isEditable}
                 >
-                  <Controls style={{ display: "flex" }} position="top-center" showInteractive={false}/>
+                  <Controls
+                    style={{ display: "flex" }}
+                    position="top-center"
+                    showInteractive={false}
+                  />
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>

@@ -50,24 +50,32 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     predicateMap.get(quad.predicate)!.push(quad);
   });
 
-  const findShapeUriForClass = (className: string): string | undefined => {
+  const findClassUri = (className: string): string => {
+    const quads = objectIndex.get("http://www.w3.org/2002/07/owl#Class") || [];
+    const result = quads.filter(
+      (q) =>
+        q.predicate === "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" &&
+        q.subject.endsWith("/" + className)
+    );
+    return result[0].subject;
+  };
+
+  const findShapeUriForClass = (classUri: string): string | undefined => {
     const quads =
       predicateIndex.get("http://www.w3.org/ns/shacl#targetClass") || [];
-    const result = quads.find((quad) =>
-      quad.object.endsWith(className)
-    )?.subject;
+    const result = quads.find((quad) => quad.object === classUri)?.subject;
     return result;
   };
 
-  const getSubclassOf = (className: string): string => {
+  const getSuperClass = (classUri: string): string => {
     const quads =
       predicateIndex.get("http://www.w3.org/2000/01/rdf-schema#subClassOf") ||
       [];
-    const subClassOfQuads = quads.filter((q) => q.subject.endsWith(className));
-    if (!subClassOfQuads.length) {
+    const superClassQuads = quads.filter((q) => q.subject === classUri);
+    if (!superClassQuads.length) {
       return "undefined";
     }
-    return subClassOfQuads[0].object;
+    return superClassQuads[0].object;
   };
 
   const getAllProperties = (shapeUri: string): Array<string> => {
@@ -91,13 +99,34 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
     });
   };
 
-  const getSubClassesOf = (classUri: string): string[] => {
+  const getAllSuperClassesOf = (classUri: string): string[] => {
     const quads =
       predicateIndex.get("http://www.w3.org/2000/01/rdf-schema#subClassOf") ||
       [];
-    const subClasses = quads.filter((q) => q.object === classUri);
-    const subClassNames = subClasses.map((subClass) => subClass.subject);
-    return subClassNames;
+
+    const directSuperClasses = quads
+      .filter((q) => q.subject === classUri)
+      .map((q) => q.object);
+
+    const allSuperClasses: string[] = [];
+
+    for (const superClass of directSuperClasses) {
+      allSuperClasses.push(superClass);
+      const transitiveSuperClasses = getAllSuperClassesOf(superClass);
+      allSuperClasses.push(...transitiveSuperClasses);
+    }
+
+    return allSuperClasses;
+  };
+
+  const getSubClasses = (classUri: string): string[] => {
+    const quads =
+      predicateIndex.get("http://www.w3.org/2000/01/rdf-schema#subClassOf") ||
+      [];
+    const subClasses = quads
+      .filter((q) => q.object === classUri)
+      .map((subClass) => subClass.subject);
+    return subClasses;
   };
 
   const getObjectPropertyDetail = (shapeUri: string): ObjectProperties => {
@@ -116,7 +145,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
       }
       if (q.predicate === "http://www.w3.org/ns/shacl#class") {
         obj.className = q.object;
-        const subClasses = getSubClassesOf(q.object);
+        const subClasses = getSubClasses(q.object);
         obj.subClasses = subClasses;
       }
       if (q.predicate === "http://www.w3.org/ns/shacl#minCount") {
@@ -159,9 +188,8 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
   };
 
   const generatePropertyDetailsForClass = (
-    className: string
+    shapeUri: string
   ): SHACLPropertyShape[] => {
-    const shapeUri = findShapeUriForClass(className);
     if (!shapeUri) return [];
 
     const propertiesWithDataTypes = getPropertiesWithDataTypes(shapeUri);
@@ -187,6 +215,8 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
       const xsdDataType = shape["http://www.w3.org/ns/shacl#datatype"];
       const path = shape["http://www.w3.org/ns/shacl#path"];
       let type: FormFieldType;
+      let value: Boolean | String;
+      value = "";
       const schemaContext = "http://www.w3.org/2001/XMLSchema#";
       switch (xsdDataType) {
         case `${schemaContext}string`:
@@ -201,6 +231,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
           break;
         case `${schemaContext}boolean`:
           type = FormFieldType.Checkbox;
+          value = false;
           break;
         case `${schemaContext}date`:
           type = FormFieldType.Date;
@@ -226,7 +257,7 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
         name: path || "",
         type: type,
         label: comment,
-        value: "",
+        value: value,
         validation: {},
       };
 
@@ -255,13 +286,15 @@ export const createSHACLProcessor = (rdf: Quad[]) => {
   };
 
   return {
+    findClassUri,
     findShapeUriForClass,
     getAllProperties,
     getObjectPropertyDetails,
     getPropertiesWithDataTypes,
     getPropertyDetails,
     generatePropertyDetailsForClass,
-    getSubclassOf,
+    getSuperClass,
+    getAllSuperClassesOf,
     convertToClassFormArray,
   };
 };
