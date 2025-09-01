@@ -15,6 +15,7 @@ interface ExecutionResult {
   username: string;
   timeStamp: string;
   resultGraph: string;
+  database: string;
   status: string;
   parameters?: any;
 }
@@ -58,6 +59,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
           resultGraph: item.resultGraphURI,
           status: item.status,
           parameters: item.executionParameters,
+          database: item.database,
         };
       });
       setTableData(mappedData);
@@ -145,6 +147,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
               <th>User Name</th>
               <th>Started At</th>
               <th>Result Graph URI</th>
+              <th>Database</th>
               <th>Parameters</th>
               <th>
                 Status{" "}
@@ -165,6 +168,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                 <td>{row.username}</td>
                 <td>{row.timeStamp}</td>
                 <td>{row.resultGraph}</td>
+                <td>{row.database}</td>
                 <td>
                   <a
                     href="#"
