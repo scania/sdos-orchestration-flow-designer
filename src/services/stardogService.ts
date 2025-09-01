@@ -114,11 +114,6 @@ export const getStardogInstance = ({
     return await executeQuery(DB_NAME_WRITE, dropGraph);
   };
 
-  const fetchResultGraphStatus = async (resultGraphs: string[]) => {
-    const fetchStatusQuery = QueryFactory.resultGraphStatusQuery(resultGraphs);
-    return await executeQuery(DB_NAME_RESULT_GRAPH, fetchStatusQuery);
-  };
-
   const fetchResultGraph = async (resultGraph: string) => {
     const resultGraphQuery = QueryFactory.resultGraphQuery(resultGraph);
     return await executeQuery(DB_NAME_RESULT_GRAPH, resultGraphQuery);
@@ -133,7 +128,6 @@ export const getStardogInstance = ({
     fetchClasses,
     updateGraph,
     deleteGraph,
-    fetchResultGraphStatus,
     fetchResultGraph,
     deleteResultGraph,
   };
