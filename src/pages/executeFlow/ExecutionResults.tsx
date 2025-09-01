@@ -18,6 +18,7 @@ interface ExecutionResult {
   database: string;
   status: string;
   parameters?: any;
+  error?: Record<"errorCode" | "message", string>;
 }
 
 interface ExecutionResultsProps {
@@ -52,7 +53,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
       );
       const mappedData = response.data.map((item: any) => {
         const { date, time } = convertToLocalTime(item.createdAt);
-        return {
+        const data = {
           id: item.id,
           username: item.user?.name || "Unknown",
           timeStamp: `${date} ${time}`,
@@ -61,6 +62,10 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
           parameters: item.executionParameters,
           database: item.database,
         };
+        if (item.error) {
+          return { ...data, error: item.error };
+        }
+        return data;
       });
       setTableData(mappedData);
     } catch (error) {
@@ -134,6 +139,31 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     }
   };
 
+  const renderStatus = (row: ExecutionResult) => {
+    if (row.status === "NOT FOUND" && row.error)
+      return (
+        <Tooltip content={row.error.message} direction="right">
+          {getStatusIcon(row.status)} {row.error.errorCode}
+        </Tooltip>
+      );
+    return (
+      <>
+        {getStatusIcon(row.status)} {row.status}
+        {row.status === "COMPLETE" && (
+          <span
+            onClick={(e) => {
+              e.preventDefault();
+              fetchResultGraph(row.resultGraph);
+            }}
+            title="View Result"
+            className="pointer"
+          >
+            {` (View)`}
+          </span>
+        )}
+      </>
+    );
+  };
   return (
     <div style={{ padding: "20px" }}>
       {loading ? (
@@ -180,21 +210,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                     View Parameters
                   </a>
                 </td>
-                <td>
-                  {getStatusIcon(row.status)} {row.status}
-                  {row.status === "COMPLETE" && (
-                    <span
-                      onClick={(e) => {
-                        e.preventDefault();
-                        fetchResultGraph(row.resultGraph);
-                      }}
-                      title="View Result"
-                      className="pointer"
-                    >
-                      {` (View)`}
-                    </span>
-                  )}
-                </td>
+                <td>{renderStatus(row)}</td>
                 <td>
                   <Tooltip content={"Delete Result Graph"} direction="bottom">
                     <TdsButton
