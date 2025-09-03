@@ -114,9 +114,9 @@ export const getStardogInstance = ({
     return await executeQuery(DB_NAME_WRITE, dropGraph);
   };
 
-  const fetchResultGraph = async (resultGraph: string) => {
+  const fetchResultGraph = async (resultGraph: string, db: string) => {
     const resultGraphQuery = QueryFactory.resultGraphQuery(resultGraph);
-    return await executeQuery(DB_NAME_RESULT_GRAPH, resultGraphQuery);
+    return await executeQuery(db, resultGraphQuery);
   };
 
   const deleteResultGraph = async (resultGraph: string) => {

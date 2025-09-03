@@ -17,19 +17,29 @@ async function handler(
     switch (req.method) {
       case "GET": {
         logger.debug("GET request received for result graph.");
-        const { resultGraph } = req.query;
-        if (!resultGraph || typeof resultGraph !== "string") {
-          logger.error("Missing or invalid 'resultGraph' parameter.");
-          return res
-            .status(400)
-            .json({ error: "Missing or invalid 'resultGraph' parameter." });
+        const { resultGraph, database } = req.query;
+        if (
+          !resultGraph ||
+          typeof resultGraph !== "string" ||
+          !database ||
+          typeof database !== "string"
+        ) {
+          logger.error(
+            "Missing or invalid 'resultGraph' or 'database' parameter."
+          );
+          return res.status(400).json({
+            error: "Missing or invalid 'resultGraph' or 'database' parameter.",
+          });
         }
 
         const stardog = getStardogInstance({
           token: accessToken,
           acceptHeader: "application/ld+json",
         });
-        const graphResult = await stardog.fetchResultGraph(resultGraph);
+        const graphResult = await stardog.fetchResultGraph(
+          resultGraph,
+          database
+        );
         return res.status(200).json(graphResult);
       }
 

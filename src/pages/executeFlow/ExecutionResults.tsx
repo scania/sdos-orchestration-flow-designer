@@ -95,11 +95,13 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     setSelectedParameters(null);
   };
 
-  const fetchResultGraph = async (resultGraph: string) => {
+  const fetchResultGraph = async (resultGraph: string, database: string) => {
     try {
       setResultGraphLoading(true);
       const response = await axios.get(
-        `/api/execute/result?resultGraph=${encodeURIComponent(resultGraph)}`
+        `/api/execute/result?resultGraph=${encodeURIComponent(
+          resultGraph
+        )}&database=${encodeURIComponent(database)}`
       );
       setResultGraphData(response.data);
       setIsResultModalOpen(true);
@@ -153,7 +155,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
           <span
             onClick={(e) => {
               e.preventDefault();
-              fetchResultGraph(row.resultGraph);
+              fetchResultGraph(row.resultGraph, row.database);
             }}
             title="View Result"
             className="pointer"
@@ -176,8 +178,8 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
             <tr>
               <th>User Name</th>
               <th>Started At</th>
-              <th>Result Graph URI</th>
               <th>Database</th>
+              <th>Result Graph URI</th>
               <th>Parameters</th>
               <th>
                 Status{" "}
@@ -197,8 +199,8 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
               <tr key={row.id}>
                 <td>{row.username}</td>
                 <td>{row.timeStamp}</td>
-                <td>{row.resultGraph}</td>
                 <td>{row.database}</td>
+                <td>{row.resultGraph}</td>
                 <td>
                   <a
                     href="#"
