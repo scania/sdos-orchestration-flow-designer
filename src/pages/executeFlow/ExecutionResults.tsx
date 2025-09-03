@@ -123,10 +123,12 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     await fetchData();
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, db: string) => {
     try {
       await axios.delete(
-        `/api/execute/result?resultGraph=${encodeURIComponent(id)}`
+        `/api/execute/result?resultGraph=${encodeURIComponent(
+          id
+        )}&database=${encodeURIComponent(db)}`
       );
       showToast(
         "success",
@@ -218,7 +220,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                     <TdsButton
                       onClick={(e) => {
                         e.preventDefault();
-                        handleDelete(row.resultGraph);
+                        handleDelete(row.resultGraph, row.database);
                       }}
                       type="primary"
                       variant="danger"

@@ -48,7 +48,6 @@ async function handler(
       include: { user: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
     });
-    console.log(executionResults, "executionResults");
 
     const requestBody = executionResults
       .map((item: any) => {
@@ -64,9 +63,6 @@ async function handler(
     let statusResponse: any[] | null = null;
     try {
       if (requestBody.length > 0) {
-        console.log(requestBody, "requestBody");
-        console.log(ctx.tokens.sdosOBO, "sdosOBO");
-        console.log(SDOS_STATUS_URL, "sdos URL");
         const resp = await axios.post(SDOS_STATUS_URL, requestBody, {
           headers: {
             Authorization: `Bearer ${ctx.tokens.sdosOBO}`,
@@ -74,7 +70,6 @@ async function handler(
             Accept: "application/json",
           },
         });
-        console.log(resp.data, "sods resp");
         statusResponse = resp.data;
       }
     } catch (err: any) {
