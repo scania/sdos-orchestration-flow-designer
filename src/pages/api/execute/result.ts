@@ -17,39 +17,69 @@ async function handler(
     switch (req.method) {
       case "GET": {
         logger.debug("GET request received for result graph.");
-        const { resultGraph } = req.query;
-        if (!resultGraph || typeof resultGraph !== "string") {
-          logger.error("Missing or invalid 'resultGraph' parameter.");
-          return res
-            .status(400)
-            .json({ error: "Missing or invalid 'resultGraph' parameter." });
+        const { resultGraph, database } = req.query;
+        if (
+          !resultGraph ||
+          typeof resultGraph !== "string" ||
+          !database ||
+          typeof database !== "string"
+        ) {
+          logger.error(
+            "Missing or invalid 'resultGraph' or 'database' parameter."
+          );
+          return res.status(400).json({
+            error: "Missing or invalid 'resultGraph' or 'database' parameter.",
+          });
         }
 
         const stardog = getStardogInstance({
           token: accessToken,
           acceptHeader: "application/ld+json",
         });
-        const graphResult = await stardog.fetchResultGraph(resultGraph);
+        const graphResult = await stardog.fetchResultGraph(
+          resultGraph,
+          database
+        );
         return res.status(200).json(graphResult);
       }
 
       case "DELETE": {
         logger.debug("DELETE request received for result graph.");
-        const { resultGraph } = req.query;
-        if (!resultGraph || typeof resultGraph !== "string") {
-          logger.error("Missing or invalid 'resultGraph' parameter.");
-          return res
-            .status(400)
-            .json({ error: "Missing or invalid 'resultGraph' parameter." });
+        const { resultGraph, database } = req.query;
+        if (
+          !resultGraph ||
+          typeof resultGraph !== "string" ||
+          !database ||
+          typeof database !== "string"
+        ) {
+          logger.error(
+            "Missing or invalid 'resultGraph' or 'database' parameter."
+          );
+          return res.status(400).json({
+            error: "Missing or invalid 'resultGraph' or 'database' parameter.",
+          });
         }
 
         const stardog = getStardogInstance({ token: accessToken });
-        await stardog.deleteResultGraph(resultGraph);
-
-        const deletedResult = await prisma.executionResult.deleteMany({
-          where: { resultGraphURI: resultGraph },
+        try {
+          await stardog.deleteResultGraph(resultGraph, database);
+        } catch (err: any) {
+          if (err.code !== "DB_NOT_FOUND")
+            return res.status(400).json({
+              error: `resultgraph could not be deleted from stardog`,
+            });
+        }
+        const tbdExecResult = await prisma.executionResult.findFirst({
+          where: { resultGraphURI: resultGraph, database },
         });
-
+        if (!tbdExecResult) {
+          return res.status(400).json({
+            error: `Execution Result with ${resultGraph} and ${database} Not Found`,
+          });
+        }
+        const deletedResult = await prisma.executionResult.delete({
+          where: { id: tbdExecResult.id },
+        });
         return res.status(200).json({
           message: "Execution result deleted successfully",
           deleted: deletedResult,

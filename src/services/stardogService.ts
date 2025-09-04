@@ -1,4 +1,4 @@
-import { query, Connection } from "stardog";
+import { query, Connection, db } from "stardog";
 import jsonld, { JsonLdDocument } from "jsonld";
 import { GraphData } from "@/utils";
 import { QueryFactory } from "@/queryFactory";
@@ -6,7 +6,6 @@ import { env } from "@/lib/env";
 
 const DB_NAME_READ = "metaphactory";
 const DB_NAME_WRITE = env.STARDOG_DB_NAME_WRITE;
-const DB_NAME_RESULT_GRAPH = env.STARDOG_DB_RESULT_GRAPH;
 
 export interface ClassEntity {
   uri: string;
@@ -14,6 +13,19 @@ export interface ClassEntity {
   parentClassUri: string;
   category: string;
 }
+const databaseExists = async (
+  dbName: string,
+  endpoint?: string,
+  token?: string
+) => {
+  const conn = new Connection({
+    username: "",
+    endpoint: endpoint || env.STARDOG_ENDPOINT,
+    token: token!,
+  });
+  const res = await db.get(conn, dbName);
+  return res?.status === 200;
+};
 
 const fetchClassesQuery = `SELECT DISTINCT  ?parentClass ?parentLabel ?class ?labelProps ?category where { 
   graph <file:///orchestration_ontology.ttl-08-11-2023-03-26-33> { 
@@ -114,26 +126,26 @@ export const getStardogInstance = ({
     return await executeQuery(DB_NAME_WRITE, dropGraph);
   };
 
-  const fetchResultGraphStatus = async (resultGraphs: string[]) => {
-    const fetchStatusQuery = QueryFactory.resultGraphStatusQuery(resultGraphs);
-    return await executeQuery(DB_NAME_RESULT_GRAPH, fetchStatusQuery);
-  };
-
-  const fetchResultGraph = async (resultGraph: string) => {
+  const fetchResultGraph = async (resultGraph: string, db: string) => {
     const resultGraphQuery = QueryFactory.resultGraphQuery(resultGraph);
-    return await executeQuery(DB_NAME_RESULT_GRAPH, resultGraphQuery);
+    return await executeQuery(db, resultGraphQuery);
   };
 
-  const deleteResultGraph = async (resultGraph: string) => {
+  const deleteResultGraph = async (resultGraph: string, db: string) => {
+    const exists = await databaseExists(db, endpoint, token);
+    if (!exists) {
+      const err = new Error(`Stardog database "${db}" not found`);
+      (err as any).code = "DB_NOT_FOUND";
+      throw err;
+    }
     const deleteResultGraphQuery =
       QueryFactory.deleteResultGraphQuery(resultGraph);
-    return await executeQuery(DB_NAME_RESULT_GRAPH, deleteResultGraphQuery);
+    return await executeQuery(db, deleteResultGraphQuery);
   };
   return {
     fetchClasses,
     updateGraph,
     deleteGraph,
-    fetchResultGraphStatus,
     fetchResultGraph,
     deleteResultGraph,
   };

@@ -2,8 +2,24 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { withAuth, AuthContext } from "@/lib/backend/withAuth";
 import prisma from "@/lib/prisma";
 import logger from "@/lib/logger";
-import { getOBOToken as getStardogOBOToken } from "@/lib/backend/stardogOBO";
-import { getStardogInstance } from "@/services/stardogService";
+import { env } from "@/lib/env";
+import axios from "axios";
+import { getSDOSOBOToken } from "@/lib/backend/sdosOBO";
+
+const SDOS_STATUS_URL = `${env.SDOS_ENDPOINT}/sdos/v3/getExecutionStatus`;
+
+type Status = "COMPLETE" | "FAILED" | "INCOMPLETE";
+
+function normalizeState(s?: string): Status {
+  const upper = (s || "").toUpperCase();
+  if (upper === "COMPLETE") return "COMPLETE";
+  if (upper === "FAILED") return "FAILED";
+  if (upper === "INCOMPLETE") return "INCOMPLETE";
+  // Default for unknown states
+  return "INCOMPLETE";
+}
+
+const key = (db: string, graph: string) => `${db}::${graph}`;
 
 async function handler(
   req: NextApiRequest,
@@ -33,32 +49,75 @@ async function handler(
       orderBy: { createdAt: "desc" },
     });
 
-    // Fetch statuses from Stardog
-    const resultGraphURIs = executionResults.map((item) => item.resultGraphURI);
-    const stardog = getStardogInstance({ token: ctx.tokens.stardogOBOToken });
-    let statusResponse: any = null;
+    const requestBody = executionResults
+      .map((item: any) => {
+        const database = item.database;
+        const graph = item.resultGraphURI;
+        if (!graph || !database) return null;
+        // Only include entries where we know both pieces
+        return database ? { database, graph } : null;
+      })
+      .filter(Boolean);
 
+    // Fetch statuses from SDOS
+    let statusResponse: any[] | null = null;
     try {
-      statusResponse = await stardog.fetchResultGraphStatus(resultGraphURIs);
-    } catch (err) {
-      logger.error("Error fetching stardog result graph status", err);
+      if (requestBody.length > 0) {
+        const resp = await axios.post(SDOS_STATUS_URL, requestBody, {
+          headers: {
+            Authorization: `Bearer ${ctx.tokens.sdosOBO}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
+        statusResponse = resp.data;
+      }
+    } catch (err: any) {
+      logger.error("Error fetching SDOS result graph status");
     }
 
-    // Build status map
-    const statusMap: Record<string, "COMPLETE" | "FAILED" | "INCOMPLETE"> = {};
-    if (statusResponse) {
+    // Build status maps
+    const statusMapByDbGraph: Record<string, Status> = {};
+    const errorMapByDbGraph: Record<string, Record<string, string>> = {};
+
+    if (Array.isArray(statusResponse)) {
       statusResponse.forEach((item: any) => {
-        if (item.graph?.value && item.state?.value) {
-          statusMap[item.graph.value] = item.state.value;
+        // Only record entries that actually have a state; errors (GRAPH_NOT_FOUND, DATABASE_NOT_EXISTS)
+        // will be omitted and fall back to "NOT FOUND" later, matching previous behavior.
+        if (!item.database || !item.graph) return;
+        if (item?.state) {
+          const s = item.state || "INCOMPLETE";
+          statusMapByDbGraph[key(item.database, item.graph)] = s;
+        }
+        if (item?.errorCode || item?.message) {
+          errorMapByDbGraph[key(item.database, item.graph)] = {
+            errorCode: item.errorCode,
+            message: item.message,
+          };
         }
       });
     }
 
     // Combine with DB results
-    const mappedResults = executionResults.map((result) => ({
-      ...result,
-      status: statusMap[result.resultGraphURI] || "NOT FOUND",
-    }));
+    const mappedResults = executionResults.map((result: any) => {
+      const dbName = result.database;
+      const resultGraphURI = result.resultGraphURI;
+      const k = dbName && resultGraphURI ? key(dbName, resultGraphURI) : null;
+      const status = (k ? statusMapByDbGraph[k] : undefined) || "NOT FOUND";
+      const error = k ? errorMapByDbGraph[k] : null;
+      if (error) {
+        return {
+          ...result,
+          status,
+          error,
+        };
+      }
+
+      return {
+        ...result,
+        status,
+      };
+    });
 
     return res.status(200).json(mappedResults);
   } catch (error: any) {
@@ -67,4 +126,4 @@ async function handler(
   }
 }
 
-export default withAuth({ stardogOBOToken: getStardogOBOToken })(handler);
+export default withAuth({ sdosOBO: getSDOSOBOToken })(handler);

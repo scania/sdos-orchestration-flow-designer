@@ -15,8 +15,10 @@ interface ExecutionResult {
   username: string;
   timeStamp: string;
   resultGraph: string;
+  database: string;
   status: string;
   parameters?: any;
+  error?: Record<"errorCode" | "message", string>;
 }
 
 interface ExecutionResultsProps {
@@ -51,14 +53,19 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
       );
       const mappedData = response.data.map((item: any) => {
         const { date, time } = convertToLocalTime(item.createdAt);
-        return {
+        const data = {
           id: item.id,
           username: item.user?.name || "Unknown",
           timeStamp: `${date} ${time}`,
           resultGraph: item.resultGraphURI,
           status: item.status,
           parameters: item.executionParameters,
+          database: item.database,
         };
+        if (item.error) {
+          return { ...data, error: item.error };
+        }
+        return data;
       });
       setTableData(mappedData);
     } catch (error) {
@@ -88,11 +95,13 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     setSelectedParameters(null);
   };
 
-  const fetchResultGraph = async (resultGraph: string) => {
+  const fetchResultGraph = async (resultGraph: string, database: string) => {
     try {
       setResultGraphLoading(true);
       const response = await axios.get(
-        `/api/execute/result?resultGraph=${encodeURIComponent(resultGraph)}`
+        `/api/execute/result?resultGraph=${encodeURIComponent(
+          resultGraph
+        )}&database=${encodeURIComponent(database)}`
       );
       setResultGraphData(response.data);
       setIsResultModalOpen(true);
@@ -114,10 +123,12 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     await fetchData();
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, db: string) => {
     try {
       await axios.delete(
-        `/api/execute/result?resultGraph=${encodeURIComponent(id)}`
+        `/api/execute/result?resultGraph=${encodeURIComponent(
+          id
+        )}&database=${encodeURIComponent(db)}`
       );
       showToast(
         "success",
@@ -132,6 +143,31 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     }
   };
 
+  const renderStatus = (row: ExecutionResult) => {
+    if (row.status === "NOT FOUND" && row.error)
+      return (
+        <Tooltip content={row.error.message} direction="right">
+          {getStatusIcon(row.status)} {row.error.errorCode}
+        </Tooltip>
+      );
+    return (
+      <>
+        {getStatusIcon(row.status)} {row.status}
+        {row.status === "COMPLETE" && (
+          <span
+            onClick={(e) => {
+              e.preventDefault();
+              fetchResultGraph(row.resultGraph, row.database);
+            }}
+            title="View Result"
+            className="pointer"
+          >
+            {` (View)`}
+          </span>
+        )}
+      </>
+    );
+  };
   return (
     <div style={{ padding: "20px" }}>
       {loading ? (
@@ -144,6 +180,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
             <tr>
               <th>User Name</th>
               <th>Started At</th>
+              <th>Database</th>
               <th>Result Graph URI</th>
               <th>Parameters</th>
               <th>
@@ -164,6 +201,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
               <tr key={row.id}>
                 <td>{row.username}</td>
                 <td>{row.timeStamp}</td>
+                <td>{row.database}</td>
                 <td>{row.resultGraph}</td>
                 <td>
                   <a
@@ -176,27 +214,13 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
                     View Parameters
                   </a>
                 </td>
-                <td>
-                  {getStatusIcon(row.status)} {row.status}
-                  {row.status === "COMPLETE" && (
-                    <span
-                      onClick={(e) => {
-                        e.preventDefault();
-                        fetchResultGraph(row.resultGraph);
-                      }}
-                      title="View Result"
-                      className="pointer"
-                    >
-                      {` (View)`}
-                    </span>
-                  )}
-                </td>
+                <td>{renderStatus(row)}</td>
                 <td>
                   <Tooltip content={"Delete Result Graph"} direction="bottom">
                     <TdsButton
                       onClick={(e) => {
                         e.preventDefault();
-                        handleDelete(row.resultGraph);
+                        handleDelete(row.resultGraph, row.database);
                       }}
                       type="primary"
                       variant="danger"

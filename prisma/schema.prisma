@@ -94,6 +94,7 @@ model ExecutionResult {
   iri                 String
   userId              String
   resultGraphURI      String
+  database            String @default("result")
   executionParameters Json
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

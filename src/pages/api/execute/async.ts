@@ -50,11 +50,22 @@ async function handler(
           res.setHeader("Execution-Id", executionId);
         }
 
+        const { resultgraph, database } = response.data;
+        // need to check here if the resultGraphURI and database combination has older records, remove them
+        // CAUTION: For a different user too, do we allow this?
+        await prisma.executionResult.deleteMany({
+          where: {
+            resultGraphURI: resultgraph,
+            database: database,
+          },
+        });
+
         const newExecutionResult = await prisma.executionResult.create({
           data: {
             iri: subjectIri,
             userId: ctx.session!.user.id,
-            resultGraphURI: response.data.resultgraph,
+            resultGraphURI: resultgraph,
+            database: database,
             executionParameters: parameters,
           },
         });
