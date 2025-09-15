@@ -1,3 +1,4 @@
+# ===============================
 # Stage 1: Build
 # ===============================
 FROM node:20-alpine AS builder
@@ -17,7 +18,9 @@ FROM node:20-alpine
 RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=builder /app /app
-RUN npm ci --omit=dev
-RUN npm cache clean --force
+
+RUN npm ci --omit=dev \
+ && npm cache clean --force
+
 EXPOSE 3000
 CMD ["npm", "start"]
