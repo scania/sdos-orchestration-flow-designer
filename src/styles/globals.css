@@ -1,9 +1,8 @@
-@import url("../../node_modules/@scania/tegel/dist/tegel/tegel.css");
 @import url("https://cdn.digitaldesign.scania.com/icons/webfont/css/sdds-icons.css");
 @import url("./reset.css");
 @import url("./utility.css");
 @import url("./reactFlowOverrides.css");
-
+@import url("@scania/tegel/dist/tegel/tegel.css");
 /* below taken from https://github.com/scania-digital-design-system/tegel-react-demo*/
 html,
 body,
@@ -55,7 +54,7 @@ i {
   opacity: 0.35;
 }
 
-.bold{
+.bold {
   font-weight: bold;
 }
 

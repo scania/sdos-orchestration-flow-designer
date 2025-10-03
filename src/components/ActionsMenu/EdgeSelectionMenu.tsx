@@ -1,3 +1,4 @@
+import { TdsIcon } from "@scania/tegel-react";
 import styles from "./actionsMenu.module.scss";
 
 const EdgeSelectionMenu = ({ edges, onEdgeSelect, onClose }: any) => {
@@ -18,7 +19,7 @@ const EdgeSelectionMenu = ({ edges, onEdgeSelect, onClose }: any) => {
         })}
       </ul>
       <div onClick={() => onClose()} className={styles.container__close}>
-        <tds-icon name={"cross"}/>
+        <TdsIcon name={"cross"} />
       </div>
     </div>
   );

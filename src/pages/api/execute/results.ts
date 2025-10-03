@@ -18,7 +18,14 @@ function normalizeState(s?: string): Status {
   // Default for unknown states
   return "INCOMPLETE";
 }
-
+function parsePositiveInt(
+  val: string | string[] | undefined,
+  fallback: number
+) {
+  const s = Array.isArray(val) ? val[0] : val;
+  const n = parseInt(String(s ?? ""), 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
 const key = (db: string, graph: string) => `${db}::${graph}`;
 
 async function handler(
@@ -35,6 +42,7 @@ async function handler(
     }
 
     const { iri } = req.query;
+
     if (!iri || typeof iri !== "string") {
       logger.error("Missing or invalid 'iri' parameter.");
       return res
@@ -42,11 +50,18 @@ async function handler(
         .json({ error: "Missing or invalid 'iri' parameter." });
     }
 
-    // Load from database
+    const paginationValue = parsePositiveInt(req.query.paginationValue, 2);
+    const rowsPerPage = parsePositiveInt(req.query.rowsPerPage, 10);
+    const totalCount = await prisma.executionResult.count({ where: { iri } });
+    const totalPages = Math.ceil(totalCount / rowsPerPage) || 1;
+    const take = Math.min(rowsPerPage, 100);
+    const skip = (paginationValue - 1) * take;
     const executionResults = await prisma.executionResult.findMany({
       where: { iri },
       include: { user: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
+      take,
+      skip,
     });
 
     const requestBody = executionResults
@@ -119,7 +134,15 @@ async function handler(
       };
     });
 
-    return res.status(200).json(mappedResults);
+    return res.status(200).json({
+      data: mappedResults,
+      pagination: {
+        paginationValue,
+        rowsPerPage,
+        totalCount,
+        totalPages,
+      },
+    });
   } catch (error: any) {
     logger.error("Error fetching execution results", error);
     return res.status(500).json({ error: "Internal Server Error" });

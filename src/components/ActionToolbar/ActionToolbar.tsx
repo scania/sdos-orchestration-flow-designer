@@ -1,11 +1,11 @@
-
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "./ActionToolbar.module.scss";
 import Tooltip from "../Tooltip/Tooltip";
 import GraphOptions from "../GraphOptions/GraphOptions";
 import Modal from "../Modal/CustomModal";
-import UserPreferences from "../UserPreferences/UserPreferences"
+import UserPreferences from "../UserPreferences/UserPreferences";
+import { TdsIcon } from "@scania/tegel-react";
 
 type Graph = {
   name?: string;
@@ -39,23 +39,26 @@ const ActionToolbar: React.FC<AccordionProps> = ({
     <div className={styles.container}>
       <div className="pointer" onClick={router.back}>
         <span>Back</span>
-        <tds-icon
+        <TdsIcon
           slot="icon"
           style={{ marginLeft: "8px" }}
           size="14px"
           name="back"
-        ></tds-icon>
+        ></TdsIcon>
       </div>
-      {toolbar && 
-      <div className={styles.container__actionsContainer}>
-        <Modal
-          isOpen={userPreferencesModalIsOpen}
-          onRequestClose={() => setUserPreferencesModalIsOpen(false)}
-          title="User preferences"
-        >
-          <UserPreferences/>
-        </Modal>
-          <span onClick={() => setUserPreferencesModalIsOpen(true)} className="pointer">
+      {toolbar && (
+        <div className={styles.container__actionsContainer}>
+          <Modal
+            isOpen={userPreferencesModalIsOpen}
+            onRequestClose={() => setUserPreferencesModalIsOpen(false)}
+            title="User preferences"
+          >
+            <UserPreferences />
+          </Modal>
+          <span
+            onClick={() => setUserPreferencesModalIsOpen(true)}
+            className="pointer"
+          >
             User Preferences
           </span>
           <GraphOptions
@@ -80,9 +83,12 @@ const ActionToolbar: React.FC<AccordionProps> = ({
           </span>
           {isEditable ? (
             <>
-              <Tooltip 
-                content={"Save a draft of your graph without fullfilling all requirments. You can edit and finalize it later."} 
-                direction="bottom">
+              <Tooltip
+                content={
+                  "Save a draft of your graph without fullfilling all requirments. You can edit and finalize it later."
+                }
+                direction="bottom"
+              >
                 <span
                   className="pointer"
                   onClick={() => handleSaveClick?.("draft")}
@@ -90,20 +96,23 @@ const ActionToolbar: React.FC<AccordionProps> = ({
                   Save Draft
                 </span>
               </Tooltip>
-              <Tooltip 
-                content={"Save your graph. Ensures all validations are met before saving."} 
-                direction="bottom">
-              <span
-                className="pointer"
-                onClick={() => handleSaveClick?.("save")}
+              <Tooltip
+                content={
+                  "Save your graph. Ensures all validations are met before saving."
+                }
+                direction="bottom"
               >
-                Save
-              </span>
+                <span
+                  className="pointer"
+                  onClick={() => handleSaveClick?.("save")}
+                >
+                  Save
+                </span>
               </Tooltip>
             </>
           ) : null}
         </div>
-      }
+      )}
     </div>
   );
 };

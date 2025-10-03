@@ -1,3 +1,4 @@
+import { TdsIcon } from "@scania/tegel-react";
 import styles from "./actionsMenu.module.scss";
 
 const HandleGraphMenu = ({ onDeleteClick }) => {
@@ -6,7 +7,7 @@ const HandleGraphMenu = ({ onDeleteClick }) => {
       <ul className={styles.container__list}>
         <li onClick={onDeleteClick} className={styles.container__list__item}>
           <span className={styles.container__list__item__icon}>
-            <tds-icon slot="icon" size="14" name="trash"></tds-icon>
+            <TdsIcon slot="icon" size="14" name="trash"></TdsIcon>
           </span>
           <span>Delete</span>
         </li>

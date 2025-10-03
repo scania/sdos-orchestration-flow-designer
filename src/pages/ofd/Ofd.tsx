@@ -36,6 +36,7 @@ import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 import ConnectionLine from "@/components/ConnectionLine/ConnectionLine";
 import useOfdStore from "@/store/ofdStore";
 import userPreferencesStore from "@/store/userPreferencesStore"; // Import the Zustand store
+import { TdsButton } from "@scania/tegel-react";
 
 const edgeTypes = {
   "custom-edge": CustomEdge,
@@ -599,7 +600,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
             </ReactFlowProvider>
             <div className={styles["setup-button"]}>
               {selectedNode && !setupMode ? (
-                <tds-button
+                <TdsButton
                   type="button"
                   variant="primary"
                   size="md"
@@ -609,18 +610,18 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                     setSetupMode(true);
                     setHighlightedClass({ label: "", type: "" });
                   }}
-                ></tds-button>
+                ></TdsButton>
               ) : null}
 
               {setupMode ? (
-                <tds-button
+                <TdsButton
                   type="button"
                   variant="secondary"
                   size="md"
                   text="Leave setup"
                   mode-variant="secondary"
                   onClick={exitSetupMode}
-                ></tds-button>
+                ></TdsButton>
               ) : null}
             </div>
           </div>

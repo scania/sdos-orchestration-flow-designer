@@ -11,7 +11,13 @@ import Modal from "@/components/Modal/CustomModal";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
 import Tab from "@/components/Tabs/Tab";
-import { TdsButton, TdsTextField, TdsTextarea } from "@scania/tegel-react";
+import {
+  TdsButton,
+  TdsIcon,
+  TdsModal,
+  TdsTextField,
+  TdsTextarea,
+} from "@scania/tegel-react";
 import TaskSelection from "@/components/TaskSelection";
 import { Task } from "@/utils/types";
 import Introduction from "@/components/homepage/IntroductionContent";
@@ -199,11 +205,7 @@ function App({
 
   return (
     <div className={`App`}>
-      <tds-modal
-        id="delete-graph-modal"
-        selector="delete-graph-modal"
-        size="sm"
-      >
+      <TdsModal id="delete-graph-modal" selector="delete-graph-modal" size="sm">
         <h5 className="tds-modal-headline" slot="header">
           {graphNameToDelete
             ? `Delete graph “${graphNameToDelete.split("/").pop()}”?`
@@ -214,13 +216,13 @@ function App({
           slot="actions"
           style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}
         >
-          <tds-button
+          <TdsButton
             size="md"
             text="Cancel"
             variant="secondary"
             onClick={handleCancelDelete}
           />
-          <tds-button
+          <TdsButton
             data-dismiss-modal
             size="md"
             text="Delete"
@@ -228,7 +230,7 @@ function App({
             onClick={onGraphDelete}
           />
         </span>
-      </tds-modal>
+      </TdsModal>
       <main>
         <div className={styles.tabs}>
           <Tabs activeTab={activeTab} onTabChange={setActiveTab}>
@@ -253,24 +255,24 @@ function App({
         <div className={styles.content}>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
-              <tds-button
+              <TdsButton
                 id="create-new-graph-button"
                 size="sm"
                 variant="primary"
                 onClick={() => setIsCreateGraphModalOpen(true)}
                 text={"Create new graph"}
               >
-                <tds-icon size="16px" slot="icon" name="plus"></tds-icon>
-              </tds-button>
-              <tds-button
+                <TdsIcon size="16px" slot="icon" name="plus"></TdsIcon>
+              </TdsButton>
+              <TdsButton
                 id="execute-graph-button"
                 size="sm"
                 variant="primary"
                 onClick={() => setIsExecuteGraphModalOpen(true)}
                 text={"Execute Graph"}
               >
-                <tds-icon size="16px" slot="icon" name="send"></tds-icon>
-              </tds-button>
+                <TdsIcon size="16px" slot="icon" name="send"></TdsIcon>
+              </TdsButton>
               <Modal
                 isOpen={isCreateGraphModalOpen}
                 onRequestClose={() => {

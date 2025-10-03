@@ -6,7 +6,13 @@ import {
   FormFieldType,
   IFormInput,
 } from "@/utils/types";
-import { TdsTextarea, TdsToggle } from "@scania/tegel-react";
+import {
+  TdsBadge,
+  TdsButton,
+  TdsIcon,
+  TdsTextarea,
+  TdsToggle,
+} from "@scania/tegel-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import styles from "./ofd.module.scss";
@@ -104,11 +110,11 @@ const ClassForm: React.FC<ClassFormProps> = ({
     if (!labelValue && !isLabelEditMode) {
       return (
         <div onClick={toggleEditMode} style={{ cursor: "pointer" }}>
-          <tds-icon
+          <TdsIcon
             name="error"
             size="16"
             style={{ color: "red", marginRight: "4px" }}
-          ></tds-icon>
+          ></TdsIcon>
           <h5 className="tds-headline-05" style={{ display: "inline" }}>
             No Name
           </h5>
@@ -134,7 +140,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
             }}
           />
           {labelValue && (
-            <tds-icon
+            <TdsIcon
               name="tick"
               size="20"
               className={styles["confirm-icon"]}
@@ -142,7 +148,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
                 cursor: "pointer",
               }}
               onClick={toggleEditMode}
-            ></tds-icon>
+            ></TdsIcon>
           )}
         </>
       );
@@ -153,12 +159,12 @@ const ClassForm: React.FC<ClassFormProps> = ({
           {labelValue}
         </h5>
         <span className={styles["edit-icon"]} style={{ marginLeft: "4px" }}>
-          <tds-icon
+          <TdsIcon
             name="edit"
             size="20"
             style={{ cursor: "pointer", transform: "translateY(-5%)" }}
             onClick={toggleEditMode}
-          ></tds-icon>
+          ></TdsIcon>
         </span>
       </>
     );
@@ -258,7 +264,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
             >
               <h5 className="tds-headline-05">Attributes</h5>
               {Object.keys(formState.errors).length > 0 && (
-                <tds-badge size="sm"></tds-badge>
+                <TdsBadge size="sm"></TdsBadge>
               )}
             </div>
           </div>
@@ -273,19 +279,19 @@ const ClassForm: React.FC<ClassFormProps> = ({
             <FileConverter onFileConverted={handleConvertedResponse} />
           )}
           <section className={styles["form__action-menu"]}>
-            <tds-button
+            <TdsButton
               type="submit"
               size="sm"
               text="Save"
               disabled={readOnly || !labelValue || !formState.isDirty}
-            ></tds-button>
-            <tds-button
+            ></TdsButton>
+            <TdsButton
               type="button"
               size="sm"
               variant="secondary"
               text="Close"
               onClick={onClose}
-            ></tds-button>
+            ></TdsButton>
           </section>
         </form>
       </article>
