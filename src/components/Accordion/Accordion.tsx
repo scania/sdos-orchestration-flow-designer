@@ -2,6 +2,7 @@
   TODO - This accordion component is currently based on the secondary panel accordion.
   It could either be focused on that, or refactored to be a bit more generic for the future.
 */
+import { TdsButton, TdsIcon } from "@scania/tegel-react";
 import styles from "./accordion.module.scss";
 import { useState } from "react";
 
@@ -39,25 +40,25 @@ const Accordion: React.FC<AccordionProps> = ({
               opened ? styles.header__icon__opened : styles.header__icon__closed
             }`}
           >
-            <tds-icon
+            <TdsIcon
               name={opened ? "chevron_up" : "chevron_down"}
               size="16px"
-            ></tds-icon>
+            ></TdsIcon>
           </span>
           <span className={styles.header__label}>
             {label} ({numberOfElements})
           </span>
         </span>
         {button && (
-          <tds-button
+          <TdsButton
             type="button"
             size="sm"
             variant="ghost"
             text={buttonText}
             onClick={handleClick}
           >
-            <tds-icon slot="icon" name="plus"></tds-icon>
-          </tds-button>
+            <TdsIcon slot="icon" name="plus"></TdsIcon>
+          </TdsButton>
         )}
       </div>
       {opened && <div className={styles.children}>{children}</div>}

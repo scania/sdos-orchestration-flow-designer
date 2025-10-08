@@ -1,6 +1,7 @@
 import { signIn } from "next-auth/react";
 import React from "react";
 import styles from "./FrontPage.module.scss";
+import { TdsButton, TdsDivider } from "@scania/tegel-react";
 type Mode = "login" | "logout";
 interface FrontPageProps {
   mode: Mode;
@@ -26,9 +27,9 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
             </>
           )}
         </div>
-        <tds-divider orientation="horizontal"></tds-divider>
+        <TdsDivider orientation="horizontal"></TdsDivider>
         <div className={styles.login__signInButton}>
-          <tds-button
+          <TdsButton
             type="button"
             variant="primary"
             size="lg"
@@ -37,7 +38,7 @@ const FrontPage: React.FC<FrontPageProps> = ({ mode }) => {
             onClick={() =>
               signIn("azure-ad", { callbackUrl: `${window.location.origin}/` })
             }
-          ></tds-button>
+          ></TdsButton>
         </div>
         <div className={styles.login__leftPane__bottom}>
           <div className={styles.login__spacer}></div>

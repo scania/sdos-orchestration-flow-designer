@@ -6,7 +6,14 @@ import Tab from "@/components/Tabs/Tab";
 import Modal from "@/components/Modal/CustomModal";
 import ExecutionLog from "@/components/ExecutionLog/ExecutionLog";
 import { isValidJson } from "@/helpers/helper";
-import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
+import {
+  TdsButton,
+  TdsDropdown,
+  TdsDropdownOption,
+  TdsRadioButton,
+  TdsTextarea,
+  TdsTextField,
+} from "@scania/tegel-react";
 import { Parameter as ParameterTemplate } from "@/utils/types";
 import { useToast } from "@/hooks/useToast";
 import { useForm } from "react-hook-form";
@@ -316,7 +323,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 
                     {/* Execution Method Selection */}
                     <div className={styles.contentContainer__parameterChoice}>
-                      <tds-radio-button
+                      <TdsRadioButton
                         name="select-parameter-method"
                         value="Create"
                         radio-id="create"
@@ -324,9 +331,9 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                         checked={selectedExecutionMethod === "Create"}
                       >
                         <div slot="label">Create new parameter set</div>
-                      </tds-radio-button>
+                      </TdsRadioButton>
 
-                      <tds-radio-button
+                      <TdsRadioButton
                         name="select-parameter-method"
                         value="Existing"
                         radio-id="existing"
@@ -341,7 +348,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                         }
                       >
                         <div slot="label">Saved parameter sets</div>
-                      </tds-radio-button>
+                      </TdsRadioButton>
                     </div>
 
                     {/* Create New Parameter set */}
@@ -352,7 +359,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                             styles.contentContainer__parameterContainer
                           }
                         >
-                          <tds-text-field
+                          <TdsTextField
                             placeholder="New name"
                             label="Parameter set name"
                             size="sm"
@@ -381,15 +388,15 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                               styles.contentContainer__parameterContainer__saveBtn
                             }
                           >
-                            <tds-button
+                            <TdsButton
                               disabled={!watch("name") || !watch("value")}
                               type="submit"
                               text="Save"
                               size="sm"
-                            ></tds-button>
+                            ></TdsButton>
                           </div>
                         </div>
-                        <tds-textarea
+                        <TdsTextarea
                           label="JSON"
                           rows={12}
                           label-position="outside"
@@ -407,7 +414,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                             validate: (value) =>
                               isValidJson(value) ? true : "Invalid JSON",
                           })}
-                        ></tds-textarea>
+                        ></TdsTextarea>
                       </form>
                     )}
                     {/* Existing Parameters */}
@@ -443,7 +450,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                           </TdsDropdown>
                           {selectedParameter && (
                             <>
-                              <tds-button
+                              <TdsButton
                                 text={
                                   selectedExecutionMethod === "Editing"
                                     ? "Save"
@@ -456,9 +463,9 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                                     : () =>
                                         setSelectedExecutionMethod("Editing")
                                 }
-                              ></tds-button>
+                              ></TdsButton>
                               {selectedExecutionMethod === "Editing" ? (
-                                <tds-button
+                                <TdsButton
                                   text="Cancel"
                                   size="sm"
                                   variant="secondary"
@@ -467,7 +474,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                                   }
                                 />
                               ) : (
-                                <tds-button
+                                <TdsButton
                                   text="Delete"
                                   size="sm"
                                   variant="secondary"
@@ -478,7 +485,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                           )}
                         </div>
 
-                        <tds-textarea
+                        <TdsTextarea
                           label="JSON"
                           rows={12}
                           label-position="outside"
@@ -500,7 +507,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                                   isValidJson(value) ? true : "Invalid JSON",
                               })
                             : {})}
-                        ></tds-textarea>
+                        ></TdsTextarea>
                       </>
                     )}
 
@@ -513,7 +520,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                             content="A synchronous execution shows the result without storing it"
                             direction="top"
                           >
-                            <tds-radio-button
+                            <TdsRadioButton
                               name="select-execute-type"
                               value="sync"
                               radio-id="sync"
@@ -521,13 +528,13 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                               checked={executionType === "sync"}
                             >
                               <div slot="label">Synchronous</div>
-                            </tds-radio-button>
+                            </TdsRadioButton>
                           </Tooltip>
                           <Tooltip
                             content="An asynchronous execution stores the result and is a good option when there are multiple data sources"
                             direction="top"
                           >
-                            <tds-radio-button
+                            <TdsRadioButton
                               name="select-execute-type"
                               value="async"
                               radio-id="async"
@@ -535,12 +542,12 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
                               checked={executionType === "async"}
                             >
                               <div slot="label">Asynchronous</div>
-                            </tds-radio-button>
+                            </TdsRadioButton>
                           </Tooltip>
-                          <tds-button
+                          <TdsButton
                             text="Execute"
                             onClick={executeGraph}
-                          ></tds-button>
+                          ></TdsButton>
                         </div>
                       )}
                   </div>

@@ -3,7 +3,8 @@ import { Popover } from "react-tiny-popover";
 import { Handle, Position, useReactFlow, useKeyPress } from "reactflow";
 import styles from "./CircularNode.module.scss";
 import ActionsMenu from "../ActionsMenu/ActionsMenu";
-import useOfdStore from '@/store/ofdStore';
+import useOfdStore from "@/store/ofdStore";
+import { TdsIcon } from "@scania/tegel-react";
 
 // TODO - handle this dynamically in the future
 const parameterLabels = [
@@ -33,8 +34,9 @@ export default memo((node) => {
   const selectedNode = useOfdStore((state) => state.selectedNode);
   const setSelectedNode = useOfdStore((state) => state.setSelectedNode);
   const setSetupMode = useOfdStore((state) => state.setSetupMode);
-  const connectedEdgesFromNode = useOfdStore((state) => state.connectedEdgesFromNode);
-
+  const connectedEdgesFromNode = useOfdStore(
+    (state) => state.connectedEdgesFromNode
+  );
 
   useEffect(() => {
     if (deletePressed && node.id === selectedNode?.id) {
@@ -43,41 +45,40 @@ export default memo((node) => {
   }, [deletePressed]);
 
   const deleteNode = () => {
-    if (node.data.label !== 'Task' && isGraphEditable) {
+    if (node.data.label !== "Task" && isGraphEditable) {
       deleteElements({ nodes: [{ id }] });
       setSelectedNode(null);
-      setSetupMode(false)
+      setSetupMode(false);
     }
-    setIsPopoverOpen(false)
+    setIsPopoverOpen(false);
   };
 
   const disconnectNode = () => {
     deleteElements({ edges: [...connectedEdgesFromNode] });
-    setIsPopoverOpen(false)
+    setIsPopoverOpen(false);
   };
-
 
   return (
     <div
-      className={
-        `${node.id === selectedNode?.id ? styles.selected : ""} 
-        ${styles.container} ${data.label === "Task"
+      className={`${node.id === selectedNode?.id ? styles.selected : ""} 
+        ${styles.container} ${
+        data.label === "Task"
           ? styles.container__task
           : isParameter(data.label)
-            ? styles.container__secondary
-            : styles.container__primary
-        }`
-      }
+          ? styles.container__secondary
+          : styles.container__primary
+      }`}
     >
       <div className={styles.headingContainer}>
         <div
           data-tooltip={label}
-          className={`${styles.chip} ${data.label === "Task"
+          className={`${styles.chip} ${
+            data.label === "Task"
               ? styles.chip__task
               : isParameter(data.label)
-                ? styles.chip__secondary
-                : styles.chip__primary
-            }`}
+              ? styles.chip__secondary
+              : styles.chip__primary
+          }`}
         >
           {data.label}
         </div>
@@ -86,11 +87,17 @@ export default memo((node) => {
           onClickOutside={() => setIsPopoverOpen(false)}
           positions={["top", "bottom", "left", "right"]} // preferred positions by priority
           content={
-            <ActionsMenu onDeleteClick={() => deleteNode()} onDisconnectClick={() => disconnectNode()} />
+            <ActionsMenu
+              onDeleteClick={() => deleteNode()}
+              onDisconnectClick={() => disconnectNode()}
+            />
           }
         >
-          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className={styles.headingContainer__popover}>
-            <tds-icon name="meatballs" size="20px"></tds-icon>
+          <div
+            onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+            className={styles.headingContainer__popover}
+          >
+            <TdsIcon name="meatballs" size="20px"></TdsIcon>
           </div>
         </Popover>
       </div>

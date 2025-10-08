@@ -4,6 +4,7 @@ import HandleGraphMenu from "../ActionsMenu/HandleGraphMenu";
 import { useRouter } from "next/router";
 import styles from "./card.module.scss";
 import { convertToLocalTime } from "../../helpers/helper";
+import { TdsButton, TdsIcon } from "@scania/tegel-react";
 
 const Card = ({ data, deleteGraph, currentUserIsAuthor }: any) => {
   const router = useRouter();
@@ -18,15 +19,15 @@ const Card = ({ data, deleteGraph, currentUserIsAuthor }: any) => {
         <div className={styles.card__top__header}>
           <span>Private</span>
           <div className={styles.card__top__header__buttons}>
-            <tds-button
+            <TdsButton
               size="xs"
               text="Open"
               variant="secondary"
               onClick={() => {
                 router.push(`/ofd/id/${id}`);
               }}
-            ></tds-button>
-            {currentUserIsAuthor &&
+            ></TdsButton>
+            {currentUserIsAuthor && (
               <Popover
                 isOpen={isPopoverOpen}
                 padding={5}
@@ -34,16 +35,17 @@ const Card = ({ data, deleteGraph, currentUserIsAuthor }: any) => {
                 onClickOutside={() => setIsPopoverOpen(false)}
                 positions={["top", "bottom", "left", "right"]}
                 content={
-                  <HandleGraphMenu
-                    onDeleteClick={() => deleteGraph(id)}
-                  />
+                  <HandleGraphMenu onDeleteClick={() => deleteGraph(id)} />
                 }
               >
-                <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
-                  <tds-icon name="meatballs" size="20px"></tds-icon>
+                <div
+                  onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+                  className="pointer"
+                >
+                  <TdsIcon name="meatballs" size="20px"></TdsIcon>
                 </div>
               </Popover>
-            }
+            )}
           </div>
         </div>
         <h3 className={styles.card__top__name}>{name.split("/").pop()}</h3>
@@ -55,7 +57,7 @@ const Card = ({ data, deleteGraph, currentUserIsAuthor }: any) => {
           <dd>{isDraft ? "Draft" : "Saved"}</dd>
           <dt className={styles.card__data__key}>Last modified</dt>
           <dd>
-            <span>{date}</span> 
+            <span>{date}</span>
             <span className={styles.card__data__key__separator}>-</span>
             <span>{time}</span>
           </dd>

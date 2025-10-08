@@ -6,7 +6,17 @@ import Modal from "@/components/Modal/CustomModal";
 import { convertToLocalTime } from "@/helpers/helper";
 import JsonView from "@uiw/react-json-view";
 import Tooltip from "@/components/Tooltip/Tooltip";
-import { TdsIcon, TdsButton } from "@scania/tegel-react";
+import {
+  TdsIcon,
+  TdsButton,
+  TdsTable,
+  TdsTableHeader,
+  TdsHeaderCell,
+  TdsTableBody,
+  TdsTableBodyRow,
+  TdsBodyCell,
+  TdsTableFooter,
+} from "@scania/tegel-react";
 import { useToast } from "@/hooks/useToast";
 import Spinner from "@/components/Spinner/Spinner";
 
@@ -34,7 +44,10 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
   const [resultGraphData, setResultGraphData] = useState<any>(null);
   const [resultGraphLoading, setResultGraphLoading] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const { showToast } = useToast();
+  const rowsPerPage = 5;
 
   const getStatusIcon = (status: string): any => {
     const iconMap: Record<string, any> = {
@@ -45,13 +58,25 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
     return <TdsIcon name={iconMap[status] || "error"} size="24px" />;
   };
 
+  const handlePaginationEvent = (event: CustomEvent) => {
+    const { detail } = event;
+    setPage(detail.paginationValue);
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `/api/execute/results?iri=${encodeURIComponent(iri)}`
-      );
-      const mappedData = response.data.map((item: any) => {
+      const response = await axios.get(`/api/execute/results`, {
+        params: {
+          iri,
+          paginationValue: page,
+          rowsPerPage: rowsPerPage,
+        },
+      });
+      const data = response.data.data;
+      const paginationStatus = response.data.pagination;
+      const { totalPages } = paginationStatus;
+      const mappedData = data.map((item: any) => {
         const { date, time } = convertToLocalTime(item.createdAt);
         const data = {
           id: item.id,
@@ -68,6 +93,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
         return data;
       });
       setTableData(mappedData);
+      setTotalPages(totalPages);
     } catch (error) {
       console.error("Error fetching execution results:", error);
     } finally {
@@ -77,7 +103,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
 
   useEffect(() => {
     fetchData();
-  }, [iri]);
+  }, [iri, page, rowsPerPage]);
 
   useEffect(() => {
     const theme = localStorage.getItem("theme");
@@ -168,6 +194,83 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
       </>
     );
   };
+  const renderTable = () => (
+    <TdsTable
+      tableId="pagination-table"
+      verticalDividers={false}
+      compactDesign={false}
+      responsive
+      noMinWidth
+    >
+      <TdsTableHeader>
+        <TdsHeaderCell cellKey="userName" cellValue="User Name" />
+        <TdsHeaderCell cellKey="startedAt" cellValue="Started At" />
+        <TdsHeaderCell cellKey="database" cellValue="Database" />
+        <TdsHeaderCell cellKey="graphUri" cellValue="Result Graph URI" />
+        <TdsHeaderCell cellKey="parameters" cellValue="Parameters" />
+        <TdsHeaderCell cellKey="status" cellValue="Status ">
+          <span
+            onClick={handleRefreshStatus}
+            className="pointer"
+            title="Refresh Status"
+          >
+            <TdsIcon name="refresh" size="24px"></TdsIcon>
+          </span>
+        </TdsHeaderCell>
+        <TdsHeaderCell cellKey="actions" cellValue="Actions" />
+      </TdsTableHeader>
+
+      <TdsTableBody>
+        {tableData.map((row) => (
+          <TdsTableBodyRow key={row.id}>
+            <TdsBodyCell cellKey="userName" cellValue={row.username} />
+            <TdsBodyCell cellKey="startedAt" cellValue={row.timeStamp} />
+            <TdsBodyCell cellKey="database" cellValue={row.database} />
+            <TdsBodyCell cellKey="graphUri" cellValue={row.resultGraph} />
+            <TdsBodyCell cellKey="parameters" cellValue="">
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openParametersModal(row.parameters);
+                }}
+              >
+                View Parameters
+              </a>
+            </TdsBodyCell>
+            <TdsBodyCell cellKey="status" cellValue="">
+              {renderStatus(row)}{" "}
+            </TdsBodyCell>
+            <TdsBodyCell cellKey="actions" cellValue="">
+              <Tooltip content={"Delete Result Graph"} direction="bottom">
+                <TdsButton
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete(row.resultGraph, row.database);
+                  }}
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  tds-aria-label="Delete result graph"
+                >
+                  <TdsIcon slot="icon" size="18px" name="trash"></TdsIcon>
+                </TdsButton>
+              </Tooltip>
+            </TdsBodyCell>
+          </TdsTableBodyRow>
+        ))}
+      </TdsTableBody>
+
+      <TdsTableFooter
+        pagination
+        // rowsPerPageValues={[5, 10]}
+        rowsperpage={false}
+        pages={totalPages}
+        paginationValue={page}
+        onTdsPagination={handlePaginationEvent}
+      />
+    </TdsTable>
+  );
   return (
     <div style={{ padding: "20px" }}>
       {loading ? (
@@ -175,66 +278,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ iri }) => {
           <Spinner />
         </div>
       ) : (
-        <table className={styles.table}>
-          <thead className={styles.table__header}>
-            <tr>
-              <th>User Name</th>
-              <th>Started At</th>
-              <th>Database</th>
-              <th>Result Graph URI</th>
-              <th>Parameters</th>
-              <th>
-                Status{" "}
-                <span
-                  onClick={handleRefreshStatus}
-                  className="pointer"
-                  title="Refresh Status"
-                >
-                  <TdsIcon name="refresh" size="24px"></TdsIcon>
-                </span>
-              </th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody className={styles.table__body}>
-            {tableData.map((row) => (
-              <tr key={row.id}>
-                <td>{row.username}</td>
-                <td>{row.timeStamp}</td>
-                <td>{row.database}</td>
-                <td>{row.resultGraph}</td>
-                <td>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openParametersModal(row.parameters);
-                    }}
-                  >
-                    View Parameters
-                  </a>
-                </td>
-                <td>{renderStatus(row)}</td>
-                <td>
-                  <Tooltip content={"Delete Result Graph"} direction="bottom">
-                    <TdsButton
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleDelete(row.resultGraph, row.database);
-                      }}
-                      type="primary"
-                      variant="danger"
-                      size="sm"
-                      tds-aria-label="Delete result graph"
-                    >
-                      <TdsIcon slot="icon" size="20px" name="trash"></TdsIcon>
-                    </TdsButton>
-                  </Tooltip>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        renderTable()
       )}
 
       {/* Modal for viewing execution parameters */}

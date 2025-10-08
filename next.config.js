@@ -1,17 +1,11 @@
 /** @type {import('next').NextConfig} */
-const withTM = require("next-transpile-modules")(["@scania/tegel-react"]);
-
-module.exports = withTM({
+const nextConfig = {
   reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.resolve.alias["@scania/tegel/loader"] = require.resolve(
-        "@scania/tegel/loader"
-      );
-    }
-    return config;
-  },
-});
+  // Built-in replacement for next-transpile-modules
+  transpilePackages: ["@scania/tegel-react", "@scania/tegel"],
+};
+
+module.exports = nextConfig;

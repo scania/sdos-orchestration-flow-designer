@@ -115,11 +115,11 @@ const ExecutionLog: React.FC<ExecutionLogProps> = ({
                 background: backgroundColor,
               }}
             >
-              <tds-icon
+              <TdsIcon
                 name="info"
                 size="22px"
                 style={{ color: iconColor }}
-              ></tds-icon>
+              ></TdsIcon>
               <div>{logItem.message}</div>
             </div>
           );
