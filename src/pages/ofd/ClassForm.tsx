@@ -1,12 +1,23 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import styles from "./ofd.module.scss";
-import { TdsTextarea } from "@scania/tegel-react";
-import { DynamicFormProps, FormField, IFormInput } from "@/utils/types";
-import { replaceSpecialChars } from "@/helpers/helper";
 import FileConverter from "@/components/FileConverter";
+import { replaceSpecialChars } from "@/helpers/helper";
+import {
+  ClassFormProps,
+  FormField,
+  FormFieldType,
+  IFormInput,
+} from "@/utils/types";
+import {
+  TdsBadge,
+  TdsButton,
+  TdsIcon,
+  TdsTextarea,
+  TdsToggle,
+} from "@scania/tegel-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import styles from "./ofd.module.scss";
 
-const DynamicForm: React.FC<DynamicFormProps> = ({
+const ClassForm: React.FC<ClassFormProps> = ({
   formData = { formFields: [] },
   onSubmit,
   excludeKeys = ["http://www.w3.org/2000/01/rdf-schema#label"],
@@ -73,9 +84,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const handleFormSubmit: SubmitHandler<IFormInput> = (data) => {
     if (readOnly) return;
     const filledData = formFields.map((field: FormField) => {
-      const { name } = field;
+      const { name, type } = field;
       if (data[replaceSpecialChars(name)]) {
         return { ...field, value: data[replaceSpecialChars(name)] };
+      }
+      if (type === FormFieldType.Checkbox) {
+        return { ...field, value: false };
       }
       return { ...field, value: "" };
     });
@@ -96,11 +110,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     if (!labelValue && !isLabelEditMode) {
       return (
         <div onClick={toggleEditMode} style={{ cursor: "pointer" }}>
-          <tds-icon
+          <TdsIcon
             name="error"
             size="16"
             style={{ color: "red", marginRight: "4px" }}
-          ></tds-icon>
+          ></TdsIcon>
           <h5 className="tds-headline-05" style={{ display: "inline" }}>
             No Name
           </h5>
@@ -126,7 +140,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             }}
           />
           {labelValue && (
-            <tds-icon
+            <TdsIcon
               name="tick"
               size="20"
               className={styles["confirm-icon"]}
@@ -134,7 +148,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 cursor: "pointer",
               }}
               onClick={toggleEditMode}
-            ></tds-icon>
+            ></TdsIcon>
           )}
         </>
       );
@@ -145,50 +159,87 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           {labelValue}
         </h5>
         <span className={styles["edit-icon"]} style={{ marginLeft: "4px" }}>
-          <tds-icon
+          <TdsIcon
             name="edit"
             size="20"
             style={{ cursor: "pointer", transform: "translateY(-5%)" }}
             onClick={toggleEditMode}
-          ></tds-icon>
+          ></TdsIcon>
         </span>
       </>
     );
   };
 
   const renderInputField = (field: FormField) => {
-    const { name, label, validation } = field;
-    const fieldName = name.split("/");
+    const { name, label, validation, type } = field;
+
+    const nameParts = name.split("/");
+    const displayLabel = nameParts[nameParts.length - 1];
+    const nameWoSpecialChars = replaceSpecialChars(name);
+
     const validationRules = {
-      required: validation.required ? "This field is required" : false,
-      pattern: validation.pattern
+      required: validation?.required ? "This field is required" : false,
+      pattern: validation?.pattern
         ? {
             value: new RegExp(validation.pattern),
-            message: validation.message || "Pattern does not match",
+            message:
+              validation.message ||
+              `Pattern does not match ${validation.pattern}`,
           }
         : undefined,
     };
-    const nameWoSpecialChars = replaceSpecialChars(name);
+
     register(nameWoSpecialChars, validationRules);
     const value = watch(nameWoSpecialChars);
+
+    const commonFieldProps = {
+      disabled: readOnly,
+      state: errors[nameWoSpecialChars] ? "error" : ("default" as const),
+      helper: errors[nameWoSpecialChars]?.message,
+    };
+
+    let inputElement: JSX.Element;
+
+    switch (type) {
+      case FormFieldType.Checkbox:
+        inputElement = (
+          <TdsToggle
+            {...commonFieldProps}
+            headline={displayLabel}
+            label-position="outside"
+            checked={Boolean(value)}
+            onTdsToggle={(e: any) => {
+              if (readOnly) return;
+              setValue(nameWoSpecialChars, e.detail.checked, {
+                shouldDirty: true,
+              });
+            }}
+          />
+        );
+        break;
+
+      // can be extended for other FormFieldType
+      default: // falls back to textarea
+        inputElement = (
+          <TdsTextarea
+            {...commonFieldProps}
+            label={displayLabel}
+            label-position="outside"
+            placeholder={label}
+            value={value}
+            onInput={(e: any) => {
+              if (readOnly) return;
+              setValue(nameWoSpecialChars, e.target.value.trim(), {
+                shouldDirty: true,
+              });
+            }}
+          />
+        );
+    }
+
     return (
       <section key={name} className="form-section">
-        <TdsTextarea
-          className="tds-text-field"
-          label={fieldName[fieldName.length - 1]}
-          label-position="outside"
-          state={errors[nameWoSpecialChars] ? "error" : "default"}
-          helper={errors[nameWoSpecialChars]?.message}
-          placeholder={label}
-          onInput={(e: any) => {
-            if (readOnly) return;
-            setValue(nameWoSpecialChars, e.target.value, {
-              shouldDirty: true,
-            });
-          }}
-          value={value}
-          disabled={readOnly}
-        ></TdsTextarea>
+        {inputElement}
       </section>
     );
   };
@@ -213,7 +264,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             >
               <h5 className="tds-headline-05">Attributes</h5>
               {Object.keys(formState.errors).length > 0 && (
-                <tds-badge size="sm"></tds-badge>
+                <TdsBadge size="sm"></TdsBadge>
               )}
             </div>
           </div>
@@ -228,19 +279,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             <FileConverter onFileConverted={handleConvertedResponse} />
           )}
           <section className={styles["form__action-menu"]}>
-            <tds-button
+            <TdsButton
               type="submit"
               size="sm"
               text="Save"
               disabled={readOnly || !labelValue || !formState.isDirty}
-            ></tds-button>
-            <tds-button
+            ></TdsButton>
+            <TdsButton
               type="button"
               size="sm"
               variant="secondary"
               text="Close"
               onClick={onClose}
-            ></tds-button>
+            ></TdsButton>
           </section>
         </form>
       </article>
@@ -248,4 +299,4 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   );
 };
 
-export default React.memo(DynamicForm);
+export default React.memo(ClassForm);

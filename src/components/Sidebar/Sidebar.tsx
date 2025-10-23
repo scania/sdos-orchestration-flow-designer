@@ -5,21 +5,30 @@ import { ObjectProperties } from "@/utils/types";
 import React, { useState, useEffect } from "react";
 import styles from "./Sidebar.module.scss";
 import ClassChip from "./ClassChip";
-import useOfdStore from '@/store/ofdStore';
+import useOfdStore from "@/store/ofdStore";
+import {
+  TdsButton,
+  TdsDivider,
+  TdsIcon,
+  TdsTextField,
+} from "@scania/tegel-react";
 
 type SidebarProps = {
   showExtendedPanel: boolean;
   isLoading: boolean;
   setShowExtendedPanel: (value: boolean) => void;
   graphName: any;
-  selectedNode: Node,
+  selectedNode: Node;
   graphDescription: string;
   setSearchString: (value: string) => void;
   searchString: string;
   classes: any;
   secondaryProperties: ObjectProperties[];
-  highlightedClassLabel: string;
-  setHighlightedClassLabel: (className: string) => void;
+  highlightedClass: { label: string; type: string };
+  setHighlightedClass: (highlightedClass: {
+    label: string;
+    type: string;
+  }) => void;
   handleOnDrag: (e: React.DragEvent<HTMLDivElement>, className: string) => void;
   addToGraph: () => void;
   isEditable: boolean;
@@ -32,8 +41,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   graphDescription,
   classes,
   secondaryProperties = [],
-  highlightedClassLabel,
-  setHighlightedClassLabel,
+  highlightedClass,
+  setHighlightedClass,
   handleOnDrag,
   addToGraph,
   isEditable,
@@ -44,9 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [activeSecondaryClassesTab, setActiveSecondaryClassesTab] =
     useState<string>("required");
 
-  const setupMode = useOfdStore((state) => state.setupMode); 
-  /*const [selectedSecondaryCategory, setSelectedSecondaryCategory] =
-    useState("required"); */
+  const setupMode = useOfdStore((state) => state.setupMode);
   const requiredClasses = secondaryProperties.filter(
     (item) => item.minCount > 0
   );
@@ -56,18 +63,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const primaryClassTypes = [
     {
-      label: 'Actions',
-      identifier: 'Action'
+      label: "Actions",
+      identifier: "Action",
     },
     {
-      label: 'Parameters',
-      identifier: 'Parameter'
+      label: "Parameters",
+      identifier: "Parameter",
     },
     {
-      label: 'Scripts',
-      identifier: 'Script'
-    }
-  ]
+      label: "Scripts",
+      identifier: "Script",
+    },
+  ];
 
   function filteredPrimaryClasses(classes: any, category: string) {
     const filteredPrimaryClasses = classes.filter(
@@ -93,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       setActiveSecondaryClassesTab("required");
     }
 
-    setHighlightedClassLabel("")
+    setHighlightedClass({});
   }, [selectedNode]);
 
   const renderSecondaryClasses = () => {
@@ -153,8 +160,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                   const className = item.split("/").pop() || "";
                   return (
                     <ClassChip
-                      highlightedClassLabel={highlightedClassLabel}
-                      setHighlightedClassLabel={setHighlightedClassLabel}
+                      highlightedClass={highlightedClass}
+                      setHighlightedClass={setHighlightedClass}
+                      connectorType={connectorType.split("/").pop() || ""}
                       className={className}
                       handleOnDrag={handleOnDrag}
                     />
@@ -173,13 +181,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={styles.sidebar__header}>
         <div className={styles.sidebar__type_and_toggle}>
           <h6 className={styles["tds-detail-06"]}>Private</h6>
-          <tds-icon
+          <TdsIcon
             onClick={() => setShowExtendedPanel(!showExtendedPanel)}
             slot="icon"
             size="20px"
             class="pointer"
             name={showExtendedPanel ? "chevron_up" : "chevron_down"}
-          ></tds-icon>
+          ></TdsIcon>
         </div>
         <h3 className={styles.sidebar__primaryHeading}>{graphName || ""}</h3>
         <p title={graphDescription} className={styles.sidebar__description}>
@@ -188,10 +196,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
       {showExtendedPanel && !setupMode ? (
         <>
-          <tds-divider orientation="horizontal"></tds-divider>
+          <TdsDivider orientation="horizontal"></TdsDivider>
           <div className={styles.sidebar__search}>
             <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
-            <tds-text-field
+            <TdsTextField
               className={styles["tds-text-field"]}
               placeholder="Search..."
               value={searchString}
@@ -200,107 +208,109 @@ const Sidebar: React.FC<SidebarProps> = ({
               }
             />
           </div>
-        
 
           <div className={styles.sidebar__tabs}>
-          
             <Tabs
               activeTab={activeClassesTab}
               onTabChange={setActiveClassesTab}
             >
-                {primaryClassTypes.map((tab, index) => (
+              {primaryClassTypes.map((tab, index) => (
                 <Tab label={tab.label} tabKey={tab.label}>
-                <div className={styles.sidebar__chips}>
-                  {classes &&
-                    filteredPrimaryClasses(classes, tab.identifier).map(
-                      (item, index) => (
-                        <ClassChip
-                          key={index}
-                          highlightedClassLabel={highlightedClassLabel}
-                          setHighlightedClassLabel={setHighlightedClassLabel}
-                          className={item.className}
-                          handleOnDrag={handleOnDrag}
-                        />
-                      )
-                    )}
-                </div>
-              </Tab>
+                  <div className={styles.sidebar__chips}>
+                    {classes &&
+                      filteredPrimaryClasses(classes, tab.identifier).map(
+                        (item, index) => (
+                          <ClassChip
+                            key={index}
+                            highlightedClass={highlightedClass}
+                            setHighlightedClass={setHighlightedClass}
+                            className={item.className}
+                            handleOnDrag={handleOnDrag}
+                          />
+                        )
+                      )}
+                  </div>
+                </Tab>
               ))}
             </Tabs>
           </div>
           <div className={styles.sidebar__chips}>
             <div className={styles.classes__footer}>
-              <tds-button
+              <TdsButton
                 type="button"
                 variant="primary"
                 size="sm"
                 text="Add to graph"
-                disabled={!highlightedClassLabel || !isEditable}
+                disabled={!highlightedClass.label || !isEditable}
                 onClick={addToGraph}
               >
-                <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
-              </tds-button>
+                <TdsIcon slot="icon" size="16px" name="plus"></TdsIcon>
+              </TdsButton>
             </div>
           </div>
         </>
       ) : showExtendedPanel && setupMode ? (
         <>
-          <tds-divider orientation="horizontal"></tds-divider>
+          <TdsDivider orientation="horizontal"></TdsDivider>
           {(requiredClasses.length > 0 || optionalClasses.length > 0) && (
-          <>
-          <div className={styles.sidebar__search}>
-            <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
-            <tds-text-field
-              className={styles["tds-text-field"]}
-              placeholder="Search..."
-              value={searchString}
-              onInput={(e: { currentTarget: { value: string } }) =>
-                setSearchString(e.currentTarget.value)
-              }
-            />
-          </div>
-         
-          <div className={styles.sidebar__tabs}>
-            <Tabs
-              activeTab={activeSecondaryClassesTab}
-              onTabChange={setActiveSecondaryClassesTab}
-            >
-              <Tab
-                label={`Required ${
-                  requiredClasses.length ? `(${requiredClasses.length})` : ""
-                }`}
-                tabKey="required"
-              >
-                <div className={styles.sidebar__chips}>
-                  {renderSecondaryClasses()}
-                </div>
-              </Tab>
-              <Tab
-                label={`Optional ${
-                  optionalClasses.length ? `(${optionalClasses.length})` : ""
-                }`}
-                tabKey="optional"
-              >
-                <div className={styles.sidebar__chips}>
-                  {renderSecondaryClasses()}
-                </div>
-              </Tab>
-            </Tabs>
-          </div>
-          </>
-           )}
+            <>
+              <div className={styles.sidebar__search}>
+                <h6 className={styles.sidebar__secondaryHeading}>Library</h6>
+                <TdsTextField
+                  className={styles["tds-text-field"]}
+                  placeholder="Search..."
+                  value={searchString}
+                  onInput={(e: { currentTarget: { value: string } }) =>
+                    setSearchString(e.currentTarget.value)
+                  }
+                />
+              </div>
+
+              <div className={styles.sidebar__tabs}>
+                <Tabs
+                  activeTab={activeSecondaryClassesTab}
+                  onTabChange={setActiveSecondaryClassesTab}
+                >
+                  <Tab
+                    label={`Required ${
+                      requiredClasses.length
+                        ? `(${requiredClasses.length})`
+                        : ""
+                    }`}
+                    tabKey="required"
+                  >
+                    <div className={styles.sidebar__chips}>
+                      {renderSecondaryClasses()}
+                    </div>
+                  </Tab>
+                  <Tab
+                    label={`Optional ${
+                      optionalClasses.length
+                        ? `(${optionalClasses.length})`
+                        : ""
+                    }`}
+                    tabKey="optional"
+                  >
+                    <div className={styles.sidebar__chips}>
+                      {renderSecondaryClasses()}
+                    </div>
+                  </Tab>
+                </Tabs>
+              </div>
+            </>
+          )}
           <div className={styles.sidebar__chips}>
             <div className={styles.classes__footer}>
-              <tds-button
+              <TdsButton
                 type="button"
                 variant="primary"
                 size="sm"
                 text="Add to graph"
-                disabled={!highlightedClassLabel || !isEditable}
+                disabled={!highlightedClass.label || !isEditable}
                 onClick={addToGraph}
               >
-                <tds-icon slot="icon" size="16px" name="plus"></tds-icon>
-              </tds-button>
+                <TdsIcon slot="icon" size="16px" name="plus"></TdsIcon>
+              </TdsButton>
             </div>
           </div>
         </>

@@ -1,4 +1,4 @@
-import { SHACLPropertyShape, DynamicFormField, FormFieldType } from "../types";
+import { SHACLPropertyShape, ClassFormField, FormFieldType } from "../types";
 import { createSHACLProcessor } from "../shaclProcessor";
 import { parseTTLFile, convertQuadsToJson } from "../shaclUtils";
 
@@ -7,18 +7,22 @@ describe("createSHACLProcessor", () => {
   let processor: ReturnType<typeof createSHACLProcessor>;
 
   beforeAll(async () => {
-    const filePath1 = "ofg_shapes.ttl";
-    const filePath2 = "orchestration_ontology.ttl";
-    const quads1 = await parseTTLFile(filePath1);
-    const quads2 = await parseTTLFile(filePath2);
-    rdfData = quads1.concat(quads2);
+    const ofg_shapes = "ofg_shapes.ttl";
+    const orchestration_ontology = "orchestration_ontology.ttl";
+    const core_shapes = "core_shapes.ttl";
+    const core_ontology = "core_ontology.ttl";
+    const quads_ofg = await parseTTLFile(ofg_shapes);
+    const quads_oo = await parseTTLFile(orchestration_ontology);
+    const quads_core = await parseTTLFile(core_shapes);
+    const quads_co = await parseTTLFile(core_ontology);
+    rdfData = quads_ofg.concat(quads_oo).concat(quads_core).concat(quads_co);
     const jsonData = convertQuadsToJson(rdfData);
     processor = createSHACLProcessor(jsonData);
   });
 
   describe("findShapeUriForClass", () => {
     test("returns correct shape URI for valid class", () => {
-      const result = processor.findShapeUriForClass("HTTPAction");
+      const result = processor.findShapeUriForClass("https://kg.scania.com/it/iris_orchestration/HTTPAction");
       expect(result).toBe(
         "https://kg.scania.com/it/iris_orchestration/HTTPActionShape"
       );
@@ -66,6 +70,7 @@ describe("createSHACLProcessor", () => {
               "https://kg.scania.com/it/iris_orchestration/ResultAction",
               "https://kg.scania.com/it/iris_orchestration/SOAPAction",
               "https://kg.scania.com/it/iris_orchestration/ScriptAction",
+              "https://kg.scania.com/it/iris_orchestration/KafkaAction",
               "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
               "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
             ],
@@ -112,7 +117,6 @@ describe("createSHACLProcessor", () => {
         "https://kg.scania.com/it/iris_orchestration/endpointShape"
       );
       expect(result).toEqual({
-        "http://www.w3.org/2000/01/rdf-schema#label": "Endpoint",
         "http://kg.scania.com/core/timestamp": "2023-04-14T08:43:00",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type":
           "http://www.w3.org/ns/shacl#PropertyShape",
@@ -121,9 +125,8 @@ describe("createSHACLProcessor", () => {
         "http://www.w3.org/2000/01/rdf-schema#label": "endpoint Shape",
         "http://www.w3.org/ns/shacl#datatype":
           "http://www.w3.org/2001/XMLSchema#string",
-        "http://www.w3.org/ns/shacl#path": ":endpoint",
         "http://www.w3.org/ns/shacl#maxCount": "1",
-        "http://www.w3.org/ns/shacl#minCount": "1",
+        "http://www.w3.org/ns/shacl#minCount": "0",
         "http://www.w3.org/ns/shacl#path":
           "https://kg.scania.com/it/iris_orchestration/endpoint",
         "http://www.w3.org/ns/shacl#pattern": "^/",
@@ -138,7 +141,7 @@ describe("createSHACLProcessor", () => {
 
   describe("generatePropertyDetailsForClass", () => {
     test("returns properties for class", () => {
-      const result = processor.generatePropertyDetailsForClass("HTTPAction");
+      const result = processor.generatePropertyDetailsForClass("https://kg.scania.com/it/iris_orchestration/HTTPActionShape");
       expect(result.length).toBeGreaterThan(0);
       expect(result[0]).toEqual({
         "http://kg.scania.com/core/timestamp": "2023-04-14T08:43:00",
@@ -161,19 +164,19 @@ describe("createSHACLProcessor", () => {
     });
   });
 
-  describe("getSubclassOf", () => {
+  describe("getSuperClassOf", () => {
     test("returns superclass of class", () => {
-      const result = processor.getSubclassOf("HTTPAction");
+      const result = processor.getSuperClass("https://kg.scania.com/it/iris_orchestration/HTTPAction");
       expect(result).toBe("https://kg.scania.com/it/iris_orchestration/Action");
     });
 
     test('returns "undefined" when no superclass', () => {
-      const result = processor.getSubclassOf("StandaloneClass");
+      const result = processor.getSuperClass("https://kg.scania.com/it/iris_orchestration/JsonLdContext");
       expect(result).toBe("undefined");
     });
   });
 
-  describe("convertToDynamicFormArray", () => {
+  describe("convertToClassFormArray", () => {
     test("correctly maps shapes to form fields", () => {
       const shapes: SHACLPropertyShape[] = [
         {
@@ -185,7 +188,7 @@ describe("createSHACLProcessor", () => {
           "http://www.w3.org/ns/shacl#minCount": "1",
         },
       ];
-      const result = processor.convertToDynamicFormArray(shapes);
+      const result = processor.convertToClassFormArray(shapes);
       expect(result).toEqual([
         {
           name: ":username",
@@ -206,7 +209,7 @@ describe("createSHACLProcessor", () => {
             "http://example.org/CustomDataType",
         },
       ];
-      const result = processor.convertToDynamicFormArray(shapes);
+      const result = processor.convertToClassFormArray(shapes);
       expect(result[0].type).toBe(FormFieldType.Unknown);
     });
 
@@ -219,7 +222,7 @@ describe("createSHACLProcessor", () => {
             "http://www.w3.org/2001/XMLSchema#integer",
         },
       ];
-      const result = processor.convertToDynamicFormArray(shapes);
+      const result = processor.convertToClassFormArray(shapes);
       expect(result[0]).not.toHaveProperty("validation");
     });
   });

@@ -60,4 +60,22 @@ export class QueryFactory {
       }}
   `;
   }
+
+  public static resultGraphQuery(resultGraph: string): string {
+    return `
+   PREFIX : <https://kg.scania.com/it/iris_orchestration/>
+CONSTRUCT { ?s ?p ?o }
+WHERE {
+  GRAPH <${resultGraph}> {
+    ?s ?p ?o .
+  }
+}
+  `;
+  }
+
+  public static deleteResultGraphQuery(resultGraph: string): string {
+    return `
+  CLEAR GRAPH <${resultGraph}>
+  `;
+  }
 }

@@ -6,12 +6,21 @@ import Tab from "@/components/Tabs/Tab";
 import Modal from "@/components/Modal/CustomModal";
 import ExecutionLog from "@/components/ExecutionLog/ExecutionLog";
 import { isValidJson } from "@/helpers/helper";
-import { TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
+import {
+  TdsButton,
+  TdsDropdown,
+  TdsDropdownOption,
+  TdsRadioButton,
+  TdsTextarea,
+  TdsTextField,
+} from "@scania/tegel-react";
 import { Parameter as ParameterTemplate } from "@/utils/types";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
 import { useForm } from "react-hook-form";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
 import ExecutionResult from "@/components/ExecutionResult/ExecutionResult";
+import ExecutionResults from "./ExecutionResults";
+import Tooltip from "@/components/Tooltip/Tooltip";
 
 interface Parameter {
   id?: string;
@@ -32,21 +41,25 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
   initParameters = [],
   taskTemplate = [],
 }) => {
-  const selectedTab = "Execution";
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("execution");
+  const [executionType, setExecutionType] = useState<string>("sync");
   const [exectionLogModalIsOpen, setExectionLogModalIsOpen] = useState(false);
+  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
   const [executionResultModalIsOpen, setExecutionResultModalIsOpen] =
     useState(false);
   const [selectedExecutionMethod, setSelectedExecutionMethod] = useState<
     "Create" | "Existing" | "Editing"
-  >("Create");
-  const [executionResult, setExecutionResult] = useState("");
-  const [executionLog, setExecutionLog] = useState([]);
+  >(() => (parameters.length > 0 ? "Existing" : "Create"));
   const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(
     null
   );
-  const [parameters, setParameters] = useState<Parameter[]>(initParameters);
+  const [executionResult, setExecutionResult] = useState("");
+  const [executionLog, setExecutionLog] = useState([]);
   const [dropdownKey, setDropdownKey] = useState(0);
+  const [currentExecutionId, setCurrentExecutionId] = useState<string | null>(
+    null
+  );
+  const { showToast, clearToasts } = useToast();
 
   const {
     register,
@@ -62,26 +75,6 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     },
   });
 
-  const showToast = useCallback(
-    (
-      variant: "success" | "error" | "information" | "warning",
-      header: string,
-      description: string,
-      timeout?: number,
-      onShowMore?: Function
-    ) => {
-      const toastProperties: ToastItem = {
-        variant,
-        header,
-        description,
-        timeout,
-        onShowMore,
-      };
-      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
-    },
-    []
-  );
-
   const fetchParameters = useCallback(async () => {
     try {
       const response = await axios.get<Parameter[]>(`/api/parameters`, {
@@ -93,7 +86,7 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
       showToast("error", "Error", "Failed to fetch parameters.");
       return [];
     }
-  }, [iri, showToast]);
+  }, [iri]);
 
   useEffect(() => {
     fetchParameters();
@@ -116,17 +109,20 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
 
   const saveParameter = async (data: Parameter) => {
     try {
-      await axios.post("/api/parameter", {
+      const response = await axios.post("/api/parameter", {
         name: data.name,
         value: data.value,
         iri,
       });
+      const savedParameter = response.data;
       await fetchParameters();
       showToast("success", "Success", "Parameter saved successfully.", 2000);
       reset({
         name: "",
         value: JSON.stringify(taskTemplate, null, 2),
       });
+      setSelectedExecutionMethod("Existing");
+      setSelectedParameter(savedParameter);
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || "The parameter set could not be saved.";
@@ -220,56 +216,84 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
     }
   };
 
-  const handleShowMore = (executionIdHeader: string) => async () => {
+  const fetchLogs = useCallback(
+    async (execId: string): Promise<void> => {
+      setCurrentExecutionId(execId);
+      try {
+        const { data } = await axios.get(`${baseUrl}/api/execute/logs`, {
+          params: { executionId: execId },
+        });
+        setExecutionLog(data);
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [baseUrl]
+  );
+
+  const refreshLogs = useCallback(() => {
+    if (currentExecutionId) fetchLogs(currentExecutionId);
+  }, [currentExecutionId, fetchLogs]);
+
+  const handleShowMore = (execIdHeader: string) => async () => {
+    clearToasts();
     setExectionLogModalIsOpen(true);
-    try {
-      const response = await axios.get(
-        `${baseUrl}/api/execute/logs?executionId=${encodeURI(
-          executionIdHeader
-        )}`
-      );
-      setExecutionLog(response.data);
-      // Remove toasts when the user has clicked "Show more"
-      setListOfToasts([]);
-    } catch (error) {
-      console.error(error);
-    }
+    setExecutionLog([]); // clear old entries right away
+    await fetchLogs(execIdHeader);
   };
 
-  const executeGraph = async () => {
+  const executeGraph = async (): Promise<void> => {
+    setCurrentExecutionId(null);
+    setExecutionLog([]);
+
+    const payload = {
+      subjectIri: iri,
+      parameters: JSON.parse(selectedParameter?.value || "{}"),
+    };
+
     try {
-      const response = await axios.post(
-        `${baseUrl}/api/execute/sync`,
-        {
-          subjectIri: iri,
-          parameters: JSON.parse(selectedParameter?.value || "{}"),
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setExecutionResultModalIsOpen(true);
-      setExecutionResult(response.data);
+      if (executionType === "sync") {
+        const { data, headers } = await axios.post(
+          `${baseUrl}/api/execute/sync`,
+          payload,
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        const execId = headers["execution-id"];
+        if (execId) setCurrentExecutionId(execId);
+
+        setExecutionResult(data);
+        setExecutionResultModalIsOpen(true);
+      } else {
+        const { data, headers } = await axios.post(
+          `${baseUrl}/api/execute/async`,
+          payload,
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        const execId = headers["execution-id"];
+        if (execId) setCurrentExecutionId(execId);
+
+        showToast(
+          "information",
+          "Execution Started",
+          `Result Graph: ${data.resultGraphURI}`,
+          3500
+        );
+      }
     } catch (error: any) {
-      const errorMessage =
+      const errMsg =
         error.response?.data?.error ||
         error.message ||
         "Could not execute graph";
-      let executionIdHeader: string | null = null;
-      if (error.response?.headers?.["execution-id"]) {
-        executionIdHeader = error.response.headers["execution-id"];
-        showToast(
-          "error",
-          "Error",
-          errorMessage,
-          10000,
-          handleShowMore(executionIdHeader!)
-        );
-        return;
+      const execId = error.response?.headers?.["execution-id"] || null;
+
+      if (execId) {
+        setCurrentExecutionId(execId);
+        showToast("error", "Error", errMsg, 3500, handleShowMore(execId));
+      } else {
+        showToast("error", "Error", errMsg, 2000);
       }
-      showToast("error", "Error", errorMessage, 2000);
     }
   };
 
@@ -289,210 +313,251 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         </div>
 
         <div className={styles.tabs}>
-            <Tabs
-              activeTab={"execution"}
-            >
-              <Tab 
-                label={"Execution"} 
-                tabKey="execution">
-                  <div className={styles.outerContentContainer}>
-            <div className={styles.contentContainer}>
-              {selectedTab === "Execution" && (
-                <div>
-                  <h6 className="tds-headline-06">Execute parameter</h6>
-                  <hr className="divider" />
+          <Tabs onTabChange={setActiveTab} activeTab={activeTab}>
+            <Tab label={"Execution"} tabKey="execution">
+              <div className={styles.outerContentContainer}>
+                <div className={styles.contentContainer}>
+                  <div>
+                    <h6 className="tds-headline-06">Execute parameter</h6>
+                    <hr className="divider" />
 
-                  {/* Execution Method Selection */}
-                  <div className={styles.contentContainer__parameterChoice}>
-                    <tds-radio-button
-                      name="select-parameter-method"
-                      value="Create"
-                      radio-id="create"
-                      onClick={() => setSelectedExecutionMethod("Create")}
-                      checked={selectedExecutionMethod === "Create"}
-                    >
-                      <div slot="label">Create new parameter</div>
-                    </tds-radio-button>
-
-                    <tds-radio-button
-                      name="select-parameter-method"
-                      value="Existing"
-                      radio-id="existing"
-                      onClick={() =>
-                        parameters.length &&
-                        setSelectedExecutionMethod("Existing")
-                      }
-                      disabled={!parameters.length}
-                      checked={
-                        selectedExecutionMethod === "Existing" ||
-                        selectedExecutionMethod === "Editing"
-                      }
-                    >
-                      <div slot="label">Saved parameters</div>
-                    </tds-radio-button>
-                  </div>
-
-                  {/* Create New Parameter */}
-                  {selectedExecutionMethod === "Create" && (
-                    <form onSubmit={handleSubmit(saveParameter)}>
-                      <div
-                        className={styles.contentContainer__parameterContainer}
+                    {/* Execution Method Selection */}
+                    <div className={styles.contentContainer__parameterChoice}>
+                      <TdsRadioButton
+                        name="select-parameter-method"
+                        value="Create"
+                        radio-id="create"
+                        onClick={() => setSelectedExecutionMethod("Create")}
+                        checked={selectedExecutionMethod === "Create"}
                       >
-                        <tds-text-field
-                          placeholder="New name"
-                          label="Parameter set name"
-                          size="sm"
-                          label-position="outside"
-                          helper={errors.name?.message || ""}
-                          state={errors.name ? "error" : "default"}
-                          value={watch("name")}
-                          onInput={(e) =>
-                            setValue(
-                              "name",
-                              (e.target as HTMLInputElement).value
-                            )
-                          }
-                          {...register("name", {
-                            required: "Parameter set name is required",
-                            pattern: {
-                              value: /^[^\s!@#$%^&*()+=\[\]{};':"\\|,.<>\/?]*$/,
-                              message:
-                                "Name cannot contain spaces or special characters",
-                            },
-                          })}
-                        />
+                        <div slot="label">Create new parameter set</div>
+                      </TdsRadioButton>
+
+                      <TdsRadioButton
+                        name="select-parameter-method"
+                        value="Existing"
+                        radio-id="existing"
+                        onClick={() =>
+                          parameters.length &&
+                          setSelectedExecutionMethod("Existing")
+                        }
+                        disabled={!parameters.length}
+                        checked={
+                          selectedExecutionMethod === "Existing" ||
+                          selectedExecutionMethod === "Editing"
+                        }
+                      >
+                        <div slot="label">Saved parameter sets</div>
+                      </TdsRadioButton>
+                    </div>
+
+                    {/* Create New Parameter set */}
+                    {selectedExecutionMethod === "Create" && (
+                      <form onSubmit={handleSubmit(saveParameter)}>
                         <div
                           className={
-                            styles.contentContainer__parameterContainer__saveBtn
+                            styles.contentContainer__parameterContainer
                           }
                         >
-                          <tds-button
-                            type="submit"
-                            text="Save"
+                          <TdsTextField
+                            placeholder="New name"
+                            label="Parameter set name"
                             size="sm"
-                          ></tds-button>
+                            label-position="outside"
+                            helper={errors.name?.message || ""}
+                            state={errors.name ? "error" : "default"}
+                            value={watch("name")}
+                            onInput={(e) =>
+                              setValue(
+                                "name",
+                                (e.target as HTMLInputElement).value
+                              )
+                            }
+                            {...register("name", {
+                              required: "Parameter set name is required",
+                              pattern: {
+                                value:
+                                  /^[^\s!@#$%^&*()+=\[\]{};':"\\|,.<>\/?]*$/,
+                                message:
+                                  "Name cannot contain spaces or special characters",
+                              },
+                            })}
+                          />
+                          <div
+                            className={
+                              styles.contentContainer__parameterContainer__saveBtn
+                            }
+                          >
+                            <TdsButton
+                              disabled={!watch("name") || !watch("value")}
+                              type="submit"
+                              text="Save"
+                              size="sm"
+                            ></TdsButton>
+                          </div>
                         </div>
-                      </div>
-                      <tds-textarea
-                        label="JSON"
-                        rows={12}
-                        label-position="outside"
-                        helper={errors.value?.message || ""}
-                        state={errors.value ? "error" : "default"}
-                        value={watch("value")}
-                        onInput={(e) =>
-                          setValue(
-                            "value",
-                            (e.target as HTMLTextAreaElement).value
-                          )
-                        }
-                        {...register("value", {
-                          required: "Parameter value is required",
-                          validate: (value) =>
-                            isValidJson(value) ? true : "Invalid JSON",
-                        })}
-                      ></tds-textarea>
-                    </form>
-                  )}
-                  {/* Existing Parameters */}
-                  {(selectedExecutionMethod === "Existing" ||
-                    selectedExecutionMethod === "Editing") && (
-                    <>
-                      <div
-                        className={styles.contentContainer__parameterContainer}
-                      >
-                        <TdsDropdown
-                          name="dropdown"
-                          key={dropdownKey}
-                          label="Select Parameter Set"
+                        <TdsTextarea
+                          label="JSON"
+                          rows={12}
                           label-position="outside"
-                          placeholder="Select parameter set"
-                          size="sm"
-                          multiselect={false}
-                          onTdsChange={(e) => selectParameter(e.detail.value)}
-                          open-direction="auto"
-                          normalizeText={true}
-                          defaultValue={selectedParameter?.id}
-                        >
-                          {parameters.map((parameter) => (
-                            <TdsDropdownOption
-                              value={parameter.id}
-                              key={parameter.id}
-                            >
-                              {parameter.name}
-                            </TdsDropdownOption>
-                          ))}
-                        </TdsDropdown>
-                        {selectedParameter && (
-                          <>
-                            <tds-button
-                              text={
-                                selectedExecutionMethod === "Editing"
-                                  ? "Save"
-                                  : "Edit"
-                              }
-                              size="sm"
-                              onClick={
-                                selectedExecutionMethod === "Editing"
-                                  ? handleSubmit(saveEditedParameter)
-                                  : () => setSelectedExecutionMethod("Editing")
-                              }
-                            ></tds-button>
-
-                            <tds-button
-                              text="Delete"
-                              size="sm"
-                              variant="secondary"
-                              onClick={deleteParameter}
-                            ></tds-button>
-                          </>
-                        )}
-                      </div>
-
-                      <tds-textarea
-                        label="JSON"
-                        rows={12}
-                        label-position="outside"
-                        disabled={selectedExecutionMethod !== "Editing"}
-                        helper={errors.value?.message || ""}
-                        state={errors.value ? "error" : "default"}
-                        value={watch("value")}
-                        onInput={(e) =>
-                          selectedExecutionMethod === "Editing" &&
-                          setValue(
-                            "value",
-                            (e.target as HTMLTextAreaElement).value
-                          )
-                        }
-                        {...(selectedExecutionMethod === "Editing"
-                          ? register("value", {
-                              required: "Parameter value is required",
-                              validate: (value) =>
-                                isValidJson(value) ? true : "Invalid JSON",
-                            })
-                          : {})}
-                      ></tds-textarea>
-                    </>
-                  )}
-
-                  {/* Execute Button */}
-                  {selectedParameter &&
-                    selectedExecutionMethod === "Existing" && (
-                      <div className={styles.footerContainer}>
-                        <tds-button
-                          text="Execute"
-                          onClick={executeGraph}
-                        ></tds-button>
-                      </div>
+                          helper={errors.value?.message || ""}
+                          state={errors.value ? "error" : "default"}
+                          value={watch("value")}
+                          onInput={(e) =>
+                            setValue(
+                              "value",
+                              (e.target as HTMLTextAreaElement).value
+                            )
+                          }
+                          {...register("value", {
+                            required: "Parameter set value is required",
+                            validate: (value) =>
+                              isValidJson(value) ? true : "Invalid JSON",
+                          })}
+                        ></TdsTextarea>
+                      </form>
                     )}
-                </div>
-              )}
-            </div>
-          </div>
-              </Tab>
-            </Tabs>
+                    {/* Existing Parameters */}
+                    {(selectedExecutionMethod === "Existing" ||
+                      selectedExecutionMethod === "Editing") && (
+                      <>
+                        <div
+                          className={
+                            styles.contentContainer__parameterContainer
+                          }
+                        >
+                          <TdsDropdown
+                            name="dropdown"
+                            key={dropdownKey}
+                            label="Select Parameter Set"
+                            label-position="outside"
+                            placeholder="Select parameter set"
+                            size="sm"
+                            multiselect={false}
+                            onTdsChange={(e) => selectParameter(e.detail.value)}
+                            open-direction="auto"
+                            normalizeText={true}
+                            defaultValue={selectedParameter?.id}
+                          >
+                            {parameters.map((parameter) => (
+                              <TdsDropdownOption
+                                value={parameter.id}
+                                key={parameter.id}
+                              >
+                                {parameter.name}
+                              </TdsDropdownOption>
+                            ))}
+                          </TdsDropdown>
+                          {selectedParameter && (
+                            <>
+                              <TdsButton
+                                text={
+                                  selectedExecutionMethod === "Editing"
+                                    ? "Save"
+                                    : "Edit"
+                                }
+                                size="sm"
+                                onClick={
+                                  selectedExecutionMethod === "Editing"
+                                    ? handleSubmit(saveEditedParameter)
+                                    : () =>
+                                        setSelectedExecutionMethod("Editing")
+                                }
+                              ></TdsButton>
+                              {selectedExecutionMethod === "Editing" ? (
+                                <TdsButton
+                                  text="Cancel"
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() =>
+                                    setSelectedExecutionMethod("Existing")
+                                  }
+                                />
+                              ) : (
+                                <TdsButton
+                                  text="Delete"
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={deleteParameter}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
 
-          
+                        <TdsTextarea
+                          label="JSON"
+                          rows={12}
+                          label-position="outside"
+                          disabled={selectedExecutionMethod !== "Editing"}
+                          helper={errors.value?.message || ""}
+                          state={errors.value ? "error" : "default"}
+                          value={watch("value")}
+                          onInput={(e) =>
+                            selectedExecutionMethod === "Editing" &&
+                            setValue(
+                              "value",
+                              (e.target as HTMLTextAreaElement).value
+                            )
+                          }
+                          {...(selectedExecutionMethod === "Editing"
+                            ? register("value", {
+                                required: "Parameter set value is required",
+                                validate: (value) =>
+                                  isValidJson(value) ? true : "Invalid JSON",
+                              })
+                            : {})}
+                        ></TdsTextarea>
+                      </>
+                    )}
+
+                    {/* Execute Button */}
+
+                    {selectedParameter &&
+                      selectedExecutionMethod === "Existing" && (
+                        <div className={styles.footerContainer}>
+                          <Tooltip
+                            content="A synchronous execution shows the result without storing it"
+                            direction="top"
+                          >
+                            <TdsRadioButton
+                              name="select-execute-type"
+                              value="sync"
+                              radio-id="sync"
+                              onClick={() => setExecutionType("sync")}
+                              checked={executionType === "sync"}
+                            >
+                              <div slot="label">Synchronous</div>
+                            </TdsRadioButton>
+                          </Tooltip>
+                          <Tooltip
+                            content="An asynchronous execution stores the result and is a good option when there are multiple data sources"
+                            direction="top"
+                          >
+                            <TdsRadioButton
+                              name="select-execute-type"
+                              value="async"
+                              radio-id="async"
+                              onClick={() => setExecutionType("async")}
+                              checked={executionType === "async"}
+                            >
+                              <div slot="label">Asynchronous</div>
+                            </TdsRadioButton>
+                          </Tooltip>
+                          <TdsButton
+                            text="Execute"
+                            onClick={executeGraph}
+                          ></TdsButton>
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </div>
+            </Tab>
+            <Tab label={"Results"} tabKey="results">
+              <ExecutionResults iri={iri} />
+            </Tab>
+          </Tabs>
         </div>
       </div>
 
@@ -509,10 +574,8 @@ const ExecuteFlow: React.FC<ExecuteProp> = ({
         onRequestClose={() => setExectionLogModalIsOpen(false)}
         title="Graph execution log"
       >
-        <ExecutionLog executionLog={executionLog} />
+        <ExecutionLog executionLog={executionLog} onRefresh={refreshLogs} />
       </Modal>
-
-      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };

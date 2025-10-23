@@ -16,10 +16,16 @@
 
     &__opened{
       color: black;
+      :global(.tds-mode-dark) & {
+        color: grey;
+      }
     }
 
     &__closed{
       color: grey;
+      :global(.tds-mode-dark) & {
+        color: #fff;
+      }
     }
   }
 }

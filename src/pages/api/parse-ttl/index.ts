@@ -1,6 +1,7 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { withAuth, AuthContext } from "@/lib/backend/withAuth";
 import { convertQuadsToJson, parseTTLFile } from "@/utils/shaclUtils";
 import { createSHACLProcessor } from "@/utils/shaclProcessor";
-import type { NextApiRequest, NextApiResponse } from "next";
 
 const coreField = {
   name: "http://www.w3.org/2000/01/rdf-schema#label",
@@ -14,47 +15,86 @@ const coreField = {
     message: "Label must be a string with 1 to 50 characters",
   },
 };
-async function generateDynamicFormData(className: string) {
-  const filePath1 = "ofg_shapes.ttl";
-  const filePath2 = "orchestration_ontology.ttl";
-  const quads1 = await parseTTLFile(filePath1);
-  const quads2 = await parseTTLFile(filePath2);
-  const combinedQuads = quads1.concat(quads2);
+
+async function generateClassFormData(className: string) {
+  // parsing TTL files
+  const ofg_shapes = "ofg_shapes.ttl";
+  const orchestration_ontology = "orchestration_ontology.ttl";
+  const core_shapes = "core_shapes.ttl";
+  const core_ontology = "core_ontology.ttl";
+  const quads_ofg = await parseTTLFile(ofg_shapes);
+  const quads_oo = await parseTTLFile(orchestration_ontology);
+  const quads_core = await parseTTLFile(core_shapes);
+  const quads_co = await parseTTLFile(core_ontology);
+
+  // combining quads
+  const combinedQuads = quads_ofg.concat(quads_oo).concat(quads_core).concat(quads_co);
   const jsonData = convertQuadsToJson(combinedQuads);
   const SHACLProcessor = createSHACLProcessor(jsonData);
-  const shapeUri = SHACLProcessor.findShapeUriForClass(className);
+
+  // finding classUri and shapeUri based on className
+  const classUri = SHACLProcessor.findClassUri(className);
+  const shapeUri = SHACLProcessor.findShapeUriForClass(classUri);
+  //console.log("className : ", className);
+  //console.log("classUri : ", classUri);
+  //console.log("shapeUri : ", shapeUri);
+
   if (!shapeUri) {
     throw new Error(`Shape URI for class ${className} not found`);
   }
-  const { generatePropertyDetailsForClass, convertToDynamicFormArray } =
+
+  const { getAllSuperClassesOf, findShapeUriForClass, generatePropertyDetailsForClass, 
+    convertToClassFormArray, getSuperClass, getObjectPropertyDetails
+   } =
     SHACLProcessor;
-  const propertyDetailsForClass = generatePropertyDetailsForClass(className);
-  const formFields = convertToDynamicFormArray(propertyDetailsForClass as any);
-  const subClassOf = SHACLProcessor.getSubclassOf(className);
-  const objectProperties = SHACLProcessor.getObjectPropertyDetails(shapeUri);
+  
+  const allSuperClasses = getAllSuperClassesOf(classUri);
+  const allSuperShapes = allSuperClasses
+    .map(findShapeUriForClass)
+    .filter((shape): shape is string => shape !== undefined);
+  //console.log("allSuperClasses : ", allSuperClasses)
+  //console.log("allSuperShapes", allSuperShapes);
+
+  const propertyDetailsForAllSuperClasses = allSuperShapes.map((shape) =>
+    generatePropertyDetailsForClass(shape)
+  ).flat();
+  const propertyDetailsForClass = generatePropertyDetailsForClass(shapeUri);
+  const allPropertyDetails = [
+    ...propertyDetailsForClass,
+    ...propertyDetailsForAllSuperClasses,
+  ];
+
+  const formFields = convertToClassFormArray(allPropertyDetails as any);
+  const superClass = getSuperClass(classUri);
+  const objectProperties = getObjectPropertyDetails(shapeUri);
+  //console.log("formFields : ", formFields);
+  //console.log("superClass : ", superClass);
+  //console.log("objectProperties : ", objectProperties);
+  
   return {
     className,
-    subClassOf,
+    superClass,
     objectProperties,
     formFields,
   };
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  ctx: AuthContext
 ) {
   try {
     const className = (req.query.className as string) || "HTTPAction";
-
-    const formData = await generateDynamicFormData(className);
+    const formData = await generateClassFormData(className);
     const allFields = [
       { ...coreField, value: className },
       ...formData.formFields,
     ];
-
     res.status(200).json({ ...formData, formFields: allFields });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 }
+
+export default withAuth({})(handler);

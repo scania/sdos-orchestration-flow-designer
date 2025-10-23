@@ -1,24 +1,25 @@
 import { env } from "@/lib/env";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/context/ThemeProvider";
+import { useToast } from "@/hooks/useToast";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import Card from "@/components/Card/Card";
+import Modal from "@/components/Modal/CustomModal";
 import styles from "./landing.module.scss";
 import Tabs from "@/components/Tabs/Tabs";
 import Tab from "@/components/Tabs/Tab";
 import {
-  TdsDivider,
-  TdsModal,
   TdsButton,
+  TdsIcon,
+  TdsModal,
   TdsTextField,
   TdsTextarea,
 } from "@scania/tegel-react";
 import TaskSelection from "@/components/TaskSelection";
 import { Task } from "@/utils/types";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
 import Introduction from "@/components/homepage/IntroductionContent";
 
 // Server-side authentication check
@@ -75,9 +76,9 @@ function App({
   const { theme } = useTheme();
   const [flows, setFlows] = useState<Flow[]>(initialFlows);
   const [activeTab, setActiveTab] = useState<string>("My work");
+  const [isCreateGraphModalOpen, setIsCreateGraphModalOpen] = useState(false);
   const [isExecuteGraphModalOpen, setIsExecuteGraphModalOpen] = useState(false);
   const [executeGraphIriValue, setExecuteGraphIriValue] = useState<string>("");
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
   const [toBeDeletedId, setToBeDeletedId] = useState<string | null>(null);
   const router = useRouter();
   const {
@@ -85,12 +86,20 @@ function App({
     handleSubmit,
     setError,
     clearErrors,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm();
   const {
     register: registerExecuteGraph,
     formState: { errors: errorsExecuteGraph },
   } = useForm();
+
+  const { showToast } = useToast();
+
+  const graphNameToDelete = toBeDeletedId
+    ? flows.find((f) => f.id === toBeDeletedId)?.name ?? ""
+    : "";
 
   const displayedFlows = flows.filter((flow) =>
     activeTab === "My work" ? flow.user.id === userId : flow.user.id !== userId
@@ -118,23 +127,15 @@ function App({
     }
   };
 
-  const showToast = useCallback(
-    (
-      variant: "success" | "error" | "information" | "warning",
-      header: string,
-      description: string,
-      timeout?: number
-    ) => {
-      const toastProperties: ToastItem = {
-        variant,
-        header,
-        description,
-        timeout,
-      };
-      setListOfToasts((prevToasts) => [...prevToasts, toastProperties]);
-    },
-    []
-  );
+  const handleCancelDelete = () => {
+    setToBeDeletedId(null);
+    const modal = document.querySelector(
+      '[selector="delete-graph-modal"]'
+    ) as HTMLTdsModalElement | null;
+    if (modal) {
+      modal.closeModal();
+    }
+  };
 
   const fetchFlows = async () => {
     try {
@@ -204,28 +205,32 @@ function App({
 
   return (
     <div className={`App`}>
-      <tds-modal
-        id="delete-graph-modal"
-        selector="delete-graph-modal"
-        size="sm"
-      >
+      <TdsModal id="delete-graph-modal" selector="delete-graph-modal" size="sm">
         <h5 className="tds-modal-headline" slot="header">
-          Are you sure?
+          {graphNameToDelete
+            ? `Delete graph “${graphNameToDelete.split("/").pop()}”?`
+            : "Are you sure?"}
         </h5>
         <span slot="body">This action once performed, cannot be reverted</span>
         <span
           slot="actions"
           style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}
         >
-          <tds-button
+          <TdsButton
+            size="md"
+            text="Cancel"
+            variant="secondary"
+            onClick={handleCancelDelete}
+          />
+          <TdsButton
             data-dismiss-modal
             size="md"
             text="Delete"
             variant="danger"
             onClick={onGraphDelete}
-          ></tds-button>
+          />
         </span>
-      </tds-modal>
+      </TdsModal>
       <main>
         <div className={styles.tabs}>
           <Tabs activeTab={activeTab} onTabChange={setActiveTab}>
@@ -233,82 +238,89 @@ function App({
               <Introduction
                 heading={"My work"}
                 description={
-                  "Open and edit your orchestration flow graph, or create a new one. You can also view which graphs are available to you from other projects."
+                  "View and manage your own orchestration graphs. Create, edit, run, or continue working on flows you’ve created."
                 }
               />
             </Tab>
             <Tab label="Other flows" tabKey="Other flows">
               <Introduction
-                  heading={"Other flows"}
-                  description={
-                    "View graphs available to you from other projects."
-                  }
-                />
+                heading={"Other flows"}
+                description={
+                  "Explore orchestration graphs shared with you from other teams. View flows from external projects or collaborators."
+                }
+              />
             </Tab>
           </Tabs>
         </div>
         <div className={styles.content}>
           <div className={styles["content__main"]}>
             <div className={styles["content__main__buttons"]}>
-              <tds-button
+              <TdsButton
                 id="create-new-graph-button"
                 size="sm"
                 variant="primary"
+                onClick={() => setIsCreateGraphModalOpen(true)}
                 text={"Create new graph"}
               >
-                <tds-icon size="16px" slot="icon" name="plus"></tds-icon>
-              </tds-button>
-              <tds-button
+                <TdsIcon size="16px" slot="icon" name="plus"></TdsIcon>
+              </TdsButton>
+              <TdsButton
                 id="execute-graph-button"
                 size="sm"
                 variant="primary"
                 onClick={() => setIsExecuteGraphModalOpen(true)}
                 text={"Execute Graph"}
               >
-                <tds-icon size="16px" slot="icon" name="send"></tds-icon>
-              </tds-button>
-              <TdsModal selector="#create-new-graph-button" size="xs">
-                <h5 className="tds-modal-headline" slot="header">
-                  Create new graph
-                </h5>
-                <span slot="body">
-                  <form onSubmit={handleSubmit(createNewGraph)}>
-                    <TdsTextField
-                      id="modal-name-field"
-                      placeholder="Name"
-                      size="sm"
-                      mode-variant={theme === "light" ? "primary" : "secondary"}
-                      helper={errors.name ? errors.name.message : ""}
-                      state={errors.name ? "error" : "default"}
-                      {...register("name", {
-                        required: "Graph name is required",
-                        pattern: {
-                          value: /^[a-zA-Z0-9\s]+$/,
-                          message:
-                            "Graph name cannot contain special characters",
-                        },
-                      })}
+                <TdsIcon size="16px" slot="icon" name="send"></TdsIcon>
+              </TdsButton>
+              <Modal
+                isOpen={isCreateGraphModalOpen}
+                onRequestClose={() => {
+                  setValue("name", "");
+                  setValue("description", "");
+                  setIsCreateGraphModalOpen(false);
+                  clearErrors("name");
+                }}
+                title="Create graph"
+                width={"md"}
+              >
+                <form onSubmit={handleSubmit(createNewGraph)}>
+                  <TdsTextField
+                    id="modal-name-field"
+                    placeholder="Name"
+                    size="sm"
+                    mode-variant={theme === "light" ? "primary" : "secondary"}
+                    helper={errors.name ? errors.name.message : ""}
+                    value={watch("name") || ""}
+                    state={errors.name ? "error" : "default"}
+                    {...register("name", {
+                      required: "Graph name is required",
+                      pattern: {
+                        value: /^[a-zA-Z0-9\s]+$/,
+                        message: "Graph name cannot contain special characters",
+                      },
+                    })}
+                  />
+                  <div style={{ marginTop: "28px" }} />
+                  <TdsTextarea
+                    id="modal-description-area"
+                    placeholder="Description"
+                    rows={4}
+                    value={watch("description") || ""}
+                    mode-variant={theme === "light" ? "primary" : "secondary"}
+                    {...register("description")}
+                  />
+                  <div style={{ marginTop: "28px" }} />
+                  <span slot="actions">
+                    <TdsButton
+                      size="md"
+                      text="Create"
+                      type="submit"
+                      modeVariant="primary"
                     />
-                    <div style={{ marginTop: "28px" }} />
-                    <TdsTextarea
-                      id="modal-description-area"
-                      placeholder="Description"
-                      rows={4}
-                      mode-variant={theme === "light" ? "primary" : "secondary"}
-                      {...register("description")}
-                    />
-                    <div style={{ marginTop: "28px" }} />
-                    <span slot="actions">
-                      <TdsButton
-                        size="md"
-                        text="Create"
-                        type="submit"
-                        modeVariant="primary"
-                      />
-                    </span>
-                  </form>
-                </span>
-              </TdsModal>
+                  </span>
+                </form>
+              </Modal>
               {/* Execute Graph Modal */}
               <TaskSelection
                 executeGraphIriValue={executeGraphIriValue}
@@ -337,12 +349,8 @@ function App({
                 <h5>No graphs available</h5>
               )}
             </div>
-            <div className={styles["content__main__line"]}>
-              <TdsDivider orientation="horizontal"></TdsDivider>
-            </div>
           </div>
         </div>
-        <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
       </main>
     </div>
   );

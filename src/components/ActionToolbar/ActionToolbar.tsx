@@ -1,13 +1,17 @@
-
-import styles from "./ActionToolbar.module.scss";
+import { useState } from "react";
 import { useRouter } from "next/router";
+import styles from "./ActionToolbar.module.scss";
+import Tooltip from "../Tooltip/Tooltip";
 import GraphOptions from "../GraphOptions/GraphOptions";
+import Modal from "../Modal/CustomModal";
+import UserPreferences from "../UserPreferences/UserPreferences";
+import { TdsIcon } from "@scania/tegel-react";
 
 type Graph = {
   name?: string;
   description?: string;
   isDraft?: boolean;
-  author?: object
+  author?: object;
 };
 
 type AccordionProps = {
@@ -26,22 +30,37 @@ const ActionToolbar: React.FC<AccordionProps> = ({
   handleExecute,
   isEditable = false,
 }) => {
+  const router = useRouter();
 
-const router = useRouter();
+  const [userPreferencesModalIsOpen, setUserPreferencesModalIsOpen] =
+    useState(false);
 
   return (
     <div className={styles.container}>
       <div className="pointer" onClick={router.back}>
         <span>Back</span>
-        <tds-icon
+        <TdsIcon
           slot="icon"
           style={{ marginLeft: "8px" }}
           size="14px"
           name="back"
-        ></tds-icon>
+        ></TdsIcon>
       </div>
-      {toolbar && 
-      <div className={styles.container__actionsContainer}>
+      {toolbar && (
+        <div className={styles.container__actionsContainer}>
+          <Modal
+            isOpen={userPreferencesModalIsOpen}
+            onRequestClose={() => setUserPreferencesModalIsOpen(false)}
+            title="User preferences"
+          >
+            <UserPreferences />
+          </Modal>
+          <span
+            onClick={() => setUserPreferencesModalIsOpen(true)}
+            className="pointer"
+          >
+            User Preferences
+          </span>
           <GraphOptions
             selector="#graph-options"
             graphDescription={graph?.description || ""}
@@ -53,30 +72,48 @@ const router = useRouter();
           </span>
           <span
             id="execute-graph"
-            className={`${graph?.isDraft ? styles.container__actionsContainer__disabled : "pointer"}`}
-              onClick={() => handleExecute?.()}
-            >
+            className={`${
+              graph?.isDraft
+                ? styles.container__actionsContainer__disabled
+                : "pointer"
+            }`}
+            onClick={() => handleExecute?.()}
+          >
             Execute
           </span>
           {isEditable ? (
             <>
-              <span
-                className="pointer"
-                onClick={() => handleSaveClick?.("draft")}
+              <Tooltip
+                content={
+                  "Save a draft of your graph without fullfilling all requirments. You can edit and finalize it later."
+                }
+                direction="bottom"
               >
-                Save Draft
-              </span>
-              <span
-                className="pointer"
-                onClick={() => handleSaveClick?.("save")}
+                <span
+                  className="pointer"
+                  onClick={() => handleSaveClick?.("draft")}
+                >
+                  Save Draft
+                </span>
+              </Tooltip>
+              <Tooltip
+                content={
+                  "Save your graph. Ensures all validations are met before saving."
+                }
+                direction="bottom"
               >
-                Save
-              </span>
+                <span
+                  className="pointer"
+                  onClick={() => handleSaveClick?.("save")}
+                >
+                  Save
+                </span>
+              </Tooltip>
             </>
           ) : null}
-        </div> 
-        }
-  </div>
+        </div>
+      )}
+    </div>
   );
 };
 

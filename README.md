@@ -111,7 +111,6 @@ The project defines several npm scripts in `package.json`:
 - **`npm run dev`**: Validates environment variables (via `node validateEnv.js`) and starts the Next.js development server.
 - **`npm run build`**: Builds the application for production.
 - **`npm start`**: Runs the built application in production mode (the `prestart` script also validates the environment).
-- **`npm run test`**: Executes end-to-end tests using Playwright.
 - **`npm run test-unit`**: Runs unit tests via Jest.
 - **`npm run lint`**: Checks the code for linting errors.
 - **`npm run storybook`**: Starts the Storybook development server on port 6006.
@@ -154,12 +153,6 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Testing & Linting
 
-- **End-to-End Testing (Playwright):**
-
-  ```
-  npm run test
-  ```
-
 - **Unit Testing (Jest):**
 
   ```
@@ -187,6 +180,48 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
   ```
   npm run prismaReset
   ```
+
+---
+
+## Automatic Tagging and Releasing
+
+
+This repository uses **GitHub Actions** to automate version tagging and GitHub Releases when pull requests are merged into the `main` or `develop` branches.
+
+### How It Works
+
+- **Trigger:**  
+  When a pull request is merged into `main` or `develop`, the workflow runs automatically.
+
+- **Version Calculation:**  
+  - **On `main`:**
+    - If the latest tag is a release candidate (e.g., `v1.2.3-RC2`), the next tag will be the corresponding stable version (e.g., `v1.2.3`).
+    - Otherwise, the patch version is incremented (e.g., `v1.2.3` → `v1.2.4`).
+  - **On `develop`:**
+    - If the latest tag is a release candidate (e.g., `v1.2.3-RC2`), the RC number is incremented (e.g., `v1.2.3-RC2` → `v1.2.3-RC3`).
+    - Otherwise, the patch version is incremented and a new RC tag is created (e.g., `v1.2.3` → `v1.2.4-RC1`).
+
+- **Tag Creation:**  
+  The workflow creates and pushes the new tag to the repository.
+
+- **GitHub Release:**  
+  - A new GitHub Release is created for the tag.
+  - Releases from `main` are marked as **stable**.
+  - Releases from `develop` are marked as **pre-releases**.
+
+### Example Table
+
+| Branch   | Latest Tag         | New Tag         | Release Type   |
+|----------|--------------------|-----------------|---------------|
+| main     | v1.2.3             | v1.2.4          | Stable        |
+| main     | v1.2.4-RC2         | v1.2.4          | Stable        |
+| develop  | v1.2.3             | v1.2.4-RC1      | Pre-release   |
+| develop  | v1.2.4-RC2         | v1.2.4-RC3      | Pre-release   |
+
+### Notes
+
+- Tag detection uses semantic version sorting to always find the highest version.
+- All releases are fully automated—no manual tagging or release creation is required.
 
 ---
 

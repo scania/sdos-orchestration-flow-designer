@@ -1,9 +1,10 @@
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import { Popover } from "react-tiny-popover";
-import { Handle, Position, useReactFlow} from "reactflow";
+import { Handle, Position, useReactFlow, useKeyPress } from "reactflow";
 import styles from "./CircularNode.module.scss";
 import ActionsMenu from "../ActionsMenu/ActionsMenu";
-import useOfdStore from '@/store/ofdStore';
+import useOfdStore from "@/store/ofdStore";
+import { TdsIcon } from "@scania/tegel-react";
 
 // TODO - handle this dynamically in the future
 const parameterLabels = [
@@ -23,33 +24,44 @@ const isParameter = (label) => {
 
 export default memo((node) => {
   //@ts-ignore
+  const deletePressed = useKeyPress(["Delete"]);
+  const isGraphEditable = useOfdStore((state) => state.isGraphEditable);
   const { data, isConnectable, type, id } = node;
   const label = data?.formData.formFields[0]?.value;
   const { deleteElements } = useReactFlow();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   // Store
+  const selectedNode = useOfdStore((state) => state.selectedNode);
+  const setSelectedNode = useOfdStore((state) => state.setSelectedNode);
   const setSetupMode = useOfdStore((state) => state.setSetupMode);
-  const connectedEdgesFromNode = useOfdStore((state) => state.connectedEdgesFromNode);
+  const connectedEdgesFromNode = useOfdStore(
+    (state) => state.connectedEdgesFromNode
+  );
 
+  useEffect(() => {
+    if (deletePressed && node.id === selectedNode?.id) {
+      deleteNode();
+    }
+  }, [deletePressed]);
 
   const deleteNode = () => {
-    if(node.data.label !== 'Task'){
-      // Delete the node if it is not of type "Task" which should not be deletable
+    if (node.data.label !== "Task" && isGraphEditable) {
       deleteElements({ nodes: [{ id }] });
+      setSelectedNode(null);
+      setSetupMode(false);
     }
-    setSetupMode(false)
-    setIsPopoverOpen(false)
+    setIsPopoverOpen(false);
   };
 
   const disconnectNode = () => {
-    deleteElements({ edges: [ ...connectedEdgesFromNode ] });
-    setIsPopoverOpen(false)
+    deleteElements({ edges: [...connectedEdgesFromNode] });
+    setIsPopoverOpen(false);
   };
-
 
   return (
     <div
-      className={`${node.selected ? styles.selected : ""} ${styles.container} ${
+      className={`${node.id === selectedNode?.id ? styles.selected : ""} 
+        ${styles.container} ${
         data.label === "Task"
           ? styles.container__task
           : isParameter(data.label)
@@ -75,11 +87,17 @@ export default memo((node) => {
           onClickOutside={() => setIsPopoverOpen(false)}
           positions={["top", "bottom", "left", "right"]} // preferred positions by priority
           content={
-            <ActionsMenu onDeleteClick={() => deleteNode()} onDisconnectClick={() => disconnectNode()}/>
+            <ActionsMenu
+              onDeleteClick={() => deleteNode()}
+              onDisconnectClick={() => disconnectNode()}
+            />
           }
         >
-          <div onClick={() => setIsPopoverOpen(!isPopoverOpen)} className="pointer">
-            <tds-icon name="meatballs" size="20px"></tds-icon>
+          <div
+            onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+            className={styles.headingContainer__popover}
+          >
+            <TdsIcon name="meatballs" size="20px"></TdsIcon>
           </div>
         </Popover>
       </div>

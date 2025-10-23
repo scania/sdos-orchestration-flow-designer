@@ -6,6 +6,10 @@
   align-items: center;
   border-bottom: 1px solid #dbdfe6;
   justify-content: space-between;
+  :global(.tds-mode-dark) & {
+    background-color: var(--tds-grey-900);
+    border-bottom: 1px solid var(--tds-divider-background);
+  }
 
   &__actionsContainer{
     display: flex;

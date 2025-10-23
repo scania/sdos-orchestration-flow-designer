@@ -21,7 +21,5 @@
   "exclude": [
     "node_modules",
     "src/stories",
-    "playwright.config.ts",
-    "tests-e2e"
   ]
 }

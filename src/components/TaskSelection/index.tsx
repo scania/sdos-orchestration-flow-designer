@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Task } from "@/utils/types";
 import Modal from "../Modal/CustomModal";
-import {
-  TdsDropdown,
-  TdsDropdownOption,
-} from "@scania/tegel-react";
+import { TdsButton, TdsDropdown, TdsDropdownOption } from "@scania/tegel-react";
 
 interface ExecuteGraphModalProps {
   executeGraphIriValue: string;
@@ -39,6 +36,12 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
 
     fetchTasks();
   }, [baseUrl]);
+
+  const closeExecutionModal = () => {
+    setIsExecuteGraphModalOpen(false);
+    setSelectedTask(null);
+  };
+
   const renderTaskSelector = () => {
     return (
       <TdsDropdown
@@ -80,27 +83,27 @@ const ExecuteGraphModal: React.FC<ExecuteGraphModalProps> = ({
   return (
     <Modal
       isOpen={isExecuteGraphModalOpen}
-      onRequestClose={() => setIsExecuteGraphModalOpen(false)}
+      onRequestClose={() => closeExecutionModal()}
       title="Execute Graph with IRI"
       width={"lg"}
     >
-        <div>
-          <div style={{ height: "250px" }}>
-            {renderTaskSelector()}
-            {renderTaskDetails()}
-          </div>
-          <div style={{ marginTop: "28px" }} />
-          <span slot="actions">
-            <tds-button
-              onClick={() => handleExecute(selectedTask)}
-              size="md"
-              text="Execute"
-              modeVariant="primary"
-              disabled={!selectedTask}
-            />
-          </span>
+      <div>
+        <div style={{ height: "250px" }}>
+          {renderTaskSelector()}
+          {renderTaskDetails()}
         </div>
-      </Modal>
+        <div style={{ marginTop: "28px" }} />
+        <span slot="actions">
+          <TdsButton
+            onClick={() => handleExecute(selectedTask)}
+            size="md"
+            text="Execute"
+            modeVariant="primary"
+            disabled={!selectedTask}
+          />
+        </span>
+      </div>
+    </Modal>
   );
 };
 

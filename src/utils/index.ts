@@ -54,40 +54,11 @@ export const generateJsonLdFromState = ({
     return obj;
   };
 
-  // Array to hold extra nodes (e.g., ResultMetaData nodes)
-  const extraNodes: any[] = [];
-
   const constructNodeData = (nodeId: string) => {
     const formData = findNodeFormFields(nodeId);
     if (!formData) return null;
 
     const nodeData = convertFromFieldsToNodeData(formData);
-
-    if (formData.className === "Task") {
-      const resultMetaDataNodeId = generateClassId();
-
-      const resultMetaDataNode = {
-        "@id": resultMetaDataNodeId,
-        "@type": ["owl:NamedIndividual", "iris:ResultMetaData"],
-        "rdfs:label": { "@value": "Result Metadata" },
-        "iris:description": {
-          "@value":
-            "This instance details will be used as Metadata in resultgraph which will be used for NamedGraph security. This description details will be copied to all the ResultGraph",
-        },
-        "iris:title": { "@value": "" },
-        "core:contributor": { "@value": metadata.email },
-        "core:graphType": { "@value": "private" },
-        "core:informationResponsible": {
-          "@value": metadata.email,
-        },
-      };
-
-      extraNodes.push(resultMetaDataNode);
-
-      nodeData["iris:hasResultMetaData"] = {
-        "@id": resultMetaDataNodeId,
-      };
-    }
 
     const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
 
@@ -118,7 +89,6 @@ export const generateJsonLdFromState = ({
     })
     .filter((item): item is IClassConfig => item !== null);
 
-  graphData.push(...extraNodes);
   return {
     "@context": JSON_LD_CONTEXT,
     "@graph": graphData,
@@ -156,7 +126,7 @@ export const isValidConnection = (nodes: Node[]) => (conn: Connection) => {
   const sourceNode = nodes.find((node) => node.id === conn.source);
   const targetNode = nodes.find((node) => node.id === conn.target);
   // Prevent self-connection
-  if(sourceNode === targetNode){
+  if (sourceNode === targetNode) {
     return;
   }
   const paths = getPaths({ sourceNode, targetNode });
@@ -187,75 +157,13 @@ export const setEdgeProperties = (
   return commonEdgeProps;
 };
 
-export const initializeNodes = () => [
+export const initializeNodes = (label: string, formData: any) => [
   {
     id: generateClassId(),
     type: "input",
     data: {
-      label: "Task",
-      formData: {
-        className: "Task",
-        objectProperties: [
-          {
-            shape: "https://kg.scania.com/it/iris_orchestration/hasActionShape",
-            minCount: 1,
-            path: "https://kg.scania.com/it/iris_orchestration/hasAction",
-            className: "https://kg.scania.com/it/iris_orchestration/Action",
-            subClasses: [
-              "https://kg.scania.com/it/iris_orchestration/HTTPAction",
-              "https://kg.scania.com/it/iris_orchestration/ResultAction",
-              "https://kg.scania.com/it/iris_orchestration/SOAPAction",
-              "https://kg.scania.com/it/iris_orchestration/ScriptAction",
-              "https://kg.scania.com/it/iris_orchestration/SparqlConvertAction",
-              "https://kg.scania.com/it/iris_orchestration/VirtualGraphAction",
-            ],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/inputParameterShape_optional",
-            minCount: 0,
-            path: "https://kg.scania.com/it/iris_orchestration/inputParameter",
-            className: "https://kg.scania.com/it/iris_orchestration/Parameter",
-            subClasses: [
-              "https://kg.scania.com/it/iris_orchestration/BasicCredentialsParameter",
-              "https://kg.scania.com/it/iris_orchestration/HTTPParameter",
-              "https://kg.scania.com/it/iris_orchestration/StandardParameter",
-              "https://kg.scania.com/it/iris_orchestration/TokenCredentialsParameter",
-            ],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/hasMetadataShape",
-            path: "",
-            className: "",
-            subClasses: [],
-          },
-          {
-            shape:
-              "https://kg.scania.com/it/iris_orchestration/hasContextShape",
-            minCount: 0,
-            path: "https://kg.scania.com/it/iris_orchestration/hasContext",
-            className:
-              "https://kg.scania.com/it/iris_orchestration/JsonLdContext",
-            subClasses: [],
-            maxCount: 1,
-          },
-        ],
-        formFields: [
-          {
-            name: "http://www.w3.org/2000/01/rdf-schema#label",
-            type: "text",
-            label: "Label",
-            value: "Task",
-            validation: {
-              required: true,
-              minLength: 1,
-              maxLength: 50,
-              message: "Label must be a string with 1 to 50 characters",
-            },
-          },
-        ],
-      },
+      label: label,
+      formData: formData,
     },
     position: { x: 0, y: 0 },
     sourcePosition: "right",

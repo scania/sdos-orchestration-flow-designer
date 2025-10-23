@@ -1,0 +1,128 @@
+name: Create Release and Publish Docker Image
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    types:
+      - closed
+
+jobs:
+  create_release_version:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    outputs:
+      next_tag: ${{ steps.calculate_version.outputs.next_tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for accurate tagging
+
+      - name: Fetch latest version tag
+        id: fetch_tag
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git tag --sort=-v:refname | head -1)
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Calculate next version
+        id: calculate_version
+        run: |
+          # Branch is main => main release
+          if [ "$GITHUB_REF_NAME" == "main" ]; then
+            VERSION=$LATEST_TAG
+            # If latest tag is an RC, strip -RC part
+            if [[ "$VERSION" =~ ^(v[0-9]+\.[0-9]+\.[0-9]+)-RC[0-9]+$ ]]; then
+              BASE_VERSION=$(echo $VERSION | sed -E 's/^(v[0-9]+\.[0-9]+\.[0-9]+)-RC[0-9]+$/\1/')
+              NEXT_TAG="$BASE_VERSION"
+            else
+              # Step patch
+              BASE=$(echo $VERSION | sed -E 's/^v([0-9]+)\.([0-9]+)\.([0-9]+)$/\1 \2 \3/')
+              read MAJOR MINOR PATCH <<< "$BASE"
+              PATCH=$((PATCH + 1))
+              NEXT_TAG="v$MAJOR.$MINOR.$PATCH"
+            fi
+            
+          # Branch is develop (not main) => RC release
+          else
+            # If no tags exist, default to v1.0.0-RC1
+            if [ -z "$LATEST_TAG" ]; then
+              NEXT_TAG="v1.0.0-RC1"
+            else
+              VERSION=$LATEST_TAG
+              # If latest tag is an RC, increment the RC number
+              if [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-RC[0-9]+$ ]]; then
+                BASE_VERSION=$(echo $VERSION | sed -E 's/^(v[0-9]+\.[0-9]+\.[0-9]+)-RC[0-9]+$/\1/')
+                RC_NUM=$(echo $VERSION | sed -E 's/^v[0-9]+\.[0-9]+\.[0-9]+-RC([0-9]+)$/\1/')
+                RC_NUM=$((RC_NUM + 1))
+                NEXT_TAG="${BASE_VERSION}-RC${RC_NUM}"
+              
+              # latest tag is a regular version, increment the patch version
+              else
+                # Extract major, minor, and patch versions
+                MAJOR=$(echo $VERSION | cut -d. -f1)
+                MINOR=$(echo $VERSION | cut -d. -f2)
+                PATCH=$(echo $VERSION | cut -d. -f3)
+                # Increment the patch version
+                PATCH=$((PATCH + 1))
+                # Construct the next tag
+                NEXT_TAG="$MAJOR.$MINOR.$PATCH-RC1"
+              fi
+            fi
+          fi
+          echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
+          echo "next_tag=$NEXT_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create a new tag
+        id: create_tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "$NEXT_TAG"
+          git push origin "$NEXT_TAG"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NEXT_TAG }}
+          name: Release ${{ env.NEXT_TAG }}
+          body: |
+            Automated release created by GitHub Actions.
+          prerelease: ${{ github.ref_name != 'main' }}
+          generate_release_notes: true
+
+  build-and-publish:
+    runs-on: ubuntu-latest
+    needs: create_release_version
+    env:
+      NEXT_TAG: ${{ needs.create_release_version.outputs.next_tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ env.NEXT_TAG }}  
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:latest
+          build-args: |
+            NEXT_PUBLIC_VERSION=${{ env.NEXT_TAG }}
+
+      - name: Verify Docker image
+        run: docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/ofd:${{ env.NEXT_TAG }} echo "Docker image verification successful"

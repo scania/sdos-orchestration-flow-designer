@@ -30,6 +30,26 @@
                 :endpointShape ;
     sh:targetClass :HTTPAction .
 
+
+:KafkaActionShape a sh:NodeShape ;
+    core:timestamp "2025-06-12T08:43:00"^^xsd:dateTime ;
+    rdfs:label "KafkaAction Shape"@en ;
+    rdfs:comment "Shape for validation of KafkaAction."@en ;
+    sh:property :hasNextActionShape ,
+                :inputParameterShape_optional ,
+                :outputParameterShape_optional ,
+                :hasSystemShape ,
+				:valueDeserializerShape,
+				:consumerTopicShape,
+				:keyDeserializerShape,
+				:enableAutoCommitShape,
+				:consumerPollDurationShape,
+				:consumerGroupIdShape,
+				:autoOffsetResetShape,
+				:maxPollRecordShape,
+                :hasConnectorShape ;
+    sh:targetClass :KafkaAction .
+
 :ResultActionShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "ResultAction Shape"@en ;
@@ -65,6 +85,7 @@
                 :soapOperationShape ;
     sh:targetClass :SOAPAction .
 
+
 :SparqlConvertActionShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "SparqlConvertAction Shape"@en ;
@@ -97,12 +118,12 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :hasScriptShape , 
+                :hasScriptShape ,
                 :scriptShape ;
     sh:targetClass :PythonScript .
 
 
- :GroovyScriptShape a sh:NodeShape ;
+:GroovyScriptShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "GroovyAction Shape"@en ;
     rdfs:comment "Shape for validation of GroovyAction."@en ;
@@ -111,9 +132,9 @@
                 :hasSystemShape ,
                 :hasNextActionShape ,
                 :hasContextShape ,
-                :hasScriptShape,  
+                :hasScriptShape,
                 :scriptShape ;
-    sh:targetClass :GroovyScript .   
+    sh:targetClass :GroovyScript .
 
 
 # AUTHENTICATION METHOD
@@ -166,10 +187,13 @@
     sh:targetClass :HTTPConnector .
 
 :KafkaConnectorShape a sh:NodeShape ;
-    core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
     rdfs:label "KafkaConnector Shape"@en ;
     rdfs:comment "Shape for validation of KafkaConnectors."@en ;
-    sh:property :baseUrlShape ;
+    sh:property :bootStrapServerShape ,
+	            :oauthTokenEndpointShape,
+                :hasAuthenticationMethodHTTPBearerTokenAuthenticationMethodShape,
+                :hasAuthenticationMethodHTTPBasicAuthenticationMethodShape;
     sh:targetClass :KafkaConnector .
 
 :SOAPConnectorShape a sh:NodeShape ;
@@ -230,14 +254,25 @@
     sh:targetClass :TokenCredentialsParameter .
 
 
+# METADATA
+#----------------
+:MetaDataShape a sh:NodeShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "MetaData Shape"@en ;
+    rdfs:comment "Shape for validation of MetaData."@en ;
+    sh:property :descriptionShape, :ooVersionShape, :titleShape ;
+    sh:node core_shapes:MetadataNodeShape ; # should inherit all constraints defined for core:Metadata
+    sh:targetClass :MetaData .
+
+
 # RESULTMETADATA
 #----------------
 :ResultMetaDataShape a sh:NodeShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "ResultMetaData Shape"@en ;
     rdfs:comment "Shape for validation of ResultMetaData."@en ;
-    sh:property :stateShape,
-                core_shapes:MetadataNodeShape ; # should contain all core:Metadata as well
+    sh:property :stateShape, :persistsShape ;
+    sh:node :MetaDataShape ; # should inherit all constraints defined for :MetaData
     sh:targetClass :ResultMetaData .
 
 
@@ -269,8 +304,10 @@
     rdfs:comment "Shape for validation of Tasks."@en ;
     sh:property :hasActionShape ,
                 :inputParameterShape_optional ,
-                :hasMetadataShape ,
-                :hasContextShape ;
+                :hasResultMetaDataShape ,
+                :hasContextShape ,
+                :databaseShape ,
+                :namedgraphShape ;
     sh:targetClass :Task .
 
 
@@ -339,6 +376,15 @@
     rdfs:comment "ScriptAction, SparqlConvertAction and Task need to have a JsonLdContext."@en ;
     sh:path :hasContext ;
     sh:class :JsonLdContext ;
+    sh:maxCount 1 .
+
+:hasResultMetaDataShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:15:00"^^xsd:dateTime ;
+    rdfs:label "hasResultMetaData Shape"@en ;
+    rdfs:comment "Task need to have a ResultMetaData."@en ;
+    sh:path :hasResultMetaData ;
+    sh:class :ResultMetaData ;
+    sh:minCount 1 ;
     sh:maxCount 1 .
 
 :hasNextActionShape a sh:PropertyShape ;
@@ -467,7 +513,7 @@
     sh:path :baseUrl ;
     sh:datatype xsd:string ;
     sh:pattern "^http" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :bindingNameShape a sh:PropertyShape ;
@@ -476,7 +522,7 @@
     rdfs:comment "Binding name of a SOAP Action should be a string"@en ;
     sh:path :bindingName ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :contextShape a sh:PropertyShape ;
@@ -488,7 +534,15 @@
     sh:minLength 30 ; # is minimum "{\"@context\":{\"x\":\"y\"}}", even though that context doesn't make much sense...
     # sh:pattern "^{" ,
     #            "}$" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
+    sh:maxCount 1 .
+
+:descriptionShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "description Shape"@en ;
+    rdfs:comment "description of the result metadata"@en ;
+    sh:path :description ;
+    sh:datatype xsd:string ;
     sh:maxCount 1 .
 
 :endpointShape a sh:PropertyShape ;
@@ -498,7 +552,7 @@
     sh:path :endpoint ;
     sh:datatype xsd:string ;
     sh:pattern "^/" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :httpBodyShape a sh:PropertyShape ;
@@ -528,13 +582,21 @@
     sh:datatype xsd:string ;
     sh:maxCount 1 .
 
+:ooVersionShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "ooVersion Shape"@en ;
+    rdfs:comment "version of the orchestration ontology."@en ;
+    sh:path :ooVersion ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 .
+
 :paramNameShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "paramName Shape"@en ;
     rdfs:comment "paramName should be string and be defined exactly once for a Standard Parameter."@en ;
     sh:path :paramName ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :queryShape a sh:PropertyShape ;
@@ -554,7 +616,7 @@
     sh:path :script ;
     sh:datatype xsd:string ;
     sh:minLength 200;  # Any (groovy) script would at least be 200chars due to imports and parsing of input/outputParameter and context
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :soapOperationShape a sh:PropertyShape ;
@@ -563,7 +625,7 @@
     rdfs:comment "A SOAP operation is a string for the KeyName for the SOAP Action"@en ;
     sh:path :soapOperation ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :stateShape a sh:PropertyShape ;
@@ -574,14 +636,30 @@
     sh:datatype xsd:string ;
     sh:maxCount 1 .
 
+:persistsShape a sh:PropertyShape ;
+    core:timestamp "2025-07-16T14:01:00"^^xsd:dateTime ;
+    rdfs:label "persists Shape"@en ;
+    rdfs:comment "persistence of the result graph."@en ;
+    sh:path :persists ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 .
+
+:titleShape a sh:PropertyShape ;
+    core:timestamp "2025-07-22T14:45:00"^^xsd:dateTime ;
+    rdfs:label "title Shape"@en ;
+    rdfs:comment "title of the result metadata."@en ;
+    sh:path :title ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 .
+
 :tokenShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "token Shape"@en ;
-    rdfs:comment "token should be a string and empty"@en ;
+    rdfs:comment "token should be a string"@en ;
     sh:path :token ;
     sh:datatype xsd:string ;
     sh:hasValue "" ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
 :wsdlFileShape a sh:PropertyShape ;
@@ -590,28 +668,137 @@
     rdfs:comment "WSDL File for a SOAP connector should be a string"@en ;
     sh:path :wsdlFile ;
     sh:datatype xsd:string ;
-    sh:minCount 1 ;
+    sh:minCount 0 ;
     sh:maxCount 1 .
 
-    # Adding properties 
+    # Adding properties
     :usernameShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "username Shape"@en ;
     rdfs:comment "Enter Username "@en ;
     sh:path :username ;
     sh:datatype xsd:string ;
-    sh:minLength 50;  
-    sh:minCount 1;
+    sh:minCount 0;
     sh:maxCount 1 .
 
-    # Adding properties 
+    # Adding properties
     :passwordShape a sh:PropertyShape ;
     core:timestamp "2023-04-14T08:43:00"^^xsd:dateTime ;
     rdfs:label "Enter a password with at least 8 characters, including uppercase, lowercase, numbers, and special characters (!@#$%^&*)"@en ;
     rdfs:comment "Enter Password "@en ;
     sh:path :password ;
     sh:datatype xsd:string ;
-    sh:pattern "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,}$";
-    sh:minLength 50;  
-    sh:minCount 1;
+    sh:minCount 0;
+    sh:maxCount 1.
+
+:valueDeserializerShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "value Deserializer Shape"@en ;
+    rdfs:comment "value to deserialize the Kafka message value"@en ;
+    sh:path :valueDeserializer ;
+    sh:datatype xsd:string ;
+	sh:in ( "string" "json"  ) ;
+    sh:minCount 1 ;
     sh:maxCount 1 .
+
+:consumerTopicShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "consumer Topic Shape"@en ;
+    rdfs:comment "topic to subscribe for consuming Kafka messages"@en ;
+    sh:path :consumerTopic ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:keyDeserializerShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "key Deserializer Shape"@en ;
+    rdfs:comment "value to deserialize the Kafka message key"@en ;
+    sh:path :keyDeserializer ;
+    sh:datatype xsd:string ;
+	sh:in ( "string" "json"  ) ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:enableAutoCommitShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "enable AutoCommit Shape"@en ;
+    rdfs:comment "value to controll autocommit behaviour"@en ;
+    sh:path :enableAutoCommit ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:consumerPollDurationShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "consumerPollDuration Shape"@en ;
+    rdfs:comment "value to define the consumer poll duration"@en ;
+    sh:path :consumerPollDuration ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:consumerGroupIdShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "consumer Group Id Shape"@en ;
+    rdfs:comment "value to define the consumer group id for kafka connection"@en ;
+    sh:path :consumerGroupId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:autoOffsetResetShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "autoOffset Reset Shape"@en ;
+    rdfs:comment "value which controll offsetRest behaviour for kafka message consumption"@en ;
+    sh:path :autoOffsetReset ;
+    sh:datatype xsd:string ;
+	sh:in ( "earliest" "latest" "none" ) ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:maxPollRecordShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "maxPoll Record Shape"@en ;
+    rdfs:comment "value to define the maximum record size to poll from Kafka partition"@en ;
+    sh:path :maxPollRecord ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:bootStrapServerShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "bootStrap ServerShape"@en ;
+    rdfs:comment "endpoint value to connect to Kafka Streaming"@en ;
+    sh:path :bootStrapServer ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:oauthTokenEndpointShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "oauthToken Endpoint Shape"@en ;
+    rdfs:comment "endpoint for authentication to connect to Kafka Streaming"@en ;
+    sh:path :oauthTokenEndpoint ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 .
+
+:databaseShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "database Shape"@en ;
+    rdfs:comment "Task database for ResultAction if connector is defined."@en ;
+    sh:path :database ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    sh:maxCount 1 .
+
+:namedgraphShape a sh:PropertyShape ;
+    core:timestamp "2025-06-13T08:43:00"^^xsd:dateTime ;
+    rdfs:label "namedgraph Shape"@en ;
+    rdfs:comment "Task namedgraph for ResultAction if connector is defined."@en ;
+    sh:path :namedgraph ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:pattern "^([a-zA-Z][a-zA-Z0-9+.-]*:[^\\s<>\\\"]+)$" .

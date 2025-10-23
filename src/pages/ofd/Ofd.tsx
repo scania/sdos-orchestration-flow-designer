@@ -21,21 +21,26 @@ import ReactFlow, {
   Node,
   ReactFlowProvider,
   useEdgesState,
-  useKeyPress,
   useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import CustomEdge from "../../components/CustomEdge/CustomEdge";
 import SelectionMenu from "../../components/ActionsMenu/EdgeSelectionMenu";
 import CircularNode from "../../components/CircularNode.tsx";
-import DynamicForm from "./DynamicForm";
+import ClassForm from "./ClassForm";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import styles from "./ofd.module.scss";
 import { randomizeValue, captureCursorPosition } from "../../helpers/helper";
-import Toast, { ToastItem } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
 import ActionToolbar from "@/components/ActionToolbar/ActionToolbar";
-import ConnectionLine from '@/components/ConnectionLine/ConnectionLine';
-import useOfdStore from '@/store/ofdStore';
+import ConnectionLine from "@/components/ConnectionLine/ConnectionLine";
+import useOfdStore from "@/store/ofdStore";
+import userPreferencesStore from "@/store/userPreferencesStore"; // Import the Zustand store
+import { TdsButton } from "@scania/tegel-react";
+
+const edgeTypes = {
+  "custom-edge": CustomEdge,
+};
 
 const nodeTypes = {
   input: CircularNode,
@@ -74,15 +79,20 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   //@ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState();
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [listOfToasts, setListOfToasts] = useState<ToastItem[]>([]);
+  const { showToast } = useToast();
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const selectedNode = useOfdStore((state) => state.selectedNode);
+  const setSelectedNode = useOfdStore((state) => state.setSelectedNode);
   const [isPendingClassDetailsAction, setIsPendingClassDetailsAction] =
     useState(false);
-  const [highlightedClassLabel, setHighlightedClassLabel] =
-    useState<string>("");
+  const [highlightedClass, setHighlightedClass] = useState<{
+    label: string;
+    type: string;
+  }>({
+    label: "",
+    type: "",
+  });
   const router = useRouter();
-  const deletePressed = useKeyPress(["Delete"]);
   const [dropInfo, setDropInfo] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [droppedClassName, setDroppedClassName] = useState<null | string>(null);
@@ -91,6 +101,11 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const setSetupMode = useOfdStore((state) => state.setSetupMode);
   const addConnectedEdges = useOfdStore((state) => state.addConnectedEdges);
   const clearConnectedEdges = useOfdStore((state) => state.clearConnectedEdges);
+  const doubleClickToEnterSetupMode = userPreferencesStore(
+    (state) => state.doubleClickToEnterSetupMode
+  );
+  const isGraphEditable = useOfdStore((state) => state.isGraphEditable);
+  const setIsGraphEditable = useOfdStore((state) => state.setIsGraphEditable);
 
   const [edgeSelections, setEdgeSelections] = useState<string[]>([]);
   const [connectionParams, setConnectionParams] = useState<
@@ -122,21 +137,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   );
 
-  const showToast = (
-    variant: string,
-    header: string,
-    description: string,
-    timeout?: number
-  ) => {
-    const toastProperties = {
-      variant,
-      header,
-      description,
-      timeout,
-    };
-    setListOfToasts([...listOfToasts, toastProperties]);
-  };
-
   const resetEdgeSelection = () => {
     setConnectionParams(null);
     setEdgeSelections([]);
@@ -144,11 +144,9 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     setIsPopoverOpen(false);
   };
 
-  const isNodeDeletable = () => {
-    if (!isEditable) return false;
-    if (selectedNode?.data?.label === "Task") return false;
-    return true;
-  };
+  useEffect(() => {
+    setIsGraphEditable(isEditable);
+  }, [isEditable]);
 
   const onEdgeSelect = (path: string) => {
     setEdges((eds) => {
@@ -174,11 +172,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     return [];
   }, [selectedNode, setupMode]);
 
-  useEffect(() => {
-    exitSetupMode();
-    setSelectedNode(null);
-  }, [deletePressed]);
-
   const saveData = async (data: GraphBody) => {
     const response = await axios.post(`${apiBaseUrl}/api/persist`, data);
     return response.data;
@@ -201,6 +194,31 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     },
   });
 
+  type EdgePredicate = {
+    label: string;
+    iri: string;
+  };
+
+  const REQUIRED_EDGES: EdgePredicate[] = [
+    {
+      label: "input Parameter",
+      iri: "https://kg.scania.com/it/iris_orchestration/inputParameter",
+    },
+    {
+      label: "result Metadata",
+      iri: "https://kg.scania.com/it/iris_orchestration/hasResultMetaData",
+    },
+  ];
+
+  const getMissingForTask = (task: Node, edges: Edge[]): string[] => {
+    const taskEdges = edges.filter(
+      (e) => e.source === task.id || e.target === task.id
+    );
+
+    return REQUIRED_EDGES.filter(
+      ({ iri }) => !taskEdges.some((e) => e.data && e.data[iri])
+    ).map(({ label }) => label);
+  };
   // TODO: more comprehensive shacl validation,
   // this only checks for at least one input Parameter,
   // without which leads to sdos error
@@ -221,6 +239,15 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     });
     return invalidTasks.length === 0;
   };
+  const validateGraph = (nodes: Node[], edges: Edge[]) => {
+    const taskNodes = nodes.filter((n) => n.data.label === "Task");
+
+    const invalid = taskNodes
+      .map((task) => ({ id: task.id, missing: getMissingForTask(task, edges) }))
+      .filter(({ missing }) => missing.length);
+
+    return invalid; // empty array ⇒ graph is valid
+  };
 
   const handleSaveClick = (saveType: string) => {
     let isDraftSave = false;
@@ -231,12 +258,13 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     if (!graphName) {
       showToast("error", "Validation Error", "Graph Name should be set");
     }
-    if (!isGraphValid(nodes, edges) && !isDraftSave) {
-      showToast(
-        "error",
-        "Validation Error",
-        "Task node must be connected to at least one input Parameter."
-      );
+    const invalid = validateGraph(nodes, edges);
+    if (invalid.length && !isDraftSave) {
+      const message = invalid
+        .map(({ missing }) => `Task is missing: ${missing.join(", ")}.`)
+        .join("\n");
+
+      showToast("error", "Validation Error", message);
       return;
     }
     const payload = {
@@ -266,12 +294,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const exitSetupMode = useCallback(() => {
     setSelectedNode(null);
     setSetupMode(false);
-    setHighlightedClassLabel("");
+    setHighlightedClass({ label: "", type: "" });
   }, [setSelectedNode, setSetupMode]);
-
-  const edgeTypes = {
-    "custom-edge": CustomEdge,
-  };
 
   const onConnect = useCallback(
     (params: Edge<any> | Connection) => {
@@ -296,7 +320,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 
   const addToGraph = () => {
     if (!isEditable) return;
-    const cleanedType = highlightedClassLabel.replace(/\s+/g, "");
+    const cleanedType = highlightedClass.label.replace(/\s+/g, "");
     setDroppedClassName(cleanedType);
     // Get the bounding box of the graph area
     const { width, height } = reactFlowWrapper.current.getBoundingClientRect();
@@ -309,12 +333,12 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
 
     // Store event-related data for later use
     setDropInfo({
-      type: highlightedClassLabel,
+      type: highlightedClass.label,
       position: position,
     });
 
     setIsPendingClassDetailsAction(true);
-    setHighlightedClassLabel("");
+    setHighlightedClass({ label: "", type: "" });
   };
 
   const onDragOver = useCallback((event: any) => {
@@ -391,7 +415,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
     }
   }, [classDetails, isPendingClassDetailsAction, dropInfo]);
 
-  
   const { data: classes, isLoading } = useQuery(
     "classes",
     () =>
@@ -408,7 +431,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
       staleTime: Infinity,
     }
   );
-  
 
   function handleClassOnDrag(e: React.DragEvent, nodeType: any) {
     e.dataTransfer.setData("application/reactflow", nodeType);
@@ -423,8 +445,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
   const handleNodeClick = (event: React.MouseEvent, node: Node) => {
     clearConnectedEdges();
     setSelectedNode(node);
-    const x = getConnectedEdges([node], edges)
-    addConnectedEdges(x);
+    const connectedEdges = getConnectedEdges([node], edges);
+    addConnectedEdges(connectedEdges);
   };
 
   const handleNodeDragStart = (event: React.MouseEvent, node: Node) => {
@@ -490,8 +512,8 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
           selectedNode={selectedNode}
           classes={classes}
           secondaryProperties={secondaryProperties}
-          highlightedClassLabel={highlightedClassLabel}
-          setHighlightedClassLabel={setHighlightedClassLabel}
+          highlightedClass={highlightedClass}
+          setHighlightedClass={setHighlightedClass}
           handleOnDrag={handleClassOnDrag}
           addToGraph={addToGraph}
           isEditable={isEditable}
@@ -522,7 +544,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                 className="reactflow-wrapper"
                 ref={reactFlowWrapper}
                 style={{
-                  height: "calc(100vh - 200px)",
+                  height: "calc(100vh - 116px)",
                   position: "relative",
                 }}
               >
@@ -530,7 +552,6 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   onPaneClick={handlePaneClick}
                   nodes={nodes}
                   edges={edges}
-                  deleteKeyCode={isNodeDeletable() ? "Delete" : null}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   connectionLineComponent={ConnectionLine}
@@ -542,19 +563,30 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   fitView
                   fitViewOptions={{ maxZoom: 1 }}
                   onNodeClick={handleNodeClick}
+                  deleteKeyCode={null}
+                  // Doubleclick triggers single click aswell, so we only need to enter setup-mode
+                  onDoubleClick={
+                    doubleClickToEnterSetupMode
+                      ? () => setSetupMode(true)
+                      : null
+                  }
                   onNodeDragStart={handleNodeDragStart}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}
                   nodesDraggable={isEditable}
                   nodesConnectable={isEditable}
                 >
-                  <Controls style={{ display: "flex" }} position="top-center" />
+                  <Controls
+                    style={{ display: "flex" }}
+                    position="top-center"
+                    showInteractive={false}
+                  />
                   {/* @ts-ignore */}
                   <Background />
                 </ReactFlow>
                 {setupMode && selectedNode && (
                   <div className={styles.form}>
-                    <DynamicForm
+                    <ClassForm
                       key={selectedNode.id}
                       formData={selectedNode.data?.formData}
                       onSubmit={handleFormSubmit}
@@ -568,7 +600,7 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
             </ReactFlowProvider>
             <div className={styles["setup-button"]}>
               {selectedNode && !setupMode ? (
-                <tds-button
+                <TdsButton
                   type="button"
                   variant="primary"
                   size="md"
@@ -576,26 +608,25 @@ const ForceGraphComponent: React.FC<ForceGraphProps> = ({
                   mode-variant="primary"
                   onClick={() => {
                     setSetupMode(true);
-                    setHighlightedClassLabel("");
+                    setHighlightedClass({ label: "", type: "" });
                   }}
-                ></tds-button>
+                ></TdsButton>
               ) : null}
 
               {setupMode ? (
-                <tds-button
+                <TdsButton
                   type="button"
                   variant="secondary"
                   size="md"
                   text="Leave setup"
                   mode-variant="secondary"
                   onClick={exitSetupMode}
-                ></tds-button>
+                ></TdsButton>
               ) : null}
             </div>
           </div>
         </section>
       </div>
-      <Toast listOfToasts={listOfToasts} setListOfToasts={setListOfToasts} />
     </div>
   );
 };

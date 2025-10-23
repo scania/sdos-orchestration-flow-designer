@@ -8,22 +8,22 @@
   border: none !important;
 }
 
-.react-flow__background {
-  background-color: #f9fafb;
-}
+
 
 /* Handle for the nodes where you can start/stop dragging */
 .react-flow__handle {
-  width: 12px !important;
-  height: 12px !important;
-  background: #555 !important;
+  width: 16px !important;
+  height: 16px !important;
+  background: #4f4f4f !important;
+  border: 2px solid rgb(255 255 255) !important;
+  box-shadow: 0px 0px 1px 1px black;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #2058A8 !important; 
+  stroke: #2058A8 !important;
 }
 
-.react-flow__edge-path{
+.react-flow__edge-path {
   stroke: #37414F !important;
 }
 
@@ -36,11 +36,30 @@
 }
 
 .react-flow__handle-right {
-  right: -6px !important;
+  right: -7px !important;
 }
 
 .react-flow__handle-left {
-  left: -6px !important;
+  left: -7px !important;
+}
+
+.react-flow__attribution{
+  background-color: rgba(255,255,255,.1) !important;
+}
+
+.react-flow__node-default.selectable.selected,
+.react-flow__node-default.selectable:focus,
+.react-flow__node-default.selectable:focus-visible,
+.react-flow__node-input.selectable.selected,
+.react-flow__node-input.selectable:focus,
+.react-flow__node-input.selectable:focus-visible,
+.react-flow__node-output.selectable.selected,
+.react-flow__node-output.selectable:focus,
+.react-flow__node-output.selectable:focus-visible,
+.react-flow__node-group.selectable.selected,
+.react-flow__node-group.selectable:focus,
+.react-flow__node-group.selectable:focus-visible {
+  box-shadow: none !important;
 }
 
 /* React flow offers custom edges(https://reactflow.dev/examples/edges/custom-edges)

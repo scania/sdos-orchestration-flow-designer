@@ -1,0 +1,77 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix core: <http://kg.scania.com/core/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix shapes: <https://kg.scania.com/core/shapes/> .
+
+shapes:MetadataNodeShape a sh:NodeShape;
+	core:timestamp "2024-02-13T13:01:52.339Z"^^xsd:dateTime;
+	sh:targetClass core:Metadata;
+	sh:property
+		shapes:graphTypeShape,
+		shapes:graphCreatorShape,
+		shapes:graphContributorShape,
+		shapes:graphInformationResponsibleShape;
+	sh:nodeKind sh:IRI .
+
+shapes:graphTypeShape a sh:PropertyShape;
+	core:timestamp "2024-02-13T13:01:52.339Z"^^xsd:dateTime; 	
+	sh:path core:graphType;
+    sh:datatype xsd:string;
+	sh:in ("PUBLIC" "SEMIPUBLIC" "PRIVATE");
+    sh:minCount 1;
+	sh:maxCount 1;
+    sh:name "Graph type";
+    sh:description "Graph type can be any of the predefined values: \"PUBLIC\", \"SEMIPUBLIC\", or \"PRIVATE\"..";
+    sh:severity sh:Violation;
+    sh:message "Violation in rdfs:range value of graphType property. Must be one of: \"PUBLIC\", \"SEMIPUBLIC\", or \"PRIVATE\".";
+    sh:nodeKind sh:Literal .
+
+shapes:graphCreatorShape a sh:PropertyShape;
+	core:timestamp "2024-02-13T13:01:52.339Z"^^xsd:dateTime ; 
+    sh:path core:creator;
+    sh:datatype xsd:string;
+	sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+    sh:minCount 1;
+	sh:maxCount 1;
+    sh:minLength 10;
+    sh:maxLength 255;
+    sh:name "Core Creator";
+    sh:description "The creator and owner of the generated graph.";
+    sh:severity sh:Violation;
+    sh:message "There must be exactly one literal value for core:creator without a language tag and between 10 and 255 characters in length.";
+    sh:nodeKind sh:Literal.
+	
+shapes:graphContributorShape a sh:PropertyShape;
+	core:timestamp "2024-02-13T13:01:52.339Z"^^xsd:dateTime; 
+    sh:path core:contributor;
+    sh:datatype xsd:string;
+	sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+	sh:minCount 1;
+    sh:minLength 10;
+    sh:maxLength 255;
+    sh:name "Core Contributor";
+    sh:description "The contributor of the generated graph.";
+    sh:severity sh:Warning;
+    sh:message "There can be 0 or many literal values for core:contributor without a language tag and between 10 and 255 characters in length. Core contributor is an optional field. However, it is suggested to define the respective contributors, as their values can affect the access and security of the graph.";
+    sh:nodeKind sh:Literal .
+
+shapes:graphInformationResponsibleShape a sh:PropertyShape;
+	core:timestamp "2024-02-13T13:01:52.339Z"^^xsd:dateTime; 
+    sh:path core:informationResponsible;
+    sh:datatype xsd:string;
+	sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+    sh:minCount 1;
+	sh:maxCount 1;
+    sh:minLength 10;
+    sh:maxLength 255;
+    sh:name "Core Information Responsible";
+    sh:description "The information responsible is accountable for approving the defined knowledge in the generated graph.";
+    sh:severity sh:Violation;
+    sh:message "There must be exactly one literal value for core:informationResponsible, provided as an email account, with a length ranging from 10 to 255 characters.";
+    sh:nodeKind sh:Literal .
+
