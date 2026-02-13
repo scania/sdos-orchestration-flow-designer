@@ -718,3 +718,103 @@ dct:title rdf:type owl:AnnotationProperty .
             rdfs:comment "Specifies the name of the graph, where the result will be saved after execution."@en ;
             rdfs:isDefinedBy "https://kg.scania.com/it/iris_orchestration" ;
             rdfs:label "namedgraph"@en .
+
+
+### https://kg.scania.com/it/iris_orchestration/consumerPollDuration
+:consumerPollDuration rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                      core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime ;
+                      rdfs:range xsd:integer ;
+                      rdfs:comment "value to define the consumer poll duration."@en ;
+                      rdfs:label "consumer Poll Duration"@en ;
+                      rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :KafkaAction .
+
+
+### https://kg.scania.com/it/iris_orchestration/autoOffsetReset
+:autoOffsetReset rdfs:range xsd:string ;
+                 rdfs:domain :KafkaAction ;
+                 rdfs:comment "value which controls offset to start for kafka message consumption."@en ;
+                 core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime ;
+                 rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                 rdf:type owl:DatatypeProperty ;
+                 rdfs:label "autoOffset Reset"@en .
+
+
+### https://kg.scania.com/it/iris_orchestration/valueDeserializer
+:valueDeserializer rdfs:label "value Deserializer"@en ;
+                   rdf:type owl:DatatypeProperty ;
+                   rdfs:comment "value used to deserialize the value of Kafka messages."@en ;
+                   rdfs:range xsd:string ;
+                   rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                   rdfs:domain :KafkaAction ;
+                   core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime .
+
+
+### https://kg.scania.com/it/iris_orchestration/consumerTopic
+:consumerTopic core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+               rdf:type owl:DatatypeProperty ;
+               rdfs:label "consumer Topic"@en ;
+               rdfs:comment "Consumer topic to connect and consume kafka messages"@en ;
+               rdfs:range xsd:string ;
+               rdfs:domain :KafkaAction .
+
+
+### https://kg.scania.com/it/iris_orchestration/oauthTokenEndpoint
+:oauthTokenEndpoint rdfs:label "oauthToken Endpoint"@en ;
+                    rdfs:domain :KafkaConnector ;
+                    rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    rdfs:comment "endpoint value for authentication to connect for Kafka messages."@en ;
+                    rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                    core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime .
+
+
+### https://kg.scania.com/it/iris_orchestration/enableAutoCommit
+:enableAutoCommit rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                  rdfs:comment "value to control autocommit behaviour for offset management"@en ;
+                  rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:boolean ;
+                  rdfs:label "enable AutoCommit"@en ;
+                  rdfs:domain :KafkaAction ;
+                  core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime .
+
+
+### https://kg.scania.com/it/iris_orchestration/bootStrapServer
+:bootStrapServer rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :KafkaConnector ;
+                 rdfs:comment "endpoint value to connect to Kafka messages."@en ;
+                 rdfs:range xsd:string ;
+                 rdfs:label "bootStrap Server"@en ;
+                 core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime ;
+                 rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> .
+
+
+### https://kg.scania.com/it/iris_orchestration/keyDeserializer
+:keyDeserializer rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                 core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime ;
+                 rdfs:comment "value used to deserialize the key of Kafka messages."@en ;
+                 rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 rdfs:domain :KafkaAction ;
+                 rdfs:label "key Deserializer"@en .
+
+
+### https://kg.scania.com/it/iris_orchestration/consumerGroupId
+:consumerGroupId rdfs:range xsd:string ;
+                 rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> ;
+                 rdfs:domain :KafkaAction ;
+                 core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime ;
+                 rdfs:comment "value to define the consumer group id for kafka connection"@en ;
+                 rdf:type owl:DatatypeProperty ;
+                 rdfs:label "consumer Group Id"@en .
+
+
+### https://kg.scania.com/it/iris_orchestration/maxPollRecord
+:maxPollRecord rdfs:comment "value to define the maximum record size to poll from Kafka partition."@en ;
+               rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:integer ;
+               rdfs:domain :KafkaAction ;
+               core:timestamp "2025-06-16T15:00:00"^^xsd:dateTime ;
+               rdfs:label "max PollRecord"@en ;
+               rdfs:isDefinedBy <https://kg.scania.com/it/iris_orchestration> .
